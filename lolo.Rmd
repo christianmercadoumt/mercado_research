@@ -1,0 +1,29 @@
+---
+title: "lolo"
+author: "Christian M"
+date: "October 2, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+#### **Reading in the data**
+
+1. Make sure tidyverse is loaded (to use the pipe function %>%)
+2. List files in directory (within data folder)
+3. Combine each file into one data frame (or tibble)
+
+```{r}
+lolo_data <- fs::dir_ls("data/lolo")
+lolo_data %>% map_dfr(read_csv)
+```
+
+#### **placeholder**
+
+```{r}
+
+```
+
