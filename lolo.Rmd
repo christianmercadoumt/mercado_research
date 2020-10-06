@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
 ```
 
-#### **Reading in the data**
+**Reading in the data**
 
 1. Make sure tidyverse is loaded (to use the pipe function %>%)
 2. List files in directory (within data folder)
@@ -18,10 +18,28 @@ library(tidyverse)
 
 ```{r}
 lolo_data <- fs::dir_ls("data/lolo")
-lolo_data %>% map_dfr(read_csv)
+lolo_all_raw <- lolo_data %>% map_dfr(read_csv)
 ```
 
-#### **placeholder**
+**Decluttering**
+
+1. Omitting data (SET_CN, PLOT_CN, TREE_CN, TAG_ID, AZIMUTH, DISTANCE, SNAD_DECA and disturbance items.
+
+2. There are `r length(unique(lolo_omit$SETTING_ID))` stands in the lolo dataset.
+
+3. There are `r length(unique(lolo_omit$MEASUREMENT_DATE))` different measurement dates.
+a. Goal - Separate out dates by year.
+  Options: lubridate package?
+
+
+```{r}
+lolo_omit <- select(lolo_all_raw, SETTING_ID, MEASUREMENT_DATE, MEASUREMENT_NO, PURPOSE_CODE, PLOT, SUBPLOT, LIVE_DEAD, SPECIES_SYMBOL, DIAMETER, TPA_EQUIV, BASAL_AREA_EQUIV, HEIGHT, CROWN_RATIO, CROWN_CLASS, AGE, RADIAL_GROWTH, HEIGHT_GROWTH)
+
+unique(lolo_omit$SETTING_ID)
+length(unique(lolo_omit$SETTING_ID))
+```
+
+**Separating Some Variable - Placeholder**
 
 ```{r}
 
