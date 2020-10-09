@@ -50,8 +50,28 @@ length(unique(lolo_omit$SETTING_ID))
 a. clean up dates, extract useful info
 
 
+
+
 ```{r}
-ggplot(lolo1a, aes(x = DIAMETER, y = HEIGHT, color = PURPOSE_CODE)) + geom_point() +
-  geom_smooth(method = lm, se = F)
+stand1 <- lolo1a[lolo1a$SETTING_ID == "01160304010002", ]
+stand1 <- stand1[stand1$myear == 1987, ]
+stand1 <- stand1[round(stand1$PLOT, -2) == 100, ]
+```
+
+
+```{r}
+ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)
+```
+
+```{r}
+hdplot <- function(settingID, year, cluster) {
+
+stand1 <- lolo1a[lolo1a$SETTING_ID == settingID, ]
+stand1 <- stand1[stand1$myear == year, ]
+stand1 <- stand1[round(stand1$PLOT, -2) == cluster, ]
+
+ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)}
+
+hdplot("01160304010002", 1987, 200)
 ```
 
