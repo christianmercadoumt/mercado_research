@@ -63,6 +63,8 @@ stand1 <- stand1[round(stand1$PLOT, -2) == 100, ]
 ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)
 ```
 
+Creating Height vs. Diameter plot for selected stand, year, cluster.
+
 ```{r}
 hdplot <- function(settingID, year, cluster) {
 
@@ -73,5 +75,49 @@ stand1 <- stand1[round(stand1$PLOT, -2) == cluster, ]
 ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)}
 
 hdplot("01160304010002", 1987, 200)
+```
+
+Reproducing the above with dplyr
+
+```{r, fig.show='hold', out.width='50%'}
+hdplot1 <- function(settingID, year, cluster) {
+  
+a <- filter(lolo1a, SETTING_ID == settingID,  myear == year, round(PLOT, -2) == cluster)
+
+ggplot(a, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() +
+  geom_smooth(se = F)
+}
+hdplot1("01160304010002", 1987, 200)
+hdplot1("01160304010002", 2000, 200)
+```
+
+```{r}
+# Diameter vs. year. It would make sense to show mean diameter or QMD and exclude the sublplot data
+#how do you plot the mean/qmd other sample statistics when 
+
+a <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 100, SPECIES_SYMBOL == "ABLA")
+
+ggplot(a, aes(x = myear, y = DIAMETER)) + geom_boxplot()
+
+```
+
+
+
+
+```{r}
+#This is incomplete and needs work
+
+
+#data set then filter cluster then count unique values in livedead then extract the vector then extract desired value from vecture (Live) / "" (Dead)
+lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2)/
+lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1)
+
+ldratioplot <- function(cluster) {}
+  
+ratio <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 200) %>% mutate(live = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2), dead = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1))
+
+ggplot(ratio, aes(x = myear, y = (live/dead))) + geom_point()
+
+
 ```
 
