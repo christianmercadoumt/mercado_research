@@ -63,9 +63,12 @@ stand1 <- stand1[round(stand1$PLOT, -2) == 100, ]
 ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)
 ```
 
-Creating Height vs. Diameter plot for selected stand, year, cluster.
+
 
 ```{r}
+
+#Creating Height vs. Diameter plot for selected stand, year, cluster.
+
 hdplot <- function(settingID, year, cluster) {
 
 stand1 <- lolo1a[lolo1a$SETTING_ID == settingID, ]
@@ -77,9 +80,12 @@ ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_poi
 hdplot("01160304010002", 1987, 200)
 ```
 
-Reproducing the above with dplyr
+
 
 ```{r, fig.show='hold', out.width='50%'}
+
+#Reproducing the above with dplyr
+
 hdplot1 <- function(settingID, year, cluster) {
   
 a <- filter(lolo1a, SETTING_ID == settingID,  myear == year, round(PLOT, -2) == cluster)
@@ -92,8 +98,8 @@ hdplot1("01160304010002", 2000, 200)
 ```
 
 ```{r}
-# Diameter vs. year. It would make sense to show mean diameter or QMD and exclude the sublplot data
-#how do you plot the mean/qmd other sample statistics when 
+# Diameter vs. year boxplots for a given cluster. It would make sense to show mean diameter or QMD and exclude the sublplot data
+
 
 a <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 100, SPECIES_SYMBOL == "ABLA")
 
@@ -105,7 +111,7 @@ ggplot(a, aes(x = myear, y = DIAMETER)) + geom_boxplot()
 
 
 ```{r}
-#This is incomplete and needs work
+#This is incomplete and needs work. Goal was to find a L/D ratio and then plot it. 
 
 
 #data set then filter cluster then count unique values in livedead then extract the vector then extract desired value from vecture (Live) / "" (Dead)
@@ -132,7 +138,7 @@ lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SE
 ##ggplot(a, aes(x = myear, y = LIVE_DEAD, color = SETTING_ID)) + geom_point()
 #}
 
-#The above presents a tibble which shows the count of live trees in a plot cluster at a given year. Current issue: the average tpa column is skewed by subplot data
+#The above presents a tibble which shows the count of live trees in a plot cluster at a given year. Current issue: the average tpa column is confounded by subplot data
 
 lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
 ```
