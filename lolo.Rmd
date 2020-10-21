@@ -130,16 +130,22 @@ ggplot(ratio, aes(x = myear, y = (live/dead))) + geom_point()
 ```{r}
 #For any cluster year, how many live trees/acre??
 
-##live_trees <- function(year, cluster){
-  
-##a <- 
-lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, tpa = mean(TPA_EQUIV, na.rm = T)) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
+#pull data, then select rows with tpa (expansion factor) = 20, then select desired variables (columns) then, group by (this is only a formality), then turn L's into 1's while omitting D's, then count the 1's and compress each plot into one row per measure year, then rename variable
 
+#lolo1a %>% filter(TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
+
+#live_trees <- function(stand, cluster){
+  
+a <- lolo1a %>% filter(SETTING_ID == "01160304010002", TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
+
+ggplot(a, aes(x = myear, y = live_tpa, color = cluster)) + geom_point() + geom_line()
 ##ggplot(a, aes(x = myear, y = LIVE_DEAD, color = SETTING_ID)) + geom_point()
 #}
 
 #The above presents a tibble which shows the count of live trees in a plot cluster at a given year. Current issue: the average tpa column is confounded by subplot data
 
-lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
+#lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
+
+
 ```
 
