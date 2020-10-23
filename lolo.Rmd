@@ -136,9 +136,10 @@ ggplot(ratio, aes(x = myear, y = (live/dead))) + geom_point()
 
 #live_trees <- function(stand, cluster){
   
-a <- lolo1a %>% filter(SETTING_ID == "01160304010002", TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
+#a <- 
+lolo1a %>% filter(SETTING_ID == "01160304010002", TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
 
-ggplot(a, aes(x = myear, y = live_tpa, color = cluster)) + geom_point() + geom_line()
+ggplot(a, aes(x = myear, y = live_tpa, color = cluster)) + geom_point()
 ##ggplot(a, aes(x = myear, y = LIVE_DEAD, color = SETTING_ID)) + geom_point()
 #}
 
@@ -146,6 +147,6 @@ ggplot(a, aes(x = myear, y = live_tpa, color = cluster)) + geom_point() + geom_l
 
 #lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
 
-
+#%>% summarize(cluster = round(cluster, -2))
 ```
 
