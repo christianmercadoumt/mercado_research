@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+#RUN THS
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
 ```
@@ -17,6 +18,7 @@ library(tidyverse)
 3. Combine each file into one data frame (or tibble)
 
 ```{r}
+#RUN THIS
 lolo_data <- fs::dir_ls("data/lolo")
 lolo_all_raw <- lolo_data %>% map_dfr(read_csv)
 ```
@@ -26,6 +28,7 @@ lolo_all_raw <- lolo_data %>% map_dfr(read_csv)
 
 
 ```{r}
+#RUN THIS
 #omitting data that isn't immediately useful
 
 lolo_omit <- select(lolo_all_raw, SETTING_ID, MEASUREMENT_DATE, MEASUREMENT_NO, PURPOSE_CODE, PLOT, SUBPLOT, LIVE_DEAD, SPECIES_SYMBOL, DIAMETER, TPA_EQUIV, BASAL_AREA_EQUIV, HEIGHT, CROWN_RATIO, CROWN_CLASS, AGE, RADIAL_GROWTH, HEIGHT_GROWTH)
@@ -108,24 +111,6 @@ ggplot(a, aes(x = myear, y = DIAMETER)) + geom_boxplot()
 ```
 
 
-
-
-```{r}
-#This is incomplete and needs work. Goal was to find a L/D ratio and then plot it. 
-
-
-#data set then filter cluster then count unique values in livedead then extract the vector then extract desired value from vecture (Live) / "" (Dead)
-lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2)/
-lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1)
-
-ldratioplot <- function(cluster) {}
-  
-ratio <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 200) %>% mutate(live = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2), dead = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1))
-
-ggplot(ratio, aes(x = myear, y = (live/dead))) + geom_point()
-
-
-```
 
 ```{r}
 #For any cluster year, how many live trees/acre??
