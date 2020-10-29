@@ -1,0 +1,214 @@
+---
+title: "lolo"
+author: "Christian M"
+date: "October 2, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+**Reading in the data**
+
+1. Make sure tidyverse is loaded (to use the pipe function %>%)
+2. List files in directory (within data folder)
+3. Combine each file into one data frame (or tibble)
+
+```{r}
+lolo_data <- fs::dir_ls("data/lolo")
+lolo_all_raw <- lolo_data %>% map_dfr(read_csv)
+```
+
+**Decluttering**
+
+
+
+```{r}
+#omitting data that isn't immediately useful
+
+lolo_omit <- select(lolo_all_raw, SETTING_ID, MEASUREMENT_DATE, MEASUREMENT_NO, PURPOSE_CODE, PLOT, SUBPLOT, LIVE_DEAD, SPECIES_SYMBOL, DIAMETER, TPA_EQUIV, BASAL_AREA_EQUIV, HEIGHT, CROWN_RATIO, CROWN_CLASS, AGE, RADIAL_GROWTH, HEIGHT_GROWTH)
+
+#cleaning up dates, adding column with proper date format.
+
+lolo1 <- mutate(lolo_omit, mdate = as.Date(MEASUREMENT_DATE, format = "%m/%d/%Y"))
+
+#adding column with measure year
+
+lolo1a <- mutate(lolo1, myear = format(mdate, format = "%Y"))
+
+unique(lolo_omit$SETTING_ID)
+length(unique(lolo_omit$SETTING_ID))
+```
+
+1. Omitting data (SET_CN, PLOT_CN, TREE_CN, TAG_ID, AZIMUTH, DISTANCE, SNAD_DECA and disturbance items.
+
+2. There are `r length(unique(lolo_omit$SETTING_ID))` stands in the lolo dataset.
+
+3. There are `r length(unique(lolo_omit$MEASUREMENT_DATE))` different measurement dates.
+a. clean up dates, extract useful info
+
+
+
+
+```{r}
+stand1 <- lolo1a[lolo1a$SETTING_ID == "01160304010002", ]
+stand1 <- stand1[stand1$myear == 1987, ]
+stand1 <- stand1[round(stand1$PLOT, -2) == 100, ]
+```
+
+
+```{r}
+ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)
+```
+
+
+
+```{r}
+
+#Creating Height vs. Diameter plot for selected stand, year, cluster.
+
+hdplot <- function(settingID, year, cluster) {
+
+stand1 <- lolo1a[lolo1a$SETTING_ID == settingID, ]
+stand1 <- stand1[stand1$myear == year, ]
+stand1 <- stand1[round(stand1$PLOT, -2) == cluster, ]
+
+ggplot(stand1, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() + geom_smooth(se = F)}
+
+hdplot("01160304010002", 1987, 200)
+```
+
+
+
+```{r, fig.show='hold', out.width='50%'}
+
+#Reproducing the above with dplyr
+
+hdplot1 <- function(settingID, year, cluster) {
+  
+a <- filter(lolo1a, SETTING_ID == settingID,  myear == year, round(PLOT, -2) == cluster)
+
+ggplot(a, aes(x = DIAMETER, y = HEIGHT, color = SPECIES_SYMBOL)) + geom_point() +
+  geom_smooth(se = F)
+}
+hdplot1("01160304010002", 1987, 200)
+hdplot1("01160304010002", 2000, 200)
+```
+
+```{r}
+# Diameter vs. year boxplots for a given cluster. It would make sense to show mean diameter or QMD and exclude the sublplot data
+
+
+a <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 100, SPECIES_SYMBOL == "ABLA")
+
+ggplot(a, aes(x = myear, y = DIAMETER)) + geom_boxplot()
+
+```
+
+
+
+
+```{r}
+#This is incomplete and needs work. Goal was to find a L/D ratio and then plot it. 
+
+
+#data set then filter cluster then count unique values in livedead then extract the vector then extract desired value from vecture (Live) / "" (Dead)
+lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2)/
+lolo1a %>% filter(round(PLOT, -2) == 100) %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1)
+
+ldratioplot <- function(cluster) {}
+  
+ratio <- lolo1a %>% filter(SETTING_ID == "01160304010002", round(PLOT, -2) == 200) %>% mutate(live = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(2), dead = lolo1a %>% count(LIVE_DEAD) %>% pull(n) %>% nth(1))
+
+ggplot(ratio, aes(x = myear, y = (live/dead))) + geom_point()
+
+
+```
+
+```{r}
+#For any cluster year, how many live trees/acre??
+
+#pull data, then select rows with tpa (expansion factor) = 20, then select desired variables (columns) then, group by (this is only a formality), then turn L's into 1's while omitting D's, then count the 1's and compress each plot into one row per measure year, then rename variable
+
+#lolo1a %>% filter(TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
+
+#live_trees <- function(stand, cluster){
+  
+#a <- 
+lolo1a %>% filter(SETTING_ID == "01160304010002", TPA_EQUIV == 20) %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, cluster = PLOT, myear, LIVE_DEAD, tpa = TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD)) %>% rename(live_trees = LIVE_DEAD) %>% mutate(live_tpa = live_trees*tpa)
+
+ggplot(a, aes(x = myear, y = live_tpa, color = cluster)) + geom_point()
+##ggplot(a, aes(x = myear, y = LIVE_DEAD, color = SETTING_ID)) + geom_point()
+#}
+
+#The above presents a tibble which shows the count of live trees in a plot cluster at a given year. Current issue: the average tpa column is confounded by subplot data
+
+#lolo1a %>% select(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% group_by(SETTING_ID, PLOT, myear, LIVE_DEAD, TPA_EQUIV) %>% summarize(LIVE_DEAD = str_count(LIVE_DEAD, "L")) %>% summarize(LIVE_DEAD = sum(LIVE_DEAD))
+
+#%>% summarize(cluster = round(cluster, -2))
+```
+
+```{r}
+# read the data and get some new variables
+source("1.readformat.R")
+head(lolo1)
+
+# drop the SE and CI purpose code data - these are done in "off" years  
+#  and seem to involve variable radius plot sampling; I think they
+#  represent other data coll efforts --> need to check tho
+lolo1 <- lolo1[!(lolo1$PURPOSE_CODE %in% c("SE","CI")),]
+table(lolo1$PURPOSE_CODE) # need to figure out what "RR" is? Replacement?
+
+# check whether all installations had 3 plots per cluster; info is needed because 
+#  TPA is recorded as 20 tr/ac not 20/3 tr/ac
+plot_structure <- aggregate(lolo1$PLOT,
+                               by=list(SETTING_ID=lolo1$SETTING_ID,
+                                       PURPOSE_CODE=lolo1$PURPOSE_CODE,
+                                       myear=lolo1$myear,
+                                       cluster=lolo1$cluster),
+                            FUN=function(x){length(unique(x))})
+unique(plot_structure$x)
+
+
+# check whether all plots had 3 subplots
+lolo1a <- lolo1[!is.na(lolo1$SUBPLOT),]
+subplot_structure <- aggregate(lolo1a$SUBPLOT,
+                               by=list(SETTING_ID=lolo1a$SETTING_ID,
+                                       PURPOSE_CODE=lolo1a$PURPOSE_CODE,
+                                       cluster=lolo1a$cluster,
+                                       PLOT=lolo1a$PLOT),
+                               FUN=function(x){length(unique(x))})
+unique(subplot_structure$x)
+
+
+# just live trees
+lolo1_live <- lolo1[!is.na(lolo1$TPA_EQUIV) & lolo1$LIVE_DEAD=="L",]
+unique(lolo1_live$TPA_EQUIV)
+
+# what is RR? Looks like it used 20th acre plots for large and 100th acre for small?
+unique(lolo1_live$TPA_EQUIV[lolo1_live$PURPOSE_CODE=="RR"])
+
+# all other small tree plots appear to 300th acre
+unique(lolo1_live$TPA_EQUIV[lolo1_live$PURPOSE_CODE!="RR" & !is.na(lolo1_live$SUBPLOT)]) %% 300
+unique(lolo1_live$TPA_EQUIV[lolo1_live$PURPOSE_CODE!="RR" & is.na(lolo1_live$SUBPLOT)]) 
+
+# fix tpa to account for multiplicity of plots, subplots per cluster
+lolo1_live$TPA_EQUIV <- with(lolo1_live, TPA_EQUIV/ifelse(is.na(SUBPLOT),3,9))
+
+# obtain basal area equivalents
+lolo1_live$BA_EQUIV <- with(lolo1_live,
+                            ifelse(!is.na(DIAMETER),DIAMETER,0)^2 * 
+                              (pi/576)* TPA_EQUIV )
+
+# sum to the cluster level
+stand_char <- aggregate(lolo1_live[,c("TPA_EQUIV","BA_EQUIV")],
+                        by=list(SETTING_ID=lolo1_live$SETTING_ID,
+                                myear=lolo1_live$myear,
+                                PURPOSE_CODE=lolo1_live$PURPOSE_CODE,
+                                cluster=lolo1_live$cluster),
+                        sum)
+stand_char$DBH_Q <- with(stand_char, sqrt(576*BA_EQUIV/TPA_EQUIV/pi) )
+
+```
