@@ -1,3 +1,5 @@
+require(dplyr)
+
 # get files in directory
 lolo_data <- fs::dir_ls("data/lolo")
 
@@ -14,14 +16,14 @@ for (csvfile in lolo_data){
 }
 
 #cleaning up dates, adding column with proper date format, then year
-lolo1 <- mutate(lolo_all_raw, mdate = as.Date(MEASUREMENT_DATE, format = "%m/%d/%Y"))
-lolo1 <- mutate(lolo1, myear = format(mdate, format = "%Y"))
+lolo1 <- dplyr::mutate(lolo_all_raw, mdate = as.Date(MEASUREMENT_DATE, format = "%m/%d/%Y"))
+lolo1 <- dplyr::mutate(lolo1, myear = format(mdate, format = "%Y"))
 
 # add cluster variable
-lolo1 <- mutate(lolo1, cluster = 100*floor(PLOT/100))
+lolo1 <- dplyr::mutate(lolo1, cluster = 100*floor(PLOT/100))
 
 # select just the interesting variables
-lolo1 <- select(lolo1, SETTING_ID, mdate, myear, MEASUREMENT_NO, 
+lolo1 <- dplyr::select(lolo1, SETTING_ID, mdate, myear, MEASUREMENT_NO, 
                     PURPOSE_CODE, cluster, PLOT, SUBPLOT, LIVE_DEAD, SPECIES_SYMBOL, 
                     DIAMETER, TPA_EQUIV, BASAL_AREA_EQUIV, HEIGHT, CROWN_RATIO, 
                     CROWN_CLASS, AGE, RADIAL_GROWTH, HEIGHT_GROWTH)
