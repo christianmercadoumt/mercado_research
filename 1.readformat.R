@@ -1,4 +1,4 @@
-require(dplyr)
+require(tidyverse)
 
 # get files in directory
 lolo_data <- fs::dir_ls("data/lolo")
