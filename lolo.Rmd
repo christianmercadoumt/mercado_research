@@ -198,13 +198,5 @@ stand_char$DBH_Q <- with(stand_char, sqrt(576*BA_EQUIV/TPA_EQUIV/pi) )
 
 ```
 
-```{r}
-stand_density <- function(settingID){
-  a <- stand_char %>% filter(SETTING_ID == settingID) %>% mutate("lnDq" = log(DBH_Q), "lnTPA" = log(TPA_EQUIV))
-  
-ggplot(a, aes(x = lnDq, y = lnTPA, color = as.factor(cluster))) + geom_point() + geom_smooth()
-}
 
-stand_density("01160764010048")
-```
 

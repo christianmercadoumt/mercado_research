@@ -1,0 +1,23 @@
+---
+title: "density_plot"
+author: "Christian M"
+date: "December 9, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#RUN THS
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+```{r}
+#density plot
+stand_density <- function(settingID){
+  a <- stand_char %>% filter(SETTING_ID %in% settingID) %>% mutate("lnDq" = log(DBH_Q), "lnTPA" = log(TPA_EQUIV))
+  
+ggplot(a, aes(x = lnDq, y = lnTPA, color = as.factor(cluster == 100))) + geom_point() + geom_smooth(se = F)
+}
+
+stand_density(unique(stand_char$SETTING_ID))
+```
