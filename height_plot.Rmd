@@ -1,0 +1,26 @@
+---
+title: "height_plot"
+author: "Christian M"
+date: "December 10, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+```{r}
+#remove SE and CI purpose codes
+lolo1 <- lolo1 %>% filter(!(PURPOSE_CODE %in% c("SE", "CI")))
+
+#live trees, remove NA's
+lolo1_live1 <- lolo1 %>% filter(!is.na(lolo1$HEIGHT) & lolo1$LIVE_DEAD=="L")
+
+#calculate average ht per plot
+
+lolo_ht <- lolo1_live1 %>% group_by(SETTING_ID, myear, PURPOSE_CODE, cluster) %>% summarize(av_ht = mean(HEIGHT)) %>% filter(SETTING_ID == "01160304010002")
+
+ggplot(lolo_ht, aes(x = myear, y = av_ht, color = as.factor(cluster))) + geom_point() + geom_smooth()
+```
+
