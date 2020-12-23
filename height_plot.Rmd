@@ -7,7 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(error = NULL)
 library(tidyverse)
+source("1.readformat.R")
 ```
 
 ```{r}
@@ -18,9 +20,19 @@ lolo1 <- lolo1 %>% filter(!(PURPOSE_CODE %in% c("SE", "CI")))
 lolo1_live1 <- lolo1 %>% filter(!is.na(lolo1$HEIGHT) & lolo1$LIVE_DEAD=="L")
 
 #calculate average ht per plot
+#ht_plot <- function(settingid){
 
-lolo_ht <- lolo1_live1 %>% group_by(SETTING_ID, myear, PURPOSE_CODE, cluster) %>% summarize(av_ht = mean(HEIGHT)) %>% filter(SETTING_ID == "01160304010002")
+lolo_ht <- lolo1_live1 %>% group_by(SETTING_ID, myear, PURPOSE_CODE, cluster) %>% summarize(av_ht = mean(HEIGHT), av_diam = mean(DIAMETER))
 
-ggplot(lolo_ht, aes(x = myear, y = av_ht, color = as.factor(cluster))) + geom_point() + geom_smooth()
+#%>% filter(SETTING_ID == settingid)
+
+ggplot(lolo_ht, aes(x = av_diam, y = av_ht, color = as.factor(cluster))) + geom_point() + geom_smooth(se = F)
+#}
+
+#ht_plot("01160306010006")
+
+#all_settings <- lolo1_live1$SETTING_ID
+
+#ht_plot(all_settings)
 ```
 
