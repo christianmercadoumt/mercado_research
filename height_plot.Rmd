@@ -26,7 +26,7 @@ lolo_ht <- lolo1_live1 %>% group_by(SETTING_ID, myear, PURPOSE_CODE, cluster) %>
 
 #%>% filter(SETTING_ID == settingid)
 
-ggplot(lolo_ht, aes(x = av_diam, y = av_ht, color = as.factor(cluster))) + geom_point() + geom_smooth(se = F)
+ggplot(lolo_ht, aes(x = av_diam, y = av_ht, color = as.factor(cluster == 100))) + geom_point() + geom_line()
 #}
 
 #ht_plot("01160306010006")

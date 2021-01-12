@@ -1,0 +1,29 @@
+---
+title: "lolo18_data"
+author: "Christian M"
+date: "January 11, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#merging latest lolo data
+(ls(lolo_all_raw))
+(ls(lolo_remeasures))
+#manually change names to match main dataset
+lolo_18 <- lolo_remeasures %>% rename_with(toupper) %>% rename(CROWN_CLASS = CROWNCLASS, CROWN_RATIO = CROWNRATIO, DISTURB_AGENT1 = DAGENT.1, DISTURB_AGENT2 = DAGENT.2, DISTURB_AGENT3 = DAGENT.3, DISTURB_CATEGORY1 = DCATEGORY.1, DISTURB_CATEGORY2 = DCATEGORY.2, DISTURB_CATEGORY3 = DCATEGORY.3, SNAG_DECAY_CLASS = DECAYCLASS, DISTURB_AGENT_SEV1 = DSEVERITY.1, DISTURB_AGENT_SEV2 = DSEVERITY.2, DISTURB_AGENT_SEV3 = DSEVERITY.3, PLOT = PLOT_ID, SPECIES_SYMBOL = SPECIES, TAG_ID = TAGID, TREE_CN = TREECOUNT, REMARKS = TREE_REMARK, DIAMETER = DBH)
+
+a <- lolo_18 %>% mutate(BASAL_AREA_EQUIV = .005454*(DIAMETER^2), SUBPLOT = ifelse(TAG_ID > 500, 5))
+
+#how do I make a distinction between three subplots using ifelse in mutate?
+a <- lolo_18 %>% mutate(BASAL_AREA_EQUIV = .005454*(DIAMETER^2), SUBPLOT = ifelse(TAG_ID %in% 500:599, 5, "NA", ifelse(TAG_ID %in% 600:699, 6, "NA", ifelse(TAG_ID %in% 700:799, 7, "NA"))))
+
+#check
+setdiff(ls(lolo_18), ls(lolo_all_raw))
+
+write_csv(lolo_remeasures, ~"data/lolo")
+
+```
