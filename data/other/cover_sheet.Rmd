@@ -1,0 +1,46 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, echo=FALSE}
+which_setting <- "01160415010059"
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+source(file.path("fsveg2021_data_sheet_output.R"),
+       local = knitr::knit_global())
+
+```
+
+---
+title: "Cover sheet for `r which_setting` (`r pts$Stand.Name[1]`)"
+output: pdf_document
+---
+
+## Cluster plot dimensions
+
+```{r,echo=F}
+cluster_summary
+```
+
+## Previous damage code frequency
+
+```{r,echo=F}
+with(damg,table(DAM,cluster))
+```
+
+
+## GPS Coordinates
+
+```{r,echo=F}
+if(nrow(pts)==0){out<-"none"} else {out<-pts}
+out
+#if(nrow(pts))
+#pts
+```
