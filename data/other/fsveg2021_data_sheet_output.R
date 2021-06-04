@@ -35,7 +35,8 @@ focal <- all_raw0[all_raw0$SETTING_ID==which_setting &
                     !is.na(all_raw0$TAG_ID) &  # missing tag ids used to indicate empty plots 
                     !is.na(all_raw0$last),]
 focal$SUBP <- ifelse(is.na(focal$SUBPLOT),"",as.character(focal$SUBPLOT))
-focal <- focal[order(focal$PLOT,focal$SUBP,focal$TAG_ID),]
+#focal <- focal[order(focal$PLOT,focal$SUBP,focal$TAG_ID),]
+focal <- focal[order(focal$PLOT,focal$SUBP,focal$AZIMUTH,focal$DISTANCE),]
 
 
 
@@ -67,10 +68,28 @@ focal$TREE_COUNT <- ""
 f2 <- focal[,c("PLOT","SUBP","TAG_ID","AZIMUTH","DISTANCE","TREE_COUNT","SPECIES_SYMBOL","LIVE_DEAD",
          "DIAMETER","HEIGHT","CROWN_RATIO","CROWN_CLASS","SNAG_DECAY_CLASS","REMARKS","PRV_DAM")]
 
+# add some blank rows
+insertRows <- function(existingDF, newrow, r, blanks=10) {
+  existingDF[seq(r+blanks,nrow(existingDF)+blanks),] <- existingDF[seq(r,nrow(existingDF)),]
+  for (i in seq(r,r+blanks-1)){
+    existingDF[i,] <- newrow
+  }
+  existingDF
+}
+
+(plts <- sort(unique(f2$PLOT)))
+for (pl in plts){
+  newrow <- f2[1,]
+  newrow[1,!is.na(newrow)] <- NA
+  newrow$PLOT <- pl
+  tally <- sum(f2$PLOT<=pl)+1
+  f2 <- insertRows(f2,newrow,tally)
+}
+
 write.csv(f2,
           #file=file.path("data","other",paste("last",which_setting,".csv",sep="")),
           file=paste("last",which_setting,".csv",sep=""),
-          row.names = F)
+          na="",row.names = F)
 
 # coversheet info
 
