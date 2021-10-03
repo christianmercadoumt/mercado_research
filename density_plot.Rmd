@@ -81,3 +81,51 @@ ggplot(a, aes(x = lnDq, y = lnTPA, color = as.factor(cluster == 100))) + geom_po
 
 stand_density(unique(stand_char$SETTING_ID))
 ```
+
+Density/top height
+```{r}
+
+#This produces a table which includes setting id, species, measure year, purpose code, and mean height (excluding subplot trees). This is grouped by control plots vs. treatment plots, therefore, this looks at the stand-level
+
+ht <- 
+  lolo1_live %>%
+  filter(SUBPLOT != c(5,6,7)) %>%
+  select(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster, HEIGHT, TPA_EQUIV) %>%
+  group_by(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE) %>% summarise(mean_ht = mean(HEIGHT))
+
+#going down a rabbith hole to figure out which setting ids have NA's in order to plot ht over time. 
+ht %>% group_by(SETTING_ID) %>% summarise(!anyNA(mean_ht)) %>% select(SETTING_ID)
+
+#try it with 1 setting before putting it in a function
+#NOTE - cannot get the line to work out. Also had to add species code in filter, but that can be built into function. 
+ht1 <-
+  lolo1_live %>%
+  filter(SUBPLOT != c(5,6,7)) %>%
+  select(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster, HEIGHT) %>%
+  group_by(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster) %>% summarise(mean_ht = mean(HEIGHT)) %>%
+  filter(SETTING_ID == "01160306010006", SPECIES_SYMBOL == "ABLA")
+
+ggplot(ht1, aes(x = myear, y = mean_ht, color = as.factor(cluster))) + geom_point() + geom_smooth(method = "lm")
+
+
+lo <- lowess(ht1$mean_ht~ht1$myear)
+plot(ht1$myear, ht1$mean_ht, col = as.factor(ht1$cluster))
+lines(ht1$myear, ht1$mean_ht, col = as.factor(ht1$cluster))
+
+ht_time <- function(settingid){
+
+  
+  ggplot(ht, aes(x = myear, y = mean_ht), color = ) + geom_point()
+}
+
+#lets try ht vs. density
+
+#filter down to the stand level, and then plot treatment and control ht. density curves(is it a curve?)
+abc <- lolo1_live %>% filter(SUBPLOT != c(5,6,7), SETTING_ID == "01160625020040") %>%
+  select(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster, HEIGHT, TPA_EQUIV) %>%
+  group_by(SETTING_ID, SPECIES_SYMBOL, myear) %>% summarise(mean_ht = mean(HEIGHT))
+
+ggplot()
+
+```
+

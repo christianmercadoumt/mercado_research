@@ -1,0 +1,204 @@
+---
+title: "kt_densityplot"
+author: "Christian Mercado"
+date: "9/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+CHANGE THIS TO REFLECT KT DATA
+```{r}
+# drop the SE and CI purpose code data - these are done in "off" years  
+#  and seem to involve variable radius plot sampling; I think they
+#  represent other data coll efforts --> need to check tho
+kt1 <- kt1[!(kt1$PURPOSE_CODE %in% c("SE","CI")),]
+table(kt1$PURPOSE_CODE) # need to figure out what "RR" is? Replacement?
+
+# check whether all installations had 3 plots per cluster; info is needed because 
+#  TPA is recorded as 20 tr/ac not 20/3 tr/ac
+plot_structure <- aggregate(kt1$PLOT,
+                               by=list(SETTING_ID=kt1$SETTING_ID,
+                                       PURPOSE_CODE=kt1$PURPOSE_CODE,
+                                       myear=kt1$myear,
+                                       cluster=kt1$cluster),
+                            FUN=function(x){length(unique(x))})
+unique(plot_structure$x)
+
+
+# check whether all plots had 3 subplots
+kt1a <- kt1[!is.na(kt1$SUBPLOT),]
+subplot_structure <- aggregate(kt1a$SUBPLOT,
+                               by=list(SETTING_ID=kt1a$SETTING_ID,
+                                       PURPOSE_CODE=kt1a$PURPOSE_CODE,
+                                       cluster=kt1a$cluster,
+                                       PLOT=kt1a$PLOT),
+                               FUN=function(x){length(unique(x))})
+unique(subplot_structure$x)
+
+
+# just live trees
+kt1_live <- kt1[!is.na(kt1$TPA_EQUIV) & kt1$LIVE_DEAD=="L",]
+unique(kt1_live$TPA_EQUIV)
+
+# what is RR? Looks like it used 20th acre plots for large and 100th acre for small?
+unique(kt1_live$TPA_EQUIV[kt1_live$PURPOSE_CODE=="RR"])
+
+# all other small tree plots appear to 300th acre
+unique(kt1_live$TPA_EQUIV[kt1_live$PURPOSE_CODE!="RR" & !is.na(kt1_live$SUBPLOT)]) %% 300
+unique(kt1_live$TPA_EQUIV[kt1_live$PURPOSE_CODE!="RR" & is.na(kt1_live$SUBPLOT)]) 
+
+# fix tpa to account for multiplicity of plots, subplots per cluster
+kt1_live$TPA_EQUIV <- with(kt1_live, TPA_EQUIV/ifelse(is.na(SUBPLOT),3,9))
+
+# obtain basal area equivalents
+kt1_live$BA_EQUIV <- with(kt1_live,
+                            ifelse(!is.na(DIAMETER),DIAMETER,0)^2 * 
+                              (pi/576)* TPA_EQUIV )
+
+# sum to the cluster level
+stand_char <- aggregate(kt1_live[,c("TPA_EQUIV","BA_EQUIV")],
+                        by=list(SETTING_ID=kt1_live$SETTING_ID,
+                                myear=kt1_live$myear,
+                                PURPOSE_CODE=kt1_live$PURPOSE_CODE,
+                                cluster=kt1_live$cluster),
+                        sum)
+stand_char$DBH_Q <- with(stand_char, sqrt(576*BA_EQUIV/TPA_EQUIV/pi) )
+```
+
+Density and top height - setting it up
+```{r}
+unique(kt1_live$SETTING_ID)
+
+## split into list, creating multiple tibbles/data frames, one for each stand
+
+#non-tidyverse method
+kt_list <- kt1_live %>% split.data.frame(.$SETTING_ID)
+#tidyverse method - also exclude subplot data
+kt_list_tidy <- kt1_live %>% group_by(SETTING_ID) %>% group_split()
+
+#create tibbles excluding subplot data only displaying setting, species, year, purpose, ht, tpa, cluster-level tpa. Changed year to numeric in order to specify later..
+kt_htdens <- lapply(kt_list_tidy, function(x){
+  x %>% filter(is.na(SUBPLOT)) %>% 
+    select(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster, HEIGHT, TPA_EQUIV, MEASUREMENT_NO) %>%
+    group_by(myear, cluster) %>% mutate(tot_cl_tpa = sum(TPA_EQUIV), myear = as.numeric(myear))
+}
+)
+
+
+##creating table with setting id, species, measure year, purpose code, cluster, height, tpa and total cluster tpa. 
+#abc <- kt1_live %>% filter(SETTING_ID == "01140343020046", is.na(SUBPLOT)) %>%
+#  select(SETTING_ID, SPECIES_SYMBOL, myear, PURPOSE_CODE, cluster, HEIGHT, TPA_EQUIV) %>%
+#  group_by(myear, cluster) %>% mutate(tot_cl_tpa = sum(TPA_EQUIV))
+
+```
+
+
+Plot LAOC ht-density relationship from list
+NOTE: FIGURE OUT HOW TO AUTOMATE THIS FOR EVERY MEASUREMENT AND EVERY SPECIES
+```{r}
+
+
+## Create list of tables (one for each stand) where only larch are shown that were in first measurements (pre 1990)
+laoc_htdens_pre90 <- lapply(kt_htdens, function(x){
+  z <- x %>% filter(SPECIES_SYMBOL == "LAOC", MEASUREMENT_NO == 1) %>% group_by(cluster) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa))
+  ggplot(z, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster))) + geom_point()
+
+})
+laoc_htdens_pre90
+
+
+laoc_htdens_2 <- lapply(kt_htdens, function(x){
+  z <- x %>% filter(SPECIES_SYMBOL == "LAOC", MEASUREMENT_NO == 2) %>% group_by(cluster) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa))
+  ggplot(z, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster))) + geom_point()
+
+})
+laoc_htdens_2
+
+laoc_htdens_3 <- lapply(kt_htdens, function(x){
+  z <- x %>% filter(SPECIES_SYMBOL == "LAOC", MEASUREMENT_NO == 3) %>% group_by(cluster) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa))
+  ggplot(z, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster))) + geom_point()
+
+})
+laoc_htdens_3
+
+
+```
+
+Create a table for larch measured before 1990 that corresponds to the above plots
+NOTE: FIGURE OUT HOW TO LOOP THIS PROCESS FOR EVERY MEASUREMENT. 
+NOTE: GET RID OF OUTLIERS
+```{r}
+
+### HOW DO I LOOP THIS?????????????????
+
+#laoc_htdens_pre90_tbl <- l
+
+kt_htdens_delisted_meas1 <- lapply(kt_htdens, function(x){
+  z <- x %>% filter(SPECIES_SYMBOL == "LAOC", MEASUREMENT_NO == 1, SETTING_ID != "01140109010001") %>% group_by(cluster) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa), settingid = first(SETTING_ID)) %>% relocate(settingid, cluster, meanht, tot_cl_tpa)
+
+}) %>% bind_rows()
+
+ggplot(kt_htdens_delisted_meas1, aes(x = tot_cl_tpa, y = meanht, color = settingid)) + geom_point()
+
+
+```
+
+```{r}
+# model relationship and examine
+lm1 <- lm(meanht~tot_cl_tpa, data = kt_htdens_delisted_meas1)
+summary(lm1)
+plot(lm1)
+
+ggplot(kt_htdens_delisted_meas1, aes(x = tot_cl_tpa, y = meanht)) + geom_point()
+```
+
+
+Do the same thing as above, but finish with a table for the entire KT dataset so it can be modeled
+
+```{r}
+lapply(kt_htdens, function(x){
+  z <- x %>% filter(SPECIES_SYMBOL == "LAOC", MEASUREMENT_NO == 1) %>% group_by(cluster) %>% filter(meanht == mean(HEIGHT), tot_cl_tpa == mean(tot_cl_tpa))
+
+})
+```
+
+
+Plotting ht-density relationship
+```{r}
+#adding mean cluster height based on species and measure year. Then Choose species and yar to plot
+
+#a1 <- abc %>% group_by(SETTING_ID, cluster, SPECIES_SYMBOL, myear) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa)) %>% filter(SPECIES_SYMBOL == "ABLA", myear == 1993)
+
+#plot
+#ggplot(a1, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster == 100))) + geom_point()
+
+#next, I want to automate this for every species in a given year, creating a plot for every species at a given measurement year
+
+#for(i in 1:100){
+#  aa <- abc %>% group_by(SETTING_ID, cluster, SPECIES_SYMBOL, myear) %>% summarise(meanht = mean(HEIGHT), tot_cl_tpa = mean(tot_cl_tpa)) %>% filter(SPECIES_SYMBOL == i, myear == 1993)
+ # ggplot(aa, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster == 100))) + geom_point()
+
+#}
+
+```
+
+
+```{r}
+#density plot - change to reflect KT
+stand_density <- function(settingID){
+  a <- stand_char %>% filter(SETTING_ID %in% settingID) %>% mutate("lnDq" = log(DBH_Q), "lnTPA" = log(TPA_EQUIV))
+  
+ggplot(a, aes(x = lnDq, y = lnTPA, color = as.factor(cluster == 100))) + geom_point() + geom_smooth(se = F)
+}
+
+stand_density("01140316020106")
+#why are there so few data points?
+stand_density("01140102050006")
+
+
+stand_density(unique(stand_char$SETTING_ID))
+```
