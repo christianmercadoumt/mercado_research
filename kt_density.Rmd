@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-CHANGE THIS TO REFLECT KT DATA
+Setting up KT data
 ```{r}
 # drop the SE and CI purpose code data - these are done in "off" years  
 #  and seem to involve variable radius plot sampling; I think they
@@ -142,7 +142,11 @@ kt_htdens_delisted_meas1 <- lapply(kt_htdens, function(x){
 
 }) %>% bind_rows()
 
+ggplot(kt_htdens_delisted_meas1, aes(x = tot_cl_tpa, y = meanht, color = as.factor(cluster == 100))) + geom_point()
+
 ggplot(kt_htdens_delisted_meas1, aes(x = tot_cl_tpa, y = meanht, color = settingid)) + geom_point()
+
+
 
 
 ```
