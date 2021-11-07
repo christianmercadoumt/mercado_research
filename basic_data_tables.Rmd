@@ -15,6 +15,8 @@ sumdata <- read_csv("data/pgp_stand_summary_data_18_21.csv", col_types = cols(.d
 a <- unique(sumdata$SETTING_ID)
 spec(sumdata)
 sumdata <- sumdata %>% filter(!is.na(sumdata$SETTING_ID))
+a <- unique(sumdata$SETTING_ID)
+
 ```
 
 summary table 1
@@ -42,23 +44,38 @@ age %>% select(SETTING_ID, PLOT, SUBPLOT, TAG_ID, AGE)
 species composition
 ```{r}
 
-species_comp(kt1)
-species_comp(lolo1)
+#species_comp(kt1)
+#species_comp(lolo1)
 
-species_comp_all(lolo1)
+#species_comp_all(lolo1)
 
-species_comp_largetrees(lolo1)
+#species_comp_largetrees(lolo1)
 
-species_comp_lt_crown(lolo1)
+#species_comp_lt_crown(lolo1)
+
+#species_comp_all_ba(kt1)
+
+species_comp_all_ba <- function(forestdata){
+  a <- forestdata %>% 
+    group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
+    mutate(cluster_BA = sum(BASAL_AREA_EQUIV)) %>%
+    select(SETTING_ID, myear, MEASUREMENT_NO, cluster, SPECIES_SYMBOL, cluster_BA)
+      #BA = sum(BASAL_AREA_EQUIV))
+  return(a)
+}
 
 species_comp_all_ba(kt1)
 
 
-
 ```
+
+
+
 
 ```{r}
 #Scratchpad
+
+
 
 listofstands <- kt1 %>% group_by(SETTING_ID) %>% group_split()
 #listofstands <- lapply(listofstands, function(x){
