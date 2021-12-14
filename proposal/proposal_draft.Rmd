@@ -1,0 +1,228 @@
+---
+title: "research_proposal"
+author: "Christian Mercado"
+date: "5/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+QUESTIONS:
+
+1. How does inter-specific competition impact long-term development of mean diameter, top height, and volume of W. Larch?
+1a. Does species-composition interact with long-term stand volume in larch forests?
+2. How does inter-specific competition/stand composition affect the long-term response of W. Larch to precommercial thinning? 
+2a. Does competition interact with long-term mechanical stability?
+2b. If a height-density relationship exists, does this interact with species composition/interspecific competition? What does this relationship look like? 
+
+
+#### Introduction
+
+P1: Relationships among stand attributes
+
+Point: There are relationships observed between tree and stand attributes that aid in understanding long-term growth dynamics. 
+
+Understanding relationships among tree and stand attributes in the long-term is of critical importance to land management, and allows decision-makers to make better-informed management decisions. 
+
+Relationships among tree and stand attributes, such as tree size (Diameter, Basal Area, Height, volume..) and spacing (density), characterize long-term tree and stand development. The initial density of a stand can impact the growth trajectory of individual trees and determines the timing and intensity of competition among trees (CITE: long et al 2004?, ). Further, diameter functions along density, and thus drives overall tree growth and eventually mortality (CITE: Reineke, Yoda). Tree height and diameter share a proportional relationship over time and are used in tree volume determination, thus, volume estimates at the tree level have implications on stand-level volume estimates. Different tree species have different growth strategies and patterns, therefore species composition impacts competitive processes among neighboring trees, and thus has a temporal impact on stand-level characteristics. 
+
+
+P2: Species interactions/Species mixing impacts relationships
+
+Point: Species mixing has an impact on growth relationships which deviate from those that are known. 
+
+The relationships among these attributes can be generalized for individual tree species at a stand level, however these relationships become less clear when stand-level species composition varies. Species-mixture alters species-specific growth patterns through variable species-specific demands and uses of various growth dependent resources (e.g., water, light, etc.) (CITE: Pretsch et al 2017 ch3). For example, crown shape and shade tolerance vary across species and could aid in optimizing canopy growing space among different neighboring species, maximizing photosynthesis among different individuals in a complementary effect, or further aggravating competition in a competitive effect if canopies aren't conducive to such optimization of space. Pretzsch and Biber found that species mixing can increase the maximum stand density when compared to pure stands (CITE: Pretzsch and Biber 2016). 
+
+
+P3: Density
+
+POINT: tree/stand density has a relationship with tree size, development, and mortality over time.
+
+The size of trees in a forest stand is, in part, a function of how many trees there are, or the density, of a given stand. (Reineke 1933;). Further, tree and stand density impact rates of tree mortality over time within a stand as a result of inter-tree competition of resources (Peet and Christensen 1987). In stands at low densities, trees have larger crowns and photosynthesize more effectively, driving rapid diameter and height growth compared to trees in high density stands (Oliver & Larson 1996). However, stands at lower densities may not occupy a site as efficiently, and therefore don't take full advantage of the growing conditions that the site offers. In the long-term, this trade-off may be represented in low density stands by higher individual tree diameter, volume, and stability, when at higher densities, volume may be concentrated across more trees of lower diameter and stability, while incurring higher rates of mortality. 
+
+*Provide examples from literature about different attributes being affected by density over time
+
+- Diameter and height are driven by stand density early in development
+- Trees at wider spacing have larger crowns, produce more photosynthate, and continue rapid diameter and height growth longer than closely spaced trees (Oliver & Larson 1996)
+- 
+
+Interactions among species, density, size, and structure play an important role in long-term competition. Once established in a site, competitive interactions between trees give rise to long-term developmental patterns which impact 
+
+In other words, if there are trees in a given area competing for the same resources, some will outgrow others, and some will face stunted growth and eventually mortality. Higher stand density will lead to tree mortality, allowing advantageous trees to thrive and grow more vigorously in the resulting space. This concept has been referred to as "self-thinning" (Yoda et. al. 1963), meaning that as trees grow and take up more space over time, the density of trees in a stand reduces, allowing more vigorous growth among surviving trees. These dynamics shift and change over time across a forest and stand and also relate to stand-specic species composition (CITE?). Therefore, predictable relationships between tree and stand density, size, and mortality can be observed over time and thus provide a foundation for forest density management strategies. 
+
+
+
+P4: Thinning as a tool for stand density management. 
+
+POINT: Thinning/PCT is a tool used to manage stand density before nominal rotation-age. 
+
+
+Thinning is a forest management practice that takes advantage of tree and stand density relationships. By manipulating the density of a stand, managers can impact the long term trajectory of stand conditions from an early age (CITE). Precommercial thinning is one such activity that is used to alter stand densities to promote tree and stand growth rates, spacing, and individual tree form (Oliver & Larson 1996; ....) before trees are commercially viable. Thinning early in stand development can 
+
+
+*Thinning is when some trees are selectively cut/removed to advance residual tree and stand characteristics (diameters, heights, stand volume, etc.) to a desired outcome, generally in a theoretically shorter period of time (than if left un-cut), maximizing site potential (CITE). When thinning occurs in young stands among young trees, it is called *precommercial thinning* (PCT). 
+
+Nyland 2016, 2002, 1996:
+- reduce intertree compeitition
+- generally removes less desireable trees in favor of better ones
+- precommercial thinning is when young trees are removed
+- Increases light around crown which cascades into higher rates of volume growth over time
+
+OG thinning info - (Hawley 1921) 
+
+- Competition reduction, resource competition, crown structure, etc.
+- Reineke (1933), Curtis (1982), Peet and Christensen (1987)
+
+Precommercial thinning/early stand density management larch forests in the inland northwest
+- Schmidt (1966), Roe and Schmidt (1965)
+- Seidel (1975), Seidel (1980), Seidel (1986)
+- 
+
+Long-term monitoring as a method to assess effects of management. 
+- Importance thereof - rationale for long term monitoring as opposed to short duration studeis
+- Relative importance of long-term datatsets for mgmt activities
+- 
+
+QUESTIONS:
+
+**1. How does inter-specific competition impact long-term development of mean diameter, top height, and volume of W. Larch? **
+**1a. Does species-composition interact with long-term stand volume in larch forests?**
+**2. How does inter-specific competition/stand composition affect the long-term response of W. Larch to precommercial thinning?**
+**2a. Does competition interact with long-term mechanical stability?**
+**2b. If a height-density relationship exists, does this interact with species composition/interspecific competition? What does this relationship look like? **
+
+#### Background/Motivation
+
+P1: Managing for Climate? Creating Resistant/Resillience?
+
+P2: Recent studies found these rela5tionships are not solid among species mixing
+
+P3: Lack of basic understanding of species mixing in these forests
+
+P4: Relationships in Models that inform mgmt don't account for species mixing or ht/density.
+
+P5: Previous and similar work and findings
+
+
+Objectives
+
+List
+
+
+#### Proposed Methods/Timelines
+
+P1: Permanent Growth Plots
+
+To establish a monitoring protocol for FVS models, Forest Service Region 1 developed long-term permanent growth plot clusters (PGP's) in managed stands across the IE, referred herein to as the PGP program. 4 plot-clusters were established in each stand, 1 untreated/unthinned control plot cluster and 3 treatment plot clusters which were thinned with pre-commercial thinning. Each cluster is comprised of 3 $\frac{1}{20}^{th}$ acre large-tree plots, with each plot containing 3 $\frac{1}{300}^{th}$ small tree sub-plots. Therefore, each cluster contains a total of 3 large tree plots, and 9 subplots. Stand prescriptions determined target residual densities for the stand in the treatment areas, providing a side-by-side comparison between control and treatments under similar stand and site conditions. To ensure that the control plots were not effected by nearby thinning, an unthinned buffer was placed around control clusters.
+
+The initial goal of the PGP program was to remeasure the samples at regular increments of 5-10 years in order to provide a robust growth increment data set. Various stands were initialized and measured then remeasured between 1980 and 2000. The program was then paused, and was only recently revisited in 2018. 
+
+**During the summer of 2021, PGP stands on the Lolo and Kootenai National Forests that were previously measured at least 3 times and that were composed of >50% overstory Western Larch (WL) (determined by most recent measurement) were targeted for remeasurement. Stand and site conditions across the remeasured PGP's were variable, spread between 46 and 49 degrees north, and between 2900' and 5400' ASL. Stands were primarily on north-facing aspects. Soil conditions were variable from site-to-site, but most were a silty-loam composition. Species composition varied between almost pure WL dominant forests to mixed conifer forests composed of western larch, douglas-fir, engelmann spruce, grand fir, subalpine fir, western hemlock, mountain hemlock, western red cedar, cottonwood, and quaking aspen.**
+
+
+
+
+
+
+
+
+
+
+*P1: Modelling forest ecosystem dynamics is important and has been for a while*
+
+-	Empirical models
+-	Importance to land management – using models to weigh alternative land management strategies
+
+
+
+
+*P2: FVS *
+
+-	The Forest Vegetation Simulator (FVS) is an individual-tree, distance-independent forest growth and yield model with linkable modules called extensions that modify simulations to account for disturbances, fire and fuels dynamics, snag dynamics, and understory vegetation development. **(Keyser 2008)**
+
+-	FVS started out as the prognosis model and only addressed lodgepole pine, but has since been devloped to include a variety of species and ecosystems.
+
+-	FVS is used by public and private land managers in the US and parts of Canada to aid in decision-making, especially when different management options.
+
+-	FVS consists of geographic specific calibrations called variants which apply location-specific relationships to ecosystem locations, respectively. 
+
+-	This work focuses on the US Northern Rocky mountains region of Montana, Idaho, and parts of northeastern Washington known as the Inland Empire (IE) variant within FVS.
+
+
+
+
+
+*METHODS????*
+
+They were placed there to assess model accuracy and evaluate long-term effects of varying treatment levels. 
+
+
+P3: Diameter Increment Model
+
+
+
+ 
+
+-	*Talk about when models were developed and data that was used to develop??*
+
+*P3: Climate Change*
+
+*-	“Over the historical period of record (1895-2012), the annual mean monthly minimum temperature increased by about 3.0 °F, while the annual mean monthly maximum temperature increased by about 0.6 °F. During the same period, annual mean monthly precipitation increased slightly, by an average of about 0.1 inch per month” **(halofsky 2018 page 34)**
+
+*-	“Temperature is projected to increase 5 to 10 °F by 2100, including increases in both the annual mean monthly minimum and annual mean monthly maximum.” **(halofsky 2018 page 34)**
+
+*-	How do these things effect vegetative communities and how they grow?*
+
+*P4: Climate-FVS*
+
+*-	Climate FVS is a modification of FVS that is designed to take climate change into account when predicting forest dynamics **(Crookston 2014)**. 
+
+
+#### Motivation
+
+P1: IE Models
+
+-	The large tree diameter increment model (equ. 1) derives diameter increment from predicted periodic change in squared inside-bark diameter (dds), where $\beta_1$ represents a location-specific coefficient, and $\beta_2-\beta_{15}$ represent species-specific coefficients as they relate to different variables **(Keyser, 2008)**. Variable definitions can be found in appendix... ***......*** . 
+
+$$ln(dds) = \beta_1 + (\beta_2 * EL) + (\beta_3 * EL^2) + (\beta_4 * sin(ASP) * SL) +
+(\beta_5 * cos(ASP) * SL) + (\beta_6 * SL) + (\beta_7 * SL^2) + (\beta_8 * \frac{CCF}{100}) +
+(\beta_9 * ln(DBH)) + (\beta_{10}*\frac{BAL}{100}) + (\beta_{11} * CR) + \beta_{12} * CR^2) +
+(\beta_{13} * DBH^2) + (\beta_{14} * \frac{BAL}{100 * (ln(DBH + 1))}) + (\beta_{15} + SI) + HAB$$
+
+-	The diameter increment model which informs FVS-IE today, was parameterized with tree core data from 200,000 individual trees in 3900 stands across 10 national forests within the inland northwest (Inland Empire). These data were taken between 1971 and 1974 and was analyzed for 10-year inside-bark DBH increment for the decade prior to inventory. Thus, the data is representative for 10-year growth periods between 1961 and 1974, depending on which year a tree was sampled **(Wykoff 1990)**. This model is well-used and well trusted today. It is used as an integral part of projecting stand growth and yield for the following purposes: ecosystem management planning, weighing alternative management scenarios, comparing silvicultural treatments, and various research applications. 
+
+- The diameter increment model in FVS-IE has not been extensively validated, especially with respect to long-term predictive applications, **as long-term continuous tree growth data can be hard to come by without implementing some amount of statistical inference or using inconsistent sampling methods**. Froese and Robinson (2007) performed two validation tests through regression-based equivalence testing (Froese & Robinson 2007) for both diameter increment and volume prediction. Overall, they validated the theoretical model structure, but were unable to validate the model as a predictive tool, giving rise to potential implications to model usage. Furthermore, Froese and Robinson used Forest Inventory and Analysis (FIA) data in equivalence testing, which may provide more robust representation of regional forest conditions, but may introduce bias due to lack of consistency among datasets **(see paper p. 1447)**. 
+
+
+
+
+***- Anthropogenic climate change has caused shifts in climatic trends which dictate forest vegetation growth, mortality, regeneration, and the suitability of a site to host vegetative communities **(Keane et al, 2018; Hornbach et al 2016; Halofsky 2018). ***
+
+**- Climate-FVS was developed to address climate change in FVS simulations by modifying species establishment, mortality, and growth rates based on modeled future climate scenarios **(Crookston, 2014)**. **
+
+
+
+- How reliable are these previously identified diameter increment relationships at predicting changes in diameter over a period of 40 years?
+
+  - Are some species’ incremental growth relationships more altered than others?
+  
+    - Is the current model parameterization appropriate for predicting under current and future climate circumstances?
+    
+  - Which species’ diameter increment relationships are 
+  
+- How well does Climate-FVS predict stand-level growth and yield compared to base FVS?
+
+
+
+#### Objectives
+
+- Identify whether specific species growth relationships are effected by the climate of the past 30-40 years. 
+
+- 
+
+
+#### Proposed Methods and Timeline
+
+#### Previous/Similar Work and Current Outlook

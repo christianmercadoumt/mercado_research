@@ -1,0 +1,23 @@
+COMMON_NAME,GENUS,SPECIES,Shade Tolerance Index,SPCD
+fir spp.,Abies,spp.,1,10
+grand fir,Abies,grandis,0.75,17
+corkbark fir,Abies,lasiocarpa,0.75,18
+subalpine fir,Abies,lasiocarpa,0.75,19
+larch spp.,Larix,spp.,0,70
+western larch,Larix,occidentalis,0,73
+spruce spp.,Picea,spp.,1,90
+Norway spruce,Picea,abies,1,91
+Engelmann spruce,Picea,engelmannii,0.75,93
+pine spp.,Pinus,spp.,0,100
+lodgepole pine,Pinus,contorta,0,108
+Apache pine,Pinus,engelmannii,0.5,112
+western white pine,Pinus,monticola,0.5,119
+ponderosa pine,Pinus,ponderosa,0.25,122
+Douglas-fir spp.,Pseudotsuga,spp.,0.5,200
+Douglas-fir,Pseudotsuga,menziesii,0.5,202
+thuja spp.,Thuja,spp.,1,240
+northern white-cedar,Thuja,occidentalis,1,241
+western redcedar,Thuja,plicata,1,242
+hemlock spp.,Tsuga,spp.,1,260
+eastern hemlock,Tsuga,canadensis,1,261
+western hemlock,Tsuga,heterophylla,1,263

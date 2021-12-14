@@ -10,7 +10,7 @@ colnames(kt1) == colnames(lolo1)
 #Identify list of stands we want (stands with the most recent measurements)
 sumdata <- read_csv("data/pgp_stand_summary_data_18_21.csv", col_types = cols(.default = "?", SETTING_ID = "c"))
 sumdata <- sumdata %>% filter(!is.na(sumdata$SETTING_ID))
-a <- unique(sumdata$SETTING_ID)
+(a <- unique(sumdata$SETTING_ID))
 
 
 #Bind two main datasets
