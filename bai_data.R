@@ -59,7 +59,7 @@ bai.dens.comp.pl <- bai.data %>% #call data
            (SPECIES_SYMBOL %in% c('POTR5', 'BEPA') & DIAMETER < 1.0) ~ r4*DIAMETER^(r5),
            DIAMETER >= 10.0 ~ r1 + (r2*DIAMETER) + (r3*(DIAMETER^2)),
            DIAMETER < 10.0 ~ r4*DIAMETER^(r5))) %>% #This step adds tree crown competition factor based on a series of conditionals which determine which equation/coefficients to use - this step could probably be simplified with custom funcions
-  mutate(ccf.pl = sum(ccf)) %>%
+  mutate(ccf.pl = sum(ccf.tree)) %>%
   ungroup() #housekeeping step
 
 ############ MORE COMING SOON ###############
