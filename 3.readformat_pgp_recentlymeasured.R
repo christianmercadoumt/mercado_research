@@ -2,7 +2,7 @@
 ## This does not include the latest measurement data!
 
 source("1.readformat.R")
-source("readformat_kt_F14.R")
+source("2.readformat_kt_F14.R")
 #check data sets have the same variables
 colnames(kt_all_raw) == colnames(lolo_all_raw)
 colnames(kt1) == colnames(lolo1)

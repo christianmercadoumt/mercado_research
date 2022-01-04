@@ -1,0 +1,18 @@
+COMMON_NAME,GENUS,SPECIES,SPECIES_SYMBOL,ShadeToleranceIndex,SPCD
+grand fir,Abies,grandis,ABGR,0.75,17
+subalpine fir,Abies,lasiocarpa,ABLA,0.75,19
+western larch,Larix,occidentalis,LAOC,0,73
+Engelmann spruce,Picea,engelmannii,PIEN,0.75,93
+lodgepole pine,Pinus,contorta,PICO,0,108
+western white pine,Pinus,monticola,PIMO3,0.5,119
+ponderosa pine,Pinus,ponderosa,PIPO,0.25,122
+Douglas-fir,Pseudotsuga,menziesii,PSME,0.5,202
+western redcedar,Thuja,plicata,THPL,1,242
+western hemlock,Tsuga,heterophylla,TSHE,1,263
+Rocky Mountain juniper,Juniperus,scopulorum,JUSC2,0,66
+quaking aspen,Populus,tremuloides,POTR5,0,746
+cottonwood and poplar spp.,Populus,spp.,POPUL,0,740
+paper birch,Betula,papyrifera,BEPA,0.25,375
+whitebark pine,Pinus,albicaulis,PIAL,0.5,101
+mountain hemlock,Tsuga,mertensiana,TSME,0.75,264
+Pacific yew,Taxus,brevifolia,TABR2,1,231
