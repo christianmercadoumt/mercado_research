@@ -1,6 +1,12 @@
 #### Read-in and filter data to stands that were measured most recently
 ## This does not include the latest measurement data!
 
+
+### DA: NEED to update the TPA_EQUIV (and perhaps BA_EQUIV) for most setting_id
+###  records to reflect that there were 3 small tree subplots. This means
+###  changing the TPA_EQUIV from 300 tr/ac to 100 tr/ac, and likewise dividing
+###  any BA_EQUIV by 3 (for small trees)
+
 source("1.readformat.R")
 source("2.readformat_kt_F14.R")
 #check data sets have the same variables

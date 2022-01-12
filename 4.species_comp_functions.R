@@ -5,9 +5,12 @@
 #source("readformat_pgp_recentlymeasured.R")
 
 species_comp_all <- function(forestdata){
+  #  DA: add a filter to drop empty records?
+  forestdata <- forestdata[forestdata$LIVE_DEAD=="L",]
+  
   a <- forestdata %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
-    summarise(species_count = n())
+    summarise(species_count = n()) #NEED TO REPLACE THIS WITH A SUM OF TPA_EQUIV
   
   a <- a %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>% 
@@ -25,9 +28,12 @@ species_comp_all <- function(forestdata){
 ## Species comp for large trees only (excluding subplot data)
 
 species_comp_largetrees <- function(forestdata){
+  #  DA: add a filter to drop empty records?
+  forestdata <- forestdata[forestdata$LIVE_DEAD=="L",]
+  
   a <- forestdata %>% filter(is.na(SUBPLOT)) %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
-    summarise(species_count = n())
+    summarise(species_count = n())   # USE TPA_EQUIV here
   
   a <- a %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>% 
@@ -45,10 +51,13 @@ species_comp_largetrees <- function(forestdata){
 ## Species comp for larg trees only, by crown class
 
 species_comp_lt_crown <- function(forestdata){
+  #  DA: add a filter to drop empty records?
+  forestdata <- forestdata[forestdata$LIVE_DEAD=="L",]
+  
   a <- forestdata %>% 
     filter(is.na(SUBPLOT)) %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL, CROWN_CLASS) %>% 
-    summarise(species_count = n())
+    summarise(species_count = n())  # USE TPA_EQUIV here
   
   a <- a %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster, CROWN_CLASS) %>% 
@@ -68,12 +77,17 @@ species_comp_lt_crown <- function(forestdata){
 #NOTE: 
 
 species_comp_all_ba <- function(forestdata){
+  #  DA: add a filter to drop empty records?
+  forestdata <- forestdata[forestdata$LIVE_DEAD=="L",]
+  
   a <- forestdata %>% 
     group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
     mutate(cluster_BA = sum(BASAL_AREA_EQUIV))
       #BA = sum(BASAL_AREA_EQUIV))
   return(a)
 }
+## DA: Is this function working: perhaps the sum function is returning NA when
+####  some of the BASAL_AREA_EQUIV values are NA?
 
 #species_comp_all_ba(kt1)
 #a <- a %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>%
