@@ -16,6 +16,9 @@ pgp_data_all <- pgp_data_all %>% mutate(myear = as.numeric(myear))
 
 #Filter out subplot data, missing Azimuth data and Distance, only look at live trees 
 #NOTE:consider subplot data?
+
+# DA: Need subplot data for cluster or plot level calculations of BA, TPA, CCF, etc
+
 pgp_data_all <- pgp_data_all %>% filter(is.na(SUBPLOT), !is.na(AZIMUTH), !is.na(DISTANCE), LIVE_DEAD == "L")
 
 #Add cluster variable
