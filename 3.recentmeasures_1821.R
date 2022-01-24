@@ -34,10 +34,24 @@ lolokoot21 <- lolokoot21 %>%
          CROWN_RATIO = CROWN_RATIO*100,
          myear = 2021)
 
+
 lolo.koot.18.21 <- bind_rows(lolo18, lolokoot21)
 
 lolo.koot.18.21 <- mutate(lolo.koot.18.21, cluster = 100*floor(PLOT/100))
 
 lolo.koot.18.21 <- lolo.koot.18.21 %>% 
-  mutate(TPA_EQUIV = case_when(DIAMETER < dbh_breakpoint | is.na(DIAMETER) ~ 300*TreeCount,
+  mutate(TPA_EQUIV = case_when(grepl('BC', lolo.koot.18.21$REMARKS, ignore.case = F) & 
+                                 !((SETTING_ID == '01140343020046' & PLOT == 210 & TAG_ID == 604) | 
+                                  (SETTING_ID == '01140343020046' & PLOT == 420 & TAG_ID == 602)) ~ 0,
+                               DIAMETER < dbh_breakpoint | 
+                                 is.na(DIAMETER) | 
+                                 ((SETTING_ID == '01140343020046' & 
+                                     PLOT == 210 & TAG_ID == 604) | 
+                                    (SETTING_ID == '01140343020046' & 
+                                       PLOT == 420 & TAG_ID == 602)) & 
+                                 !grepl('BC', lolo.koot.18.21$REMARKS, ignore.case = F) ~ 300*TreeCount,
                                DIAMETER >= dbh_breakpoint ~ 20))
+
+
+## Setting 01140343020046, plot 210, tag id 604 - Microplot tree
+## setting 01140343020046, plot 420, tag id 602 - microplot tree - not coded as BC but is

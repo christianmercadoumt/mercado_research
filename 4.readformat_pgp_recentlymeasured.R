@@ -63,9 +63,11 @@ pgp_data_all <- pgp_data_all %>%
   mutate(TreeCount = case_when(is.na(TreeCount) & TPA_EQUIV >= 300 ~ TPA_EQUIV/300,
                                is.na(TreeCount) & TPA_EQUIV < 300 ~ 1)) %>% #Adds Tree counts to subplots. Tree counts were extrapolated form TPA_EQUIV
   mutate(TPA_EQUIV.pl = case_when(TPA_EQUIV >= 300 ~ TPA_EQUIV/3, 
-                                  TPA_EQUIV < 300 ~ TPA_EQUIV)) %>% #Alters TPA_EQUIV for small tree plots, and retains values for large tree plots. 
+                                  TPA_EQUIV < 300 & TPA_EQUIV != 0 ~ TPA_EQUIV,
+                                  TPA_EQUIV == 0 ~ 20)) %>% #Alters TPA_EQUIV for small tree plots, and retains values for large tree plots. 
   mutate(TPA_EQUIV.cl = case_when(TPA_EQUIV >= 300 ~ TPA_EQUIV/9, 
-                                  TPA_EQUIV < 300 ~ TPA_EQUIV/3))
+                                  TPA_EQUIV < 300 & TPA_EQUIV != 0 ~ TPA_EQUIV/3,
+                                  TPA_EQUIV == 0 ~ (20/3))) # Added bit of code to account for 0's (bonus data) in TPA_EQUIV so those can be considerred for BAI
 
 #BA_EQUIV - adjust small tree plots
 pgp_data_all <- pgp_data_all %>% 
