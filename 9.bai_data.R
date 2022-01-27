@@ -17,6 +17,7 @@ source("7.clustervars.new.R")
 ## BAI Calculations
 #calculating basal area increment for every tree. Choosing relevant variables. 
 bai.data <- pgp_data_all %>% 
+  filter(LIVE_DEAD == 'L') %>% #make sure BAI is only being considered for live trees
   mutate(treeba = BASAL_AREA_EQUIV.pl/TPA_EQUIV.pl) %>% #create individual tree basal area variable
   group_by(SETTING_ID, PLOT, DISTANCE, AZIMUTH) %>% #Group by stand, plot, distance and az - to isolate individual trees
   mutate(bai = (treeba[MEASUREMENT_NO + 1]-treeba)/(myear[MEASUREMENT_NO + 1]-myear)) %>%   #calculate bai variable based on difference between future measurement and current measurement
