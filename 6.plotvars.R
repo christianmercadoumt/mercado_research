@@ -1,5 +1,5 @@
 #variable calculations - plot level
-ccf_coef <- read_csv('data/ccf_species_coefficients.csv')
+ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
 
 variables.plot <- function(forestdata, na.rm = TRUE){
   a <- forestdata %>% #call data

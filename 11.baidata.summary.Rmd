@@ -1,0 +1,115 @@
+---
+title: "bai.data.summary"
+author: "Christian Mercado"
+date: "1/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r source data}
+source('10.holdoutdata.R')
+
+#NOTE: Still need to investigate subplot data issues
+
+
+bai.train %>% group_by(SETTING_ID, cluster, MEASUREMENT_NO) %>% summarize(n())
+
+
+summary(bai.train$bai)
+
+```
+
+
+```{r}
+
+# how many larch BAIs for setting IDs
+(setting.sumstats <- bai.train %>% 
+  group_by(SETTING_ID, cluster,MEASUREMENT_NO ) %>% 
+  summarise(num.larch.bai = n(),min.d = min(DIAMETER),
+            max.d = max(DIAMETER),min.larch_frac = min(larch.ba.fraction.pl), 
+            max.larch_frac = max(larch.ba.fraction.pl), 
+            min.shadetol = min(shade.tol.pl), max.shadetol = max(shade.tol.pl), 
+            min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all),
+            mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl)))
+#setting.sumstats %>% filter(TPA_EQUIV > 20)
+
+#ggplot(setting.sumstats, aes(x = SETTING_ID)) + geom_point(aes(y = max.d, size = 1)) + geom_point(aes(y=min.d, size = 5))
+
+#filter(bai.data, SETTING_ID == '01140119020008', cluster == 100, PLOT == 110, is.na(DISTANCE))
+
+```
+
+```{r visualize}
+
+num.bai <- ggplot(setting.sumstats, aes(x = cluster, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID)
+num.bai
+
+#might be better to use boxplots or bars with horizontal ends
+min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~SETTING_ID)
+min.max.diam
+
+#boxplots showing diameter distributions for each cluster within each setting id. 
+diam.boxplots <- ggplot(bai.train, aes(y = DIAMETER, group = cluster)) + geom_boxplot() + facet_wrap(~SETTING_ID)
+diam.boxplots
+
+#boxplots showing distributions of larch fractions for each setting id. 
+ggplot(bai.train, aes(x = reorder(SETTING_ID, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID))
+
+#ggplot(setting.sumstats, aes(y = mean.tpa)) 
+
+
+
+colnames(bai.train)
+```
+
+
+```{r}
+# Number of unique western larch with BAI value for each setting id
+count.trees <- bai.train %>% 
+  group_by(SETTING_ID, PLOT, DISTANCE, AZIMUTH, TAG_ID) %>% #group individual trees in setting id's (can have multiple measurements)
+  summarise(n()) %>% #Count those trees
+  ungroup() %>% #ungroup
+  group_by(SETTING_ID) %>% #Group to each setting id
+  summarise(count = n()) # Count the rows (which counts how many unique trees there are being measured)
+count.trees
+sum(count.trees$count)
+```
+
+```{r}
+# how many larch BAIs for setting IDs for each measurement number
+
+a %>% group_by(SETTING_ID, MEASUREMENT_NO) %>% summarise(num.larch.bai = n(), min.d = min(DIAMETER), max.d = max(DIAMETER), min.larch_frac = min(larch.ba.fraction.pl), max.larch_frac = max(larch.ba.fraction.pl), min.shadetol = min(shade.tol.pl), max.shadetol = max(shade.tol.pl), min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all))
+```
+
+```{r}
+# how many larch BAIs for SETTING IDs for each PLOT
+
+a %>% group_by(SETTING_ID, PLOT) %>% summarise(num.larch.bai = n(), min.dbh = min(DIAMETER))
+```
+
+```{r}
+# how many larch BAIs for SETTING IDs for each cluster
+
+a %>% group_by(SETTING_ID, cluster) %>% summarise(num.larch.bai = n(), min.dbh = min(DIAMETER))
+```
+
+```{r}
+# how many individual trees are being measured
+
+a %>% group_by(SETTING_ID, PLOT, DISTANCE, AZIMUTH, TAG_ID) %>% summarise(n()) 
+a %>% group_by(SETTING_ID, PLOT, DISTANCE, AZIMUTH) %>% summarise(n())
+```
+
+```{r}
+#plot larch frac vs. diameter
+
+b <- a %>% filter(MEASUREMENT_NO == 1)
+
+ggplot(b, aes(x = DIAMETER, y = larch.ba.fraction.pl)) + geom_point()
+ggplot(b, aes(x = DIAMETER, y = shade.tol.pl)) + geom_point()
+
+```
+
