@@ -9,6 +9,9 @@ source("8.larch_frac_fns.R")
 source("6.plotvars.R")
 source("7.clustervars.new.R")
 
+stand.data <- read_csv('data/pgp_stand_summary_data_18_21.csv')
+stand.data <- stand.data %>% 
+  select(SETTING_ID, NF, ASPECT_CLASS, ELEVATION, SLOPE_CLASS, HabType, SCIENTIFIC_NAME, COMMON_NAME)
 ## Prep data
 
 ## BAI Calculations
@@ -38,7 +41,8 @@ bai.cluster <- bai.plot %>% variables.cluster()
 bai.shade <- shade.tolerance.plot.cluster(bai.cluster)
 
 #filter out na's and non-larch
-bai.data <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC')
+bai.data1 <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC')
+bai.data <- left_join(bai.data1, stand.data, by = "SETTING_ID")
 
 #how many NA's?
 #sum(is.na(bai.data$bai))

@@ -1,0 +1,126 @@
+---
+title: "data.summary"
+author: "Christian Mercado"
+date: "2/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+library(corrplot)
+library(GGally)
+library(ggrepel)
+
+source('10.holdoutdata.R')
+```
+
+Data distributions for each stand
+
+```{r number of bais for stands/measures}
+bai.train <- bai.train %>% mutate(log.bai = log(bai))
+#bai.train
+
+(setting.sumstats <- bai.train %>% 
+  group_by(SETTING_ID, cluster,MEASUREMENT_NO ) %>% 
+  summarise(num.larch.bai = n(),min.d = min(DIAMETER),
+            max.d = max(DIAMETER),min.larch_frac = min(larch.ba.fraction.pl), 
+            max.larch_frac = max(larch.ba.fraction.pl), 
+            min.shadetol = min(shade.tol.pl), max.shadetol = max(shade.tol.pl), 
+            min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all),
+            mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl)))
+
+num.bai <- ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(title = 'Number of larch bai data points for each cluster and measurement', color = 'Measurement', y = '# of larch w/ bai', x = 'cluster')
+num.bai
+```
+
+Minimum and maximum diameter for each stand
+```{r min-max diameters}
+min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(y = 'Min.(circle) and max.(triangle) diameter', color = 'Measurement', title = 'Minimum and maximum diameter for each cluster/measurement')
+min.max.diam
+```
+
+Species mixture distribution for each species-mix variable
+```{r dist of spp mix, fig.show = 'hold', out.width='50%'}
+
+ggplot(bai.train, aes(x = reorder(SETTING_ID, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank()) + labs(title = 'Distribution of larch fractions for each stand', y = 'Larch Fraction', x = 'Stand')
+
+ggplot(bai.train, aes(x = reorder(SETTING_ID, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank()) + labs(title = 'Distribution of relative shade-intolerance for each stand', y = 'Shade intolerance', x = 'Stand')
+```
+
+Correlation matrices
+```{r corrmat, fig.show = 'hold', out.width='50%'}
+vars.cl <- bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.cl, ccf.cl, dq.cl.all, ba.cl, tpa.cl.all,larch.ba.fraction.cl, shade.tol.cl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.cl = dq.cl.all)
+
+vars.pl <-  bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.pl, ccf.pl, dq.pl.all, ba.pl, tpa.pl.all,larch.ba.fraction.pl, shade.tol.pl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.pl = dq.pl.all)
+
+cormat.cl <- cor(vars.cl, use = 'complete.obs')
+cormat.cl <- round(cormat.cl, 4)
+corrplot(cormat.cl)
+
+cormat.pl <- cor(vars.pl, use = 'complete.obs')
+cormat.pl <- round(cormat.pl, 4)
+corrplot(cormat.pl)
+```
+
+Larch fraction vs. density and competition
+```{r larch fraction vs. density and competition, fig.show='hold', out.width='50%'}
+#larch fraction and ba by stand-cluster
+ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_x') + labs(shape = 'Measurement', color = 'Cluster', y = 'Larch fraction', x = 'Basal area (sqft/acre)', title = 'Larch fraction and BA by stand')
+
+#larch fraction and ccf by stand-cluster
+ggplot(bai.train, aes(x = ccf.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_x') + labs(title = 'Larch fraction vs. competition for each cluster & measurement', x = 'Crown comp. factor', y = 'Larch fraction', color = 'Cluster', shape = 'Measurement')
+```
+
+BAI vs. diameter by density and competition
+```{r bai-diameter modified by density and comp., fig.show='hold', out.width='50%'}
+#high density low competition - high growth. low density-high competition, 
+
+ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(-ba.cl, 3, labels = c('High BA', 'mid', 'Low BA')))) + geom_point(alpha = .05) + geom_smooth(se = F) + facet_grid(~cut_number(bal.cl, 3, labels = c('LowBAL','mid', 'HighBAL'))) + labs(title = 'bai-diameter, by competition and density') + theme(legend.title = element_blank())
+
+ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(-ba.cl, 3, labels = c('High BA', 'mid', 'Low BA')))) + geom_point(alpha = .05) + geom_smooth(se = F) + facet_grid(~cut_number(dq.cl.cutoff, 3, labels = c('Low.dq', 'mid.dq', 'High.dq'))) + labs(title = 'bai-diameter, by competition and density') + theme(legend.title = element_blank())
+
+#ggplot(bai.train, aes(x = dq.cl.cutoff, y = bal.cl)) + geom_point() + geom_smooth()
+```
+
+BAI vs. Diameter separated by spp. mix, by density and competition (BAL)
+```{r bai-diameter-shade-dens-comp, fig.show='hold', out.width='50%'}
+#colnames(bai.train)
+ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(shade.tol.cl, 3, labels = c('loves.shade', 'mid', 'hates.shade')))) + geom_point(alpha = .05) + geom_smooth() + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(title = 'bai vs. diameter, by BA vs. BAL', color = 'Relative shade-intolerance') + theme(legend.title = element_blank())
+
+ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(larch.ba.fraction.cl, 3, labels = c('lowlarch', 'mid', 'highlarch')))) + geom_point(alpha = .05) + geom_smooth() + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(color = 'larch fraction', title = 'bai-diameter-larch fraction by density and comp.') + theme(legend.title = element_blank())
+
+
+
+```
+
+BAI vs. diameter separated by spp. mix, by density and competition (Diameter:QMD)
+```{r bai-diameter-shade-dens-comp2, fig.show='hold', out.width='50%'}
+
+ggplot(bai.train, aes(x = DIAMETER, 
+                      y = log.bai, 
+                      color = cut_number(shade.tol.cl, 3, 
+                                         labels = c('loves.shade', 'mid', 'hates.shade')))) +
+  geom_point(alpha = .05) + 
+  geom_smooth() + 
+  facet_grid(cut_number(-dq.cl.cutoff, 2, 
+                        labels = c('high.dqratio', 'low.dq.ratio'))~
+               cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + 
+  labs(title = 'bai vs. diameter - shade-intolerance, by d-qmd ratio', color = 'Relative shade-intolerance') +
+  theme(legend.title = element_blank())
+
+ggplot(bai.train, aes(x = DIAMETER, 
+                      y = log.bai, 
+                      color = cut_number(larch.ba.fraction.cl, 3, 
+                                         labels = c('lowlarch', 'mid', 'highlarch')))) + 
+  geom_point(alpha = .05) + 
+  geom_smooth() +
+  facet_grid(cut_number(-dq.cl.cutoff, 2, 
+                        labels = c('high.dqratio', 'low.dq.ratio'))~
+               cut_number(ba.cl, 2, 
+                          labels = c('low BA', 'High BA'))) + 
+  labs(color = 'larch fraction', title = 'bai-diameter-larch fraction by density and comp.') + 
+  theme(legend.title = element_blank())
+
+```
+
