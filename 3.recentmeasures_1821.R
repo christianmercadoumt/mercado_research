@@ -1,10 +1,10 @@
 #Read in field seasons 18 and 21
 require(tidyverse)
 
-load("C:/git/research/mercado_research/data/recent_remeasures/lolo_2018_remeasures_2022-01-03.Rdata")
+load("data/recent_remeasures/lolo_2018_remeasures_2022-01-03.Rdata")
 lolo18 <- ingy_remeasures #This has disturbance cats 1-3
 
-load("C:/git/research/mercado_research/data/recent_remeasures/lolo_koot_2021_remeasures_2022-01-03.Rdata")
+load("data/recent_remeasures/lolo_koot_2021_remeasures_2022-01-03.Rdata")
 lolokoot21 <- ingy_remeasures #This one has an additional disturbance cat 4
 
 lolo18 <- lolo18 %>% 

@@ -15,18 +15,19 @@ stand.data <- stand.data %>%
 ## Prep data
 
 ## BAI Calculations
-#calculating basal area increment for every tree. Choosing relevant variables. 
-bai.calc <- pgp_data_all %>% 
-  filter(LIVE_DEAD == 'L', MEASUREMENT_NO != 0) %>% #make sure BAI is only being considered for live trees
-  mutate(treeba = BASAL_AREA_EQUIV.pl/TPA_EQUIV.pl) %>% #create individual tree basal area variable
-  group_by(SETTING_ID, PLOT, SPECIES_SYMBOL, DISTANCE, AZIMUTH) %>% #Group by stand, plot, distance and az - to isolate individual trees
-  mutate(id = cur_group_id()) %>% #create index id
-  ungroup() %>% 
-  filter(!is.na(DISTANCE), !is.na(AZIMUTH)) %>% 
-  group_by(id) %>% 
-  mutate(bai = (lead(treeba, order_by = MEASUREMENT_NO)-treeba)/(lead(myear, order_by = MEASUREMENT_NO)-myear)) %>%   #calculate bai variable based on difference between future measurement and current measurement
-  ungroup() %>%  #housekeeping step
-  filter(!is.nan(bai), !is.infinite(bai)) #Get rid of infinities/irrationals
+source("9_a.tree_matching.R")
+# #calculating basal area increment for every tree. Choosing relevant variables. 
+# bai.calc <- pgp_data_all %>% 
+#   filter(LIVE_DEAD == 'L', MEASUREMENT_NO != 0) %>% #make sure BAI is only being considered for live trees
+#   mutate(treeba = BASAL_AREA_EQUIV.pl/TPA_EQUIV.pl) %>% #create individual tree basal area variable
+#   group_by(SETTING_ID, PLOT, SPECIES_SYMBOL, DISTANCE, AZIMUTH) %>% #Group by stand, plot, distance and az - to isolate individual trees
+#   mutate(id = cur_group_id()) %>% #create index id
+#   ungroup() %>% 
+#   filter(!is.na(DISTANCE), !is.na(AZIMUTH)) %>% 
+#   group_by(id) %>% 
+#   mutate(bai = (lead(treeba, order_by = MEASUREMENT_NO)-treeba)/(lead(myear, order_by = MEASUREMENT_NO)-myear)) %>%   #calculate bai variable based on difference between future measurement and current measurement
+#   ungroup() %>%  #housekeeping step
+#   filter(!is.nan(bai), !is.infinite(bai)) #Get rid of infinities/irrationals
   
 # calculate larch fraction plot and cluster levels - add them to the data
 bai.larch.frac <- bai.calc %>% larch.fraction.plot() %>% larch.fraction.clu()

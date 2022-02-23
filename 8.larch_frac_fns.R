@@ -19,7 +19,7 @@ larch.fraction.clu <- function(forestdata){
   return(a)
 }
 
-shade <- readRDS("C:/git/research/mercado_research/data/shade.rds")
+shade <- readRDS("data/shade.rds")
 
 shade.tolerance.plot <- function(forestdata, na.rm = TRUE){
   a <- forestdata %>% 
