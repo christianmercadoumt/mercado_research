@@ -24,7 +24,8 @@ bai.calc <- pgp_data_all %>%
   ungroup() %>% 
   filter(!is.na(DISTANCE), !is.na(AZIMUTH)) %>% 
   group_by(id) %>% 
-  mutate(bai = (lead(treeba, order_by = MEASUREMENT_NO)-treeba)/(lead(myear, order_by = MEASUREMENT_NO)-myear)) %>%   #calculate bai variable based on difference between future measurement and current measurement
+  mutate(bai = (lead(treeba, order_by = MEASUREMENT_NO)-treeba)/(lead(myear, order_by = MEASUREMENT_NO)-myear),
+         growth.prd = (lead(myear, order_by = MEASUREMENT_NO)-myear)) %>%   #calculate bai variable based on difference between future measurement and current measurement
   ungroup() %>%  #housekeeping step
   filter(!is.nan(bai), !is.infinite(bai)) #Get rid of infinities/irrationals
   
@@ -42,7 +43,11 @@ bai.shade <- shade.tolerance.plot.cluster(bai.cluster)
 
 #filter out na's and non-larch
 bai.data1 <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC')
-bai.data <- left_join(bai.data1, stand.data, by = "SETTING_ID")
+bai.data2 <- left_join(bai.data1, stand.data, by = "SETTING_ID") # adding stand data/site chars. 
+bai.data <- bai.data2 %>% group_by(SETTING_ID, NF) %>% 
+  mutate(stand = case_when(NF == 'Kootenai' ~ 1400+group_indices(),
+                           NF == 'Lolo' ~ 1600+group_indices())) %>% #maybe turn this step into a function
+  ungroup()
 
 #how many NA's?
 #sum(is.na(bai.data$bai))

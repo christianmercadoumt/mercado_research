@@ -1,9 +1,17 @@
 ---
-title: "data.summary"
-author: "Christian Mercado"
-date: "2/17/2022"
-output: html_document
+output: bookdown::pdf_document2
+toc: false
+number_sections: no
+header-includes:
+  - \usepackage{multicol}
+  - \newcommand{\btwocol}{\begin{multicols}{2}}
+  - \newcommand{\etwocol}{\end{multicols}}
+fontsize: 9pt
 ---
+\newpage
+**Introduction**
+
+These data summaries/visualizations are meant to show you the scope of the permanent growth plot (PGP) data set that I'm working with, as well as to provide a brief update on how my work has progressed. These data summaries focus on my question addressing how community composition (or species-mixing) impacts western larch growth (BAI).
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
@@ -11,45 +19,113 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 library(corrplot)
 library(GGally)
 library(ggrepel)
+library(kableExtra)
+library(RgoogleMaps)
+library(ggmap)
+library(ggthemes)
+library(ggsn)
+library(gridExtra)
 
 source('10.holdoutdata.R')
+bai.train <- bai.train %>% mutate(log.bai = log(bai), log.diam = log(DIAMETER), stand = as.factor(stand))
+standsum <- read_csv('data/pgp_stand_summary_data_18_21.csv') %>% group_by(SETTING_ID, NF) %>% 
+  mutate(stand = case_when(NF == 'Kootenai' ~ 1400+group_indices(),
+                           NF == 'Lolo' ~ 1600+group_indices())) %>% ungroup()
+wrapper <- function(x, ...) 
+{
+  paste(strwrap(x, ...), collapse = "\n")
+}
+
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
 ```
 
-Data distributions for each stand
 
-```{r number of bais for stands/measures}
-bai.train <- bai.train %>% mutate(log.bai = log(bai))
-#bai.train
+**How much data am I working with?**
 
-(setting.sumstats <- bai.train %>% 
-  group_by(SETTING_ID, cluster,MEASUREMENT_NO ) %>% 
-  summarise(num.larch.bai = n(),min.d = min(DIAMETER),
+```{r number of bais for stands/measures, include=FALSE, echo=FALSE, warning=FALSE}
+
+setting.sumstats <- bai.train %>% 
+    group_by(stand, cluster, MEASUREMENT_NO) %>%
+    summarise(num.larch.bai = n(),min.d = min(DIAMETER),
             max.d = max(DIAMETER),min.larch_frac = min(larch.ba.fraction.pl), 
             max.larch_frac = max(larch.ba.fraction.pl), 
             min.shadetol = min(shade.tol.pl), max.shadetol = max(shade.tol.pl), 
             min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all),
-            mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl)))
+            mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl),
+            min.yr = min(myear), max.yr = max(myear),
+            growth.period = mean(growth.prd), 
+            min.gp = min(growth.prd), max.gp = max(growth.prd)) %>% 
+    ungroup()
 
-num.bai <- ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(title = 'Number of larch bai data points for each cluster and measurement', color = 'Measurement', y = '# of larch w/ bai', x = 'cluster')
+trees <- bai.train %>% group_by(stand) %>% summarize(num.tree = length(unique(id))) %>% ungroup()
+
+setting.sumstats <- left_join(setting.sumstats, trees)
+
+setting.treecounts <- setting.sumstats %>% group_by(stand) %>% summarize(num.bais = sum(num.larch.bai), num.trees = mean(num.tree), avg.gp = round(mean(growth.period), 1),min.gp = min(min.gp), max.gp = max(max.gp)) %>% rename(Stand = stand)
+
+```
+\btwocol
+\centering
+```{r table1, message=FALSE, warning=FALSE, fig.align='center', results='asis', fig.width=5, fig.height=5.5}
+tab1 <- kable(setting.treecounts, format = 'latex', booktabs = T) %>% kable_styling(latex_options = c('striped', 'HOLD_position'), position = 'center', full_width = F, font_size = 7) %>% footnote(general_title = 'Table 1:', general = 'Stand, number of BAI records, number of trees, and average, minimum, and maximum growth period (in years)', threeparttable = T, fixed_small_size = F)
+
+
+center <- c(mean(standsum$lat), mean(standsum$lon))
+
+markers <- select(standsum, lon, lat)
+
+center <- c(mean(standsum$lon), mean(standsum$lat))
+
+map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap1', style = c(feature = 'administrative.locality', element = 'labels', visibility = 'off'), scale = 4)
+
+mapp <- ggmap(map, legend = 'none', extent = 'device') + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = standsum, show.legend = F) + geom_label_repel(aes(label = stand), data = standsum, label.padding = .08, box.padding = .15) + theme_map() + scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black') + labs(title = 'PGP stands NW Montana', caption = "Figure 1: Map of PGP stand locations") + theme(plot.caption = element_text(size = 10))
+
+print(tab1)
+#cat("\\columnbreak")
+
+print(mapp)
+#cat("\\pagebreak")
+
+```
+\etwocol
+
+```{r, include=FALSE}
+num.bai <- ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand, scales = 'free_y') + labs(title = 'Number of larch bai data points for each cluster and measurement', color = 'Measurement', y = '# of larch w/ bai', x = 'cluster')
 num.bai
 ```
 
-Minimum and maximum diameter for each stand
-```{r min-max diameters}
-min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(y = 'Min.(circle) and max.(triangle) diameter', color = 'Measurement', title = 'Minimum and maximum diameter for each cluster/measurement')
+```{r min-max diameters, include=FALSE}
+#Minimum and maximum diameter for each stand
+min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~stand, scales = 'free_y') + labs(y = 'Min.(circle) and max.(triangle) diameter', color = 'Measurement', title = 'Minimum and maximum diameter for each cluster/measurement')
 min.max.diam
 ```
 
-Species mixture distribution for each species-mix variable
-```{r dist of spp mix, fig.show = 'hold', out.width='50%'}
+**Species mixture distribution for each stand**
 
-ggplot(bai.train, aes(x = reorder(SETTING_ID, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank()) + labs(title = 'Distribution of larch fractions for each stand', y = 'Larch Fraction', x = 'Stand')
+```{r dist of spp mix, fig.dim=c(6.5,3)}
 
-ggplot(bai.train, aes(x = reorder(SETTING_ID, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank()) + labs(title = 'Distribution of relative shade-intolerance for each stand', y = 'Shade intolerance', x = 'Stand')
+
+spp1 <- ggplot(bai.train, aes(x = reorder(stand, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = stand, alpha = .7), outlier.fill = NULL) + 
+  #geom_point(aes(group = stand)) + 
+  coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank(), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Larch Fraction', x = 'Stand', caption = "Figure 2: Larch fraction distribution for each stand.")
+
+spp2 <- ggplot(bai.train, aes(x = reorder(stand, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes(fill = stand, alpha = .7), outlier.fill = NULL) + 
+  #geom_point(aes(group = stand)) + 
+  coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank(), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Shade intolerance', x = 'Stand', caption = wrapper("Figure 3: Shade-intolerance distributions for each stand. Since larch stands were targetted for measurement, shade-intolerance values are generally higher.", width = 70))
+
+grid.arrange(spp1, spp2, nrow = 1, ncol = 2, widths = c(2,2), heights = c(1))
 ```
 
-Correlation matrices
-```{r corrmat, fig.show = 'hold', out.width='50%'}
+Larch fraction varies quite a bit throughout the data set, but shade-intolerance does not have as wide of a range. This is likely due to the fact that these stands were chosen because they contain an abundance of western larch. I have access to many more stands, but I have not yet explored how those might change things. Additionally, these other stands only have measurement data between ~1980 and ~2000. 
+
+**Correlation matrix and larch fraction vs. BA**
+
+```{r corrmat, fig.show = 'hold', out.width='50%', include=FALSE}
 vars.cl <- bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.cl, ccf.cl, dq.cl.all, ba.cl, tpa.cl.all,larch.ba.fraction.cl, shade.tol.cl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.cl = dq.cl.all)
 
 vars.pl <-  bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.pl, ccf.pl, dq.pl.all, ba.pl, tpa.pl.all,larch.ba.fraction.pl, shade.tol.pl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.pl = dq.pl.all)
@@ -61,19 +137,54 @@ corrplot(cormat.cl)
 cormat.pl <- cor(vars.pl, use = 'complete.obs')
 cormat.pl <- round(cormat.pl, 4)
 corrplot(cormat.pl)
+
+cormat.pl.tb <- as_tibble(cormat.pl)
+pivot_longer(cormat.pl.tb, cols = everything())
+
+cormat.pl.rs <- reshape2::melt(cormat.pl, varnames = paste0('var', 1:2), value.name = 'correlation')
+corrplot(cormat.pl, method = 'square', title = 'Figure 4: Correlations among select variables.')
+
 ```
 
-Larch fraction vs. density and competition
-```{r larch fraction vs. density and competition, fig.show='hold', out.width='50%'}
+```{r, fig.dim=c(6.5,4)}
+
+corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + labs(caption = 'Figure 4: Correlations among select variables.')+theme(axis.text.x = element_text(angle = 45, vjust = .5), axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'bottom')
+
+leg.cor <- get_legend(corr1)
+
+corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + labs(caption = 'Figure 4: Correlations among select variables.')+theme(axis.text.x = element_text(angle = 310, vjust = .5), axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'none')
+
+lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 5: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'bottom')
+
+leg.lfba <- get_legend(lf.ba)
+
+lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 5: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'none', axis.title = element_text(size = 7))
+
+grid.arrange(corr1, lf.ba, leg.cor, leg.lfba, ncol = 2, nrow = 2, widths = c(2,2), heights = c(3, .5))
+```
+
+Figure 4 - Associations among variables is particularly relevant for assessing variable inclusion during model selection. 
+
+Figure 5 - Larch fraction is variable across the data set for basal areas between 0$ft^2$ and 100$ft^2$.
+
+```{r larch bai vs. ba, out.width='50%', fig.show='hold', include=FALSE}
+#The figures below show that across basal areas, there is a wide distribution of species-mix (left:larch fraction, right: shade-intolerance).
+ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', title = 'Larch fraction and BA')
+
+ggplot(bai.train, aes(x = ba.cl, y = shade.tol.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster shade-intolerance', x = 'Cluster basal area (sqft/acre)', title = 'Shade-intolerance and BA')
+
+```
+
+```{r larch fraction vs. density and competition, fig.show='hold', out.width='50%', include=FALSE}
 #larch fraction and ba by stand-cluster
-ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_x') + labs(shape = 'Measurement', color = 'Cluster', y = 'Larch fraction', x = 'Basal area (sqft/acre)', title = 'Larch fraction and BA by stand')
+ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand, scales = 'free_x') + labs(shape = 'Measurement', color = 'Cluster', y = 'Larch fraction', x = 'Basal area (sqft/acre)', title = 'Larch fraction and BA by stand')
 
 #larch fraction and ccf by stand-cluster
-ggplot(bai.train, aes(x = ccf.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_x') + labs(title = 'Larch fraction vs. competition for each cluster & measurement', x = 'Crown comp. factor', y = 'Larch fraction', color = 'Cluster', shape = 'Measurement')
+ggplot(bai.train, aes(x = ccf.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand, scales = 'free_x') + labs(title = 'Larch fraction vs. competition for each cluster & measurement', x = 'Crown comp. factor', y = 'Larch fraction', color = 'Cluster', shape = 'Measurement')
 ```
 
-BAI vs. diameter by density and competition
-```{r bai-diameter modified by density and comp., fig.show='hold', out.width='50%'}
+
+```{r bai-diameter modified by density and comp., fig.show='hold', out.width='50%', include=FALSE}
 #high density low competition - high growth. low density-high competition, 
 
 ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(-ba.cl, 3, labels = c('High BA', 'mid', 'Low BA')))) + geom_point(alpha = .05) + geom_smooth(se = F) + facet_grid(~cut_number(bal.cl, 3, labels = c('LowBAL','mid', 'HighBAL'))) + labs(title = 'bai-diameter, by competition and density') + theme(legend.title = element_blank())
@@ -83,20 +194,19 @@ ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(-ba.cl, 3, l
 #ggplot(bai.train, aes(x = dq.cl.cutoff, y = bal.cl)) + geom_point() + geom_smooth()
 ```
 
-BAI vs. Diameter separated by spp. mix, by density and competition (BAL)
-```{r bai-diameter-shade-dens-comp, fig.show='hold', out.width='50%'}
+
+```{r bai-diameter-shade-dens-comp, fig.show='hold', out.width='50%', include=FALSE}
+#**BAI vs. Diameter separated by spp. mix, by density and competition (BAL)
 #colnames(bai.train)
-ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(shade.tol.cl, 3, labels = c('loves.shade', 'mid', 'hates.shade')))) + geom_point(alpha = .05) + geom_smooth() + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(title = 'bai vs. diameter, by BA vs. BAL', color = 'Relative shade-intolerance') + theme(legend.title = element_blank())
+ggplot(bai.train, aes(x = log(DIAMETER), y = log.bai, color = cut_number(shade.tol.cl, 3, labels = c('loves.shade', 'mid', 'hates.shade')))) + geom_point(alpha = .05) + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(title = 'bai vs. diameter, by BA vs. BAL', color = 'Relative shade-intolerance') + theme(legend.title = element_blank())
 
-ggplot(bai.train, aes(x = DIAMETER, y = log.bai, color = cut_number(larch.ba.fraction.cl, 3, labels = c('lowlarch', 'mid', 'highlarch')))) + geom_point(alpha = .05) + geom_smooth() + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(color = 'larch fraction', title = 'bai-diameter-larch fraction by density and comp.') + theme(legend.title = element_blank())
-
-
+ggplot(bai.train, aes(x = log(DIAMETER), y = log.bai, color = cut_number(larch.ba.fraction.cl, 3, labels = c('lowlarch', 'mid', 'highlarch')))) + geom_point(alpha = .05) + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('high BAL', 'low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(color = 'larch fraction', title = 'bai-diameter-larch fraction by density and comp.') + theme(legend.title = element_blank())
 
 ```
 
-BAI vs. diameter separated by spp. mix, by density and competition (Diameter:QMD)
-```{r bai-diameter-shade-dens-comp2, fig.show='hold', out.width='50%'}
 
+```{r bai-diameter-shade-dens-comp2, fig.show='hold', out.width='50%', include=FALSE}
+##*BAI vs. diameter separated by spp. mix, by density and competition (Diameter:QMD)**
 ggplot(bai.train, aes(x = DIAMETER, 
                       y = log.bai, 
                       color = cut_number(shade.tol.cl, 3, 
@@ -123,4 +233,32 @@ ggplot(bai.train, aes(x = DIAMETER,
   theme(legend.title = element_blank())
 
 ```
+
+```{r, include=F}
+a <- filter(bai.train, HabType == 590)
+#291, 670, 590
+#stands: 1403, 1406, 1612
+b <- filter(bai.train, stand == 1612)
+c <- filter(bai.train, stand == 1405)
+
+ggplot(bai.train, aes(x = stand, y = ba.cl)) + geom_boxplot()
+
+ggplot(bai.train, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~HabType)
+
+ggplot(bai.train, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~stand)
+
+```
+
+**BAI vs. Diameter for different stands** 
+
+```{r bai-diam for one stand, fig.dim=c(6.5,3), message=FALSE}
+bai.diam1 <- ggplot(b, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6a: Stand 1612 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55))+ scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3)) + theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+
+bai.diam2 <- ggplot(c, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6b: Stand 1405 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55)) + scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3))+ theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+
+grid.arrange(bai.diam1, bai.diam2, ncol = 2)
+
+```
+
+These plots display how the relationship between $log(diameter)$ and $log(BAI)$ can vary across competition, density, as well as site characteristics across stands.
 
