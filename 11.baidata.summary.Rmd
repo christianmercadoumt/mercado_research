@@ -7,23 +7,33 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(corrplot)
+library(GGally)
+library(ggrepel)
+
+source('10.holdoutdata.R')
+
 ```
 
 ```{r source data}
-source('10.holdoutdata.R')
 
-#NOTE: Still need to investigate subplot data issues
-
+bai.train <- bai.train %>% mutate(log.bai = log(bai))
 
 bai.train %>% group_by(SETTING_ID, cluster, MEASUREMENT_NO) %>% summarize(n())
 
+bai.train %>% group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% summarize(n())
 
 summary(bai.train$bai)
 
 ```
 
-
 ```{r}
+filter(pgp_data_all, SETTING_ID == '01140119020008', PLOT == 110, SPECIES_SYMBOL == 'LAOC', MEASUREMENT_NO == 2)
+```
+
+
+```{r stand summaries}
 
 # how many larch BAIs for setting IDs
 (setting.sumstats <- bai.train %>% 
@@ -41,32 +51,7 @@ summary(bai.train$bai)
 #filter(bai.data, SETTING_ID == '01140119020008', cluster == 100, PLOT == 110, is.na(DISTANCE))
 
 ```
-
-```{r visualize}
-
-num.bai <- ggplot(setting.sumstats, aes(x = cluster, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID)
-num.bai
-
-#might be better to use boxplots or bars with horizontal ends
-min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~SETTING_ID)
-min.max.diam
-
-#boxplots showing diameter distributions for each cluster within each setting id. 
-diam.boxplots <- ggplot(bai.train, aes(y = DIAMETER, group = cluster)) + geom_boxplot() + facet_wrap(~SETTING_ID)
-diam.boxplots
-
-#boxplots showing distributions of larch fractions for each setting id. 
-ggplot(bai.train, aes(x = reorder(SETTING_ID, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID))
-
-#ggplot(setting.sumstats, aes(y = mean.tpa)) 
-
-
-
-colnames(bai.train)
-```
-
-
-```{r}
+```{r counting trees}
 # Number of unique western larch with BAI value for each setting id
 count.trees <- bai.train %>% 
   group_by(SETTING_ID, PLOT, DISTANCE, AZIMUTH, TAG_ID) %>% #group individual trees in setting id's (can have multiple measurements)
@@ -77,6 +62,192 @@ count.trees <- bai.train %>%
 count.trees
 sum(count.trees$count)
 ```
+
+```{r number of larch bais}
+
+num.bai <- ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(title = 'Number of larch bai data points for each cluster and measurement', color = 'Measurement', y = '# of larch w/ bai', x = 'cluster')
+num.bai
+
+#how many new larch there are per measurement
+bai.train %>% group_by(SETTING_ID, cluster, MEASUREMENT_NO) %>% summarize(nn = unique(id)) %>% summarize(nnn = n()) %>% mutate(change_since_last = nnn-lag(nnn, order_by = MEASUREMENT_NO))
+
+#ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = mean.tpa, color = as.factor(MEASUREMENT_NO))) + geom_point(shape = 'square') + facet_wrap(~SETTING_ID, scales = 'free_y')
+### Check this out - see if there are any anomalies.
+```
+
+```{r}
+bai.calc %>% filter(SETTING_ID == '01140119020008', cluster == 400) %>% group_by(MEASUREMENT_NO) %>% summarize(unique(id))
+
+#bai.calc$dbh_breakpoint
+```
+
+
+```{r min-max diameter}
+#
+min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.factor(MEASUREMENT_NO))) + geom_point() + geom_point(aes(y = max.d), shape='triangle') + facet_wrap(~SETTING_ID, scales = 'free_y') + labs(y = 'Min.(circle) and max.(triangle) diameter', color = 'Measurement', title = 'Minimum and maximum diameter for each cluster/measurement')
+min.max.diam
+
+```
+
+```{r diameter dist. }
+#boxplots showing diameter distributions for each cluster within each setting id. 
+diam.boxplots <- ggplot(bai.train, aes(y = DIAMETER, color = as.factor(tpa.cl.all), x = as.factor(cluster))) + geom_boxplot() + facet_wrap(~SETTING_ID)
+#diam.boxplots
+
+ggplot(bai.train, aes(x = tpa.cl.all, y = DIAMETER, fill = as.factor(cluster))) + geom_boxplot() + facet_wrap(~SETTING_ID, scales = 'free')
+
+### NOTE - suggestion
+#get rid of cluster, but rather put something that characterizes the cluster.
+
+```
+
+```{r larch frac dist. }
+#boxplots showing distributions of larch fractions for each setting id. 
+ggplot(bai.train, aes(x = reorder(SETTING_ID, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip()
+
+
+
+### NOTE - suggestion
+## instead of stand on x-axis, get a cluster data set that has setting, cluster, measurement, larch frac, 
+## get unique recores for each cluster-time resolution 
+
+#ggplot(setting.sumstats, aes(y = mean.tpa)) 
+colnames(bai.train)
+
+## NOTES - suggestions
+#look at number of bai's and diagnose
+#consider how the holdout data is handling the one setting that only has data on only 1 measurement. Maybe we don't even want the setting that has very little data. 
+## maybe it has it's own habitat type.
+```
+
+```{r shade tol. dist.}
+#shade tolerance distribution for each stand
+ggplot(bai.train, aes(x = reorder(SETTING_ID, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip() + theme(legend.position = 'none')
+```
+
+
+
+```{r larch frac. vs others by stand/cluster}
+
+#larch fraction and ba by stand-cluster
+ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID, scales = 'free') + labs(shape = 'measurement', color = 'cluster', y = 'larch fraction', x = 'basal area', title = 'larch fraction and BA by stand')
+
+#larch fraction and ccf by stand-cluster
+ggplot(bai.train, aes(x = ccf.cl, y = larch.ba.fraction.cl, color = as.factor(cluster), shape = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~SETTING_ID)
+
+#high larchfrac - 01160734020002
+#low larchfrac - 01160347060011
+
+#low shade tol - 01160347060010, 01140343020046, 01160739020139
+#highshadetol - 01160734020002, 01160415010059, 01140119020008, 01160736010001
+```
+
+
+```{r corrplot}
+#select interesting variables
+
+vars.cl <- bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.cl, ccf.cl, dq.cl.all, ba.cl, tpa.cl.all,larch.ba.fraction.cl, shade.tol.cl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.cl = dq.cl.all)
+
+vars.pl <-  bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.pl, ccf.pl, dq.pl.all, ba.pl, tpa.pl.all,larch.ba.fraction.pl, shade.tol.pl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.pl = dq.pl.all)
+
+cormat.cl <- cor(vars.cl, use = 'complete.obs')
+cormat.cl <- round(cormat.cl, 4)
+corrplot(cormat.cl)
+
+cormat.pl <- cor(vars.pl, use = 'complete.obs')
+cormat.pl <- round(cormat.pl, 4)
+corrplot(cormat.pl)
+
+#ggscatmat(vars.cl)
+
+```
+
+```{r facet grid figures prep}
+
+
+
+bai.train$bal.cl <- cut_interval(bai.train$bal.cl, 5)
+bai.train$ba.cl <- cut_interval(bai.train$ba.cl, 5)
+bai.train$ccf.cl <- cut_interval(bai.train$ccf.cl, 5)
+bai.train$CROWN_RATIO <- cut_interval(bai.train$CROWN_RATIO, 4)
+
+```
+
+```{r facet grid figures}
+colnames(bai.train)
+
+#
+ggplot(bai.train, aes(x = treeba, y = log.bai)) + geom_point() + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2)) + labs(title = 'logbai vs. BA, by BA vs. BAL')
+
+#high density low competition - high growth. low density-high competition, 
+ggplot(bai.train, aes(x = DIAMETER, y = log.bai)) + geom_point() + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2)) + labs(title = 'bai-diameter, by BA vs. BAL')
+
+#
+ggplot(bai.train, aes(x = ccf.cl, y = log.bai)) + geom_point() + facet_grid(cut_number(CROWN_RATIO, 2)~cut_number(ba.cl, 2)) + labs(title = 'bai vs. CCF, by Crown Ration vs. BA')
+
+#
+ggplot(bai.train, aes(x = dq.cl.all, y = log.bai, color = SETTING_ID)) + geom_point() + facet_grid(cut_number(ba.cl, 4)~cut_number(bal.cl, 3)) + labs(title = 'bai vs. d:qmd, by BA vs. BAL')
+
+#
+ggplot(bai.train, aes(x = dq.cl.all, y = log.bai)) + geom_point()
+
+hist(bai.train$DIAMETER)
+
+## NOTE - suggestion
+
+#log transform bai before running this stuff - that's how we'll look at it afterall
+```
+
+
+
+```{r side-by-side single graphs}
+#another option is to show two separate graphs and purly compare the shape of them side-by-side
+ # larch frac
+#low - 01160737010005, 01140528020011
+#high - 01160415010059, 01140588050005 - this on has a lot of high-diameter trees
+
+low <- filter(bai.train, SETTING_ID %in% c('01160737010005', '01140528020011', '01160347060011'))
+high <- filter(bai.train, SETTING_ID %in% c('01160415010059', '01140588050005'))
+high2 <- filter(bai.train, SETTING_ID %in% c('01160415010059', '01160734020002'))
+
+#
+ggplot(low, aes(x = DIAMETER, y = log.bai)) + geom_point() + geom_smooth(se = F) + scale_x_continuous(limits = c(0, 12)) + scale_y_continuous(limits = c(-9, -3)) + facet_grid(~cut_number(bal.cl, 2))
+
+#ggplot(high, aes(x = DIAMETER, y = log.bai)) + geom_point() + geom_smooth(se = F)
+
+ggplot(high2, aes(x = DIAMETER, y = log.bai)) + geom_point() + geom_smooth(se = F) + scale_x_continuous(limits = c(0, 12)) + scale_y_continuous(limits = c(-9, -3)) + facet_grid(~cut_number(bal.cl, 2))
+
+#low shade tol - 01160347060010, 01140343020046, 01160739020139
+#highshadetol - 01160734020002, 01160415010059, 01140119020008, 01160736010001
+low.s <- filter(bai.train, SETTING_ID %in% c('01160347060010', '01140343020046', '01160739020139'))
+high.s <- filter(bai.train, SETTING_ID %in% c('01160734020002', '01160415010059', '01140119020008', '01160736010001'))
+
+ggplot(low.s, aes(x = DIAMETER, y = log.bai)) + geom_point() + geom_smooth(se = F) + scale_x_continuous(limits = c(0, 12)) + scale_y_continuous(limits = c(-9, -3)) + facet_grid(~cut_number(bal.cl, 2)) + facet_wrap(~SETTING_ID)
+
+ggplot(high.s, aes(x = DIAMETER, y = log.bai)) + geom_point() + geom_smooth(se = F) + scale_x_continuous(limits = c(0, 12)) + scale_y_continuous(limits = c(-9, -3)) + facet_grid(~cut_number(bal.cl, 2)) + facet_wrap(~SETTING_ID)
+
+```
+
+```{r}
+#low vs high spp mix for entire data set
+mean(bai.train$shade.tol.cl)
+mean(bai.train$larch.ba.fraction.cl)
+
+aa <- bai.train %>% mutate(hl.st = 
+                             case_when(shade.tol.cl < .87 ~ 'low.s',
+                                       shade.tol.cl >= .87 ~ 'high.s'),
+                           hl.lf = 
+                             case_when(larch.ba.fraction.cl < .65 ~ 'low.lf',
+                                       larch.ba.fraction.cl >= .65 ~ 'hi.lf'))
+
+ggplot(aa, aes(x = DIAMETER, y = log.bai, color = hl.st)) + geom_smooth() + facet_grid(~cut_number(bal.cl, 4))
+ggplot(aa, aes(x = DIAMETER, y = log.bai, color = hl.lf)) + geom_smooth() + facet_grid(~cut_number(bal.cl, 4))
+
+```
+
+
+
+
 
 ```{r}
 # how many larch BAIs for setting IDs for each measurement number
