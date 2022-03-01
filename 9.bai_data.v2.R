@@ -54,7 +54,9 @@ bai.data <- bai.data2 %>% group_by(SETTING_ID, NF) %>%
   mutate(stand = case_when(NF == 'Kootenai' ~ 1400+cur_group_id(),
                            NF == 'Lolo' ~ 1600+cur_group_id())) %>% #maybe turn this step into a function
   ungroup() %>% 
-  mutate(log.bai = log(bai), log.diam = log(DIAMETER), stand = as.factor(stand))
+  mutate(log.bai = log(bai), sqrt.bai = sqrt(bai), 
+         log.diam = log(DIAMETER), stand = as.factor(stand)) %>% #add some vars
+  filter(!(stand %in% c(1613, 1620))) #Remove stands with barely any larch data
 
 #how many NA's?
 #sum(is.na(bai.data$bai))

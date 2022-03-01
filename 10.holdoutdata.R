@@ -1,5 +1,5 @@
 ##Create and separate out hold-out data set for model validation. 
-source('9.bai_data.R')
+source('9.bai_data.v2.R')
 
 #set seed for reproducibility
 set.seed(301)

@@ -11,11 +11,20 @@ fontsize: 9pt
 \newpage
 **Introduction**
 
-These data summaries/visualizations are meant to show you the scope of the permanent growth plot (PGP) data set that I'm working with, as well as to provide a brief update on how my work has progressed. These data summaries focus on my question addressing how community composition (or species-mixing) impacts western larch growth (BAI).
+
+These data summaries/visualizations are meant to show you the scope of the data set that I'm working with, as well as to provide a brief update on how my work has progressed. Please review this document and provide feedback if you notice anything interesting or questionable. These data summaries focus on my question addressing how community composition (or species-mixing) impacts western larch growth, quantified by annual change in basal area increment (BAI). As a reminder, I'm working with a large, long-term data set, where trees have been tracked and measured since the 1980's. Over the first 20 years, measurements were roughly at 5 year intervals, but the more recent measurements were taken after ~20 years. Growth is calculated to 1-year intervals. 
+
+Updates:
+
+Since December, most of my work has consisted of cleaning and preparing data for my forthcoming analyses. I have calculated a handful of variables to include in my model selection phase. Some of these are highlighted below. Further, I have partitioned the data in two pieces. I randomly sampled 2 measurement plots from each stand to create a data set that I will use to validate and assess the performance of the models that I develop. The summaries shown here do not include the withheld data set. I opted to sample 2 plots from each stand to ensure that location-specific effects were captured during model validation/assessment.
+
+
+**Data summaries**
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 
+library(tidyverse)
 library(corrplot)
 library(GGally)
 library(ggrepel)
@@ -25,9 +34,10 @@ library(ggmap)
 library(ggthemes)
 library(ggsn)
 library(gridExtra)
+library(RGraphics)
 
-source('10.holdoutdata.R')
-bai.train <- bai.train %>% mutate(log.bai = log(bai), log.diam = log(DIAMETER), stand = as.factor(stand))
+bai.train <- readRDS('data/bai.train.rds')
+
 standsum <- read_csv('data/pgp_stand_summary_data_18_21.csv') %>% group_by(SETTING_ID, NF) %>% 
   mutate(stand = case_when(NF == 'Kootenai' ~ 1400+group_indices(),
                            NF == 'Lolo' ~ 1600+group_indices())) %>% ungroup()
@@ -44,10 +54,9 @@ get_legend<-function(myggplot){
 }
 ```
 
+*How much data am I working with?*
 
-**How much data am I working with?**
-
-```{r number of bais for stands/measures, include=FALSE, echo=FALSE, warning=FALSE}
+```{r number of bais for stands/measures, include=F, echo=FALSE, warning=FALSE}
 
 setting.sumstats <- bai.train %>% 
     group_by(stand, cluster, MEASUREMENT_NO) %>%
@@ -58,21 +67,39 @@ setting.sumstats <- bai.train %>%
             min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all),
             mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl),
             min.yr = min(myear), max.yr = max(myear),
-            growth.period = mean(growth.prd), 
-            min.gp = min(growth.prd), max.gp = max(growth.prd)) %>% 
+            growth.period = mean(grwth.yr), 
+            min.gp = min(grwth.yr), max.gp = max(grwth.yr),
+            m1 = mean(myear[MEASUREMENT_NO==1]),
+            m2 = mean(next.yr[MEASUREMENT_NO==1]),
+            m3 = mean(next.yr[MEASUREMENT_NO==2]),
+            m4 = mean(next.yr[MEASUREMENT_NO==3], na.rm = T),
+            m5 = mean(next.yr[MEASUREMENT_NO==4], na.rm = T),
+            num.meas = max(MEASUREMENT_NO)) %>% 
     ungroup()
 
-trees <- bai.train %>% group_by(stand) %>% summarize(num.tree = length(unique(id))) %>% ungroup()
+trees <- bai.train %>% group_by(stand) %>% summarize(num.tree = length(unique(unique_tree_id))) %>% ungroup()
 
 setting.sumstats <- left_join(setting.sumstats, trees)
 
-setting.treecounts <- setting.sumstats %>% group_by(stand) %>% summarize(num.bais = sum(num.larch.bai), num.trees = mean(num.tree), avg.gp = round(mean(growth.period), 1),min.gp = min(min.gp), max.gp = max(max.gp)) %>% rename(Stand = stand)
+setting.treecounts <- setting.sumstats %>% group_by(stand) %>% 
+  summarize(num.bais = sum(num.larch.bai, na.rm = T), 
+            num.trees = mean(num.tree, na.rm=T), 
+            min.gp = min(min.gp, na.rm = T), 
+            max.gp = max(max.gp, na.rm = T),
+            #m1 = min(m1, na.rm = T),
+            #m2 = mean(m2, na.rm = T),
+            #m3 = mean(m3, na.rm = T),
+            #m4 = mean(m4, na.rm = T),
+            #m5 = mean(m5, na.rm = T),
+            num.meas = max(num.meas)+1) %>% 
+  rename(Stand = stand)
+setting.treecounts <- rename(setting.treecounts, '# bais' = num.bais, '# trees' = num.trees, 'Min. \nGrowth \nPeriod' = min.gp, 'Max. \nGrowth \nPeriod' = max.gp, '# of \nmeasure-\nments' = num.meas)
 
-```
-\btwocol
-\centering
-```{r table1, message=FALSE, warning=FALSE, fig.align='center', results='asis', fig.width=5, fig.height=5.5}
-tab1 <- kable(setting.treecounts, format = 'latex', booktabs = T) %>% kable_styling(latex_options = c('striped', 'HOLD_position'), position = 'center', full_width = F, font_size = 7) %>% footnote(general_title = 'Table 1:', general = 'Stand, number of BAI records, number of trees, and average, minimum, and maximum growth period (in years)', threeparttable = T, fixed_small_size = F)
+#\btwocol
+#\centering
+#tab1 <- kable(setting.treecounts, format = 'latex', booktabs = T) %>% kable_styling(latex_options = c('striped', 'HOLD_position'), position = 'center', full_width = F, font_size = 7) %>% footnote(general_title = 'Table 1:', general = 'Stand, number of BAI records, number of trees, and average, minimum, and maximum growth period (in years)', threeparttable = T, fixed_small_size = F)
+
+
 
 
 center <- c(mean(standsum$lat), mean(standsum$lon))
@@ -83,20 +110,34 @@ center <- c(mean(standsum$lon), mean(standsum$lat))
 
 map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap1', style = c(feature = 'administrative.locality', element = 'labels', visibility = 'off'), scale = 4)
 
-mapp <- ggmap(map, legend = 'none', extent = 'device') + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = standsum, show.legend = F) + geom_label_repel(aes(label = stand), data = standsum, label.padding = .08, box.padding = .15) + theme_map() + scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black') + labs(title = 'PGP stands NW Montana', caption = "Figure 1: Map of PGP stand locations") + theme(plot.caption = element_text(size = 10))
+mapp <- ggmap(map, legend = 'none', extent = 'device', padding = 0) + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = standsum, show.legend = F) + geom_label_repel(aes(label = stand), data = standsum, label.padding = .08, box.padding = .15) + theme_map() + scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black') + labs(title = 'Figure 1: Stands in NW Montana') + theme(plot.title = element_text(size = 9))
 
-print(tab1)
+#print(tab1)
 #cat("\\columnbreak")
 
-print(mapp)
+#print(mapp)
 #cat("\\pagebreak")
 
 ```
-\etwocol
+
+```{r table1, message=FALSE, warning=FALSE, fig.align='center', results='asis'}
+
+
+txt <- 'This table summarizes stands with number of BAI measurements, number of trees, growth period lengths between measurements (in years), and total number of measurements for each stand.'
+txt1 <- splitTextGrob(txt, gp = gpar(fontsize = 9))
+txt2 <- textGrob(txt, gp = gpar(fontsize = 7))
+tb <- tableGrob(setting.treecounts, rows = NULL, theme = ttheme_default(base_size = 9, padding = unit(c(2, 3), 'mm')))
+grid.arrange(tb, mapp, txt1, ncol = 2, nrow = 2, heights = c(2.7, .65), widths = c(3.1, 3.2), layout_matrix = cbind(c(1,1), c(2,3)))
+
+#\etwocol
+```
+
+I plan on using 18 of the 20 stands that there are recent measurements on because 2 stands have insufficient data to be matched throughout time. Each stand has 4 or 5 measurements, where time between measurements was ~5 years before the year 2000. After 2000, stands were not re measured for ~20 years (as seen by Max. Growth Period in the table). This means that BAI's for the later measurements are calculated across longer spans of time than the first few measurements. Overall, there are `r sum(setting.treecounts[2])` BAI data points, across `r sum(setting.treecounts[3])` unique trees. 
 
 ```{r, include=FALSE}
 num.bai <- ggplot(setting.sumstats, aes(x = cluster+10*MEASUREMENT_NO, y = num.larch.bai, color = as.factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand, scales = 'free_y') + labs(title = 'Number of larch bai data points for each cluster and measurement', color = 'Measurement', y = '# of larch w/ bai', x = 'cluster')
 num.bai
+
 ```
 
 ```{r min-max diameters, include=FALSE}
@@ -105,25 +146,34 @@ min.max.diam <- ggplot(setting.sumstats, aes(x = cluster, y = min.d, color = as.
 min.max.diam
 ```
 
-**Species mixture distribution for each stand**
+*Species mixture distribution for each stand*
 
-```{r dist of spp mix, fig.dim=c(6.5,3)}
+```{r dist of spp mix, fig.dim=c(6.5, 3)}
+############################### EDIT - daves feedback - use unique values at cluster level
 
+ba2 <- unique(bai.train[,c("stand","cluster","MEASUREMENT_NO","larch.ba.fraction.pl", "NF")])
+ba3 <- unique(bai.train[,c("stand","cluster","MEASUREMENT_NO","shade.tol.cl", "NF")])
 
-spp1 <- ggplot(bai.train, aes(x = reorder(stand, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes(fill = stand, alpha = .7), outlier.fill = NULL) + 
+#plot1
+spp1 <- ggplot(ba2, aes(x = reorder(stand, larch.ba.fraction.pl), y = larch.ba.fraction.pl)) + geom_boxplot(aes()) +
   #geom_point(aes(group = stand)) + 
-  coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank(), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Larch Fraction', x = 'Stand', caption = "Figure 2: Larch fraction distribution for each stand.")
+  coord_flip() + theme(legend.position = 'none', axis.ticks.y = element_blank(), axis.text.y = element_text(size = 6.5), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Larch Fraction', x = 'Stand', caption = "Figure 2: Larch fraction distribution for each stand.")
 
-spp2 <- ggplot(bai.train, aes(x = reorder(stand, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes(fill = stand, alpha = .7), outlier.fill = NULL) + 
+#plot 2
+spp2 <- ggplot(ba3, aes(x = reorder(stand, shade.tol.cl), y = shade.tol.cl)) + geom_boxplot(aes()) + 
   #geom_point(aes(group = stand)) + 
-  coord_flip() + theme(legend.position = 'none', axis.text.y = element_blank(), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Shade intolerance', x = 'Stand', caption = wrapper("Figure 3: Shade-intolerance distributions for each stand. Since larch stands were targetted for measurement, shade-intolerance values are generally higher.", width = 70))
+  coord_flip() + theme(legend.position = 'none', axis.ticks.y = element_blank(), axis.text.y = element_text(size = 6.5), plot.caption = element_text(size = 7), axis.title = element_text(size = 7)) + labs(y = 'Shade intolerance', x = 'Stand', caption = wrapper("Figure 3: Shade-intolerance distributions for each stand. Since larch stands were targetted for measurement, shade-intolerance values are generally higher.", width = 70))
 
-grid.arrange(spp1, spp2, nrow = 1, ncol = 2, widths = c(2,2), heights = c(1))
+grid.arrange(spp1, spp2, nrow = 1, ncol = 2, widths = c(3.25,3.25), heights = c(2))
+
+#spp1
+################# forget about stand 01160708020064 - hardly any data
+#pgp_data_all %>% filter(SETTING_ID == '01160708020064')
 ```
 
-Larch fraction varies quite a bit throughout the data set, but shade-intolerance does not have as wide of a range. This is likely due to the fact that these stands were chosen because they contain an abundance of western larch. I have access to many more stands, but I have not yet explored how those might change things. Additionally, these other stands only have measurement data between ~1980 and ~2000. 
+Both larch fraction and shade intolerance represent species-mixing. Larch fraction varies throughout the data set, but shade intolerance does not have as wide of a range. This is likely due to the fact that these stands were chosen because they contain an abundance of western larch. I have access to more data, but I have not yet explored how it might change things. Additionally, those data were only measured between ~1980 and ~2000 they won't necessarily have an abundance of larch. Overall, I think that the spread of these variables across varying locations/stand conditions will sufficiently capture enough variable combinations to examine species-mixing effects on the modeled relationships. 
 
-**Correlation matrix and larch fraction vs. BA**
+*Larch fraction vs. BA & correlation matrix*
 
 ```{r corrmat, fig.show = 'hold', out.width='50%', include=FALSE}
 vars.cl <- bai.train %>% select(bai, DIAMETER, HEIGHT, CROWN_RATIO, treeba, bal.cl, ccf.cl, dq.cl.all, ba.cl, tpa.cl.all,larch.ba.fraction.cl, shade.tol.cl) %>% rename(diameter = DIAMETER, height = HEIGHT, crown_ratio = CROWN_RATIO, d.qmd.ratio.cl = dq.cl.all)
@@ -146,26 +196,32 @@ corrplot(cormat.pl, method = 'square', title = 'Figure 4: Correlations among sel
 
 ```
 
-```{r, fig.dim=c(6.5,4)}
+```{r, include=F}
 
-corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + labs(caption = 'Figure 4: Correlations among select variables.')+theme(axis.text.x = element_text(angle = 45, vjust = .5), axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'bottom')
+corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + labs(caption = 'Figure 5: Correlations among select variables.')+theme(axis.text.x = element_text(angle = 45, vjust = .5),axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'bottom', legend.text = element_text(size = 6),legend.key.size = unit(.35, 'cm'), legend.title = element_text(size = 7))
 
 leg.cor <- get_legend(corr1)
 
-corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + labs(caption = 'Figure 4: Correlations among select variables.')+theme(axis.text.x = element_text(angle = 310, vjust = .5), axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'none')
 
-lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 5: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'bottom')
+lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 4: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'bottom', legend.text = element_text(size = 6),legend.key.size = unit(.35, 'cm'), legend.title = element_text(size = 7))
 
 leg.lfba <- get_legend(lf.ba)
-
-lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 5: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'none', axis.title = element_text(size = 7))
-
-grid.arrange(corr1, lf.ba, leg.cor, leg.lfba, ncol = 2, nrow = 2, widths = c(2,2), heights = c(3, .5))
 ```
 
-Figure 4 - Associations among variables is particularly relevant for assessing variable inclusion during model selection. 
+```{r, fig.dim=c(6.5,3.5)}
+corr1 <- ggplot(cormat.pl.rs, aes(var1, var2, fill = correlation)) + geom_tile() + 
+  scale_fill_gradient2(low = 'orange2', mid = 'ivory', high = 'blue4', limits = c(-1, 1)) + 
+  labs(caption = 'Figure 5: Correlations among select variables.')+
+  theme(axis.text.x = element_text(angle = 90, vjust = .5), axis.title = element_blank(), plot.caption = element_text(size = 7), legend.position = 'none', plot.background = element_rect(margin(l = 0)))
 
-Figure 5 - Larch fraction is variable across the data set for basal areas between 0$ft^2$ and 100$ft^2$.
+lf.ba <- ggplot(bai.train, aes(x = ba.cl, y = larch.ba.fraction.cl, color = NF)) + geom_point() + labs(color = 'Forest', y = 'Cluster larch fraction', x = 'Cluster basal area (sqft/acre)', caption = 'Figre 4: Larch fraction and BA') + theme(plot.caption = element_text(size = 7), legend.position = 'none', axis.title = element_text(size = 7), plot.background = element_rect(size = 1))
+
+grid.arrange(lf.ba, corr1,leg.lfba, leg.cor, ncol = 2, nrow = 2, widths = c(2,2), heights = c(3, .3))
+```
+
+Figure 4 - Larch fraction is variable across the data set for basal areas between 0$ft^2$ and 100$ft^2$. Although higher basal area stands aren't well represented, I suspect that the numerous combinations of the two for lower basal areas will still capture competition & density effects on basal area increment. 
+
+Figure 5 - Associations among variables are particularly relevant for assessing variable inclusion during model selection. Variables are ordered by variable type (ex. diameter, height are size variables, BAL/CCF are competition, etc.) Notice the high correlation between larch fraction and shade tolerance variables in the top right. I don't plan on using these two variables together in a model, however, **I do wonder if they are *too* similar to provide any meaningful difference when comparing if one effects model performance more than the other**. 
 
 ```{r larch bai vs. ba, out.width='50%', fig.show='hold', include=FALSE}
 #The figures below show that across basal areas, there is a wide distribution of species-mix (left:larch fraction, right: shade-intolerance).
@@ -206,6 +262,7 @@ ggplot(bai.train, aes(x = log(DIAMETER), y = log.bai, color = cut_number(larch.b
 
 
 ```{r bai-diameter-shade-dens-comp2, fig.show='hold', out.width='50%', include=FALSE}
+
 ##*BAI vs. diameter separated by spp. mix, by density and competition (Diameter:QMD)**
 ggplot(bai.train, aes(x = DIAMETER, 
                       y = log.bai, 
@@ -235,6 +292,7 @@ ggplot(bai.train, aes(x = DIAMETER,
 ```
 
 ```{r, include=F}
+
 a <- filter(bai.train, HabType == 590)
 #291, 670, 590
 #stands: 1403, 1406, 1612
@@ -249,16 +307,56 @@ ggplot(bai.train, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) +
 
 ```
 
-**BAI vs. Diameter for different stands** 
+*BAI vs. Diameter for 1 stand*
 
-```{r bai-diam for one stand, fig.dim=c(6.5,3), message=FALSE}
-bai.diam1 <- ggplot(b, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6a: Stand 1612 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55))+ scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3)) + theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+```{r bai-diam for one stand, fig.dim=c(6.5,3), message=FALSE, include=FALSE}
 
-bai.diam2 <- ggplot(c, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6b: Stand 1405 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55)) + scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3))+ theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+#bai.diam1 <- ggplot(b, aes(log.diam, log.bai)) + geom_point(alpha = .15) + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6a: Stand 1612 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55))+ scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3)) + theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
 
-grid.arrange(bai.diam1, bai.diam2, ncol = 2)
+#bai.diam2 <- ggplot(c, aes(log.diam, log.bai)) + geom_point() + geom_smooth(se = F) + facet_grid(cut_number(-bal.cl, 2, labels = c('High BAL', 'Low BAL'))~cut_number(ba.cl, 2, labels = c('low BA', 'High BA'))) + labs(caption = wrapper('Figure 6b: Stand 1405 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55)) + scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3))+ theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+
+#grid.arrange(bai.diam1, bai.diam2, ncol = 2)
+
+ggplot(b, aes(log.diam, sqrt.bai)) + geom_point(alpha = .15) + geom_smooth(se = F) + facet_grid(~cut_number(-bal.cl, 3, labels = c('High BAL', 'mid', 'Low BAL'))) + labs(caption = wrapper('Figure 6a: Stand 1612 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55))#+ scale_x_continuous(limits = c(-2, 3)) + scale_y_continuous(limits = c(-9.5, -3)) + theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+
+########### GO to just one stand
+############# try sqrt transformation of bai to avoid separation of small trees. 
+######### faceting on bal more effective separation than ba
+######### identify which stand is picked on the table or 
 
 ```
 
-These plots display how the relationship between $log(diameter)$ and $log(BAI)$ can vary across competition, density, as well as site characteristics across stands.
+```{r, warning=FALSE,message=FALSE, fig.height=3.5}
+
+ggplot(b, aes(log.diam, sqrt.bai, color = cut_number(larch.ba.fraction.pl, 2, labels = c('High', 'Low')))) + 
+  geom_point(alpha = .15) + 
+  geom_smooth(method = 'gam', formula = y~s(x,bs='cs'), se = F) + 
+  #geom_smooth(method = 'gam', inherit.aes = F, aes(log.diam, sqrt.bai), se = F, color = 'black', linetype = 'dashed') +
+  facet_grid(~cut_number(tpa.pl.all, 3, labels = c('Low tpa', 'Moderate', 'High tpa'))) + 
+  labs(caption = 
+         wrapper('Figure 6: Stand 1612 square-root bai vs. 
+                 log diameter relationship across density (trees per acre), 
+                 for high and low shade tolerance', width = 120), 
+       color = 'Shade\ntolerance') + 
+  theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7))
+
+#ggplot(b, aes(log.diam, sqrt.bai, color = factor(unique_tree_id))) + geom_point(alpha = .15) + geom_smooth(se = F) + facet_grid(~cut_number(bal.cl, 3)) + labs(caption = wrapper('Figure 6a: Stand 1612 log-log bai vs. diameter relationship across density (BA) and competition (BAL)', width = 55)) + theme(plot.caption = element_text(size = 7), axis.title = element_text(size = 7), legend.position = 'none')
+
+#summary(b$bal.cl)
+```
+
+These plots display how the relationship between $log(diameter)$ and $\sqrt{BAI}$ can vary across stand density (trees/acre) and for high/low values of shade-tolerance. At lower densities (Low TPA), there appear to be higher growth rates for lower shade tolerance mixes than higher shade tolerance mixes. The moderate TPA data show the opposite but clearly there aren't as many high-shade tolerance data points. There is a clear discrepancy between the two at high TPAs. I'm curious to explore these relationships more throughout the data set. With these variable combinations, it appears larch is growing better with low shade tolerant combinations. 
+
+I only chose to display the data for one stand here to isolate these relationships from site-to-site variability. Viewing high vs. low shade tolerance provides some window into how species-mixing might alter a relationship like this, but there is a lot more to consider before scrutinizing the curves here. Transformations were applied to diameter and bai to smooth out the curves. 
+
+**Questions for you to address:**
+
+1. Do you think that the amount of data shown here is adequate for my proposed analyses?
+- Do you see any reason why I should include the other data (which was measured less and lacks measurements after the year 2000)? 
+
+2. Do you think there's any reason for me to explore other (additional) species-mixing variables at this time?
+
+3. Are there any other pertinent questions or concerns that you have after viewing these summaries?
+
+
 
