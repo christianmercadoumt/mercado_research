@@ -7,9 +7,32 @@ source("8.larch_frac_fns.R")
 source("6.plotvars.R")
 source("7.clustervars.new.R")
 
+#Site data
+load("C:/git/research/mercado_research/data/ingy_settings_si.Rdata")
+load("C:/git/research/mercado_research/data/ingy_clusters_googleearth.Rdata")
+
+#create lat long variables extracted from list element in ingy_clusters
+options(digits = 10) #without this, the loop rounds numbers. Not sure why. 
+lat.cl <- NA
+lon.cl <- NA
+for(i in 1:length(ingy_clusters$geometry)){
+  
+  lat.cl[[i]] <- ingy_clusters$geometry[[i]][1]
+  lon.cl[[i]] <- ingy_clusters$geometry[[i]][2]
+}
+ingy_clusters <- ingy_clusters %>% mutate(lat.cl = lat.cl, lon.cl = lon.cl) %>% select(-geometry)
+
+### get stand data
 stand.data <- read_csv('data/pgp_stand_summary_data_18_21.csv')
 stand.data <- stand.data %>% 
-  select(SETTING_ID, NF, ASPECT_CLASS, ELEVATION, SLOPE_CLASS, HabType, SCIENTIFIC_NAME, COMMON_NAME)
+  select(SETTING_ID, NF, HabType, SCIENTIFIC_NAME, COMMON_NAME)
+#combine stand data with cluster attributes
+stand.cl <- left_join(ingy_clusters, stand.data, by = 'SETTING_ID')
+
+#Site index - merge before running bai calcs
+
+pgp_data_all <- left_join(pgp_data_all, ingy_si)
+
 ## Prep data
 
 ## BAI Calculations
@@ -50,14 +73,17 @@ bai.shade <- shade.tolerance.plot.cluster(bai.cluster)
 #filter out na's and non-larch
 bai.data1 <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC')
 bai.data2 <- left_join(bai.data1, stand.data, by = "SETTING_ID") # adding stand data/site chars. 
-bai.data <- bai.data2 %>% group_by(SETTING_ID, NF) %>% 
+bai.data3 <- bai.data2 %>% group_by(SETTING_ID, NF) %>% 
   mutate(stand = case_when(NF == 'Kootenai' ~ 1400+cur_group_id(),
                            NF == 'Lolo' ~ 1600+cur_group_id())) %>% #maybe turn this step into a function
   ungroup() %>% 
   mutate(log.bai = log(bai), sqrt.bai = sqrt(bai), 
          log.diam = log(DIAMETER), stand = as.factor(stand)) %>% #add some vars
-  filter(!(stand %in% c(1613, 1620))) #Remove stands with barely any larch data
+  filter(!(stand %in% c(1613, 1620)), MEASUREMENT_NO != 0) #Remove stands with barely any larch data
 
+bai.data <- left_join(bai.data3, ingy_clusters)
+bai.data <- bai.data %>% select(!c(SET_CN, PLOT_CN, TREE_CN))
+#bai.data <- left_join(bai.data, ingy_si)
 #how many NA's?
 #sum(is.na(bai.data$bai))
 #summary(bai.data$bai)

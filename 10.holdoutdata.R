@@ -19,3 +19,7 @@ all_equal(sample.data,a)
 #separate data sets
 bai.hold <- bai.data.full %>% filter(sample == 'sample')
 bai.train <- bai.data.full %>% filter(is.na(sample))
+
+#save RDS files - change date every time this is run
+#saveRDS(bai.hold, 'data/bai.hold.3_9_22.rds')
+#saveRDS(bai.train, 'data/bai.train.3_9_22.rds')
