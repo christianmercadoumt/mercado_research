@@ -1,0 +1,321 @@
+---
+title: "bai.model"
+author: "Christian Mercado"
+date: "3/1/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+
+#load data
+bai.train <- readRDS('data/bai.train.3_9_22.rds')
+bai.test <- readRDS('data/bai.hold.3_9_22.rds')
+
+bai.size <- bai.train %>% select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, bai, DIAMETER, HEIGHT, treeba, log.diam, log.bai) %>% filter(bai != 0)
+bai.size.test <- bai.test %>% select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, bai, DIAMETER, HEIGHT, treeba, log.diam, log.bai) %>% filter(bai != 0)
+
+#rmse function
+#my.rmse.gam <- function(gam){
+ # obs <- gam$model[,1]
+ # pred <- exp(predict.gam(gam, type = 'response'))
+#  sqrt((1/length(obs))*sum((pred-obs)^2, na.rm = T))
+#}
+
+my.rmse.gam <- function(gam){
+  res <- residuals.gam(gam, type = 'response')
+  res.sq <- res^2
+  sqrt(mean(res.sq))
+}
+
+my.rmse.gam.scale <- function(gam){
+  res <- residuals.gam(gam, type = 'working')
+  res.sq <- res^2
+  sqrt(mean(res.sq))
+}
+
+my.rmse.xval <- function(gam, testdata){
+  prd <- predict.gam(gam, newdata = testdata, type = 'response')
+  data.t <- testdata$bai
+  rmse <- sqrt(mean((prd-data.t)^2))
+  return(rmse)
+}
+
+### have an rmse be calculated in a way that creates different models residuals
+
+#create function that creates gam objects, plots, and diagnostics?
+
+
+```
+
+```{r, include=FALSE}
+#mgcv selection example
+
+set.seed(3);n<-200
+dat <- gamSim(1,n=n,scale=.15,dist="poisson") ## simulate data
+dat$x4 <- runif(n, 0, 1);dat$x5 <- runif(n, 0, 1) ## spurious
+
+b<-gam(y~s(x0)+s(x1)+s(x2)+s(x3)+s(x4)+s(x5),data=dat,
+         family=poisson,select=TRUE,method="REML")
+summary(b)
+plot(b,pages=1)
+
+#the terms with high p-values and low edf values have essentially been 'penalized' or 'shrunk' out of the model. 
+```
+I would like to try out and compare different approaches to variable selection using the tools mgcv offers (both automatic approaches - shrinkage and shrinkage-null-space penalties), as well as traditional AIC/BIC, GCV, UBRE, ML methods. 
+
+```{r size vars data}
+
+
+nrow(filter(bai.train, bai == 0))
+```
+
+```{r which distribution}
+hist(bai.size$bai) #gaussian identity link
+hist(log(bai.size$bai)) #log-link
+hist(sqrt(bai.size$bai)) #sqrt-link (inverse gaussian?)
+```
+I need to choose whether to include DBH or BA. Probably shouldn't consider height.. although it could improve the model?? The issue is that not every record has a height. 
+
+On top of that, I need to decide whether gamma or gaussian with a log or sqrt links are better. 
+
+Gamma with log link is the best. Diameter has lower AIC and more constant variance. 
+
+```{r null model}
+gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.size)
+summary.gam(gam.null)
+my.rmse.gam(gam.null)
+
+```
+
+```{r size gam full}
+
+gam.size.full <- gam(bai~s(DIAMETER, bs = 'tp') + s(HEIGHT, bs = 'tp') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+summary.gam(gam.size.full)
+#appraise(gam.size.full)
+draw(gam.size.full)
+par(mfrow = c(2, 2))
+gam.check(gam.size.full)
+
+
+#gam.size.full1 <- gam(bai~s(DIAMETER, bs = 'tp') + s(HEIGHT, bs = 'cr') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+#summary.gam(gam.size.full1)
+#appraise(gam.size.full1)
+#draw(gam.size.full1)
+#par(mfrow = c(2,2))
+#gam.check(gam.size.full1)
+
+my.rmse.gam(gam.size.full)
+
+```
+
+```{r}
+
+gam.s1 <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size)
+
+gam.s2 <- gam(bai~s(HEIGHT), family = 'Gamma'(link = log), data = bai.size)
+
+gam.s3 <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size)
+
+par(mfrow = c(2, 2))
+gam.check(gam.s1)
+par(mfrow = c(2, 2))
+gam.check(gam.s2)
+par(mfrow = c(2, 2))
+gam.check(gam.s3)
+
+my.rmse.gam(gam.s1)
+my.rmse.gam(gam.s2)
+my.rmse.gam(gam.s3)
+
+AIC(gam.s1)
+AIC(gam.s2)
+AIC(gam.s3)
+```
+
+
+```{r exploring resids}
+rsd <- residuals.gam(gam.s1, type = 'response')
+ft <- gam.s1$fitted.values
+id <- seq(1:length(rsd))
+stand <- bai.size$stand
+a <- tibble(rsd, ft, id, stand)
+a
+ggplot(a, aes(ft, rsd, label = id, color = stand)) + geom_point(alpha = .2) + geom_label_repel()
+gam.s1$model
+filter(bai.size, bai > .0175)
+
+ggplot(a, aes(x = rsd)) + geom_histogram()
+
+### WHATS GOING ON IN RESIDUALS?
+
+bai.size[c(26, 111, 2836, 20, 2744, 38),]
+
+acf(residuals(gam.s1))
+pacf(residuals(gam.s1))
+```
+
+```{r FVS Size vars}
+
+fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size)
+fvs.size.lm <- lm(log.bai~log.diam + I(DIAMETER^2), data = bai.size)
+
+summary.gam(fvs.size1)
+my.rmse.gam(fvs.size1)
+
+
+summary(fvs.size.lm)
+
+par(mfrow = c(2,2))
+plot(fvs.size.lm)
+
+
+```
+
+```{r rmse table}
+type <- c('rmse', 'rmse.scale', 'rmse.cross.val')
+null.gam <- c(my.rmse.gam(gam.null), my.rmse.gam.scale(gam.null), my.rmse.xval(gam.null, bai.size.test))
+size.full.g <- c(my.rmse.gam(gam.size.full), my.rmse.gam.scale(gam.size.full), my.rmse.xval(gam.size.full, bai.size.test))
+diam.g <- c(my.rmse.gam(gam.s1), my.rmse.gam.scale(gam.s1), my.rmse.xval(gam.s1,bai.size.test))
+fvs.sz <- c(my.rmse.gam(fvs.size1), my.rmse.gam.scale(fvs.size1), my.rmse.xval(fvs.size1,bai.size.test))
+
+tibble(type, null.gam, size.full, diam, fvs.sz)
+
+```
+
+
+```{r size full reml version, include = FALSE}
+gam.size.full <- gam(bai~s(DIAMETER, bs = 'tp') + s(HEIGHT, bs = 'tp') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit', method = 'REML')
+summary.gam(gam.size.full)
+appraise(gam.size.full)
+draw(gam.size.full)
+
+gam.size.full1 <- gam(bai~s(DIAMETER, bs = 'cr') + s(HEIGHT, bs = 'cr') + s(treeba, bs = 'cr'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit', method = 'REML')
+summary.gam(gam.size.full1)
+appraise(gam.size.full1)
+draw(gam.size.full1)
+
+my.rmse.gam(gam.size.full)
+my.rmse.gam(gam.size.full1)
+```
+
+
+
+```{r, include = FALSE}
+s1 <- gam(bai~s(DIAMETER), data = bai.size, family = 'Gamma'(link = log))
+#s1a <- gam(bai~s(DIAMETER), data = bai.size, family = 'gaussian'(link = log))
+#s1b <- gam(bai~s(DIAMETER), data = bai.size, family = 'inverse.gaussian'(link = log))
+#s1c <- gam(bai~s(DIAMETER), data = bai.size, family = 'inverse.gaussian'(link = 1/mu^2))
+
+s2 <- gam(bai~s(treeba), data = bai.size, family = 'Gamma'(link = log))
+#s1a <- gam(bai~s(BASAL_AREA_EQUIV.pl), data = bai.size, family = 'gaussian'(link = log))
+#s1b <- gam(bai~s(BASAL_AREA_EQUIV.pl), data = bai.size, family = 'inverse.gaussian'(link = log))
+#s1c <- gam(bai~s(BASAL_AREA_EQUIV.pl), data = bai.size, family = 'inverse.gaussian'(link = 1/mu^2))
+
+plot.gam(s1)
+plot.gam(s2)
+#plot.gam(s1a)
+#plot.gam(s1b)
+#plot.gam(s1c)
+
+AIC(s1)
+AIC(s2)
+#AIC(s1a)
+#AIC(s1b)
+#AIC(s1c)
+
+appraise(s1)
+appraise(s2)
+#appraise(s1a)
+#appraise(s1b)
+#appraise(s1c)
+
+my.rmse.gam(s1)
+my.rmse.gam(s2)
+
+
+```
+
+
+```{r, include = F}
+s2 <- gam(bai~s(BASAL_AREA_EQUIV.pl), data = bai.size, family = 'Gamma'(link = log))
+anova.gam(s1, s2, test = 'F')
+s2a <- gam(bai~s(BASAL_AREA_EQUIV.pl), data = bai.size, family = 'Gamma'(link = log))
+plot.gam(s2)
+plot.gam(s2a)
+
+AIC(s2)
+AIC(s2a)
+
+plot.gam(s2)
+plot.gam(s2a)
+
+appraise(s2)
+appraise(s2a)
+```
+
+
+```{r size with automatic selection, include=TRUE}
+
+
+# shrinkage appraoch
+
+gam1 <- gam(bai~s(DIAMETER, bs = 'ts') + s(HEIGHT, bs = 'ts') + s(treeba, bs = 'ts'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+summary.gam(gam1)
+my.rmse.gam(gam1)
+
+gam1a <- gam(bai~s(DIAMETER, bs = 'ts') + s(HEIGHT, bs = 'ts'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+summary.gam(gam1a)
+
+gam1b <- gam(bai~s(DIAMETER, bs = 'ts') + s(HEIGHT, bs = 'ts') + s(treeba, bs = 'ts'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+gam1c <- gam(bai~s(DIAMETER, bs = 'tp') + s(HEIGHT, bs = 'tp') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
+
+summary.gam(gam1b)
+summary.gam(gam1c)
+
+draw(gam1)
+draw(gam1a)
+draw(gam1b)
+draw(gam1c)
+
+appraise(gam1)
+appraise(gam1a)
+appraise(gam1b)
+appraise(gam1c)
+
+
+my.rmse.gam(gam1)
+my.rmse.gam(gam1a)
+my.rmse.gam(gam1b)
+
+```
+
+```{r size p2, include = TRUE}
+# double penalty
+
+gam2 <- gam(bai~s(HEIGHT) + s(treeba) + s(CROWN_RATIO, k = 4), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit', select = TRUE)
+summary.gam(gam2)
+
+gam2a <- gam(bai~s(DIAMETER) + s(HEIGHT) + s(treeba), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit', select = TRUE)
+summary.gam(gam2a)
+#plot.gam(gam2)
+draw(gam2a)
+gam.check(gam2a)
+my.rmse.gam(gam2a)
+```
+
+
+```{r}
+### Visit chunk above which applies the double penalty approach in concert with the shrinkage approach (see shrinkage above for example)
+### Try out 'cs' - cubic spline - for shrinkage approach - see if effective degrees of freedom are modified in a favorable way. 
+### Maybe look into using 'ad' which is an adaptive method. - not sure how this will work for either penalty approach
+### Look into the method = 'REML' option. What does that mean? Does that change things favorable in either automatic approach. 
+
+### once finished with those methods, try to use an interactive method. I will need to look into these. 
+```
+
