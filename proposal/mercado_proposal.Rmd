@@ -4,7 +4,7 @@ author: "Christian Mercado"
 date: "12/10/2021"
 output: bookdown::pdf_document2
 always_allow_html: yes
-bibliography: zlibrary.bib
+bibliography: zlibrary.bibz
 csl: forest-ecology-and-management.csl
 toc: false
 ---

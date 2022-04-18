@@ -6,52 +6,55 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
 
 #load packages
 library(tidyverse)
 library(mgcv)
 library(gratia)
 library(ggrepel)
-library(measurements)
+source('12.gam_fns.R')
 
 #load data
-bai.train <- readRDS('data/bai.train.3_9_22.rds')
+bai.train <- readRDS('data/bai.train.4_12_22.rds')
 
 bai.size <- bai.train %>% 
   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
-  filter(bai != 0) %>% 
-  mutate(bai = conv_unit(bai, 'ft2', 'inch2')) #Convert from sqft/yr to sqinches/yr
+  filter(bai != 0)
 
-
-
-## Standard RMSE
-my.rmse.gam <- function(gam){
-  res <- residuals.gam(gam, type = 'response')
-  res.sq <- res^2
-  sqrt(mean(res.sq))
-}
-
-## RMSE further penalizing models that use more degrees of freedom
-my.rmse.dfres <- function(gam){
-  res <- residuals.gam(gam, type = 'response')
-  res.sq <- res^2
-  sqrt(sum(res.sq)/(gam$df.residual))
-}
-
-#bai.size.test <- bai.test %>% select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, bai, DIAMETER, HEIGHT, treeba, log.diam, log.bai) %>% filter(bai != 0)
-
-#my.rmse.xval <- function(gam, testdata){
-#  prd <- predict.gam(gam, newdata = testdata, type = 'response')
-#  data.t <- testdata$bai
-#  rmse <- sqrt(mean((prd-data.t)^2))
-#  return(rmse)
-#}
-
-#create function that creates gam objects, plots, and diagnostics?
-
-
+#bai.site <- bai.train %>% 
+#  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+#         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+#         heatload, slope_deg, elev_m, NF) %>% 
+#  mutate(slope_pct = tan(slope_deg*(pi/180))*100, asp_sin = sin(aspect_deg*(pi/180)), 
+#         asp_cos = cos(aspect_deg*(pi/180))) %>%
+#  mutate(sl_asp_sin = asp_sin*slope_pct, sl_asp_cos = asp_cos*slope_pct, asp.trasp = trasp(aspect_deg)) %>% 
+#filter(bai != 0)
 ```
+
+Protocol for variable selection:
+
+1. Start with size variables, then add site, then density/competition
+2. Add variables that make sense together
+2.a. for example: don't create a model that includes both diameter and basal area because those are co-linear, concurve with eachother. 
+3. Select variable combination that fits, and assess RMSE (accuracy), concurvity, and gut-check. 
+4. Once a full model is fit, and makes sense, assess concurvity between groups. 
+5. Add the species-mix variables, assess inclusion within model. Assess model accuracy/performance. 
+
+Here I am constructing a table of RMSE's for each step of the process. This helps visualize how the addition of new variables is useful to the model, creating a firm foundation upon which I can add the species-mix variables. 
+
+OUTLIERS
+
+```{r}
+bai.train %>% filter(DIAMETER>30)
+bai.train %>% filter(unique_tree_id == 15431)
+bai.size.nobig <- bai.size %>% filter(unique_tree_id != 15431)
+
+summary(bai.size$DIAMETER)
+summary(bai.size.nobig$DIAMETER)
+```
+
 
 
 ```{r which distribution, include = FALSE}
@@ -63,22 +66,31 @@ I need to choose whether to include DBH or BA. Probably shouldn't consider heigh
 
 Gamma with log link is the best.
 
+### Null model
+
 ```{r null model}
 #create null model
 gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.size)
 summary.gam(gam.null)
-my.rmse.gam(gam.null)
+my.rmse.2(gam.null)
 
 ```
 
-```{r size gam full}
+## Full Gam - Size
+
+This is somewhat irrelevant because full size and individual size vars versions of this are the same (only two variables that can't go together due to their relationship. )
+
+```{r size gam full, include = F}
 #create full saturated model
 gam.size.full <- gam(bai~s(DIAMETER, bs = 'tp') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
 summary.gam(gam.size.full)
 #appraise(gam.size.full)
-draw(gam.size.full)
+#draw(gam.size.full)
+par(mfrow = c(1,2))
+plot.gam(gam.size.full)
 par(mfrow = c(2, 2))
 gam.check(gam.size.full)
+
 
 
 #gam.size.full1 <- gam(bai~s(DIAMETER, bs = 'tp') + s(HEIGHT, bs = 'cr') + s(treeba, bs = 'tp'), family = 'Gamma'(link = log), data = bai.size, na.action = 'na.omit')
@@ -88,39 +100,78 @@ gam.check(gam.size.full)
 #par(mfrow = c(2,2))
 #gam.check(gam.size.full1)
 
-my.rmse.gam(gam.size.full)
-my.rmse.dfres(gam.size.full)
+my.rmse.2(gam.size.full)
+concurvity(gam.size.full)
 
 ```
 Treeba variable has high effective degrees of freedom. perhaps try different fit approach? maybe don't worry about it?
 
-
+#### Individual size vars
 ```{r size variables separated}
+##### comparing between these two different specifications
+##### 8 knot version seems to better represent the relationship, or smooths out the noise at least. Slightly higher RMSE values. 
 
-gam.s1 <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size)
-plot.gam(gam.s1)
+gam.d <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+
+gam.s1 <- gam(bai~s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+
+#gam.s1a <- gam(bai~s(DIAMETER, bs = 'tp', k = 8), family = 'Gamma'(link = log), data = bai.size)
+#par(mfrow = c(1,1))
+#plot.gam(gam.s1a)
+
+gam.s1a <- gam(bai~s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+
+gam.s2 <- gam(bai~s(treeba, sp = 1.1), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+
+gam.s2a <- gam(bai~s(treeba, sp = 1.1), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+
+
+plot.gam(gam.s1, residuals = T)
+
+plot.gam(gam.s1a)
+
+plot.gam(gam.s2)
+
+plot.gam(gam.s2a)
+
+
+draw(gam.s1, residuals = T)
+
+#draw(gam.s1, residuals = T)
+#draw(gam.s1a, residuals = T)
+
+#draw(gam.s2, residuals = T)
+#draw(gam.s2a, residuals = T)
+
 par(mfrow = c(2, 2))
 gam.check(gam.s1)
+gam.check(gam.s1a)
+gam.check(gam.s2)
+gam.check(gam.s2a)
 
-my.rmse.gam(gam.s1)
-my.rmse.dfres(gam.s1)
+my.rmse.2(gam.s1)
+my.rmse.2(gam.s1a)
+my.rmse.2(gam.s2)
+my.rmse.2(gam.s2a)
 
-par(mfrow = c(1,1))
-gam.s3 <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size)
-plot.gam(gam.s3)
-par(mfrow = c(2, 2))
-gam.check(gam.s3)
 
-my.rmse.gam(gam.s3)
-my.rmse.dfres(gam.s3)
+#par(mfrow = c(1,1))
+#gam.s3 <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size)
+#plot.gam(gam.s3)
+#par(mfrow = c(2, 2))
+#gam.check(gam.s3)
+
+#my.rmse.gam(gam.s3)
+
+#my.rmse.dfres(gam.s3)
 
 ```
 
 Overall DBH looks the best and seems to perform better than BA.
 
-```{r exploring resids}
-rsd <- residuals.gam(gam.s1, type = 'response')
-ft <- gam.s1$fitted.values
+```{r exploring resids, include=FALSE}
+rsd <- residuals.gam(gam.s1a, type = 'response')
+ft <- gam.s1a$fitted.values
 id <- seq(1:length(rsd))
 stand <- bai.size$grwth.yr
 a <- tibble(rsd, ft, id, stand)
@@ -138,25 +189,336 @@ bai.size[c(26, 111, 2836, 20, 2744, 38, 54, 69, 127),]
 
 ```
 
+#### FVS Size vars
 ```{r FVS Size vars}
 
-fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size)
+fvs.size1 <- glm(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,])
 
-summary.gam(fvs.size1)
-my.rmse.gam(fvs.size1)
-my.rmse.dfres(fvs.size1)
+summary(fvs.size1)
+
+my.rmse.2(fvs.size1)
+#my.rmse.gam(fvs.size1)
+#my.rmse.dfres(fvs.size1)
 
 ```
 
-```{r rmse table}
+
+#### rmse table - size
+```{r size rmse table}
 type <- c('rmse', 'rmse.df.resid')
-null.gam <- c(my.rmse.gam(gam.null), my.rmse.dfres(gam.null))
-size.full <- c(my.rmse.gam(gam.size.full), my.rmse.dfres(gam.size.full))
-diam <- c(my.rmse.gam(gam.s1), my.rmse.dfres(gam.s1))
-fvs.sz <- c(my.rmse.gam(fvs.size1),my.rmse.dfres(fvs.size1))
+#null.gam <- c(my.rmse.gam(gam.null), my.rmse.dfres(gam.null))
+null.gam <- my.rmse.2(gam.null)
+#size.full <- c(my.rmse.gam(gam.size.full), my.rmse.dfres(gam.size.full))
+size.full <- my.rmse.2(gam.s1a)
+#diam <- c(my.rmse.gam(gam.s1), my.rmse.dfres(gam.s1))
+diam <- my.rmse.2(gam.s1a)
+#fvs.sz <- c(my.rmse.gam(fvs.size1),my.rmse.dfres(fvs.size1))
+fvs.sz <- my.rmse.2(fvs.size1)
 
-tibble(type, null.gam, size.full, diam, fvs.sz)
+(rmse.size.tb <- tibble(type, null.gam, size.full, diam, fvs.sz))
 
+```
+
+### Site Vars
+
+For site variables, specifically related to aspect, I'm looking at a few different things. It does not make any sense to look at raw aspect-degrees. Transforming aspect to sin and cosine provide easting/northing, respectively, however when considering the interactions of their combined effect, it can be difficult to apply within the GAM framework/context. Therefore I'm looking at it in terms of stage, 1976, as a slope/aspect/elevation effect, a linear transformed version like roberts and cooper 1989, as well as heatload. 
+
+#### Full Site models
+Here I compare different saturated site models with and without interaction terms, assessing their inclusion in each step. I do this for both types of aspect terms (cos/sin and trasp)
+
+```{r comparing full models with different aspect vars}
+#no interactions (except aspect)
+gam.asp1 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+#add slope interaction with asp.
+gam.asp2 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+#add elevation/slope interaction term
+gam.asp3 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct) + ti(elev_m, slope_pct), family='Gamma'(link=log), data = bai.site, method = 'ML')
+#add interaction term with all?? doesn't work..
+#gam.asp4 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct) + ti(elev_m, slope_pct) + ti(elev_m, slope_pct, asp_sin, asp_cos), family='Gamma'(link=log), data = bai.site)
+#summary.gam(gam.asp4)
+
+##### trasp versions
+gam.asp1a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+gam.asp1b <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(elev_m, slope_pct), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+gam.asp1c <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(elev_m, slope_pct) + ti(elev_m, asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+gam.asp1d <- gam.asp1c <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(elev_m, slope_pct) + ti(elev_m, asp.trasp) + ti(slope_pct, asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+```
+
+Looking at some diagnostics, comparisons between the models created above.
+```{r asp vars 2}
+#lists for different gams
+asp.list <- list(gam.asp1, gam.asp2, gam.asp3)
+asp.list2 <- list(gam.asp1a, gam.asp1b, gam.asp1c, gam.asp1d)
+
+#summaries
+sums <- lapply(asp.list, summary.gam)
+sums1 <- lapply(asp.list2, summary.gam)
+
+#anovas?
+anova.gam(gam.asp1, gam.asp2, gam.asp3, test = 'Chisq')
+anova.gam(gam.asp1a, gam.asp1b, gam.asp1c, gam.asp1d, test = 'Chisq')
+
+lapply(asp.list, anova.gam, test = 'Chisq')
+lapply(asp.list2, anova.gam)
+
+lapply(asp.list, my.rmse.2)
+lapply(asp.list2, my.rmse.2)
+
+lapply(asp.list, gam.check)
+
+#outputs for each
+outputs <- lapply(asp.list, gam.output)
+outputs1 <- lapply(asp.list2, gam.output)
+
+#gam.check(gam.asp)
+```
+
+AND Visualizations. Observation: slope term get's linear when slope-included interactions are present. Look at the trasp version to see if this is similar. 
+```{r asp vars draw}
+draw(gam.asp1)
+draw(gam.asp2)
+draw(gam.asp3)
+
+draw(gam.asp1a)
+draw(gam.asp1b)
+draw(gam.asp1c)
+draw(gam.asp1d)
+
+#vis.gam(gam.asp1, view = c('asp_sin', 'asp_cos'), theta = 120)
+
+```
+
+Choose the best from the above analyses, and include where gam.site.full4 is now. 
+Notes: Do I need to assess this with so much detail? I want to make sure I include valid and/or important terms. There's a lot to chew on and consider here. 
+
+I should look first at which works better: aspect cos/sin or trasp. 
+It also might not even matter, considering that I'm comparing the heatload and site index options. Perhaps just add the 
+
+```{r site vars full}
+
+#gam.site.full <- gam(bai~s(DIAMETER) + s(treeba) + s(mean_si) + s(elev_m) + s(asp_cos) + s(asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site)
+
+#gam.site.full.2 <- gam(bai~s(DIAMETER) + s(treeba) + s(mean_si) + s(elev_m) + s(sl_asp_sin) + s(sl_asp_cos) + s(slope_pct) + s(heatload), family = 'Gamma'(link = log), data = bai.site)
+
+#full SI version
+gam.site.full3 <- gam(bai~s(DIAMETER) + s(mean_si, k = 15), family = 'Gamma'(link=log), data = bai.site)
+
+#full aspect version
+#### included s(asp_sin, asp_cos) because this interaction must exist 
+gam.site.full4 <- gam(bai~s(DIAMETER) + s(elev_m, k = 15) + s(slope_pct) + s(asp_sin, asp_cos, k = 30) + ti(asp_sin, asp_cos, slope_pct, k = 15) + ti(asp_sin, asp_cos, elev_m, k = 30) +ti(elev_m, slope_pct, k = 15), family='Gamma'(link=log), data = bai.site, method = 'ML')
+
+gam.site.full4a <- bam(bai~s(DIAMETER) + s(elev_m, k = 15) + s(slope_pct, k = 15) + s(asp.trasp, k = 15) + ti(asp.trasp, slope_pct, k = 20) + ti(asp.trasp, elev_m, k = 20) + ti(elev_m, slope_pct, k = 20), family='Gamma'(link=log), data = bai.site, method = 'fREML')
+
+#full heatload version
+gam.site.full5 <- gam(bai~s(DIAMETER, k = 15) + s(heatload, k = 15), family = 'Gamma'(link=log), data = bai.site)
+
+#gam.site.all <- gam(bai~s(DIAMETER) + s(mean_si) + s(elev_m) + s(aspect_deg) + s(slope_deg), family = 'Gamma'(link=log), data = bai.site)
+
+gams.site.full <- list('full3' = gam.site.full3, 'full4' = gam.site.full4, 'full4a' = gam.site.full4a, 'full5' = gam.site.full5)
+
+```
+
+```{r site vars plots full}
+
+lapply(gams.site.full, gam.output)
+lapply(gams.site.full, my.rmse.2)
+
+draw(gam.site.full3)
+draw(gam.site.full4)
+draw(gam.site.full4a)
+draw(gam.site.full5)
+
+
+par(mfrow=c(2,2))
+gam.check(gam.site.full3)
+
+gam.check(gam.site.full4)
+
+gam.check(gam.site.full4a)
+gam.check(gam.site.full5)
+
+plot.gam(gam.site.full4, scheme = 1)
+plot.gam(gam.site.full4a, scheme = 1)
+
+```
+
+```{r compare nested models with interactions}
+
+
+
+```
+
+
+
+#### Individual site variable models
+```{r site best 1}
+
+gam.site1 <- gam(bai~s(DIAMETER) + s(mean_si), family = 'Gamma'(link = log), data = bai.site)
+
+
+gam.site2 <- gam(bai~s(DIAMETER) + s(heatload), family = 'Gamma'(link = log), data = bai.site)
+
+
+gam.site3 <- gam(bai~s(DIAMETER) + s(elev_m), family = 'Gamma'(link = log), data = bai.site)
+
+
+gam.site4 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin), family = 'Gamma'(link = log), data = bai.site)
+
+gam.site4a <- gam(bai~s(DIAMETER) + s(asp.trasp), family = 'Gamma'(link = log), data = bai.site)
+
+gam.site4b <- gam(bai~s(DIAMETER) + s(asp_sin, slope_pct) + s(asp_cos, slope_pct), family = 'Gamma'(link = log), data = bai.site)
+
+gam.site4c <- gam(bai~s(DIAMETER) + te(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.site)
+
+#gam.site5a <- gam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos), family = 'Gamma'(link = log), data = bai.site)
+
+#gam.site5c <- gam(bai~s(DIAMETER) + s(asp_sin, by = asp_cos), family = 'Gamma'(link = log), data = bai.site)
+
+gam.site5 <- gam(bai~s(DIAMETER) + s(slope_deg), family = 'Gamma'(link = log), data = bai.site)
+
+ls.site <- list('site1' = gam.site1, 'site2' = gam.site2, 'site3' = gam.site3, 'site4'=gam.site4,'site4a'= gam.site4a, 'site4b'=gam.site4b, 'site4c'=gam.site4c, 'site5' = gam.site5)
+
+site.gams.out <- lapply(ls.site, gam.output)
+
+
+#a loop
+rmse_names <- names(site.gams.out)
+rows <- c('rmse','rmse.df')
+rc <- list(rmse_names,rows)
+rmse_sites <- matrix(ncol = 2, nrow = length(ls.site), dimnames = rc)
+for(i in 1:length(site.gams.out)){
+  rmse_sites[i,] <- site.gams.out[[i]][[2]]
+}
+
+rmse_sites <- data.frame(rmse_sites)
+rmse_sites
+
+which.min(rmse_sites$rmse)
+which.min(rmse_sites$rmse.df)
+
+#site.gams.out$site6
+```
+#### Site variable selection for final model
+```{r site vars for selection}
+#"If you are going to fit and compare nested models explicitly, make sure you use method = "ML" because the corrections used to compute the REML uses information from the fixed effects and if you models include different fixed effects terms" - Gavin Simpson, stack exchange
+
+##"te(x, z) includes both the smooth main effects of x and z, plus their smooth interaction. ti() is just the pure smooth interaction of x and z." - same post If you are familiar with R's linear modelling formulas, then
+
+#####te() is like x*Z or x + z + x:z if you want to write it all out
+#####ti() is like X:Z only
+
+#### Just diameter and site index
+site.op1 <- gam(bai~s(DIAMETER) + s(mean_si), family = 'Gamma'(link=log), data = bai.site)
+draw(site.op1, title = 'site.op1')
+par(mfrow = c(2,2))
+gam.check(site.op1)
+
+#### All site vars(aspect, slope, elevation) and their interactions
+site.op2 <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, asp_sin) + ti(elev_m, asp_cos) + ti(elev_m, slope_pct) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct), family='Gamma'(link=log), data = bai.site)
+#plot(site.op2)
+#draw(site.op2, title = 'site.op2')
+#par(mfrow = c(2,2))
+#gam.check(site.op2)
+summary(site.op2)
+
+#gam(bai~s(DIAMETER) + s(elev_m) + ti(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, asp_sin)+ ti(elev_m, asp_cos) + ti(elev_m, slope_pct) + ti(asp_sin, slope_pct) + ti(asp_cos,slope_pct), family = 'Gamma'(link=log), data = bai.site)
+
+#gg <- predict(site.op2)
+#site.op2
+
+#### Compare previous to this (no interaction version)
+site.op2a <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin) + s(asp_cos) + s(slope_pct), family='Gamma'(link=log), data = bai.site)
+draw(site.op2a, title = 'site.op2a')
+par(mfrow = c(2,2))
+gam.check(site.op2a)
+
+
+#### include interactions? try s(x, z) - this is an isotropic smooth, I think I should do this because both aspect variables describe the same dimension. However the inclusion of other interactions should be assessed with tempor product interaction terms
+site.op2b <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, slope_pct), family='Gamma'(link=log), data = bai.site)
+draw(site.op2b, title = 'site.op2b')
+par(mfrow=c(2,2))
+gam.check(site.op2b)
+
+### 
+#site.op2c <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct), family='Gamma'(link=log), data = bai.site)
+
+
+
+#vis.gam(site.op2, view = c('elev_m', 'aspect_deg'), theta = 120)
+#vis.gam(site.op2a, view = c('elev_m', 'aspect_deg'), theta = 120)
+#vis.gam(site.op2b, )
+
+site.op3 <- gam(bai~s(DIAMETER) + s(heatload), family = 'Gamma'(link=log), data = bai.site)
+draw(site.op3, title = 'site.op3')
+par(mfrow = c(2,2))
+gam.check(site.op3)
+
+site.op4 <- gam(bai~as.factor(stand) + s(DIAMETER), family = 'Gamma'(link = log), data = bai.site)
+draw(site.op4, title = 'site.op4')
+par(mfrow=c(2,2))
+gam.check(site.op4)
+
+site.ops <- list(site.op1, site.op2, site.op2a, site.op2b, site.op3, site.op4)
+lapply(site.ops, my.rmse.2)
+#lapply(site.ops, gam.output)
+
+#site.op2$formula
+```
+
+#### FVS size + site
+
+```{r fvs size and site}
+
+fvs.site1 <- gam(bai~log.diam + I(DIAMETER^2) + elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + mean_si, family = 'Gamma'(link = log), data = bai.site)
+
+summary(fvs.site1)
+my.rmse.2(fvs.site1)
+```
+#### Site RMSE table
+```{r site rmse table}
+rmse.size.tb
+#full
+fullsite <- my.rmse.2(gam.site.all)
+#bestsingle
+best1.size.site <- my.rmse.2(gam.site6)
+#fvs
+fvs.size.site <- my.rmse.2(fvs.site1)
+
+(rmse.tb.site <- tibble(fullsite, best1.size.site, fvs.size.site))
+
+
+```
+### RMSE tables
+```{r rmse table 3tables}
+rmse.size.tb
+rmse.tb.site
+(full.all <- as_tibble(rbind(null.gam, size.full, fullsite), rownames = 'model'))
+
+(single.bests <- as_tibble(rbind(null.gam, diam, best1.size.site), rownames = 'model'))
+
+(fvs.1 <- as_tibble(rbind(null.gam, fvs.sz, fvs.size.site), rownames = 'model'))
+
+(selected <- data.frame(rbind()))
+
+```
+
+
+```{r, include = F}
+s.site1 <- c(my.rmse.gam(gam.site1), my.rmse.dfres(gam.site1))
+s.site2 <- c(my.rmse.gam(gam.site2), my.rmse.dfres(gam.site2))
+s.site3 <- c(my.rmse.gam(gam.site3), my.rmse.dfres(gam.site3))
+s.site4 <- c(my.rmse.gam(gam.site4), my.rmse.dfres(gam.site4))
+s.site5 <- c(my.rmse.gam(gam.site5), my.rmse.dfres(gam.site5))
+s.site5a <- c(my.rmse.gam(gam.site5a), my.rmse.dfres(gam.site5a))
+s.site5b <- c(my.rmse.gam(gam.site5b), my.rmse.dfres(gam.site5b))
+s.site5c <- c(my.rmse.gam(gam.site5c), my.rmse.dfres(gam.site5c))
+s.site6 <- c(my.rmse.gam(gam.site6), my.rmse.dfres(gam.site6))
+
+tibble(type, s.site1, s.site2, s.site3, s.site4, s.site5, s.site5a, s.site5b, s.site5c, s.site6)
 ```
 
 

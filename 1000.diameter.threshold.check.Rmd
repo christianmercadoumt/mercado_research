@@ -1,0 +1,72 @@
+---
+title: "dbh_cutoff_check"
+author: "Christian Mercado"
+date: "1/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This script checks diameter thresholds over time. It results in a table that summarizes this and codes each measurement within each setting id and purpose code with 'raised', 'lowered', or 'check.na' to describe what's going on. 
+
+'good' - means that the min large plot and max small plot diameters are consistent with the cutoff and don't need any special attention
+
+'raised' - this means that the diameter threshold in the following measurement is higher than this one
+
+'lowered' - means that the diameter threshold in the following measurement is lower than this one
+
+'check.na' - means that there is likely no data for the filters applied, but these should be checked
+
+Still need to figure out how to handle these cases. 
+
+For raised, should we 'omit' data from earlier measurements that don't fulfill the later diameter thresholds? Similarly, should we 'omit' data from later measurements that don't fulfill earlier thresholds? This would allow us to have consistent sampling throughout - but what does this impact? 
+- TPA, BA, BAL -
+Perhaps for the variables that are impacted by this, we can create alternative variables that are corrected for these discrepancies
+
+
+```{r dbh cuttoff check}
+
+(dbh.cutoff.check <- pgp_data_all %>% 
+  select(SETTING_ID, MEASUREMENT_NO, 
+         PURPOSE_CODE, TPA_EQUIV.pl, 
+         PLOT, cluster, SUBPLOT, DIAMETER, 
+         dbh_breakpoint) %>%
+  group_by(SETTING_ID, PURPOSE_CODE, MEASUREMENT_NO) %>%
+  summarise(max.sm.diam = max(DIAMETER[TPA_EQUIV.pl >=100], na.rm = T),
+            min.lg.diam = min(DIAMETER[TPA_EQUIV.pl == 20], na.rm = T), 
+            dbh_breakpoint = mean(dbh_breakpoint, na.rm = T)) %>% 
+   mutate(max.sm.diam = ifelse(is.infinite(max.sm.diam), NA, max.sm.diam),
+          min.lg.diam = ifelse(is.infinite(min.lg.diam), NA, min.lg.diam)) %>% 
+  ungroup() %>% 
+  group_by(SETTING_ID, PURPOSE_CODE) %>% 
+  mutate(dbh_breakpoint.new = max(dbh_breakpoint, na.rm = T)) %>% 
+  mutate(breakpoint_codes = 
+           case_when(min.lg.diam >= dbh_breakpoint.new & max.sm.diam < dbh_breakpoint.new ~ 'good',
+                     min.lg.diam < dbh_breakpoint.new & max.sm.diam < min.lg.diam ~ 'raised', 
+                     max.sm.diam > dbh_breakpoint.new & max.sm.diam < min.lg.diam ~ 'lowered',
+                     is.na(max.sm.diam) | is.na(min.lg.diam) ~ 'check.na')))
+dbh.cutoff.check %>% filter(breakpoint_codes == 'check.na')
+
+```
+
+
+These chunks resulted from some issues that I ran into while writing the above but have corrected for them since. 
+
+```{r}
+# Tree has TPA equivalent of 40 - why??
+# setting '01140123030001', plot 130, measurement 4, tag_id 302
+filter(pgp_data_all, SETTING_ID == '01140123030001', MEASUREMENT_NO == 4, DIAMETER == 6.9)
+```
+
+```{r}
+# what are infinities? they seem to occur when there is just no data of the type that is being gropued-by. e.g., sometimes there arent any subplot trees with diameters.
+(a <- pgp_data_all %>% filter(SETTING_ID == '01140109010001', !is.na(SUBPLOT), MEASUREMENT_NO == 1, TPA_EQUIV.pl > 100))
+max(a$DIAMETER, na.rm = T)
+
+unique(pgp_data_all$PURPOSE_CODE)
+
+filter(pgp_data_all, SETTING_ID == '01140588050005', PURPOSE_CODE == 'CP', MEASUREMENT_NO %in% c(1,3,4))
+```
+

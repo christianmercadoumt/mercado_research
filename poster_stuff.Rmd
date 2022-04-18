@@ -1,0 +1,230 @@
+---
+title: "gradcon_posterstuff"
+author: "Christian Mercado"
+date: "2/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(RgoogleMaps)
+library(ggmap)
+library(ggthemes)
+library(ggsn)
+```
+
+```{r read in map data}
+
+standsum <- read_csv('data/pgp_stand_summary_data_18_21.csv')
+standsum
+
+#register_google(key = 'AIzaSyBBXxkkXwHJzJcTyr7aiGzwlFDmwklEG68', write = TRUE)
+
+```
+
+```{r googlemap}
+
+lat <- c(min(standsum$lat)-.5, max(standsum$lat)+.5)
+lon <- c(min(standsum$lon)-.5, max(standsum$lon)+.5)
+center <- c(mean(standsum$lat), mean(standsum$lon))
+zoom <- 6
+#terrmap <- GetMap(center = center, zoom = 7, maptype = "terrain", destfile = 'map3.jpg', RETURNIMAGE = T, NEWMAP = T)
+
+markers <- select(standsum, lon, lat)
+
+center <- c(mean(standsum$lon), mean(standsum$lat))
+#center <- c(mean(standsum$lon), 90)
+map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap1', style = c(feature = 'administrative.locality', element = 'labels', visibility = 'off'), scale = 4)
+ggmap(map, legend = 'none') + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = markers, show.legend = F) + theme_map() + scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black')
+#ggsave('ggmap123.jpg', dpi = 300)
+  #theme(axis.title.x = element_blank(), axis.title.y = element_blank(), axis.ticks = element_blank(), axis.text = element_blank())
+center
+```
+
+```{r ggmap}
+lat <- c(min(standsum$lat)-1, max(standsum$lat)+1)
+lon <- c(min(standsum$lon)-1, max(standsum$lon)+1)
+center <- c(mean(standsum$lon), mean(standsum$lat))
+
+
+
+get_openstreetmap(bbox = c(left = min(standsum$lon)-.5, right = max(standsum$lon)+.5, top = max(standsum$lat)+.5, bottom = min(standsum$lat)-.5), zoom = 7, scale = 'auto', maptype = 'terrain', filename = 'ggmap1.jpg') %>% ggmap()
+
+
+```
+
+```{r figures}
+st.c <- bai.train %>% 
+  filter(SETTING_ID %in% c('01160347060010', '01140119020008')) %>% 
+  mutate(hilo = 
+           case_when(SETTING_ID %in% 
+                       c('01160347060010', '01140343020046') ~ 'low',
+                     SETTING_ID %in% 
+                       c('01160415010059', '01140119020008') ~ 'high'))
+
+#ggplot(st.c, aes(x = DIAMETER, y = log.bai)) + geom_smooth(se = F)
+
+#option b - i like
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(~cut_number(bal.cl, 3, labels = c('Low competitive force', 'Moderate competitive force', 'High competitive force'))) + labs(x = 'Diameter (in)', y = bquote('Larch Growth'~ln(ft^2/year)) , title = 'Larch growth vs. diameter for varying competition', color = 'Similarity to larch') + scale_color_manual(values = c('sienna1', 'cadetblue4'))
+
+ggsave('poster.figure.jpg', width = 7, height = 5,dpi = 300)
+
+
+lsm <- loess(log.bai~DIAMETER*hilo, data = st.c, na.action = 'na.omit')
+predict()
+#option b interp
+## low bal means it's a big tree, high bal means it's a smaller tree. 
+## given this, we see that for trees experiencing less competition, there are different points of divergence between low and high shade-intolerance.
+## for trees experiencing moderate competitive force, there seems to be higher growth rates for larch of all diameters when they are mixed with trees of different characteristics
+## for trees experiencing high competitive force, a similar discrepancy exists where growth rates are higher when larch is mixed with species unlike them, but the gap isn't as big
+```
+
+```{r shade tolerance}
+
+shade_red <- shade %>% filter(SPECIES_SYMBOL %in% c('ABLA', 'LAOC', 'PIEN', 'PICO', 'PSME', 'PIPO', 'THPL'))
+add <- c('subalpine fir', 'western larch', 'Engelmann spruce', 'lodgepole pine', 'Douglas-fir', 'ponderosa pine', 'western redcedar')
+shade_red <- mutate(shade_red, add = add)
+
+ggplot(shade_red, aes(x = reorder(add, inv.shade), y = inv.shade)) + geom_col() + labs(y = 'Shade-tolerance (inverse)', x = 'Tree species', title = 'Species shade-tolerance metric (inverse)')
+ggsave('shadetol.barchart.jpg', dpi = 300)
+```
+
+```{r}
+a <- log(1:20)
+b <- 1 + a
+c <- a - 1
+d <- 1:20
+
+tb <- tibble(a, b, c, d)
+tb <- pivot_longer(tb, cols = c(a, b, c))
+ggplot(tb, aes(x = d, y = value, color = name, linetype = name)) + geom_smooth(se = F) + labs(x = 'Tree size', y = 'Tree growth', title = 'Simulated tree growth curves') + theme(legend.position = 'none', axis.text = element_blank(), axis.ticks = element_blank()) + scale_color_manual(values = c('black', 'lightblue3', 'red4')) + scale_linetype_manual(values = c('solid', 'dashed', 'dashed')) +
+  geom_segment(
+    x = median(d), y = median(a)+.1,
+    xend = median(d), yend = median(b)-.1,
+    lineend = "round", # See available arrow types in example above
+    linejoin = "round",
+    size = 1, 
+    arrow = arrow(length = unit(0.3, "inches")),
+    colour = "lightblue3" # Also accepts "red", "blue' etc
+  ) +
+  geom_segment(
+    x = median(d), y = median(a)-.1,
+    xend = median(d), yend = median(c)+.1,
+    lineend = "round", # See available arrow types in example above
+    linejoin = "round",
+    size = 1, 
+    arrow = arrow(length = unit(0.3, "inches")),
+    colour = "red4" # Also accepts "red", "blue' etc
+  )
+ggsave('simulated.baicurve.jpg', dpi = 300)
+```
+
+```{r figs for poster}
+
+ggplot(bai.train, aes(x = SETTING_ID, y = DIAMETER)) + geom_boxplot(aes(fill = SETTING_ID)) + geom_point(aes(group = SETTING_ID)) + coord_flip()
+
+# larch frac
+#low - 01160737010005, 01140528020011
+#high - 01160415010059, 01140588050005
+lf.a <- bai.train %>% filter(SETTING_ID %in% c('01160737010005', '01160415010059')) %>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160737010005', '01140528020011') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140588050005') ~ 'high'))
+
+lf.b <- bai.train %>% filter(SETTING_ID %in% c('01140528020011', '01140588050005'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160737010005', '01140528020011') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140588050005') ~ 'high'))
+lf.c <- bai.train %>% filter(SETTING_ID %in% c('01160737010005', '01140588050005'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160737010005', '01140528020011') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140588050005') ~ 'high'))
+lf.d <- bai.train %>% filter(SETTING_ID %in% c('01140528020011', '01160415010059'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160737010005', '01140528020011') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140588050005') ~ 'high'))
+
+# shade tol
+# low - 01160347060010, 01140343020046
+# high - 01160415010059, 01140119020008
+st.a <- bai.train %>% filter(SETTING_ID %in% c('01160347060010', '01160415010059')) %>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160347060010', '01140343020046') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140119020008') ~ 'high'))
+st.b <- bai.train %>% filter(SETTING_ID %in% c('01140343020046', '01140119020008'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160347060010', '01140343020046') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140119020008') ~ 'high'))
+st.c <- bai.train %>% filter(SETTING_ID %in% c('01160347060010', '01140119020008'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160347060010', '01140343020046') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140119020008') ~ 'high'))
+st.d <- bai.train %>% filter(SETTING_ID %in% c('01140343020046', '01160415010059'))%>% 
+  mutate(hilo = case_when(SETTING_ID %in% c('01160347060010', '01140343020046') ~ 'low',
+                           SETTING_ID %in% c('01160415010059', '01140119020008') ~ 'high'))
+```
+
+```{r ln.bai vs. dbh by basal area}
+# 
+#larchfrac
+ggplot(lf.a, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(lf.b, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(lf.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(lf.d, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+#shadetol
+ggplot(st.a, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(st.b, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+ggplot(st.d, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_interval(bal.cl, 2)~cut_interval(ba.cl, 2))
+
+```
+
+```{r ln.bai vs. dbh by bal.cl and ba}
+#
+#larchfrac
+ggplot(lf.a, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+ggplot(lf.b, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+ggplot(lf.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+ggplot(lf.d, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+#shadetol
+ggplot(st.a, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+ggplot(st.b, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2, labels = c('Higher Density', 'Lower Density'))~cut_number(bal.cl, 2, labels = c('Lower Competition', 'Higher Competition'))) + labs(x = 'Diameter', y = 'Larch Growth', title = 'Larch growth vs. diameter for varying density(y-axis) and competition (x-axis)', color = 'Species-mixing')
+
+ggplot(st.d, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2)~cut_number(bal.cl, 2))
+
+```
+
+```{r}
+
+```
+competitive
+
+```{r poster graph options}
+#option a
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(cut_number(ba.cl, 2, labels = c('Higher Density', 'Lower Density'))~cut_number(bal.cl, 2, labels = c('Lower Competition', 'Higher Competition'))) + labs(x = 'Diameter', y = 'Larch Growth', title = 'Larch growth vs. diameter for varying density(y-axis) and competition (x-axis)', color = 'Species-mixing')
+
+#option b - i like
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(~cut_number(bal.cl, 3, labels = c('Low competitive force', 'Moderate competitive force', 'High competitive force'))) + labs(x = 'Diameter', y = 'Larch Growth', title = 'Larch growth vs. diameter for varying competition (x-axis)', color = 'Shade-intolerance')
+
+#option c - i like, but a bit weird
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(~cut_number(dq.cl.cutoff, 2)) + labs(x = 'Diameter', y = 'Larch Growth', title = 'Larch growth vs. diameter for varying competition (x-axis)', color = 'Shade-intolerance')
+
+#option d
+ggplot(st.c, aes(x = DIAMETER, y = log.bai, color = hilo)) + geom_smooth(se = F) + facet_grid(~cut_number(ba.cl, 3)) + labs(x = 'Diameter', y = 'Larch Growth', title = 'Larch growth vs. diameter for varying density', color = 'Shade-intolerance')
+
+#option b 
+## low bal means it's a big tree, high bal means it's a smaller tree. 
+## given this, we see that for trees experiencing less competition, there are different points of divergence between low and high shade-intolerance.
+## for trees experiencing moderate competitive force, there seems to be higher growth rates for larch of all diameters when they are mixed with trees of different characteristics
+## for trees experiencing high competitive force, a similar discrepancy exists where growth rates are higher when larch is mixed with species unlike them, but the gap isn't as big
+```

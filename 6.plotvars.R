@@ -17,7 +17,9 @@ variables.plot <- function(forestdata, na.rm = TRUE){
              DIAMETER < 10.0 ~ r4*DIAMETER^(r5))) %>% #This step adds tree crown competition factor based on a series of conditionals which determine which equation/coefficients to use - this step could probably be simplified with custom funcions
     mutate(ccf.pl = sum(ccf.tree[TPA_EQUIV != 0]*TPA_EQUIV.pl[TPA_EQUIV != 0], na.rm = na.rm),#sum of ccf to get plot-level ccf value. 
            dq.pl.all = DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.all)/pi),
-           dq.pl.cutoff = DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.cutoff)/pi)) %>% #DBH:QMD ratio
+           dq.pl.cutoff = DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.cutoff)/pi),
+           qmd.pl.all = sqrt(576*(ba.pl)/(tpa.pl.all)/pi),
+           qmd.pl.cutoff = sqrt(576*(ba.pl)/(tpa.pl.cutoff)/pi)) %>% #DBH:QMD ratio and qmd
     select(!c(r1, r2, r3, r4, r5, spcode)) %>% 
     ungroup() #housekeeping step
   return(a)

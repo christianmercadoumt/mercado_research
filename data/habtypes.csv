@@ -1,0 +1,21 @@
+,SETTING_ID,HabType,COMMON_NAME,SCIENTIFIC_NAME,,check,habclass,habclass_values,locationcode,loc_class_value
+1,01140109010001,573,western hemlock/bride's bonnet-rusty menziesia,TSHE/CLUN2-MEFE,,570,3,-0.05438,1,-0.00031
+2,01140119020008,621,subalpine fir/bride's bonnet-bride's bonnet,ABLA/CLUN2-CLUN2,,620,2,-0.014793,1,-0.00031
+3,01140120010011,291,Douglas-fir/twinflower-common snowberry,PSME/LIBO3-SYAL,,290,5,0,1,-0.00031
+4,01140123030001,670,subalpine fir/rusty menziesia,ABLA/MEFE,,670,1,-0.10144,1,-0.00031
+5,01140316020106,312,Douglas-fir/common snowberry-pinegrass,PSME/SYAL-CARU,,310,5,0,1,-0.00031
+6,01140343020046,620,subalpine fir/bride's bonnet,ABLA/CLUN2,,620,2,-0.014793,1,-0.00031
+7,01140528020011,571,western hemlock/bride's bonnet-bride's bonnet,TSHE/CLUN2-CLUN2,,570,3,-0.05438,1,-0.00031
+8,01140588050005,571,western hemlock/bride's bonnet-bride's bonnet,TSHE/CLUN2-CLUN2,,570,3,-0.05438,1,-0.00031
+9,01160347060010,670,subalpine fir/rusty menziesia,ABLA/MEFE,,670,1,-0.10144,1,-0.00031
+10,01160347060011,625,subalpine fir/bride's bonnet-rusty menziesia,ABLA/CLUN2-MEFE,,620,2,-0.014793,1,-0.00031
+11,01160410060004,531,western red cedar/bride's bonnet-bride's bonnet,THPL/CLUN2-CLUN2,,530,2,-0.014793,1,-0.00031
+12,01160415010059,590,grand fir/twinflower,ABGR/LIBO3,,510,1,-0.10144,1,-0.00031
+13,01160708020064,591,grand fir/twinflower-twinflower,ABGR/LIBO3-LIBO3,,510,1,-0.10144,1,-0.00031
+14,01160714020002,533,western recedar/bride's bonnet-rusty menziesia,THPL/CLUN2-MEFE,,530,3,-0.05438,1,-0.00031
+15,01160734020002,680,mountain hemlock/rusty menziesia,TSME/MEFE,,680,3,-0.05438,1,-0.00031
+16,01160734020162,530,western red cedar/bride's bonnet,THPL/CLUN2,,530,3,-0.05438,1,-0.00031
+17,01160736010001,530,western red cedar/bride's bonnet,THPL/CLUN2,,530,3,-0.05438,1,-0.00031
+18,01160737010005,521,grand fir/bride's bonnet-bride's bonnet,ABGR/CLUN2-CLUN2,,520,3,-0.05438,1,-0.00031
+19,01160739020139,531,western red cedar/bride's bonnet-bride's bonnet,THPL/CLUN2-CLUN2,,530,3,-0.05438,1,-0.00031
+20,01160764020036,590,grand fir/twinflower,ABGR/LIBO3,,510,1,-0.10144,1,-0.00031

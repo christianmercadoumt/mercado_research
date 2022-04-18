@@ -1,0 +1,375 @@
+---
+title: "comp_density"
+author: "Christian Mercado"
+date: "3/28/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(corrplot)
+library(GGally)
+library(mgcViz)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+#load data
+bai.train <- readRDS('data/bai.train.4_12_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+bai.site <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, 
+         grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)), 
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg)) %>% 
+  filter(bai != 0)
+
+bai.dcomp <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl) %>% 
+  filter(bai != 0)
+
+
+rmse.conc <- function(x){
+  rmse.df <- my.rmse.2(x)[[2]]
+  concurve <- concurvity(x)
+  rmse.conc.ls <- list(rmse.df, concurve)
+  
+  return(rmse.conc.ls)
+}
+
+```
+
+
+NOTES: CCF is stand crown competition factor in FVS model
+: Habitat type is factored into crown competition factor via habitat calss
+: dbh^2 term is modified by location class
+
+
+NOTE: Added QMD as a plot-level metric. Transformed BAL.PL to a ratio, now it's interpretation is what ratio of BA in a plot is larger than the subject tree. This hopefully will clear up co-linearity between BAL and BA.
+
+```{r corrmat}
+
+compd.tree <- bai.dcomp %>% select(cr, bal.pl.ratio, dq.pl.all)
+compd.plot <- bai.dcomp %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
+compd.all <- bai.dcomp %>% select(cr, bal.pl.ratio, qmd.pl.all, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl)
+
+#dcomp.pl <- bai.dcomp %>% select(log.bai, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff, ba.pl, bal.pl, ccf.pl, dq.pl.all, dq.pl.cutoff, HabType)
+#dcomp.cl <- bai.dcomp %>% select(log.bai, CROWN_RATIO, tpa.cl.all, tpa.pl.cutoff, ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType)
+
+#dcomp.pl1 <- bai.dcomp %>% select(tpa.pl.all, ba.pl, ccf.pl)
+
+ggpairs(compd.tree)
+ggpairs(compd.plot)
+ggpairs(compd.all)
+
+#### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
+#### TPA AND DQRATIO HIGH CORRELATION
+#### CCF AND BAL HIGH CORR
+
+
+####### UPDATE
+### HIGH CORRS: BA-CR, CCF-CR, BA-QMD, CCF-QMD, TPA-DQ, BA-CCF
+
+```
+
+```{r tree-level variable selection - site first}
+## Begin with tree vars - all included - adding to model with site vars
+compd1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#cr and bal
+compd2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#cr and dq
+compd3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#bal and dq
+compd4 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+### INDIVIDUALS
+#cr
+compd.cr <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#bal
+compd.bal <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#dq
+compd.dq <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+
+compdlist.full <- list('full compd' = compd1, 'cr-bal' = compd2, 'cr-dq' = compd3, 'bal-dq' = compd4)
+
+compdlist.ind <- list('cr' = compd.cr, 'bal' = compd.bal, 'dq' = compd.dq)
+
+
+concurvity(compd.bal, full = T)
+
+```
+
+```{r variable selection - no site}
+## Begin with tree vars - all included - adding to model with site vars
+nosite.compd1 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#cr and bal
+nosite.compd2 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#cr and dq
+nosite.compd3 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#bal and dq
+nosite.compd4 <- gam(bai~s(DIAMETER, sp = .7) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+### INDIVIDUALS
+#cr
+nosite.compd.cr <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#bal
+nosite.compd.bal <- gam(bai~s(DIAMETER, sp = .7) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#dq
+nosite.compd.dq <- gam(bai~s(DIAMETER, sp = .7) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+
+nosite.compdlist.full <- list('full compd' = nosite.compd1, 'cr-bal' = nosite.compd2, 'cr-dq' = nosite.compd3, 'bal-dq' = nosite.compd4)
+
+nosite.compdlist.ind <- list('cr' = nosite.compd.cr, 'bal' = nosite.compd.bal, 'dq' = nosite.compd.dq)
+
+
+```
+
+
+```{r evaluate tree-level with site}
+## compare partial responses
+
+for(i in compdlist.full){
+  par(mfrow = c(1,2))
+  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2), main = print(names(i)[1]))
+}
+
+
+for(i in compdlist.ind){
+  par(mfrow = c(1,2))
+  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
+}
+
+
+for(i in nosite.compdlist.full){
+  par(mfrow = c(1,2))
+  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
+}
+
+
+for(i in nosite.compdlist.ind){
+  par(mfrow = c(1,2))
+  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
+}
+
+
+
+#plot.gam(compd.dq, rug = F, select = 1, ylim = c(-1.6, 2))
+
+#plot.gam(asp.sincos3, rug = F, select = 2, ylim = c(-1.6, 2))
+#plot.gam(compd1, rug = F, select = 2, ylim = c(-1.6, 2))
+
+#plot.gam(asp.sincos3, rug = F, select = 3, ylim = c(-1.6, 2))
+#plot.gam(compd1, rug = F, select = 3, ylim = c(-1.6, 2))
+
+#pred1 <- predict(asp.sincos3, type = 'link', se.fit = T)
+#pred2 <- predict(compd1, type = 'link', se.fit = T)
+#ilink <- family(asp.sincos3)$linkinv
+#ilink2 <- family(compd1)$linkinv
+#prdfits1 <- tibble('fit1'=pred1$fit, 'sefit1' = pred1$se.fit) 
+#prdfits2 <- tibble('fit2' = pred2$fit, 'sefit2'=pred2$se.fit)
+#prdfits1 <- prdfits1 %>% 
+#  mutate(lwr_ci1 = ilink(fit1-(2*sefit1)), 
+#         upr_ci1 = ilink(fit1+(2*sefit1)), 
+#         fit1 = ilink(fit1),
+#         var.m1=asp.sincos3$model$DIAMETER)
+#prdfits2 <- prdfits2 %>% 
+#  mutate(lwr_ci2 = ilink(fit2-(2*sefit2)), 
+#         upr_ci2 = ilink(fit2+(2*sefit2)), 
+#         fit2 = ilink(fit2),
+#         var.m2=compd1$model$DIAMETER)
+#ggplot(prdfits1, aes(x = var.m1, y = fit1)) + geom_point() geom_line() + geom_line(data = prdfits2, aes(x = var.m2, y = fit1))
+
+
+lapply(compdlist.full, rmse.conc)
+lapply(nosite.compdlist.full, rmse.conc)
+
+
+summary(compd1)
+plot.gam(compd1, scheme = 1, all.terms = T, scale = 0, residuals = T, trans = exp)
+
+par(mfrow = c(2,2))
+gam.check(compd1)
+
+#plot.gam(compd1a, scheme = 1, all.terms = T, scale = 0, residuals = T, trans = exp)
+
+#par(mfrow = c(2,2))
+#gam.check(compd1a)
+#summary(compd1a)
+
+#draw(compd1, residuals = T)
+#draw(compd1a, residuals = T, parametric = T)
+
+#plot.gam(compd1, select = 5, residuals = T, ylim = c(0, 3), trans = exp)
+#plot.gam(compd1a, all.terms = T, residuals = T, ylim = c(-4,2), select = 7)
+
+
+my.rmse.2(compd1)
+#my.rmse.2(compd1a)
+
+concurvity(compd1, full = T)
+## CR as a smooth term is overall better model, but what about without CR? Seems it helps the model
+```
+
+```{r evaluate without site}
+
+```
+
+
+
+First iteration - all variables. 
+BAL and crown ratio are effectively linear terms - or at least close to it.
+
+Concurvity is an ISSUE: 
+- aspect and diameter are highly concurve, slope and aspect are highly concurve
+- others to note: diameter-dq, diameter-bal, aspect-cr, aspect-dq, bal-dq
+
+Where do i go from here? 
+
+Even the individual variables versions are having trouble with concurvity
+
+Options
+1. drop slope from the model, try again
+2. try trasp in place of sin,cos-asp
+3. keep going down the list of other aspect options 
+
+
+```{r plot level variable selection}
+### Add plot-level vars
+#### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
+#### TPA AND DQRATIO HIGH CORRELATION
+#### CCF AND BAL AND BA HIGH CORR
+#### BA and BAL HIGH CORR
+
+op1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(tpa.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, no ba, no ccf
+
+op2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
+
+op3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+
+op4 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
+
+op2a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
+
+op3a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
+
+op5a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
+
+opslist <- list('tpa-exothers' = op1, 'tpa,ccf-exdq,bal,ba' = op2, 'ba-exothers' = op3, 'ccf-exothers' = op4, 'tpaccf-ignorecorrs' = op2a, 'ba-exccf-ignorecorrs' = op3a, 'batpa-ignorecorrs' = op5a)
+
+lapply(opslist, my.rmse.2)
+lapply(opslist, concurvity)
+
+```
+
+```{r tuning the full model}
+op3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl, k = 20) + ti(), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+summary(op3)
+#print(plot(getViz(op3, allTerms = T)), pages = 2)
+#draw(op3, residuals = T, scales = 'free')
+#pt <- visreg(fit = op3, type = 'contrast', plot = F, data = bai.dcomp)
+plot.gam(op3, pages = 2, scale = 0, scheme = 1, trans = exp, all.terms = T)
+par(mfrow=c(2,2))
+gam.check(op3)
+options(digits = 4)
+concurvity(op3)
+concurvity(op3, full = F)
+
+#higher concurvity values
+## DIAMETER - s(asp_cos, asp_sin), s(dq.pl.all), s(ba.pl)
+## ASPECT - s(DIAMETER), s(elev_m), s(slope_pct), s(ba.pl)
+## ELEVATION - ASPECT, slope (kinda)
+## SLOPE - DIAMETER ASPECT ELEVATION
+## DQ - DIAMETER
+## BA - DIAMETER, ASPECT
+
+ggplot(bai.dcomp, aes(x = ba.pl, y = asp.trasp)) + geom_point()
+
+```
+
+```{r best single variable}
+#select(cr, bal.pl, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl, HabType)
+
+
+best.1 <-  gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(cr, k = 9), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.2 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(bal.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.3 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(dq.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.4 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.5 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.6 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.list <- list('best1' = best.1, 'best2' = best.2, 'best3' = best.3, 'best4' = best.4, 'best5' = best.5, 'best6' = best.6)
+
+lapply(best.list, my.rmse.2)
+lapply(best.list, concurvity)
+
+## no surprise, BA is the best, but that doesn't come without issues of concurvity
+```
+
+
+
+
+
+```{r FVS model}
+
+fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass_values), data = bai.dcomp)
+summary(fvs.full)
+my.rmse.2(fvs.full)
+
+```
+
+
+

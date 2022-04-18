@@ -60,15 +60,15 @@ tb1_red
 
 #source("readformat_pgp_recentlymeasured.R")
 
-Size <- c('Diameter', 'Height', 'Basal Area', 'Crown Ratio', 'Crown Length')
+Size <- c('Diameter', 'Basal Area', '', '', '', '')
 
-Site <- c('Slope', 'Aspect(\u00B0)', 'Elevation', 'Habitat-type', '')
+Site <- c('Slope', 'Aspect(\u00B0)', 'Elevation', 'Stand Identity', 'Heatload', 'Site Index')
 
 #Density <- c(, '', '', '')
 
-Competition <- c('DBH:QMD Ratio', 'Crown Competition Factor', 'BAL', 'Trees Per Hectare', 'Stand Basal Area')
+Competition <- c('DBH:QMD Ratio', 'BAL', 'Crown Ratio', 'Crown Competition Factor', 'Trees Per Hectare', 'Stand Basal Area')
 
-Species_Mixing <- c('Larch Basal Area Fraction', 'Stand Shade Tolerance', '', '', '')
+Species_Mixing <- c('Larch Basal Area Fraction', 'Stand Shade Tolerance', '', '', '', '')
 
 Variables <- tibble(Size, Site, Competition, Species_Mixing)
 

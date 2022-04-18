@@ -10,62 +10,43 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(tidyverse)
-sumdata <- read_csv("data/pgp_stand_summary_data_18_21.csv", col_types = cols(.default = "?", SETTING_ID = "c"))
-a <- unique(sumdata$SETTING_ID)
-spec(sumdata)
-sumdata <- sumdata %>% filter(!is.na(sumdata$SETTING_ID))
-a <- unique(sumdata$SETTING_ID)
 
+library(tidyverse)
+library(sjPlot)
+library(stargazer)
+library(xtable)
+library(kableExtra)
+
+#source("read_format_pgp_recentlymeasured.R")
 ```
 
-summary table 1
+summary table 1 - Creating table with summary data on each stand.
+
 ```{r}
+#NOTE: Add stand age as a variable on this. Look at final project for WILD540 and join age to this. 
+
+sumdata <- read_csv("data/pgp_stand_summary_data_18_21.csv", col_types = cols(.default = "?", SETTING_ID = "c"))
+sumdata <- sumdata %>% filter(!is.na(sumdata$SETTING_ID))
+
 (tbl1 <- sumdata %>% select(SETTING_ID, NF, ELEVATION, ASPECT_CLASS, HabType, COMMON_NAME, TPA_lead_CP1, TPA_TOT_CP1, TPA_lead_TP1, TPA_TOT_TP1, Init_disturbance, Remarks))
 
-write.table(tbl1, file = "data/summary_table_1.txt")
+(tb1_red <- sumdata %>% select(SETTING_ID, NF, ELEVATION, ASPECT_CLASS, HabType, Init_disturbance))
+tb1_red <- tb1_red %>% rename('Stand ID' = SETTING_ID, 'National Forest' = NF, 'Elevation' = ELEVATION, 'Aspect' = ASPECT_CLASS, 'Habitat Type' = HabType, 'Initial Disturbance' = Init_disturbance)
+
+tb1_red
+
+kable(tb1_red)
+
+#stargazer(tbl1, type = 'html', out = "testtable1.doc")
+
+#write.table(tbl1, file = "data/summary_table_1.txt")
 ```
 
 ```{r}
-tb1 <- sumdata %>% select(SETTING_ID, NF, ELEVATION, ASPECT_CLASS, HabType, COMMON_NAME, Init_disturbance, Remarks)
-tb1$SETTING_ID <- as.character(tb1$SETTING_ID)
-tb1
 
-b <- tb1 %>% filter(NF == "Kootenai")
-
-age <- kt_all_raw %>% filter(SETTING_ID %in% b$SETTING_ID, !is.na(AGE))
-age %>% select(SETTING_ID, PLOT, SUBPLOT, TAG_ID, AGE)
-
-#c <- kt_all_raw[kt_all_raw$SETTING_ID %in% b$SETTING_ID, ]
-
-#filter(SETTING_ID %in% tb1$SETTING_ID)
 ```
 
-species composition
 ```{r}
-
-#species_comp(kt1)
-#species_comp(lolo1)
-
-#species_comp_all(lolo1)
-
-#species_comp_largetrees(lolo1)
-
-#species_comp_lt_crown(lolo1)
-
-#species_comp_all_ba(kt1)
-
-species_comp_all_ba <- function(forestdata){
-  a <- forestdata %>% 
-    group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
-    mutate(cluster_BA = sum(BASAL_AREA_EQUIV)) %>%
-    select(SETTING_ID, myear, MEASUREMENT_NO, cluster, SPECIES_SYMBOL, cluster_BA)
-      #BA = sum(BASAL_AREA_EQUIV))
-  return(a)
-}
-
-species_comp_all_ba(kt1)
-
 
 ```
 
@@ -73,66 +54,14 @@ species_comp_all_ba(kt1)
 
 
 ```{r}
-#Scratchpad
 
-
-
-listofstands <- kt1 %>% group_by(SETTING_ID) %>% group_split()
-#listofstands <- lapply(listofstands, function(x){
-#  x %>% group_by(cluster, MEASUREMENT_NO) %>% 
-#    summarise(spec_count = sum(!is.na(DIAMETER)), ba_ct = sum(!is.na(BASAL_AREA_EQUIV)))
-#}
-#)
-
-
-listofstands <- lapply(listofstands, function(x){
-  a <- x %>% mutate(ba = TPA_EQUIV*(.005454*DIAMETER^2))
-  a <- a %>% select(BASAL_AREA_EQUIV, ba)
-  all.equal(a$BASAL_AREA_EQUIV, a$ba, tolerance = .0001)
-})
-listofstands
-
-
-#### THE BASAL AREA EQUIV VARIABLE is basal area per acre for each tree - YES
-
-
-b <- kt1 %>% 
-    group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% 
-    summarise(BA = sum(BASAL_AREA_EQUIV))
-
-ungroup(b)
-b %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>%
-  mutate(composition = BA/sum(BA))
-b %>%
-  ungroup() %>%
-  group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>%
-  mutate(comp = BA/sum(BA))
 ```
 
 
 ```{r}
 
 
-species_comp <- function(forestdata){
-  
-a <- forestdata %>% mutate(SETTING_ID = factor(SETTING_ID), SPECIES_SYMBOL = factor(SPECIES_SYMBOL))
 
-a <- a %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% summarise(species_count = n())
-
-a <- a %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>% mutate(sum = sum(species_count))
-
-a %>% mutate(composition = species_count/sum)
-
-a %>% select(SETTING_ID, )
-}
-
-a <- kt1 %>% mutate(SETTING_ID = factor(SETTING_ID), SPECIES_SYMBOL = factor(SPECIES_SYMBOL))
-
-a <- a %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster, SPECIES_SYMBOL) %>% summarise(species_count = n())
-
-a <- a %>% group_by(SETTING_ID, MEASUREMENT_NO, cluster) %>% mutate(sum = sum(species_count))
-
-a %>% mutate(composition = species_count/sum)
 ```
 
 

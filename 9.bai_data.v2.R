@@ -77,9 +77,11 @@ bai.data3 <- bai.data2 %>% group_by(SETTING_ID, NF) %>%
   mutate(stand = case_when(NF == 'Kootenai' ~ 1400+cur_group_id(),
                            NF == 'Lolo' ~ 1600+cur_group_id())) %>% #maybe turn this step into a function
   ungroup() %>% 
+  mutate(bai = bai*144, treeba = treeba*144) %>%  #Convert from square feet to square inches
   mutate(log.bai = log(bai), sqrt.bai = sqrt(bai), 
          log.diam = log(DIAMETER), stand = as.factor(stand)) %>% #add some vars
   filter(!(stand %in% c(1613, 1620)), MEASUREMENT_NO != 0) #Remove stands with barely any larch data
+
 
 bai.data <- left_join(bai.data3, ingy_clusters)
 bai.data <- bai.data %>% select(!c(SET_CN, PLOT_CN, TREE_CN))

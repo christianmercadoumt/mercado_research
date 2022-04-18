@@ -1,0 +1,655 @@
+---
+title: "gam.fit.site.v1"
+author: "Christian Mercado"
+date: "3/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(corrplot)
+library(GGally)
+source('12.gam_fns.R')
+
+#load data
+bai.train <- readRDS('data/bai.train.4_12_22.rds')
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+bai.site <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, asp_sin = sin(aspect_deg*(pi/180)), 
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, sl_asp_cos = asp_cos*slope_pct, asp.trasp = trasp(aspect_deg)) %>% 
+  filter(bai != 0)
+
+```
+
+```{r big trees}
+bai.train %>% filter(DIAMETER>30)
+plot(bai.train$DIAMETER, bai.train$log.bai)
+text(bai.train$DIAMETER >30, bai.train$bai<4, labels = bai.train$unique_tree_id[bai.train$DIAMETER>30])
+
+(a <- bai.train %>% filter(SETTING_ID=='01160734020162', PLOT == 202))
+ggplot(a, aes(DIAMETER, bai, color = factor(MEASUREMENT_NO))) + geom_point()
+
+(b <- bai.train %>% filter(DIAMETER>20))
+ggplot(b, aes(DIAMETER, bai, color = stand)) + geom_point() + facet_wrap(~cut_interval(bal.pl, 3))
+ggplot(b, aes(DIAMETER, bai, color = stand)) + geom_point() + facet_wrap(~mean_si)
+
+#### Are those very large trees experiencing lower growth rates due to the lack of competition? Poor site??
+```
+
+
+
+I need to determine how to reduce dimensions within groups during this fitting process. 
+One option is to fit linear models of bai with each group variable, and then compare the adjusted r-squared values. This will help be determine, for example, which aspect variable to choose. I only do this if I'm comparing variables in this way - like where aspect variables are entangled with one another (as well as slope)
+An additional option to resolve the aspect variable issue is to perform automatic selection within groups using MGCV's tools. 
+A third option is to use the residual deviance-drop in deviance type of test. 
+A fourth option is to take a look at the deviance explained metrics across each iteration of my selection..
+
+
+### Site Vars
+
+For site variables, specifically related to aspect, I'm looking at a few different things. It does not make any sense to look at raw aspect-degrees. Transforming aspect to sin and cosine provide easting/northing, respectively, however when considering the interactions of their combined effect, it can be difficult to apply within the GAM framework/context. Therefore I'm looking at it in terms of stage, 1976, as a slope/aspect/elevation effect, a linear transformed version like roberts and cooper 1989, as well as heatload. 
+
+#### Full Site models
+Here I compare different saturated site models with and without interaction terms, assessing their inclusion in each step. I do this for both types of aspect terms (cos/sin and trasp)
+
+#### Compare aspect vars
+
+```{r}
+#aspvars <- bai.site %>% select(log.bai, slope_pct, elev_m, asp_sin, asp_cos, sl_asp_sin, sl_asp_cos, asp.trasp)
+
+aspvars <- bai.site %>% select(slope_pct, elev_m, asp_sin, asp_cos)
+traspvars <- bai.site %>% select(asp.trasp, slope_pct, elev_m)
+
+#pairs(aspvars)
+#corrmat.vars <- cor(aspvars, use = 'everything')
+#corrmat.vars <- round(corrmat.vars, 4)
+#corrplot(corrmat.vars)
+ggpairs(aspvars)
+ggpairs(traspvars)
+```
+
+```{r lms for aspect variables, include = F}
+#nn <- colnames(aspvars)[3:7]
+#ls1 <- list()
+#for(i in 1:length(nn)){
+#  ls1[[i]] <- nn[i]
+#}
+
+#aa <- list()
+#for(i in 1:length(nn)){
+#  lm(bai~i)
+#}
+asp1 <- lm(log.bai~asp_sin, data = aspvars)
+asp2 <- lm(log.bai~asp_cos, data = aspvars)
+asp3 <- lm(log.bai~asp_sin*asp_cos, data = aspvars)
+asp4 <- lm(log.bai~asp_sin*slope_pct, data = aspvars)
+asp5 <- lm(log.bai~asp_cos*slope_pct, data = aspvars)
+asp6 <- lm(log.bai~asp_cos*slope_pct + asp_sin:slope_pct, data = aspvars)
+asp7 <- lm(log.bai~asp.trasp, data = aspvars)
+asp8 <- lm(log.bai~asp.trasp*slope_pct, data = aspvars)
+asp9 <- lm(log.bai~asp.trasp*slope_pct*elev_m, data = aspvars)
+
+aspls <- list('aspsin'=asp1, 'aspcos'=asp2, 'aspsincos'=asp3, 'aspsin.slope'=asp4, 'aspcos.sl'=asp5, 'aspsincos.sl'=asp6, 'trasp' = asp7, 'traspslope' = asp8, 'traspslelev' = asp9)
+
+summary(asp9)
+
+for(i in 1:length(aspls)){
+  aspls[i] <- summary(aspls[[i]])$adj.r.squared
+}
+
+
+aspdf <- as.data.frame(aspls)
+aspdf <- pivot_longer(aspdf, cols = everything(aspdf))
+arrange(aspdf, desc(value))
+
+
+```
+
+
+*Wouldn't it make more sense to just dump every term into a gam model and let it select things out of the model? What do i do when gam.selection actually removes the primary effects of a term, but not interaction effects that include that term?*
+
+
+
+```{r sin-cos aspect-redo}
+
+asp.sincos <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m) + ti(asp_cos, asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincosa <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincosb <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincosc <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincosd <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincos1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincos2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+asp.sincos3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+trasp1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+trasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+trasp3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+noasp1 <- gam(bai~s(DIAMETER, sp = .7) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+noasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+noasp3 <-  gam(bai~s(DIAMETER, sp = .7) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+
+#trasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m) + s(slope_pct) + ti(asp.trasp, elev_m, bs = 'ts') + ti(asp.trasp, slope_pct, bs = 'ts') + ti(elev_m, slope_pct, bs = 'ts') + ti(asp.trasp, elev_m, slope_pct, bs = 'ts'), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
+
+#trasp2a <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + elev_m + s(slope_pct) + ti(asp.trasp, elev_m) + ti(asp.trasp, slope_pct) + ti(elev_m, slope_pct), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
+
+
+#asp.sincos1 <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m) + ti(asp_cos, asp_sin) + ti(slope_pct, elev_m) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct) + ti(asp_sin, slope_pct) + asp_cos:slope_pct, family = 'Gamma'(link = log), data = bai.site, select = T)
+#summary.gam(asp.sincos1)
+#gam.check(asp.sincos1)
+
+asplist <- list('asp.sincos' = asp.sincos, 'asp.sincosa' = asp.sincosa,'asp.sincosb' = asp.sincosb, 'asp.sincosc' = asp.sincosc, 'asp.sincosd' = asp.sincosd, 'asp.sincos1' = asp.sincos1, 'asp.sincos2' = asp.sincos2, 'asp.sincos3' = asp.sincos3, 'trasp1' = trasp1, 'trasp2' = trasp2, 'trasp3' = trasp3, 'noasp1' = noasp1, 'noasp2' = noasp2, 'noasp3' = noasp3)
+lapply(asplist, my.rmse.2)
+lapply(asplist, concurvity)
+
+asplist2 <- list('asp.sincos2' = asp.sincos2, 'aspsincos3' = asp.sincos3, 'trasp1' = trasp1, 'trasp2' = trasp2, 'trasp3' = trasp3, 'noasp1' = noasp1, 'noasp2' = noasp2, 'noasp3' = noasp3)
+lapply(asplist2, my.rmse.2)
+lapply(asplist2, concurvity)
+
+```
+## ASPECT MODELS
+
+The chunk above models every combination with and without the aspect variables, covers the concurvity and RMSEs. Then I select from that first pass models which have no concurvities that exceed 0.8 and check the RMSEs of just those, since I may be choosing to have 0.8 be my concurvity cutoff. By this logic, aspsincos2 and aspsincos3 have very close RMSE values and therefore are the 'winners'. These models include the interaction between sin-cos(aspect) + either elevation OR slope variables. Compared to the concurve model (aspsincos1) that I initially chose, sincos2 and sincos3 only differ in RMSE by ~ 0.015 square inches/year in accuracy from the concurve version. This seems reasonable enough for me to drop either the slope or elevation version.
+
+**THE WINNER THUS FAR IS ASPSINCOS3, but the concurvity is pretty dang close to 0.8 - will just have to see how this plays out in the density/comp selection** 
+
+The trasp and no aspect versions, on the ohter hand, do not suffer from the same concurvity issues that these others do. There appears to be some sort of concurvity between diameter and all of these site variables. Both TRASP 2 and 3 seem to be viable options by concurvity, and trasp 3 wins by RMSE. 
+
+Noaspect1 is the best version by RMSE (includes the most terms), but noasp2 (slope included - no elevation) has the lowest concurvity across the board. This seems to show that the concurvity among diameter and elevation is the strongest among all of these combinations. 
+
+Obviously the model with the most terms has the highest predictive accuracy, however, this exercise proves that there is a delicate balance between model accuracy and model simplicity. the s(sin(asp),cos(asp)) and s(elev_m) prove to overlap the predictive space of s(diameter). 
+
+```{r plots and diagnostics of above}
+plot.gam(asp.sincos3, scale = 0, scheme = 1, pages = 2)
+par(mfrow = c(2,2))
+gam.check(asp.sincos)
+anova.gam(asp.sincos)
+summary.gam(asp.sincos)
+concurvity(asp.sincos)
+
+
+concurvity(asp.sincos3, full = T)
+
+plot.gam(asp.sincos3, scale = 0, scheme = 1, pages = 1)
+par(mfrow = c(2,2))
+gam.check(asp.sincos1)
+anova.gam(asp.sincos1)
+summary.gam(asp.sincos1)
+concurvity(asp.sincos1, full = F)
+
+plot.gam(trasp1, scale = 0, scheme = 1, pages = 1)
+par(mfrow = c(2,2))
+gam.check(trasp1)
+summary(trasp1)
+concurvity(trasp1)
+
+#plot.gam(trasp2, scale = 0, scheme = 1, pages = 4)
+#par(mfrow = c(2,2))
+#gam.check(trasp2)
+#summary(trasp2)
+#oncurvity(trasp2)
+
+#plot.gam(trasp2a, scale = 0, scheme = 1, pages = 4)
+#summary(trasp2a)
+
+#draw(asp.sincos1, residuals = T)
+
+my.rmse.2(asp.sincos)
+my.rmse.2(asp.sincosa)
+my.rmse.2(asp.sincosa1)
+my.rmse.2(asp.sincos1)
+my.rmse.2(trasp1)
+#my.rmse.2(trasp2)
+#my.rmse.2(trasp2a)
+```
+
+
+```{r, include = F}
+#summary(asp.sincos1)
+
+#asp.sincos2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m, sp = 3) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+summary(asp.sincos2)
+plot.gam(asp.sincos2, pages = 1, scheme = 1)
+
+anova.gam(asp.sincos1, asp.sincos2)
+```
+
+
+
+```{r sin-cos aspect, include=FALSE}
+## SinCos
+#no interactions (except aspect)
+gam.asp1 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+gam.asp1a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos), family = 'Gamma'(link=log), data = bai.site, method = 'ML', select = T)
+
+
+gam1abc <- gam(bai~s(asp.trasp), data = bai.site, family = 'Gamma'(link = log))
+gam1abc1 <- gam(bai~s(asp_sin), data = bai.site, family = 'Gamma'(link = log))
+
+summary(gam1abc)
+summary(gam1abc1)
+
+plot(bai.site$asp.trasp, bai.site$asp_sin)
+
+#add slope interaction with asp.
+gam.asp2 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos) + ti(asp_sin, asp_cos, slope_pct), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+#added automatic term selection (double penalty) This selected slope out of the model
+gam.asp2a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp_sin, asp_cos) + ti(asp_sin, asp_cos, slope_pct), family = 'Gamma'(link=log), data = bai.site, method = 'ML', select = T)
+#Tried model without slope, but with slope in the sin-cos interaction, not sure if that makes sense. hard to interpet?
+gam.asp2aa <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + ti(asp_sin, asp_cos, slope_pct), family = 'Gamma'(link=log), data = bai.site, method = 'ML', select = T)
+#only including sin-cos-slope interaction without a term for sin-cos. Similar to stage.. 
+gam.asp2aaa <- gam(bai~s(DIAMETER) + s(elev_m) + ti(asp_sin, asp_cos, slope_pct), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+
+#add elevation/slope interaction term
+gam.asp3 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + ti(asp_sin, asp_cos) + ti(asp_sin, asp_cos, elev_m), family = 'Gamma'(link=log), data = bai.site, method = 'ML')
+gam.asp3a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + ti(asp_sin, asp_cos) + ti(asp_sin, asp_cos, elev_m), family = 'Gamma'(link=log), data = bai.site, method = 'ML', select = T)
+#this one doesn't even work.. 
+#gam.asp3a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + ti(asp_sin, asp_cos) + ti(asp_sin, asp_cos, elev_m), family = 'Gamma'(link=log), data = bai.site, method = 'ML', select = T)
+
+
+plot.gam(gam.asp1, scheme = 1, pages = 1)
+plot.gam(gam.asp1a, scheme = 1, pages = 1)
+
+
+plot.gam(gam.asp2, scheme = 1, pages = 1)
+plot.gam(gam.asp2a, scheme = 1, pages = 1)
+plot.gam(gam.asp2aa, scheme = 1, pages = 1)
+plot.gam(gam.asp2aaa, scheme = 1, pages = 1)
+
+
+plot.gam(gam.asp3, scheme = 1, pages = 1)
+plot.gam(gam.asp3a, scheme = 1, pages = 1)
+
+#plot.gam(gam.asp3a, scheme = 1, pages = 1)
+
+
+par(mfrow = c(2,2))
+gam.check(gam.asp1)
+gam.check(gam.asp1a)
+
+par(mfrow = c(2,2))
+gam.check(gam.asp2)
+gam.check(gam.asp2a)
+gam.check(gam.asp2aa)
+gam.check(gam.asp2aaa)
+
+anova.gam(gam.asp3a)
+
+
+par(mfrow = c(2,2))
+gam.check(gam.asp3)
+gam.check(gam.asp3a)
+#gam.check(gam.asp3a)
+
+summary(gam.asp3)
+summary(gam.asp3a)
+
+my.rmse.2(gam.asp1)
+my.rmse.2(gam.asp1a)
+
+my.rmse.2(gam.asp2)
+my.rmse.2(gam.asp2a)
+my.rmse.2(gam.asp2aa)
+my.rmse.2(gam.asp2aaa)
+
+#concurvity(gam.asp2aaa, full = F)
+
+my.rmse.2(gam.asp3)
+my.rmse.2(gam.asp3a)
+#my.rmse.2(gam.asp3a)
+
+
+anova.gam(gam.asp1, gam.asp2aa, gam.asp3a, test = 'Chisq')
+#so far gam.asp2 is best, but can't get 3 to fit..
+```
+
+```{r stage aspect slope, include = FALSE}
+##Stage
+gam.st1 <- bam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos) + s(elev_m), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+#gam.st1aa <- bam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos) + s(elev_m), family = 'Gamma'(link = log), data = bai.site, method = 'ML', select = TRUE)
+#plot.gam(gam.st1aa, scheme = 1, pages = 1)
+#gam.check(gam.st1aa)
+
+#gam.st1a <- gam(bai~s(DIAMETER) + ti(asp_sin, asp_cos, slope_pct) + s(elev_m), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+
+#plot.gam(gam.st1a, scheme = 1)
+
+
+#gam.check(gam.st1a)
+
+
+#my.rmse.2(gam.st1a)
+
+
+gam.st2 <- bam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos) + s(elev_m) + ti(sl_asp_cos, sl_asp_sin), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+#gam.st2a <- bam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos) + s(elev_m) + ti(sl_asp_cos, sl_asp_sin), family = 'Gamma'(link = log), data = bai.site, method = 'ML', select = T)
+##summary(gam.st2a)
+
+plot.gam(gam.st1, scheme = 1, pages = 1)
+plot.gam(gam.st2, scheme = 1, pages = 1)
+
+
+par(mfrow = c(2,2))
+gam.check(gam.st1)
+gam.check(gam.st2)
+#gam.check(gam.st2a)
+
+
+
+my.rmse.2(gam.st1)
+my.rmse.2(gam.st2)
+#my.rmse.2(gam.st2a)
+#my.rmse.2(gam.st3)
+#my.rmse.2(gam.st3a)
+
+summary(gam.st1)
+summary(gam.st2)
+
+
+anova.gam(gam.st1, gam.st2, test = 'Chisq')
+
+##gam.st2 seems to win here, but issues fitting st3
+
+```
+
+```{r traspect, include = FALSE}
+##### trasp versions
+gam.tr1 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+#gam.tr2 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(slope_pct, asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+#gam.tr3 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(slope_pct, asp.trasp) + ti(elev_m, asp.trasp), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+gam.tr4 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(slope_pct, asp.trasp) + ti(elev_m, asp.trasp) + ti(slope_pct, elev_m), family = 'Gamma'(link = log), data = bai.site, method = 'ML')
+
+gam.tr4a <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct) + s(asp.trasp) + ti(slope_pct, asp.trasp) + ti(elev_m, asp.trasp) + ti(slope_pct, elev_m), family = 'Gamma'(link = log), data = bai.site, method = 'ML', select = TRUE)
+
+
+
+plot.gam(gam.tr1, scheme = 1, pages = 1, scale = 0)
+
+plot.gam(gam.tr4, scheme = 1, pages = 1, scale = 0)
+plot.gam(gam.tr4a, scheme = 1, pages = 1, scale = 0)
+
+par(mfrow = c(2,2))
+gam.check(gam.tr1)
+
+gam.check(gam.tr4)
+
+my.rmse.2(gam.tr1)
+
+my.rmse.2(gam.tr4)
+
+anova.gam(gam.tr1, gam.tr4, gam.tr4a, test = 'Chisq')
+
+summary.gam(gam.tr1)
+
+summary.gam(gam.tr4)
+summary.gam(gam.tr4a)
+
+## these say gam.tr4 is best. I am skeptical but I'll go with it for now. 
+
+
+
+
+######### Maybe look into using penalties to evaluate whether interactions are important. Better than stepwise approach? However it makes my methodology a bit inconsistent. But maybe this is where an exception could be made? 
+########## For the trasp4, elevation gets penalized out of the model.. or at least is linearized..
+```
+
+Now let's compare these winners.
+
+```{r, include = FALSE}
+ggg <- list('asp2' = gam.asp2, 'st2' = gam.st2, 'tr4' = gam.tr4)
+summary.gam(gam.tr4)
+lapply(ggg, gam.output)
+
+#lapply(ggg, concurvity, full = F)
+lapply(ggg, my.rmse.2)
+
+anova.gam(gam.asp2, gam.st2, gam.tr4, test = 'Chisq')
+lapply(ggg, AIC)
+lapply(ggg, concurvity)
+
+### According to these tests, gam.tr4 is the winner
+```
+
+
+Choose the best from the above analyses, and include where gam.site.full4 is now. 
+Notes: Do I need to assess this with so much detail? I want to make sure I include valid and/or important terms. There's a lot to chew on and consider here. 
+
+I should look first at which works better: aspect cos/sin or trasp. 
+It also might not even matter, considering that I'm comparing the heatload and site index options.
+
+```{r site vars full}
+
+#full SI version
+gam.site.full3 <- gam(bai~s(DIAMETER, sp = .7) + s(mean_si), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+#full aspect version
+gam.site.full4 <- asp.sincos3
+
+#full heatload version
+gam.site.full5 <- gam(bai~s(DIAMETER, sp = .7) + s(heatload), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+#using stand as an indicator of site conditions
+gam.site.full.6 <- gam(bai~as.factor(stand) +s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+#gam.site.all <- gam(bai~s(DIAMETER) + s(mean_si) + s(elev_m) + s(aspect_deg) + s(slope_deg), family = 'Gamma'(link=log), data = bai.site)
+
+gams.site.full <- list('full3' = gam.site.full3, 'full4' = gam.site.full4, 'full5' = gam.site.full5, 'full6' = gam.site.full.6)
+
+```
+
+```{r site vars plots full}
+
+lapply(gams.site.full, gam.output)
+lapply(gams.site.full, my.rmse.2)
+
+plot.gam(gam.site.full3, scheme = 1, scale = 0, pages = 1)
+
+plot.gam(gam.site.full4, scheme = 1, scale = 0, pages = 1)
+
+plot.gam(gam.site.full5, scheme = 1, scale = 0, pages = 1)
+
+plot.gam(gam.site.full.6, scheme = 1, scale = 0, pages = 1, all.terms = T)
+
+
+
+par(mfrow=c(2,2))
+gam.check(gam.site.full3)
+
+gam.check(gam.site.full4)
+
+gam.check(gam.site.full5)
+gam.check(gam.site.full.6)
+
+anova.gam(gam.site.full3, gam.site.full4, gam.site.full5, gam.site.full.6, test = 'Chisq')
+
+lapply(gams.site.full, my.rmse.2)
+
+## gam.site.full4 seems to be the winner here..
+```
+
+
+#### Individual site variable models
+```{r site best 1}
+
+gam.site1 <- gam(bai~s(DIAMETER, sp =.7) + s(mean_si), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+
+gam.site2 <- gam(bai~s(DIAMETER, sp =.7) + s(heatload), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+
+gam.site3 <- gam(bai~s(DIAMETER, sp =.7) + s(elev_m), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+
+gam.site4 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+gam.site4a <- gam(bai~s(DIAMETER, sp =.7) + s(asp.trasp), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+#gam.site4b <- gam(bai~s(DIAMETER, sp =.7) + s(sl_asp_cos) + s(sl_asp_sin), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+#gam.site4b1 <- gam(bai~s(DIAMETER) + te(asp_sin, asp_cos, slope_pct), family = 'Gamma'(link = log), data = bai.site)
+
+#gam.site4c <- gam(bai~s(DIAMETER, sp =.7) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+#gam.site5a <- gam(bai~s(DIAMETER) + s(sl_asp_sin) + s(sl_asp_cos), family = 'Gamma'(link = log), data = bai.site)
+
+#gam.site5c <- gam(bai~s(DIAMETER) + s(asp_sin, by = asp_cos), family = 'Gamma'(link = log), data = bai.site)
+
+gam.site5 <- gam(bai~s(DIAMETER, sp =.7) + s(slope_pct), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,])
+
+ls.site <- list('site1' = gam.site1, 'site2' = gam.site2, 'site3' = gam.site3, 'site4'=gam.site4,'site4a'= gam.site4a, 'site5' = gam.site5)
+
+site.gams.out <- lapply(ls.site, gam.output)
+
+
+#a loop
+rmse_names <- names(site.gams.out)
+rows <- c('rmse','rmse.df')
+rc <- list(rmse_names,rows)
+rmse_sites <- matrix(ncol = 2, nrow = length(ls.site), dimnames = rc)
+for(i in 1:length(site.gams.out)){
+  rmse_sites[i,] <- site.gams.out[[i]][[2]]
+}
+
+rmse_sites <- data.frame(rmse_sites)
+rmse_sites
+
+which.min(rmse_sites$rmse)
+which.min(rmse_sites$rmse.df)
+
+#site.gams.out$site6
+```
+#### Site variable selection for final model
+```{r site vars for selection, include = F}
+#"If you are going to fit and compare nested models explicitly, make sure you use method = "ML" because the corrections used to compute the REML uses information from the fixed effects and if you models include different fixed effects terms" - Gavin Simpson, stack exchange
+
+##"te(x, z) includes both the smooth main effects of x and z, plus their smooth interaction. ti() is just the pure smooth interaction of x and z." - same post If you are familiar with R's linear modelling formulas, then
+
+#####te() is like x*Z or x + z + x:z if you want to write it all out
+#####ti() is like X:Z only
+
+#### Just diameter and site index
+site.op1 <- gam(bai~s(DIAMETER) + s(mean_si), family = 'Gamma'(link=log), data = bai.site)
+draw(site.op1, title = 'site.op1')
+par(mfrow = c(2,2))
+gam.check(site.op1)
+
+#### All site vars(aspect, slope, elevation) and their interactions
+site.op2 <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, asp_sin) + ti(elev_m, asp_cos) + ti(elev_m, slope_pct) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct), family='Gamma'(link=log), data = bai.site)
+#plot(site.op2)
+#draw(site.op2, title = 'site.op2')
+#par(mfrow = c(2,2))
+#gam.check(site.op2)
+summary(site.op2)
+
+#gam(bai~s(DIAMETER) + s(elev_m) + ti(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, asp_sin)+ ti(elev_m, asp_cos) + ti(elev_m, slope_pct) + ti(asp_sin, slope_pct) + ti(asp_cos,slope_pct), family = 'Gamma'(link=log), data = bai.site)
+
+#gg <- predict(site.op2)
+#site.op2
+
+#### Compare previous to this (no interaction version)
+site.op2a <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin) + s(asp_cos) + s(slope_pct), family='Gamma'(link=log), data = bai.site)
+draw(site.op2a, title = 'site.op2a')
+par(mfrow = c(2,2))
+gam.check(site.op2a)
+
+
+#### include interactions? try s(x, z) - this is an isotropic smooth, I think I should do this because both aspect variables describe the same dimension. However the inclusion of other interactions should be assessed with tempor product interaction terms
+site.op2b <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct) + ti(elev_m, slope_pct), family='Gamma'(link=log), data = bai.site)
+draw(site.op2b, title = 'site.op2b')
+par(mfrow=c(2,2))
+gam.check(site.op2b)
+
+### 
+#site.op2c <- gam(bai~s(DIAMETER) + s(elev_m) + s(asp_sin, asp_cos) + s(slope_pct), family='Gamma'(link=log), data = bai.site)
+
+
+
+#vis.gam(site.op2, view = c('elev_m', 'aspect_deg'), theta = 120)
+#vis.gam(site.op2a, view = c('elev_m', 'aspect_deg'), theta = 120)
+#vis.gam(site.op2b, )
+
+site.op3 <- gam(bai~s(DIAMETER) + s(heatload), family = 'Gamma'(link=log), data = bai.site)
+draw(site.op3, title = 'site.op3')
+par(mfrow = c(2,2))
+gam.check(site.op3)
+
+site.op4 <- gam(bai~as.factor(stand) + s(DIAMETER), family = 'Gamma'(link = log), data = bai.site)
+draw(site.op4, title = 'site.op4')
+par(mfrow=c(2,2))
+gam.check(site.op4)
+
+site.ops <- list(site.op1, site.op2, site.op2a, site.op2b, site.op3, site.op4)
+lapply(site.ops, my.rmse.2)
+#lapply(site.ops, gam.output)
+
+#site.op2$formula
+```
+
+#### FVS size + site
+
+```{r fvs size and site}
+
+fvs.site1 <- glm(bai~log.diam + I(DIAMETER^2) + elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2), family = 'Gamma'(link = log), data = bai.site)
+plot(fvs.site1)
+summary(fvs.site1)
+my.rmse.2(fvs.site1)
+```
+#### Site RMSE table
+```{r site rmse table}
+#rmse.size.tb
+#full
+fullsite <- my.rmse.2(gam.site.full4)
+#bestsingle
+best1.size.site <- my.rmse.2(gam.site4)
+#fvs
+fvs.size.site <- my.rmse.2(fvs.site1)
+
+(rmse.tb.site <- tibble(fullsite, best1.size.site, fvs.size.site))
+
+
+```
+### RMSE tables
+```{r rmse table 3tables}
+rmse.size.tb
+rmse.tb.site
+(full.all <- as_tibble(rbind(null.gam, size.full, fullsite), rownames = 'model'))
+
+(single.bests <- as_tibble(rbind(null.gam, diam, best1.size.site), rownames = 'model'))
+
+(fvs.1 <- as_tibble(rbind(null.gam, fvs.sz, fvs.size.site), rownames = 'model'))
+
+#(selected <- data.frame(rbind()))
+
+```
