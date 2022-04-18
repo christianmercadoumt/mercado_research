@@ -111,22 +111,23 @@ Treeba variable has high effective degrees of freedom. perhaps try different fit
 ##### comparing between these two different specifications
 ##### 8 knot version seems to better represent the relationship, or smooths out the noise at least. Slightly higher RMSE values. 
 
-gam.d <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+#gam.d <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
 
-gam.s1 <- gam(bai~s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+gam.s1 <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+
 
 #gam.s1a <- gam(bai~s(DIAMETER, bs = 'tp', k = 8), family = 'Gamma'(link = log), data = bai.size)
 #par(mfrow = c(1,1))
 #plot.gam(gam.s1a)
 
-gam.s1a <- gam(bai~s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
 
-gam.s2 <- gam(bai~s(treeba, sp = 1.1), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+gam.s2 <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size, method = 'ML')
 
-gam.s2a <- gam(bai~s(treeba, sp = 1.1), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+gam.s2a <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
 
 
-plot.gam(gam.s1, residuals = T)
+plot.gam(gam.s1)
 
 plot.gam(gam.s1a)
 
@@ -135,7 +136,7 @@ plot.gam(gam.s2)
 plot.gam(gam.s2a)
 
 
-draw(gam.s1, residuals = T)
+#draw(gam.s1, residuals = T)
 
 #draw(gam.s1, residuals = T)
 #draw(gam.s1a, residuals = T)

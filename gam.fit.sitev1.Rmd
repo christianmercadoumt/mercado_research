@@ -127,38 +127,38 @@ arrange(aspdf, desc(value))
 
 ```{r sin-cos aspect-redo}
 
-asp.sincos <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m) + ti(asp_cos, asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincos <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m) + ti(asp_cos, asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincosa <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincosa <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincosb <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincosb <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincosc <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincosc <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincosd <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos) + s(asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincosd <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincos1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincos1 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincos2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincos2 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-asp.sincos3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+asp.sincos3 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-trasp1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+trasp1 <- gam(bai~s(DIAMETER) + s(asp.trasp) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-trasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+trasp2 <- gam(bai~s(DIAMETER) + s(asp.trasp) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-trasp3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+trasp3 <- gam(bai~s(DIAMETER) + s(asp.trasp) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-noasp1 <- gam(bai~s(DIAMETER, sp = .7) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+noasp1 <- gam(bai~s(DIAMETER) + s(elev_m) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-noasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+noasp2 <- gam(bai~s(DIAMETER) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
-noasp3 <-  gam(bai~s(DIAMETER, sp = .7) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+noasp3 <-  gam(bai~s(DIAMETER) + s(elev_m), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
 
-#trasp2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + s(elev_m) + s(slope_pct) + ti(asp.trasp, elev_m, bs = 'ts') + ti(asp.trasp, slope_pct, bs = 'ts') + ti(elev_m, slope_pct, bs = 'ts') + ti(asp.trasp, elev_m, slope_pct, bs = 'ts'), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
+#trasp2 <- gam(bai~s(DIAMETER) + s(asp.trasp) + s(elev_m) + s(slope_pct) + ti(asp.trasp, elev_m, bs = 'ts') + ti(asp.trasp, slope_pct, bs = 'ts') + ti(elev_m, slope_pct, bs = 'ts') + ti(asp.trasp, elev_m, slope_pct, bs = 'ts'), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
 
-#trasp2a <- gam(bai~s(DIAMETER, sp = .7) + s(asp.trasp) + elev_m + s(slope_pct) + ti(asp.trasp, elev_m) + ti(asp.trasp, slope_pct) + ti(elev_m, slope_pct), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
+#trasp2a <- gam(bai~s(DIAMETER) + s(asp.trasp) + elev_m + s(slope_pct) + ti(asp.trasp, elev_m) + ti(asp.trasp, slope_pct) + ti(elev_m, slope_pct), family = 'Gamma'(link = log), data=bai.site, method = 'ML')
 
 
 #asp.sincos1 <- gam(bai~s(DIAMETER) + s(asp_cos) + s(asp_sin) + s(slope_pct) + s(elev_m) + ti(asp_cos, asp_sin) + ti(slope_pct, elev_m) + ti(asp_sin, slope_pct) + ti(asp_cos, slope_pct) + ti(asp_sin, slope_pct) + asp_cos:slope_pct, family = 'Gamma'(link = log), data = bai.site, select = T)
@@ -234,7 +234,7 @@ my.rmse.2(trasp1)
 ```{r, include = F}
 #summary(asp.sincos1)
 
-#asp.sincos2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m, sp = 3) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+#asp.sincos2 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m, sp = 3) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 summary(asp.sincos2)
 plot.gam(asp.sincos2, pages = 1, scheme = 1)
 
@@ -452,16 +452,16 @@ It also might not even matter, considering that I'm comparing the heatload and s
 ```{r site vars full}
 
 #full SI version
-gam.site.full3 <- gam(bai~s(DIAMETER, sp = .7) + s(mean_si), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+gam.site.full3 <- gam(bai~s(DIAMETER) + s(mean_si), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
 #full aspect version
 gam.site.full4 <- asp.sincos3
 
 #full heatload version
-gam.site.full5 <- gam(bai~s(DIAMETER, sp = .7) + s(heatload), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+gam.site.full5 <- gam(bai~s(DIAMETER) + s(heatload), family = 'Gamma'(link=log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
 #using stand as an indicator of site conditions
-gam.site.full.6 <- gam(bai~as.factor(stand) +s(DIAMETER, sp = .7), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+gam.site.full.6 <- gam(bai~as.factor(stand) +s(DIAMETER), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
 #gam.site.all <- gam(bai~s(DIAMETER) + s(mean_si) + s(elev_m) + s(aspect_deg) + s(slope_deg), family = 'Gamma'(link=log), data = bai.site)
 

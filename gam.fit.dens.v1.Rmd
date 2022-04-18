@@ -103,30 +103,33 @@ ggpairs(compd.all)
 ####### UPDATE
 ### HIGH CORRS: BA-CR, CCF-CR, BA-QMD, CCF-QMD, TPA-DQ, BA-CCF
 
+####### UPDATE AGAIN - also rounding up to 0.7
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD, CCF-BA
+
 ```
 
 ```{r tree-level variable selection - site first}
 ## Begin with tree vars - all included - adding to model with site vars
-compd1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd1 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #cr and bal
-compd2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd2 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #cr and dq
-compd3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd3 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #bal and dq
-compd4 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd4 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 ### INDIVIDUALS
 #cr
-compd.cr <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd.cr <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #bal
-compd.bal <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd.bal <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #dq
-compd.dq <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+compd.dq <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 
 compdlist.full <- list('full compd' = compd1, 'cr-bal' = compd2, 'cr-dq' = compd3, 'bal-dq' = compd4)
@@ -140,26 +143,26 @@ concurvity(compd.bal, full = T)
 
 ```{r variable selection - no site}
 ## Begin with tree vars - all included - adding to model with site vars
-nosite.compd1 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #cr and bal
-nosite.compd2 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #cr and dq
-nosite.compd3 <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #bal and dq
-nosite.compd4 <- gam(bai~s(DIAMETER, sp = .7) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd4 <- gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 ### INDIVIDUALS
 #cr
-nosite.compd.cr <- gam(bai~s(DIAMETER, sp = .7) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.cr <- gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #bal
-nosite.compd.bal <- gam(bai~s(DIAMETER, sp = .7) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.bal <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 #dq
-nosite.compd.dq <- gam(bai~s(DIAMETER, sp = .7) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.dq <- gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
 
 nosite.compdlist.full <- list('full compd' = nosite.compd1, 'cr-bal' = nosite.compd2, 'cr-dq' = nosite.compd3, 'bal-dq' = nosite.compd4)
@@ -170,21 +173,21 @@ nosite.compdlist.ind <- list('cr' = nosite.compd.cr, 'bal' = nosite.compd.bal, '
 ```
 
 
-```{r evaluate tree-level with site}
+```{r evaluate tree-level with site, include = F}
 ## compare partial responses
 
-for(i in compdlist.full){
-  par(mfrow = c(1,2))
-  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
-  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2), main = print(names(i)[1]))
-}
+# for(i in compdlist.full){
+#   par(mfrow = c(1,2))
+#   plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+#   plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2), main = print(names(i)[1]))
+# }
 
 
-for(i in compdlist.ind){
-  par(mfrow = c(1,2))
-  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
-  plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
-}
+# for(i in compdlist.ind){
+#   par(mfrow = c(1,2))
+#   plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+#   plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
+# }
 
 
 for(i in nosite.compdlist.full){
@@ -229,7 +232,7 @@ for(i in nosite.compdlist.ind){
 #ggplot(prdfits1, aes(x = var.m1, y = fit1)) + geom_point() geom_line() + geom_line(data = prdfits2, aes(x = var.m2, y = fit1))
 
 
-lapply(compdlist.full, rmse.conc)
+# lapply(compdlist.full, rmse.conc)
 lapply(nosite.compdlist.full, rmse.conc)
 
 
@@ -260,7 +263,11 @@ concurvity(compd1, full = T)
 ```
 
 ```{r evaluate without site}
+#starting to evaluate concurvity estimate, instead of "worst", and changing the threshold to 0.5..
+lapply(nosite.compdlist.full, rmse.conc)
+lapply(nosite.compdlist.ind, rmse.conc)
 
+#in this case, then, the full compd model works best... but let's see what happens when I add plot-vars
 ```
 
 
@@ -281,37 +288,74 @@ Options
 2. try trasp in place of sin,cos-asp
 3. keep going down the list of other aspect options 
 
-
-```{r plot level variable selection}
+```{r plot vars - no site first - building on full compd for now}
 ### Add plot-level vars
 #### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
 #### TPA AND DQRATIO HIGH CORRELATION
 #### CCF AND BAL AND BA HIGH CORR
 #### BA and BAL HIGH CORR
 
-op1 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(tpa.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, no ba, no ccf
+#"tpa.pl.all" "qmd.pl.all" "ba.pl"      "ccf.pl"
 
-op2 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD, CCF-BA
+#no dq and tpa - dropped dq for this option
+op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, noBA
 
-op3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #no ba, keep dq, no tpa
 
-op4 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
+op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, notpa
 
-op2a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
+op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, nodq
 
-op3a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
+# op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
+# 
+# op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+# 
+# op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
 
-op5a <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
+# op2a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
+# 
+# op3a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
+# 
+# op5a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
+
+# opslist <- list('tpa-exothers' = op1, 'tpa,ccf-exdq,bal,ba' = op2, 'ba-exothers' = op3, 'ccf-exothers' = op4, 'tpaccf-ignorecorrs' = op2a, 'ba-exccf-ignorecorrs' = op3a, 'batpa-ignorecorrs' = op5a)
+
+opslist <- list('op1'=op1, 'op2'=op2, 'op3'=op3, 'op4'=op4)
+
+lapply(opslist, rmse.conc)
+```
+
+
+```{r plot level variable selection - site first, include = F}
+### Add plot-level vars
+#### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
+#### TPA AND DQRATIO HIGH CORRELATION
+#### CCF AND BAL AND BA HIGH CORR
+#### BA and BAL HIGH CORR
+
+op1 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(tpa.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, no ba, no ccf
+
+op2 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
+
+op3 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+
+op4 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
+
+op2a <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
+
+op3a <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
+
+op5a <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
 
 opslist <- list('tpa-exothers' = op1, 'tpa,ccf-exdq,bal,ba' = op2, 'ba-exothers' = op3, 'ccf-exothers' = op4, 'tpaccf-ignorecorrs' = op2a, 'ba-exccf-ignorecorrs' = op3a, 'batpa-ignorecorrs' = op5a)
 
-lapply(opslist, my.rmse.2)
-lapply(opslist, concurvity)
+lapply(opslist, rmse.conc)
 
 ```
 
-```{r tuning the full model}
-op3 <- gam(bai~s(DIAMETER, sp = .7) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl, k = 20) + ti(), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+```{r tuning the full model - site first, include = F}
+op3 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(elev_m) + s(slope_pct) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl, k = 20) + ti(), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
 summary(op3)
 #print(plot(getViz(op3, allTerms = T)), pages = 2)
 #draw(op3, residuals = T, scales = 'free')
@@ -335,21 +379,21 @@ ggplot(bai.dcomp, aes(x = ba.pl, y = asp.trasp)) + geom_point()
 
 ```
 
-```{r best single variable}
+```{r best single variable - site first, include = F}
 #select(cr, bal.pl, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl, HabType)
 
 
-best.1 <-  gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(cr, k = 9), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.1 <-  gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(cr, k = 9), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
-best.2 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(bal.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.2 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(bal.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
-best.3 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(dq.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.3 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(dq.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
-best.4 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.4 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
-best.5 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.5 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
-best.6 <- gam(bai~s(DIAMETER, sp =.7) + s(asp_cos, asp_sin) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.6 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 
 best.list <- list('best1' = best.1, 'best2' = best.2, 'best3' = best.3, 'best4' = best.4, 'best5' = best.5, 'best6' = best.6)
 
