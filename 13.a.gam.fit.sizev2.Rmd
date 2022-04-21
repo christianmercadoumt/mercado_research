@@ -1,0 +1,111 @@
+---
+title: "gam.fit.size.v2"
+author: "Christian Mercado"
+date: "4/21/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(GGally)
+source('12.gam_fns.R')
+
+#load data
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+```
+
+```{r scatterplot matrix - corrs}
+sz <- bai.size %>% select(DIAMETER, treeba, log.bai)
+sz.nobig <- bai.size %>% select(DIAMETER, treeba, log.bai) %>% filter(!(DIAMETER > 30))
+ggpairs(sz)
+ggpairs(sz.nobig)
+```
+
+
+```{r null model}
+#create null model
+gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.size)
+summary.gam(gam.null)
+my.rmse.2(gam.null)
+
+```
+
+```{r 1 diam and ba}
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+
+gam.s2a <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+
+sizelst <- list('diam' = gam.s1a, 'treeba' = gam.s2a)
+rmse.conc.table(sizelst)
+```
+
+```{r 2 diagnostics}
+
+summary(gam.s1a)
+summary(gam.s2a)
+
+draw(gam.s1a, rug = F, residuals = T)
+draw(gam.s2a, rug = F, residuals = T)
+
+par(mfrow = c(2,2))
+gam.check(gam.s1a)
+gam.check(gam.s2a)
+
+```
+
+```{r exploring resids, include=FALSE}
+rsd <- residuals.gam(gam.s1a, type = 'response')
+ft <- gam.s1a$fitted.values
+id <- seq(1:length(rsd))
+stand <- bai.size$grwth.yr
+a <- tibble(rsd, ft, id, stand)
+a
+ggplot(a, aes(ft, rsd, label = id, color = factor(stand>=12))) + geom_point(alpha = .2) + geom_label_repel()
+gam.s1$model
+filter(bai.size, bai > .0175)
+
+ggplot(bai.size[ft<=.0165,], aes(x = DIAMETER)) + geom_histogram()
+
+### WHATS GOING ON IN RESIDUALS?
+#### is it just very large trees??
+bai.size[c(26, 111, 2836, 20, 2744, 38, 54, 69, 127),]
+
+
+```
+
+```{r FVS Size vars}
+
+fvs.size1 <- glm(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,])
+
+summary(fvs.size1)
+
+my.rmse.2(fvs.size1)
+#my.rmse.gam(fvs.size1)
+#my.rmse.dfres(fvs.size1)
+
+```
+
+```{r size rmse table}
+model <- c('null', 'size', 'density.comp', 'site')
+
+rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], NA, NA)
+rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]],NA, NA)
+fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], NA, NA)
+
+tibble(model, rmse.selected, rmse.best1, fvs)
+
+```
+
+

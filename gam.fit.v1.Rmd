@@ -16,7 +16,7 @@ library(ggrepel)
 source('12.gam_fns.R')
 
 #load data
-bai.train <- readRDS('data/bai.train.4_12_22.rds')
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
 
 bai.size <- bai.train %>% 
   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
@@ -46,7 +46,7 @@ Here I am constructing a table of RMSE's for each step of the process. This help
 
 OUTLIERS
 
-```{r}
+```{r, include = F}
 bai.train %>% filter(DIAMETER>30)
 bai.train %>% filter(unique_tree_id == 15431)
 bai.size.nobig <- bai.size %>% filter(unique_tree_id != 15431)

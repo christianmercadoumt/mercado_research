@@ -171,6 +171,12 @@ Outliers were identified and were omitted because of their strong impact on the 
 
 - The decision to select groups in the order that we did was decided based on Wykoff 1990 (CITE:), however, we acknowledge that Monserud and Sterba 1996 (CITE) found that tree size accounted for the most variability, followed by competition, and then site factors, however, their modeling efforts were reporting on various European species, many of which were broadleaf species. 
 
+- Two things that I noticed about using GAMs here:
+1. Wiggliness is hard to control when putting all of these variables together. Tryhing to fine-tune adjust smooth terms is too difficult as the model gets more complex. 
+2. Concurvity does not capture everything, and if too heavy of a weight is put on this metric, then model fitting process can become extremely arduous. In this case, concurvity ought to be used as  a rough metric. It's important to acknowledge that these variables do have overlap. 
+
+
+
 
 
 

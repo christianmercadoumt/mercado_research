@@ -1,5 +1,6 @@
 ### Some functions for gams
 require(mgcv)
+require(tidyverse)
 #### TRASP - Topographic solar radiation index. This linearizes aspect. 0 means north-northeast aspect, 1 means south-southwest aspect. (Roberts and Cooper, 1989, page90-) 'Concepts and Techniques of Vegetation Mapping.' - In 'Land Classifications Based on Vegetation'
 
 trasp <- function(degrees_aspect){
@@ -18,6 +19,33 @@ my.rmse.2 <- function(gam){
 #output which returns list (based on list of gam objects) of summary, rmse, and concurvity for each input gam object
 gam.output <- function(x){
   x <- list('summary' = summary.gam(x), 'rmse' = my.rmse.2(x), 'concurvity' = concurvity(x))
+}
+
+rmse.conc <- function(x){
+  rmse.df <- my.rmse.2(x)[[2]]
+  concurve <- concurvity(x)
+  concurve.test <- ifelse(any(concurve[3,]>=0.8), 'high-concurvity', 'low-concurvity') 
+  rmse.conc.ls <- list('rmse.df' = rmse.df, 
+                       'concurvity' = concurve, 
+                       'concurvity.test' = concurve.test)
+  
+  return(rmse.conc.ls)
+}
+
+## PRE-REQUISITE to using this function - recommended that there is a list of gam objects with names
+## without names for gam objects in list, there won't be names in the table
+rmse.conc.table <- function(gam.list){
+  newlist <- lapply(gam.list, rmse.conc) #get rmse, concurvity, and concurvity eval
+  rmse.vec <- vector() #empy vector
+  conc.vec <- vector() #empty vector
+  
+  for(i in 1:length(newlist)){
+    rmse.vec[i] <- newlist[[i]][[1]]
+    conc.vec[i] <- newlist[[i]][[3]]
+  }
+  tibble('model' = names(newlist), 'rmse' = rmse.vec, 'concurvity.eval' = conc.vec) %>% 
+    arrange(rmse) %>% 
+    mutate(rmse.rank = row_number())
 }
 
 #my.rmse.xval <- function(gam, testdata){

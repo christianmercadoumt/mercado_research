@@ -74,3 +74,13 @@ pgp_data_all <- pgp_data_all %>%
   mutate(BASAL_AREA_EQUIV.pl = .005454154*TPA_EQUIV.pl*DIAMETER^2,
          BASAL_AREA_EQUIV.cl = .005454154*TPA_EQUIV.cl*DIAMETER^2)
 
+#modify erroneous diameters
+pgp_data_all[pgp_data_all$SETTING_ID == '01140123030001' & 
+               pgp_data_all$MEASUREMENT_NO == 5 & 
+               pgp_data_all$PLOT==120 & 
+               pgp_data_all$TAG_ID==905,"DIAMETER"] <- 4.9
+
+pgp_data_all[pgp_data_all$SETTING_ID == '01160347060011' & 
+               pgp_data_all$MEASUREMENT_NO == 5 & 
+               pgp_data_all$PLOT==303 & 
+               pgp_data_all$TAG_ID==10,"DIAMETER"] <- 5.4

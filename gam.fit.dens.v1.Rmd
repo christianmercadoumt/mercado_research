@@ -22,7 +22,7 @@ hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
 #load data
-bai.train <- readRDS('data/bai.train.4_12_22.rds')
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.size <- bai.train %>% 
@@ -65,7 +65,10 @@ bai.dcomp <- bai.train %>%
 rmse.conc <- function(x){
   rmse.df <- my.rmse.2(x)[[2]]
   concurve <- concurvity(x)
-  rmse.conc.ls <- list(rmse.df, concurve)
+  concurve.test <- ifelse(any(concurve[3,]>=0.8), 'high-concurvity', 'low-concurvity') 
+  rmse.conc.ls <- list('rmse.df' = rmse.df, 
+                       'concurvity' = concurve, 
+                       'concurvity.test' = concurve.test)
   
   return(rmse.conc.ls)
 }
@@ -108,7 +111,7 @@ ggpairs(compd.all)
 
 ```
 
-```{r tree-level variable selection - site first}
+```{r 1 tree-level variable selection - site first}
 ## Begin with tree vars - all included - adding to model with site vars
 compd1 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(slope_pct) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
@@ -141,7 +144,7 @@ concurvity(compd.bal, full = T)
 
 ```
 
-```{r variable selection - no site}
+```{r 2 variable selection - no site}
 ## Begin with tree vars - all included - adding to model with site vars
 nosite.compd1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
@@ -172,10 +175,45 @@ nosite.compdlist.ind <- list('cr' = nosite.compd.cr, 'bal' = nosite.compd.bal, '
 
 ```
 
+```{r 3 plot vars - no site first - building on full compd for now}
+### Add plot-level vars
+#### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
+#### TPA AND DQRATIO HIGH CORRELATION
+#### CCF AND BAL AND BA HIGH CORR
+#### BA and BAL HIGH CORR
+
+#"tpa.pl.all" "qmd.pl.all" "ba.pl"      "ccf.pl"
+
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD, CCF-BA
+#no dq and tpa - dropped dq for this option
+op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, noBA
+
+op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #no ba, keep dq, no tpa
+
+op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, notpa
+
+op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, nodq
+
+
+
+opslist <- list('op1'=op1, 'op2'=op2, 'op3'=op3, 'op4'=op4)
+
+lapply(opslist, rmse.conc)
+
+#### OP2 wins
+### follwed by: op1, op4, op3
+
+## if i use 0.8 as the concurvity threshold, then these are all fine (if I'm loooking at the estimate)
+
+## if i drop to 0.5, then none of these options work
+
+
+```
+
 
 ```{r evaluate tree-level with site, include = F}
 ## compare partial responses
-
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') 
 # for(i in compdlist.full){
 #   par(mfrow = c(1,2))
 #   plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
@@ -192,14 +230,14 @@ nosite.compdlist.ind <- list('cr' = nosite.compd.cr, 'bal' = nosite.compd.bal, '
 
 for(i in nosite.compdlist.full){
   par(mfrow = c(1,2))
-  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(gam.s1a, rug = F, select = 1, ylim = c(-1.6, 2))
   plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
 }
 
 
 for(i in nosite.compdlist.ind){
   par(mfrow = c(1,2))
-  plot.gam(asp.sincos3, rug = F, select = 1, ylim = c(-1.6, 2))
+  plot.gam(gam.s1a, rug = F, select = 1, ylim = c(-1.6, 2))
   plot.gam(i, rug = F, select = 1, ylim = c(-1.6, 2))
 }
 
@@ -232,40 +270,35 @@ for(i in nosite.compdlist.ind){
 #ggplot(prdfits1, aes(x = var.m1, y = fit1)) + geom_point() geom_line() + geom_line(data = prdfits2, aes(x = var.m2, y = fit1))
 
 
-# lapply(compdlist.full, rmse.conc)
-lapply(nosite.compdlist.full, rmse.conc)
 
-
-summary(compd1)
-plot.gam(compd1, scheme = 1, all.terms = T, scale = 0, residuals = T, trans = exp)
-
-par(mfrow = c(2,2))
-gam.check(compd1)
-
-#plot.gam(compd1a, scheme = 1, all.terms = T, scale = 0, residuals = T, trans = exp)
-
-#par(mfrow = c(2,2))
-#gam.check(compd1a)
-#summary(compd1a)
-
-#draw(compd1, residuals = T)
-#draw(compd1a, residuals = T, parametric = T)
-
-#plot.gam(compd1, select = 5, residuals = T, ylim = c(0, 3), trans = exp)
-#plot.gam(compd1a, all.terms = T, residuals = T, ylim = c(-4,2), select = 7)
-
-
-my.rmse.2(compd1)
-#my.rmse.2(compd1a)
-
-concurvity(compd1, full = T)
-## CR as a smooth term is overall better model, but what about without CR? Seems it helps the model
 ```
 
 ```{r evaluate without site}
-#starting to evaluate concurvity estimate, instead of "worst", and changing the threshold to 0.5..
-lapply(nosite.compdlist.full, rmse.conc)
-lapply(nosite.compdlist.ind, rmse.conc)
+#starting to evaluate concurvity estimate, instead of "worst", ????and changing the threshold to 0.5..???
+(full.lst <- lapply(nosite.compdlist.full, rmse.conc))
+(ind.lst <- lapply(nosite.compdlist.ind, rmse.conc))
+
+
+## BEST INDIVIDUAL - CROWN RATIO
+# change in rmse - 
+rmse.conc(gam.s1a)$rmse.df - ind.lst$cr$rmse.df
+rmse.conc(gam.s1a)$rmse.df - ind.lst$bal$rmse.df
+rmse.conc(gam.s1a)$rmse.df - ind.lst$dq$rmse.df
+
+
+full.lst$`cr-bal`
+
+
+### by my fitting algorithm, combo should be cr and bal
+
+### 
+
+#adds a third (logical) object to list which tests if there is any concurvity estimate >= 0.8
+#for(i in 1:length(full.lst)){
+#  full.lst[[i]][[3]] <- ifelse(any(full.lst[i][[1]][[2]][3,]>=0.8), 'concurve', 'no-concurve')
+#}
+
+
 
 #in this case, then, the full compd model works best... but let's see what happens when I add plot-vars
 ```
@@ -288,42 +321,135 @@ Options
 2. try trasp in place of sin,cos-asp
 3. keep going down the list of other aspect options 
 
-```{r plot vars - no site first - building on full compd for now}
-### Add plot-level vars
-#### SHOULD NOT USE CCF AND BA IN THE SAME MODEL DUE TO HIGH CORRELATION
-#### TPA AND DQRATIO HIGH CORRELATION
-#### CCF AND BAL AND BA HIGH CORR
-#### BA and BAL HIGH CORR
 
+
+```{r ALT1 plot-level using new model fit process for plot}
 #"tpa.pl.all" "qmd.pl.all" "ba.pl"      "ccf.pl"
 
+### STARTING WITH CR + BAL
+formula(nosite.compd2)
+
 ### HIGH CORRS UPDATE: TPA-DQ, BA-QMD, CCF-BA
-#no dq and tpa - dropped dq for this option
-op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, noBA
 
-op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #no ba, keep dq, no tpa
+compd.pl1 <- update(nosite.compd2, . ~ . + s(tpa.pl.all))
+compd.pl2 <- update(nosite.compd2, . ~ . + s(qmd.pl.all))
+compd.pl3 <- update(nosite.compd2, . ~ . + s(ba.pl))
+compd.pl4 <- update(nosite.compd2, . ~ . + s(ccf.pl))
 
-op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, notpa
+compd.pl.lst <- list('tpa' = compd.pl1, 'qmd' = compd.pl2, 'ba' = compd.pl3, 'ccf' = compd.pl4)
+compd.pl.lst.rc <- lapply(compd.pl.lst, rmse.conc)
+compd.pl.lst.rc[[1]][[1]]
+rmse.conc(nosite.compd2)$rmse.df
+diff <- .5*(rmse.conc(nosite.compd2)$rmse.df - rmse.conc(compd.pl4)$rmse.df)
+vec <- vector()
 
-op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, nodq
+for(i in 1:length(compd.pl.lst)){
+  vec[i] <- (compd.pl.lst.rc[[i]][[1]])
+}
+vec
+(rmse.conc(nosite.compd3)$rmse.df-vec) >= diff
 
-# op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
-# 
-# op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
-# 
-# op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
+## the above suggests that tpa shouldn't be considered (because tpa alone does not change rmse by at least half of the difference that qmd makes)
 
-# op2a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
-# 
-# op3a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
-# 
-# op5a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
+#ranks: 1. ccf, ba, qmd, tpa
+formula(compd.pl4a)
+#add ccf
+compd.pl4a <- update(compd.pl4, . ~ . + s(ccf.pl))
+#add qmd to ccf
+compd.pl4b <- update(compd.pl4, . ~ . + s(ccf.pl) + s(qmd.pl.all))
+#include tpa for kicks
+compd.pl4c <- update(compd.pl4, . ~ . + s(ccf.pl) + s(qmd.pl.all) + s(tpa.pl.all))
 
-# opslist <- list('tpa-exothers' = op1, 'tpa,ccf-exdq,bal,ba' = op2, 'ba-exothers' = op3, 'ccf-exothers' = op4, 'tpaccf-ignorecorrs' = op2a, 'ba-exccf-ignorecorrs' = op3a, 'batpa-ignorecorrs' = op5a)
+pl.1.lst <- list(compd.pl4a, compd.pl4b, compd.pl4c)
 
-opslist <- list('op1'=op1, 'op2'=op2, 'op3'=op3, 'op4'=op4)
+## let's see if tpa makes a noteworthy difference in rmse..
+rmse.conc(compd.pl4)
+lapply(pl.1.lst, formula)
+lapply(pl.1.lst, rmse.conc)
 
-lapply(opslist, rmse.conc)
+###### it seems like CCF alone does the best job here. compd.pl4a
+
+```
+
+```{r ALT1a alternate - consider ba before ccf}
+# ALTERNATE - let's look at the other options too - starting with ba instead of ccf
+
+#add ba
+compd.pl4.a1 <- update(compd.pl4, . ~ . + s(ba.pl))
+## again, add tpa, although I'm not stoked on it
+compd.pl4.a2 <- update(compd.pl4, . ~ . + s(ba.pl) + s(tpa.pl.all))
+
+#add qmd
+compd.pl4.b1 <- update(compd.pl4, . ~ . + s(qmd.pl.all))
+#include tpa for kicks
+compd.pl4.b2 <- update(compd.pl4, . ~ . + s(qmd.pl.all) + s(tpa.pl.all))
+
+
+pl.2.lst <- list(compd.pl4.a1, compd.pl4.a2, compd.pl4.b1, compd.pl4.b2)
+rmse.conc(compd.pl4)
+lapply(pl.2.lst, rmse.conc)
+
+### CCF wins over BA
+
+```
+
+
+```{r try writing gam fit algorithm, include = F}
+
+#set up groups
+compd.tree <- bai.dcomp %>% select(cr, bal.pl.ratio, dq.pl.all)
+compd.plot <- bai.dcomp %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
+compd.all <- bai.dcomp %>% select(cr, bal.pl.ratio, qmd.pl.all, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl)
+
+#name lists for logical test for subgroups
+tree.metrics <- names(compd.tree)
+plot.metrics <- names(compd.plot)
+
+#model to build off of
+base <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#create empty list to store model objects
+modellist <- list()
+
+#determine best single variable
+
+fits <- lapply(bai.dcomp[bai.dcomp$unique_tree_id != 15431, c("bal.pl.ratio", 'dq.pl.all')], function(x){
+  gam(bai~s(DIAMETER) + s(x)
+      , family = 'Gamma'(link = log), 
+      data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+  })
+
+#rmse and concurvity
+rmseconc <- sapply(fits, rmse.conc, simplify = F)
+str(rmse.conc)
+sapply(rmseconc, function(x) (x[2]))
+
+unlist(sapply(rmseconc, function(x) x[1], USE.NAMES = T))
+
+
+t(as.data.frame(concurvity(op1)))
+```
+
+
+```{r, include = F}
+concurvity(op2, full = F)
+```
+
+```{r testing adding site vars, include = F}
+#in the case we select op2
+
+op2.asp <- update(op2, . ~ . + s(asp_sin, asp_cos) + s(slope_pct))
+op2.htld <- update(op2, . ~ . + s(heatload))
+formula(op2.asp)
+
+concurvity(op2)
+concurvity(op2.asp)
+concurvity(op2.htld)
+
+rmse.conc(op2.asp)
+rmse.conc(op2.htld)
+
+
 ```
 
 
@@ -397,23 +523,105 @@ best.6 <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin) + s(ccf.pl), family = 'Gamma
 
 best.list <- list('best1' = best.1, 'best2' = best.2, 'best3' = best.3, 'best4' = best.4, 'best5' = best.5, 'best6' = best.6)
 
-lapply(best.list, my.rmse.2)
+lapply(best.list, rmse.conc)
 lapply(best.list, concurvity)
 
 ## no surprise, BA is the best, but that doesn't come without issues of concurvity
 ```
 
+```{r take a look beyond rmse}
+
+plot.gam(op2, pages = 2)
+plot.gam(compd.pl4, pages = 2)
+
+summary(op2)
+summary(compd.pl4)
+
+par(mfrow = c(2,2))
+gam.check(op2)
+gam.check(compd.pl4)
+
+anova.gam(op2, compd.pl4, test = 'Chisq')
+```
+
+
+
+
+```{r all individuals}
+
+best.1 <- nosite.compd.cr
+
+best.2 <- nosite.compd.bal
+
+best.3 <- nosite.compd.dq
+
+best.4 <- gam(bai~s(DIAMETER) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.5 <- gam(bai~s(DIAMETER) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.6 <- gam(bai~s(DIAMETER) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.7 <- gam(bai~s(DIAMETER) + s(qmd.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+
+best.4a <- update(best.4, . ~ . + s(cr, k = 9))
+
+best.5a <- update(best.5, . ~ . + s(cr, k = 9))
+
+best.6a <- update(best.6, . ~ . + s(cr, k = 9))
+
+best.7a <- update(best.7, . ~ . + s(cr, k = 9))
+
+best.list.tree <- list('cr' = best.1, 'bal' = best.2, 'dq' = best.3) 
+
+best.list.plot <- list('tpa' = best.4, 'ba' = best.5, 'ccf' = best.6, 'qmd' = best.7)
+
+best.list.plot.withtree <- list('cr.tpa' = best.4a, 'cr.ba' = best.5a, 'cr.ccf' = best.6a, 'cr.qmd' = best.7a)
+
+lapply(best.list.tree, rmse.conc)
+lapply(best.list.plot, rmse.conc)
+lapply(best.list.plot.withtree, rmse.conc)
+```
 
 
 
 
 ```{r FVS model}
 
-fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass_values), data = bai.dcomp)
+fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 summary(fvs.full)
 my.rmse.2(fvs.full)
 
 ```
 
+```{r RMSE tables}
+#best of original selection - no site
+op2
+
+#best from new selection methods - no site
+compd.pl4a
 
 
+
+```
+
+
+
+
+
+
+
+OMISSIONS
+
+# op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, no DQ, no BAL, no BA
+# 
+# op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using BA, no BAL, no ccf
+# 
+# op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #ccf, no bal, no ba
+
+# op2a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use tpa and ccf, ignore cross-correlations?
+# 
+# op3a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use BA, no ccf, but ignore cross-corrs 
+# 
+# op5a <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl) + s(dq.pl.all) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #use ba and tpa together, ignore cross-corrs?
+
+# opslist <- list('tpa-exothers' = op1, 'tpa,ccf-exdq,bal,ba' = op2, 'ba-exothers' = op3, 'ccf-exothers' = op4, 'tpaccf-ignorecorrs' = op2a, 'ba-exccf-ignorecorrs' = op3a, 'batpa-ignorecorrs' = op5a)
