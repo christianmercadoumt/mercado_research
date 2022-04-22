@@ -58,13 +58,29 @@ unique(bai.site$PLOT)
 
 ```{r}
 #create variables for unique plots/clusters at each time
-bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster) %>% mutate(unique.cluster.meas = unique.cluster + MEASUREMENT_NO)
+bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))#, unique.tree.meas = as.factor((unique_tree_id + MEASUREMENT_NO/100)))
 
 length(unique(bai.site.ids$unique.cluster.meas))
 
-length(unique(bai.site$stand))
+length(unique(bai.site.ids$unique.plot.meas))
 
 ```
+
+```{r models with random effects}
+#cluster level
+re.cluster.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+re.cluster.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+#plot level
+re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+#tree level
+re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+```
+
 
 
 ```{r random effects - tree}
