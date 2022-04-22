@@ -239,6 +239,8 @@ site.lst <- list('sincos-sl' = site5a.2, 'site.heatload' = site.htld, 'site.si' 
 rmse.conc.table(site.lst)
 lapply(site.lst, rmse.conc)
 
+
+formula.gam(site5a.2)
 ## the topo variables win here - site5a.2
 ## the version using different stand intercepts is actually the winner by RMSE, but has too high concurvity (for intercepts as well as diameter)
 ```
