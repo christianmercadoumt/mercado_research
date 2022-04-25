@@ -161,6 +161,31 @@ rmse.conc.table(sitelist1a) %>% mutate(rmse.change = rmse.conc(compd.pl4)[[1]]-r
 ## sincos, elv, slope
 ```
 
+```{r 1 ALT - BA version}
+compd.ba1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+site.n1b <- update(compd.ba1, . ~ . + s(slope_pct))
+
+site.n2b <- update(compd.ba1, . ~ . + s(elev_m))
+
+site.n3b <- update(compd.ba1, . ~ . + s(asp_sin))
+
+site.n4b <- update(compd.ba1, . ~ . + s(asp_cos))
+
+site.n5b <- update(compd.ba1, . ~ . + s(asp_sin, asp_cos))
+
+site.n6b <- update(compd.ba1, . ~ . + s(asp_sin) + s(asp_cos) + ti(asp_sin, asp_cos))
+
+sitelist1b <- list('slope' = site.n1b, 'elev' = site.n2b, 'sinasp' = site.n3b, 'cosasp' = site.n4b, 'sincosasp' = site.n5b, 'asp_decomposed' = site.n6b)
+
+rmse.conc.table(sitelist1b)
+
+#lapply(sitelist1b, rmse.conc)
+rmse.conc(compd.ba1)
+rmse.conc(site.n5b)
+```
+
+
 ```{r 1a summaries and diagnostics}
 #sincos
 summary(site.n5a)
@@ -214,6 +239,17 @@ rmse.conc(site5a.3)
 
 ```
 
+```{r 2 - ALT - ba version}
+
+
+site5b.1 <- update(site.n5b, . ~ . + s(elev_m))
+site5b.2 <- update(site.n5b, . ~ . + s(slope_pct))
+
+rmse.conc(site5b.1)
+rmse.conc(site5b.2)
+```
+
+
 ```{r 2a new version}
 #check summaries and diagnostics
 summary(site5a.2)
@@ -244,6 +280,26 @@ formula.gam(site5a.2)
 ## the topo variables win here - site5a.2
 ## the version using different stand intercepts is actually the winner by RMSE, but has too high concurvity (for intercepts as well as diameter)
 ```
+
+```{r 3 - ALT - ba version}
+
+#site.n5b
+
+#site5b.1
+#site5b.2
+
+site.htld.ba <- update(compd.ba1, . ~ . + s(heatload))
+site.si.ba <- update(compd.ba1, . ~ . + s(mean_si))
+site.stand.ba <- update(compd.ba1, . ~ . + stand)
+
+site.lst.ba <- list('sincos.ba' = site.n5b, 'heatload.ba' = site.htld.ba, 'si.ba' = site.si.ba, 'stand.ba' = site.stand.ba)
+
+rmse.conc.table(site.lst.ba)
+
+rmse.conc(site.stand.ba)
+
+```
+
 
 ```{r FVS}
 fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log))

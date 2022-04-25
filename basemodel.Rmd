@@ -31,7 +31,7 @@ bai.size <- bai.train %>%
   filter(bai != 0)
 
 bai.site <- bai.train %>% 
-  select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, cluster, unique_tree_id, 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
          ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
@@ -81,6 +81,34 @@ re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
 re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 ```
 
+```{r more re models}
+
+#random effect for setting id
+re.stand.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#re stand by year
+re.stand.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand,  by = myear, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+```
+
+
+```{r}
+re.list.1 <- list('re.cluster.1' = re.cluster.1, 're.cluster.m1' = re.cluster.m1, 're.plot.1' = re.plot.1, 're.plot.m1' = re.plot.m1, 're.tree.1' = re.tree.1)
+
+# saveRDS(re.cluster.1, 'data/model_objects/re.cluster.1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.cluster.m1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.plot.1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.plot.m1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.tree.1')
+
+summary.gam(re.tree.1)
+
+
+rmse.conc(re.tree.1)
+
+rmse.conc.table(re.list.1)
+
+plot.gam(re.tree.1)
+```
 
 
 ```{r random effects - tree}
