@@ -328,11 +328,11 @@ best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link
 model <- c('null', 'size', 'density.comp', 'site')
 
 rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]])
-rmse.selected.old <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(op2)[[2]], my.rmse.2(site2a)[[2]])
+#rmse.selected.old <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(op2)[[2]], my.rmse.2(site2a)[[2]])
 rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], my.rmse.2(site.n5a)[[2]])
 fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], my.rmse.2(fvs.full)[[2]])
 
-tibble(model, rmse.selected, rmse.selected.old, rmse.best1, fvs)
+tibble(model, rmse.selected, rmse.best1, fvs) #rmse.selected.old
 
 ```
 
