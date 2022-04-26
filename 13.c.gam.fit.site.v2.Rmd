@@ -76,7 +76,7 @@ ggpairs(allsite)
 
 ```
 
-```{r 1 old version}
+```{r 1 old version, include = F}
 
 site1 <- update(op2, . ~ . + s(slope_pct))
 
@@ -119,7 +119,7 @@ rmse.conc.table(sitelist3)
 
 ```
 
-```{r 2 old - evaluate selections}
+```{r 2 old - evaluate selections, include=FALSE}
 summary(site2)
 draw(site2, rug = F, residuals = T, scales = 'free')
 par(mfrow = c(2,2))
@@ -186,7 +186,7 @@ rmse.conc(site.n5b)
 ```
 
 
-```{r 1a summaries and diagnostics}
+```{r 1a summaries and diagnostics, include = F}
 #sincos
 summary(site.n5a)
 draw(site5a, rug = F, residuals = T, scales = 'free')
@@ -206,7 +206,7 @@ par(mfrow = c(2,2))
 gam.check(site.n1a)
 ```
 
-```{r compare smooths}
+```{r compare smooths, include = F}
 for(model in sitelist1a){
   for(i in 1:length(model$var.summary)){
     par(mfrow = c(1,2))

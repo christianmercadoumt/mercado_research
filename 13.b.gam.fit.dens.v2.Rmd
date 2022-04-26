@@ -347,6 +347,7 @@ summary(fvs.sz.cmp)
 
 my.rmse.2(fvs.sz.cmp)[2]
 
+fvs.size1 <- glm(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,])
 #fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
 #summary(fvs.full)
 #my.rmse.2(fvs.full)
