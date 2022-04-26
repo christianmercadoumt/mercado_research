@@ -58,7 +58,7 @@ unique(bai.site$PLOT)
 
 ```{r}
 #create variables for unique plots/clusters at each time
-bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))#, unique.tree.meas = as.factor((unique_tree_id + MEASUREMENT_NO/100)))
+bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = cur_group_id()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))#, unique.tree.meas = as.factor((unique_tree_id + MEASUREMENT_NO/100)))
 
 length(unique(bai.site.ids$unique.cluster.meas))
 
@@ -66,7 +66,7 @@ length(unique(bai.site.ids$unique.plot.meas))
 
 ```
 
-```{r models with random effects}
+```{r models with random effects, include = F}
 #cluster level
 re.cluster.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 
@@ -81,12 +81,31 @@ re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
 re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 ```
 
+
+```{r}
+re.cluster.1 <- readRDS('data/model_objects/re.cluster.1')
+re.cluster.m1 <- readRDS('data/model_objects/re.cluster.m1')
+re.plot.1 <- readRDS('data/model_objects/re.plot.1')
+re.plot.m1 <- readRDS('data/model_objects/re.plot.m1')
+re.tree.1 <- readRDS('data/model_objects/re.tree.1')
+```
+
 ```{r more re models}
 
 #random effect for setting id
 re.stand.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 #re stand by year
 re.stand.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand,  by = myear, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+```
+
+
+```{r}
+
+summary(re.stand.1)
+summary(re.cluster.1)
+summary(re.plot.1)
+summary(re.tree.1)
 
 ```
 
