@@ -1,0 +1,172 @@
+---
+title: "base.model"
+author: "Christian Mercado"
+date: "4/21/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(corrplot)
+library(GGally)
+library(mgcViz)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+#load data
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+bai.site <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+unique(bai.site$PLOT)
+
+bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))
+
+re.tree.1 <- readRDS('data/model_objects/re.tree.1.rds')
+```
+
+```{r}
+#create variables for unique plots/clusters at each time
+bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))#, unique.tree.meas = as.factor((unique_tree_id + MEASUREMENT_NO/100)))
+
+length(unique(bai.site.ids$unique.cluster.meas))
+
+length(unique(bai.site.ids$unique.plot.meas))
+
+```
+
+```{r read in re model objects}
+
+# re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+# saveRDS(re.plot.1, 'data/model_objects/re.plot.1.rds')
+
+re.cluster.1 <- readRDS('data/model_objects/re.cluster.1')
+re.plot.1 <- readRDS('data/model_objects/re.plot.1.rds')
+re.tree.1 <- readRDS('data/model_objects/re.tree.1.rds')
+
+
+```
+
+
+```{r models with random effects}
+#cluster level
+re.cluster.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+re.cluster.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+#plot level
+re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+#tree level
+re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+```
+
+```{r more re models}
+
+#random effect for setting id
+re.stand.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#re stand by year
+re.stand.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand,  by = myear, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+```
+
+```{r}
+summary.gam(re.tree.1)
+```
+
+
+
+```{r}
+re.list.1 <- list('re.cluster.1' = re.cluster.1, 're.cluster.m1' = re.cluster.m1, 're.plot.1' = re.plot.1, 're.plot.m1' = re.plot.m1, 're.tree.1' = re.tree.1)
+
+# saveRDS(re.cluster.1, 'data/model_objects/re.cluster.1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.cluster.m1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.plot.1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.plot.m1')
+# saveRDS(re.cluster.m1, 'data/model_objects/re.tree.1')
+
+summary.gam(re.tree.1)
+
+
+rmse.conc(re.tree.1)
+
+rmse.conc.table(re.list.1)
+
+
+for(i in 1:length(re.tree.1$var.summary)){
+  par(mfrow = c(1,2))
+  plot.gam(site5a.2, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i)
+  plot.gam(re.tree.1, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i)
+}
+
+
+#saveRDS(re.tree.1, 'data/model_objects/re.tree.1.rds')
+```
+
+
+```{r random effects - tree}
+#don't run this
+# full.t.re1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+```
+
+```{r random effects - plot}
+### create plot variable
+### maybe start with cluster
+
+full.p.re1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+summary(full.p.re1)
+plot.gam(full.p.re1, scheme =1)
+my.rmse.2(full.p.re1)[[2]]
+
+plot.gam(full.p.re1, select = 5, scheme = 1, too.far = 0)
+```
+
+```{r larch fraction}
+
+```
+
+```{r shade tol}
+
+```
+
+
+
+
+
