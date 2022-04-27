@@ -1,0 +1,312 @@
+---
+title: "gam.fit.site.v2"
+author: "Christian Mercado"
+date: "4/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(corrplot)
+library(GGally)
+library(mgcViz)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+#load data
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+bai.site <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl) %>% 
+  filter(bai != 0)
+
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+```
+
+```{r winners from compdens}
+## CHECK HERE - have these changed?
+op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+rmse.conc(op2)[[1]]
+rmse.conc(compd.pl4)[[1]]
+```
+
+
+```{r corrs}
+
+#slope, aspect, elev
+topo <- bai.site %>% select(slope_pct, asp_sin, asp_cos, elev_m)
+#site index
+#heatload
+#setting id
+allsite <- bai.site %>% select(slope_pct, asp_sin, asp_cos, elev_m, mean_si, heatload)
+
+ggpairs(topo)
+ggpairs(allsite)
+
+```
+
+
+```{r 1 new version choose best}
+site.n1a <- readRDS('data/model_objects.1/site.n1a.rds') #update(compd.pl4, . ~ . + s(slope_pct))
+
+site.n2a <- readRDS('data/model_objects.1/site.n2a.rds') #update(compd.pl4, . ~ . + s(elev_m))
+
+site.n3a <- readRDS('data/model_objects.1/site.n3a.rds') #update(compd.pl4, . ~ . + s(asp_sin))
+
+site.n4a <- readRDS('data/model_objects.1/site.n4a.rds') #update(compd.pl4, . ~ . + s(asp_cos))
+
+site.n5a <-readRDS('data/model_objects.1/site.n5a.rds')  #update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
+
+site.n6a <- readRDS('data/model_objects.1/site.n6a.rds') #update(compd.pl4, . ~ . + s(asp_sin) + s(asp_cos) + ti(asp_sin, asp_cos))
+
+# saveRDS(site.n1a, 'data/model_objects.1/site.n1a.rds')
+# saveRDS(site.n2a, 'data/model_objects.1/site.n2a.rds')
+# saveRDS(site.n3a, 'data/model_objects.1/site.n3a.rds')
+# saveRDS(site.n4a, 'data/model_objects.1/site.n4a.rds')
+# saveRDS(site.n5a, 'data/model_objects.1/site.n5a.rds')
+# saveRDS(site.n6a, 'data/model_objects.1/site.n6a.rds')
+
+sitelist1a <- list('slope' = site.n1a, 'elev' = site.n2a, 'sinasp' = site.n3a, 'cosasp' = site.n4a, 'sincosasp' = site.n5a, 'asp_decomposed' = site.n6a)
+
+rmse.conc(compd.pl4)[[1]]
+rmse.conc.table(sitelist1a)
+#is the change in rmse provided by variable at least half of that of the variable which changes it the most?
+rmse.conc.table(sitelist1a) %>% mutate(rmse.change = rmse.conc(compd.pl4)[[1]]-rmse) %>% mutate(rmse.change.lg = rmse.change>=(.5*rmse.change[rmse.rank == 1]))
+
+
+## in this case, then, slope, elev, and asp_decomposed all have a difference of at least half of that of sincos, the 'best' variable by this method. note that concurvity for the decomposed sin-cos version is high (due to the inherent relationship among these)
+
+## ranks then are
+## sincos, elv, slope
+```
+
+```{r 1 ALT - BA version}
+compd.ba1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+site.n1b <- readRDS('data/model_objects.1/site.n1b.rds') #update(compd.ba1, . ~ . + s(slope_pct))
+
+site.n2b <- readRDS('data/model_objects.1/site.n2b.rds') #update(compd.ba1, . ~ . + s(elev_m))
+
+site.n3b <- readRDS('data/model_objects.1/site.n3b.rds') #update(compd.ba1, . ~ . + s(asp_sin))
+
+site.n4b <- readRDS('data/model_objects.1/site.n4b.rds') #update(compd.ba1, . ~ . + s(asp_cos))
+
+site.n5b <- readRDS('data/model_objects.1/site.n5b.rds') #update(compd.ba1, . ~ . + s(asp_sin, asp_cos))
+
+site.n6b <- readRDS('data/model_objects.1/site.n6b.rds') #update(compd.ba1, . ~ . + s(asp_sin) + s(asp_cos) + ti(asp_sin, asp_cos))
+
+# saveRDS(site.n1b, 'data/model_objects.1/site.n1b.rds')
+# saveRDS(site.n2b, 'data/model_objects.1/site.n2b.rds')
+# saveRDS(site.n3b, 'data/model_objects.1/site.n3b.rds')
+# saveRDS(site.n4b, 'data/model_objects.1/site.n4b.rds')
+# saveRDS(site.n5b, 'data/model_objects.1/site.n5b.rds')
+# saveRDS(site.n6b, 'data/model_objects.1/site.n6b.rds')
+
+sitelist1b <- list('slope' = site.n1b, 'elev' = site.n2b, 'sinasp' = site.n3b, 'cosasp' = site.n4b, 'sincosasp' = site.n5b, 'asp_decomposed' = site.n6b)
+
+rmse.conc.table(sitelist1b)
+
+#lapply(sitelist1b, rmse.conc)
+rmse.conc(compd.ba1)
+rmse.conc(site.n5b)
+```
+
+
+```{r 1a summaries and diagnostics, include = F}
+#sincos
+summary(site.n5a)
+draw(site.n5a, rug = F, residuals = T, scales = 'free')
+par(mfrow = c(2,2))
+gam.check(site.n5a)
+
+#elev
+summary(site.n2a)
+draw(site.n2a, rug = F, residuals = T, scales = 'free')
+par(mfrow = c(2,2))
+gam.check(site.n2a)
+
+#slope
+summary(site.n1a)
+draw(site.n1a, rug = F, residuals = T, scales = 'free')
+par(mfrow = c(2,2))
+gam.check(site.n1a)
+```
+
+```{r compare smooths, include = F}
+# for(model in sitelist1a){
+#   for(i in 1:length(model$var.summary)){
+#     par(mfrow = c(1,2))
+#     plot.gam(compd.pl4, rug = F, residuals = T, ylim = c(-3,4), select = i, scheme = 1)
+#     plot.gam(model, rug = F, residuals = T, ylim = c(-3,4), select = i, scheme = 1)  
+#     }
+# }
+
+```
+
+
+```{r 2 new version}
+site5a.1 <- readRDS('data/model_objects.1/site5a.1.rds') #update(site.n5a, . ~ . + s(elev_m))
+site5a.2 <- readRDS('data/model_objects.1/site5a.2.rds') #update(site.n5a, . ~ . + s(slope_pct))
+
+# saveRDS(site5a.1, 'data/model_objects.1/site5a.1.rds')
+# saveRDS(site5a.2, 'data/model_objects.1/site5a.2.rds')
+
+lst.5 <- list('sincos-el' = site5a.1, 'sincos-slp' = site5a.2)
+
+rmse.conc.table(lst.5)
+
+site5a.3 <- readRDS('data/model_objects.1/site5a.3.rds') #update(site5a.1, . ~ . + s(slope_pct))
+#saveRDS(site5a.3, 'data/model_objects.1/site5a.3.rds')
+
+lapply(lst.5, rmse.conc)
+rmse.conc(site5a.3)
+
+
+## best is site5a.2 - sincos + slope. Adding elevation (site5a.3) also reduces RMSE and keeps concurvity low enough, except concurvity definitely jumped when slope and elev are together.. 
+
+#for now going with site5a.2 - sincos-slope
+## although technically site5a.3 is the best by RMSE
+
+```
+
+```{r 2 - ALT - ba version}
+
+
+site5b.1 <- readRDS('data/model_objects.1/site5b.1.rds') #update(site.n5b, . ~ . + s(elev_m))
+site5b.2 <- readRDS('data/model_objects.1/site5b.2.rds') #update(site.n5b, . ~ . + s(slope_pct))
+
+# saveRDS(site5b.1, 'data/model_objects.1/site5b.1.rds')
+# saveRDS(site5b.2, 'data/model_objects.1/site5b.2.rds')
+
+rmse.conc(site5b.1)
+rmse.conc(site5b.2)
+```
+
+
+```{r 2a new version}
+#check summaries and diagnostics
+summary(site5a.2)
+plot.gam(site5a.2, rug = F, residuals = T, pages = 3, scheme = 1, ylim = c(-5,4))
+par(mfrow = c(2,2))
+gam.check(site5a.2)
+
+```
+
+
+```{r 3 new version}
+
+#now compare raw topo vars with others
+#topo
+#site5a.2
+#others
+site.htld <- readRDS('data/model_objects.1/site.htld.rds') #update(compd.pl4, . ~ . + s(heatload))
+site.si <- readRDS('data/model_objects.1/site.si.rds') #update(compd.pl4, . ~ . + s(mean_si))
+site.stand <- readRDS('data/model_objects.1/site.stand.rds') #update(compd.pl4, . ~ . + stand)
+
+# saveRDS(site.htld, 'data/model_objects.1/site.htld.rds')
+# saveRDS(site.si, 'data/model_objects.1/site.si.rds')
+# saveRDS(site.stand, 'data/model_objects.1/site.stand.rds')
+
+site.lst <- list('sincos-sl' = site5a.2, 'site.heatload' = site.htld, 'site.si' = site.si, 'site.stand' = site.stand)
+
+rmse.conc.table(site.lst)
+lapply(site.lst, rmse.conc)
+
+
+formula.gam(site5a.2)
+## the topo variables win here - site5a.2
+## the version using different stand intercepts is actually the winner by RMSE, but has too high concurvity (for intercepts as well as diameter)
+```
+
+```{r 3 - ALT - ba version}
+
+#site.n5b
+
+#site5b.1
+#site5b.2
+
+site.htld.ba <- readRDS('data/model_objects.1/site.htld.ba.rds') #update(compd.ba1, . ~ . + s(heatload))
+site.si.ba <- readRDS('data/model_objects.1/site.si.ba.rds') #update(compd.ba1, . ~ . + s(mean_si))
+site.stand.ba <- readRDS('data/model_objects.1/site.stand.ba.rds') #update(compd.ba1, . ~ . + stand)
+
+# saveRDS(site.htld.ba, 'data/model_objects.1/site.htld.ba.rds')
+# saveRDS(site.si.ba, 'data/model_objects.1/site.si.ba.rds')
+# saveRDS(site.stand.ba, 'data/model_objects.1/site.stand.ba.rds')
+
+site.lst.ba <- list('sincos.ba' = site.n5b, 'heatload.ba' = site.htld.ba, 'si.ba' = site.si.ba, 'stand.ba' = site.stand.ba)
+
+rmse.conc.table(site.lst.ba)
+
+rmse.conc(site.stand.ba)
+
+```
+
+
+```{r FVS}
+fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
+
+#saveRDS(fvs.full, 'data/model_objects.1/fvs.full.rds')
+
+summary(fvs.full)
+
+
+fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
+summary(fvs.sz.cmp)
+
+fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,], method = 'ML')
+
+```
+
+```{r null model}
+#create null model
+gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.size, method = 'ML')
+summary.gam(gam.null)
+my.rmse.2(gam.null)
+
+best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+```
+
+```{r RMSE table}
+
+model <- c('null', 'size', 'density.comp', 'site')
+
+rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]])
+#rmse.selected.old <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(op2)[[2]], my.rmse.2(site2a)[[2]])
+rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], my.rmse.2(site.n5a)[[2]])
+fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], my.rmse.2(fvs.full)[[2]])
+
+tibble(model, rmse.selected, rmse.best1, fvs) #rmse.selected.old
+
+```
+

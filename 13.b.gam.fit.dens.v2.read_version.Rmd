@@ -1,0 +1,422 @@
+---
+title: "gam.fit.dens.v2"
+author: "Christian Mercado"
+date: "4/21/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+
+#load packages
+library(tidyverse)
+library(mgcv)
+library(gratia)
+library(ggrepel)
+library(corrplot)
+library(GGally)
+library(mgcViz)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+#load data
+bai.train <- readRDS('data/bai.train.4_21_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+# bai.site <- bai.train %>% 
+#   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+#          bai, DIAMETER, treeba, log.diam, log.bai, 
+#          grwth.yr, mean_si, aspect_deg, 
+#          heatload, slope_deg, elev_m, NF) %>% 
+#   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+#          asp_sin = sin(aspect_deg*(pi/180)), 
+#          asp_cos = cos(aspect_deg*(pi/180))) %>%
+#   mutate(sl_asp_sin = asp_sin*slope_pct, 
+#          sl_asp_cos = asp_cos*slope_pct, 
+#          asp.trasp = trasp(aspect_deg)) %>% 
+#   filter(bai != 0)
+
+bai.dcomp <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl) %>% 
+  filter(bai != 0)
+
+gam.s1a <- readRDS('data/model_objects.1/gam.s1a') #gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+```
+
+```{r corrmat}
+
+compd.tree <- bai.dcomp %>% select(cr, bal.pl.ratio, dq.pl.all)
+compd.plot <- bai.dcomp %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
+compd.all <- bai.dcomp %>% select(cr, bal.pl.ratio, qmd.pl.all, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl)
+
+ggpairs(compd.tree)
+ggpairs(compd.plot)
+ggpairs(compd.all)
+
+####### UPDATE AGAIN - also rounding up to 0.7
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+```
+
+```{r 1 variable selection tree vars -old way and new way}
+####### UPDATE AGAIN - also rounding up to 0.7
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+## Begin with tree vars - all included - adding to model with site vars
+nosite.compd1 <- readRDS('data/model_objects.1/nosite.compd1.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd1.rds')
+
+#cr and bal
+nosite.compd2 <- readRDS('data/model_objects.1/nosite.compd2.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd2.rds')
+
+#cr and dq
+nosite.compd3 <- readRDS('data/model_objects.1/nosite.compd3.rds')# gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd3.rds')
+
+#bal and dq
+nosite.compd4 <- readRDS('data/model_objects.1/nosite.compd4.rds')  #gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd4.rds')
+
+### INDIVIDUALS
+#cr
+nosite.compd.cr <- readRDS('data/model_objects.1/nosite.compd.cr.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+#saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.cr.rds')
+
+#bal
+nosite.compd.bal <- readRDS('data/model_objects.1/nosite.compd.bal.rds')# gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.bal.rds')
+
+#dq
+nosite.compd.dq <- readRDS('data/model_objects.1/nosite.compd.dq.rds')#gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+# saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.dq.rds')
+
+nosite.compdlist.full <- list('full compd' = nosite.compd1, 'cr-bal' = nosite.compd2, 'cr-dq' = nosite.compd3, 'bal-dq' = nosite.compd4)
+
+nosite.compdlist.ind <- list('cr' = nosite.compd.cr, 'bal' = nosite.compd.bal, 'dq' = nosite.compd.dq)
+
+
+```
+
+```{r 2 compare models -old and new}
+####### UPDATE AGAIN - also rounding up to 0.7
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+rmse.conc.table(nosite.compdlist.full)
+rmse.conc(nosite.compd1)
+rmse.conc(nosite.compd2)
+
+rmse.conc.table(nosite.compdlist.ind)
+
+```
+
+
+```{r 3 OLD - plot vars, include=FALSE}
+# vars "tpa.pl.all" "qmd.pl.all" "ba.pl" "ccf.pl"
+
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+#no dq and tpa - dropped dq for this option
+
+#op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, noBA
+
+#op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #no ba, keep dq, no tpa
+
+#op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, notpa
+
+#op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, nodq
+
+
+
+#opslist <- list('tpa.qmd.ccf'=op1, 'qmd.ccf'=op2, 'ba'=op3, 'tpa.ba'=op4)
+
+#rmse.conc.table(opslist)
+
+#### OP2 wins
+### follwed by: op1, op4, op3
+
+## if i use 0.8 as the concurvity threshold, then these are all fine (if I'm loooking at the estimate)
+
+```
+
+```{r 4 OLD - plots and diagnostics, include=FALSE}
+# rmse.conc(op2)
+# 
+# summary(op2)
+# draw(op2, rug = F, residuals = T)
+# par(mfrow = c(2,2))
+# gam.check(op2)
+
+```
+
+```{r interesting trees, include=FALSE}
+#theres a suspicious point
+#ft <- op2$fitted.values
+#length(ft)
+#nrow(op2$model)
+#tb <- tibble(op2$model, ft) %>% mutate(residuals = bai-ft)
+#ggplot(tb, aes(x = ft, y = bai)) + geom_point()
+#ggplot(tb, aes(x = ft, y = residuals)) + geom_point()
+#which.max(ft)
+#op2$model[4051,]
+
+#which.max(residuals.gam(op2))
+#residuals.gam(op2)[3400]
+#tb %>% filter(residuals > 5 | residuals < -5)
+
+#bai.dcomp.nb <- bai.dcomp[bai.dcomp$unique_tree_id != 15431,]
+#filter(bai.dcomp.nb, DIAMETER == 3.4, cr == 0.93, bai>6)
+##UNIQUE TREE ID 2505 - stand 1403, setting id 01140120010011, meas3, plot 130, tag312
+#filter(bai.dcomp.nb, DIAMETER == 5.5, cr == 0.4, bai>6)
+##UNIQUE TREE ID 16246 - stand 1616 setting 01160734020162, meas1 plot 401, tag 272
+
+#filter(bai.train, unique_tree_id == 2505)
+#filter(bai.train, unique_tree_id == 16246)
+
+#ggplot(bai.dcomp.nb, aes(x = DIAMETER, y = bai)) + geom_point()
+```
+
+
+```{r 3 NEW}
+
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+### STARTING WITH CR + BAL
+formula(nosite.compd2)
+
+compd.pl1 <- readRDS('data/model_objects.1/compd.pl1.rds') #update(nosite.compd2, . ~ . + s(tpa.pl.all))
+
+compd.pl2 <- readRDS('data/model_objects.1/compd.pl2.rds') #update(nosite.compd2, . ~ . + s(qmd.pl.all))
+
+compd.pl3 <- readRDS('data/model_objects.1/compd.pl3.rds') #update(nosite.compd2, . ~ . + s(ba.pl))
+
+compd.pl4 <- readRDS('data/model_objects.1/compd.pl4.rds') #update(nosite.compd2, . ~ . + s(ccf.pl))
+
+# saveRDS(compd.pl1, 'data/model_objects.1/compd.pl1.rds')
+# saveRDS(compd.pl2, 'data/model_objects.1/compd.pl2.rds')
+# saveRDS(compd.pl3, 'data/model_objects.1/compd.pl3.rds')
+# saveRDS(compd.pl4, 'data/model_objects.1/compd.pl4.rds')
+
+compd.pl.lst <- list('tpa' = compd.pl1, 'qmd' = compd.pl2, 'ba' = compd.pl3, 'ccf' = compd.pl4)
+
+rmse.conc.table(compd.pl.lst) %>% mutate(rmse.change = rmse.conc(nosite.compd2)[[1]]-rmse) %>% mutate(rmse.change.lg = rmse.change>=(.5*rmse.change[rmse.rank == 1]))
+
+
+#look at concurvity between nosite.compd2 and compd.pl4
+rmse.conc(nosite.compd2)
+rmse.conc(compd.pl4)
+#and ba
+rmse.conc(compd.pl3)
+rmse.conc(compd.pl2)
+
+```
+
+```{r 4 NEW}
+
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+#ranks: 1. ccf, ba, qmd, tpa
+formula(compd.pl4)
+#add ccf
+#compd.pl4a <- update(compd.pl4, . ~ . + s(ccf.pl))
+#add qmd to ccf
+compd.pl4b <- readRDS('data/model_objects.1/compd.pl4b.rds') #update(compd.pl4, . ~ . + s(qmd.pl.all))
+#include tpa for kicks
+compd.pl4c <- readRDS('data/model_objects.1/compd.pl4c.rds') #update(compd.pl4, . ~ . + s(qmd.pl.all) + s(tpa.pl.all))
+
+# saveRDS(compd.pl4b, 'data/model_objects.1/compd.pl4b.rds')
+# saveRDS(compd.pl4b, 'data/model_objects.1/compd.pl4c.rds')
+
+pl.1.lst <- list('ccf' = compd.pl4, 'ccf.qmd' = compd.pl4b, 'ccf.qmd.tpa' = compd.pl4c)
+rmse.conc.table(pl.1.lst)
+summary(compd.pl4)
+
+
+```
+
+```{r 4a NEW- consider ba before ccf}
+# ALTERNATE - let's look at the other options too - starting with ba instead of ccf
+
+### HIGH CORRS UPDATE: TPA-DQ, BA-QMD (rounded), CCF-BA
+### near high corrs: ba-cr, ccf-cr
+### honorable mention: qmd-cr, ccf-qmd
+
+#add ba
+#compd.pl3
+## again, add tpa, although I'm not stoked on it
+compd.pl4.a2 <- readRDS('data/model_objects.1/compd.pl4.a2.rds') #update(compd.pl3, . ~ . + s(tpa.pl.all))
+
+#add qmd
+#compd.pl2
+#include tpa for kicks
+compd.pl4.b2 <- readRDS('data/model_objects.1/compd.pl4.b2.rds') #update(compd.pl2, . ~ . + s(tpa.pl.all))
+
+# saveRDS(compd.pl4.a2, 'data/model_objects.1/compd.pl4.a2.rds')
+# saveRDS(compd.pl4.b2, 'data/model_objects.1/compd.pl4.b2.rds')
+
+pl.2.lst <- list('ccf' = compd.pl4, 'ba' = compd.pl3, 'ba.tpa' = compd.pl4.a2, 'qmd' = compd.pl2, 'qmd.tpa' = compd.pl4.b2)
+rmse.conc(compd.pl4)
+rmse.conc.table(pl.2.lst)
+
+### CCF wins over BA
+
+##curious about how concurvity of cr term differs among these since ccf and ba both have some amount of colinearity with cr.
+
+rmse.conc(nosite.compd2)
+rmse.conc(compd.pl4)
+rmse.conc(compd.pl3)
+rmse.conc(compd.pl2)
+
+## findings - concurvity changes are generally lower in the option that includes qmd (with exception to QMD-DIAMETER concurvity)
+
+## ultimately, for now, the best option is ccf
+
+```
+
+```{r 5 NEW plots and diagnostics}
+#model with tree-level vars
+
+#partial responses for model with tree vars compared to model with ccf added
+for(i in 1:length(compd.pl4$var.summary)){
+  par(mfrow = c(1,2))
+  plot.gam(nosite.compd2, rug = F, residuals = T, ylim = c(-4,3), select = i)
+  plot.gam(compd.pl4, rug = F, residuals = T, ylim = c(-4,3), select = i)
+}
+
+### there appears to be some amount of change in the diameter curve
+### a little change in the BAL curve
+
+summary(compd.pl4)
+par(mfrow = c(2,2))
+gam.check(compd.pl4)
+
+```
+
+```{r all individuals}
+
+best.1 <- readRDS('data/model_objects.1/best.1.rds') #nosite.compd.cr
+
+best.2 <- readRDS('data/model_objects.1/best.2.rds') #nosite.compd.bal
+
+best.3 <- readRDS('data/model_objects.1/best.3.rds') #nosite.compd.dq
+
+best.4 <-  readRDS('data/model_objects.1/best.4.rds') #gam(bai~s(DIAMETER) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+best.5 <- readRDS('data/model_objects.1/best.5.rds') #gam(bai~s(DIAMETER) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+best.6 <- readRDS('data/model_objects.1/best.6.rds') #gam(bai~s(DIAMETER) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+best.7 <- readRDS('data/model_objects.1/best.7.rds') #gam(bai~s(DIAMETER) + s(qmd.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+
+best.4a <- readRDS('data/model_objects.1/best.4a.rds') #update(best.4, . ~ . + s(cr, k = 9))
+
+best.5a <- readRDS('data/model_objects.1/best.5a.rds') #update(best.5, . ~ . + s(cr, k = 9))
+
+best.6a <- readRDS('data/model_objects.1/best.6a.rds') #update(best.6, . ~ . + s(cr, k = 9))
+
+best.7a <- readRDS('data/model_objects.1/best.7a.rds') #update(best.7, . ~ . + s(cr, k = 9))
+
+
+best.list.tree <- list('cr' = best.1, 'bal' = best.2, 'dq' = best.3) 
+
+best.list.plot <- list('tpa' = best.4, 'ba' = best.5, 'ccf' = best.6, 'qmd' = best.7)
+
+best.list.plot.withtree <- list('cr.tpa' = best.4a, 'cr.ba' = best.5a, 'cr.ccf' = best.6a, 'cr.qmd' = best.7a)
+
+# saveRDS(best.1,'data/model_objects.1/best.1.rds')
+# saveRDS(best.2,'data/model_objects.1/best.2.rds')
+# saveRDS(best.3,'data/model_objects.1/best.3.rds')
+# saveRDS(best.4,'data/model_objects.1/best.4.rds')
+# saveRDS(best.5,'data/model_objects.1/best.5.rds')
+# saveRDS(best.6,'data/model_objects.1/best.6.rds')
+# saveRDS(best.7,'data/model_objects.1/best.7.rds')
+# saveRDS(best.4a,'data/model_objects.1/best.4a.rds')
+# saveRDS(best.5a,'data/model_objects.1/best.5a.rds')
+# saveRDS(best.6a,'data/model_objects.1/best.6a.rds')
+# saveRDS(best.7a,'data/model_objects.1/best.7a.rds')
+
+rmse.conc.table(best.list.tree)
+rmse.conc.table(best.list.plot)
+rmse.conc.table(best.list.plot.withtree)
+```
+
+```{r FVS model}
+### 
+fvs.sz.cmp <- readRDS('data/model_objects.1/fvs.sz.cmp.rds') #gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], family = 'Gamma'(link = log))
+summary(fvs.sz.cmp)
+
+my.rmse.2(fvs.sz.cmp)[2]
+
+#saveRDS(fvs.sz.cmp, 'data/model_objects.1/fvs.sz.cmp.rds')
+
+fvs.size1 <- readRDS('data/model_objects.1/fvs.size1.rds')
+
+#fvs.size1 <- glm(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,])
+#fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+#summary(fvs.full)
+#my.rmse.2(fvs.full)
+
+```
+
+```{r null model}
+#create null model
+gam.null <- readRDS('data/model_objects.1/gam.null.rds') #gam(bai~1, family = 'Gamma'(link = log), data = bai.size)
+summary.gam(gam.null)
+my.rmse.2(gam.null)
+
+```
+
+```{r RMSE tables}
+model <- c('null', 'size', 'density.comp', 'site')
+
+rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], NA)
+#rmse.selected.old <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(op2)[[2]], NA)
+rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], NA)
+rmse.best.1alt <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6)[[2]], NA)
+fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], NA)
+
+tibble(model, rmse.selected, rmse.best1, rmse.best.1alt, fvs)#rmse.selected.old
+```
+
+
+
