@@ -88,38 +88,44 @@ ggpairs(compd.all)
 ### honorable mention: qmd-cr, ccf-qmd
 
 ## Begin with tree vars - all included - adding to model with site vars
-nosite.compd1 <- readRDS('data/model_objects.1/nosite.compd1.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+#readRDS('data/model_objects.1/nosite.compd1.rds')
 
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd1.rds')
 
 #cr and bal
-nosite.compd2 <- readRDS('data/model_objects.1/nosite.compd2.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #readRDS('data/model_objects.1/nosite.compd2.rds')
 
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd2.rds')
 
 #cr and dq
-nosite.compd3 <- readRDS('data/model_objects.1/nosite.compd3.rds')# gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
+#readRDS('data/model_objects.1/nosite.compd3.rds') 
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd3.rds')
 
 #bal and dq
-nosite.compd4 <- readRDS('data/model_objects.1/nosite.compd4.rds')  #gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd4 <-  gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
 
+#readRDS('data/model_objects.1/nosite.compd4.rds')  
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd4.rds')
 
 ### INDIVIDUALS
 #cr
-nosite.compd.cr <- readRDS('data/model_objects.1/nosite.compd.cr.rds')#gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.cr <- gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+# readRDS('data/model_objects.1/nosite.compd.cr.rds')
 
 #saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.cr.rds')
 
 #bal
-nosite.compd.bal <- readRDS('data/model_objects.1/nosite.compd.bal.rds')# gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.bal <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+#readRDS('data/model_objects.1/nosite.compd.bal.rds') 
 
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.bal.rds')
 
 #dq
-nosite.compd.dq <- readRDS('data/model_objects.1/nosite.compd.dq.rds')#gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.dq <- gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+# readRDS('data/model_objects.1/nosite.compd.dq.rds')
 
 # saveRDS(nosite.compd1, 'data/model_objects.1/nosite.compd.dq.rds')
 
