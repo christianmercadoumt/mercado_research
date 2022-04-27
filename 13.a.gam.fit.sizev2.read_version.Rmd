@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(echo = F, warning = F)
 
 #load packages
 library(tidyverse)
@@ -26,7 +26,7 @@ bai.size <- bai.train %>%
 
 ```
 
-```{r scatterplot matrix - corrs, fig.show = 'hold'}
+```{r scatterplot matrix - corrs, out.width='50%'}
 sz <- bai.size %>% select(DIAMETER, treeba, log.bai)
 sz.nobig <- bai.size %>% select(DIAMETER, treeba, log.bai) %>% filter(!(DIAMETER > 30))
 ggpairs(sz)
@@ -55,7 +55,7 @@ rmse.conc.table(sizelst)
 # saveRDS(gam.s2a, 'data/model_objects.1/gam.s2a')
 ```
 
-```{r 2 diagnostics}
+```{r 2 diagnostics, out.width = '50%'}
 
 summary(gam.s1a)
 summary(gam.s2a)

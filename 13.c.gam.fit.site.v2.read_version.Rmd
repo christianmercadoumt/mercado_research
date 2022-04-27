@@ -62,7 +62,7 @@ rmse.conc(compd.pl4)[[1]]
 ```
 
 
-```{r corrs}
+```{r corrs, out.width='50%'}
 
 #slope, aspect, elev
 topo <- bai.site %>% select(slope_pct, asp_sin, asp_cos, elev_m)
@@ -214,7 +214,7 @@ rmse.conc(site5b.2)
 ```
 
 
-```{r 2a new version}
+```{r 2a new version, out.width='50%'}
 #check summaries and diagnostics
 summary(site5a.2)
 plot.gam(site5a.2, rug = F, residuals = T, pages = 3, scheme = 1, ylim = c(-5,4))

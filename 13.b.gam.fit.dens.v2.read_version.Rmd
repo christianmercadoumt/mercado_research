@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(echo = F, warning = FALSE)
 
 #load packages
 library(tidyverse)
@@ -64,7 +64,7 @@ bai.dcomp <- bai.train %>%
 gam.s1a <- readRDS('data/model_objects.1/gam.s1a') #gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
 ```
 
-```{r corrmat}
+```{r corrmat, out.width='50%'}
 
 compd.tree <- bai.dcomp %>% select(cr, bal.pl.ratio, dq.pl.all)
 compd.plot <- bai.dcomp %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
@@ -319,7 +319,7 @@ rmse.conc(compd.pl2)
 
 ```
 
-```{r 5 NEW plots and diagnostics}
+```{r 5 NEW plots and diagnostics, out.width='50%'}
 #model with tree-level vars
 
 #partial responses for model with tree vars compared to model with ccf added
