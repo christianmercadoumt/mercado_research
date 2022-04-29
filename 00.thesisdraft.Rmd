@@ -77,6 +77,8 @@ During the summer of 2018, a re-measurement campaign targeted various accessible
 
 I used generalized additive models (GAMs) to evaluate effects of predictors on annual basal area increment (BAI) ~~and height~~. This framework followed that of Wykoff [-@Wykoff1990] and Vospernik [-@Vospernik2021], with GAMs used to select variables and examine predictor effects on the resulting modeled relationship. GAMs allow for flexibility in model fitting and an allowance for non-linear relationships across variables [@Zhao2005]. Contrary to traditional parametric modeling approaches, GAMs let the data determine the shape of the functional relationships by fitting predictors with smooth functions instead of specific parametric forms [@Robinson2011].
 
+**MORE ON GAMS HERE: kemp et al 2019, Povik et al 2020**
+
 The following steps outline the general modeling approach that I used: (i) evaluating and estimating potential explanatory variables in the available data set based on established relationships with the dependent variable (BAI~~or height~~), (ii) sequentially selecting predictor variables within pre-determined groups through a pragmatic variable selection approach to identify a base-model structure. 
 
 

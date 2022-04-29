@@ -56,7 +56,7 @@ unique(bai.site$PLOT)
 
 bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))
 
-re.tree.1 <- readRDS('data/model_objects/re.tree.1.rds')
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 ```
 
 ```{r}
@@ -74,9 +74,9 @@ length(unique(bai.site.ids$unique.plot.meas))
 # re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 # saveRDS(re.plot.1, 'data/model_objects/re.plot.1.rds')
 
-re.cluster.1 <- readRDS('data/model_objects/re.cluster.1')
-re.plot.1 <- readRDS('data/model_objects/re.plot.1.rds')
-re.tree.1 <- readRDS('data/model_objects/re.tree.1.rds')
+re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
+re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 
 
 ```
@@ -113,7 +113,7 @@ summary.gam(re.tree.1)
 
 
 ```{r}
-re.list.1 <- list('re.cluster.1' = re.cluster.1, 're.cluster.m1' = re.cluster.m1, 're.plot.1' = re.plot.1, 're.plot.m1' = re.plot.m1, 're.tree.1' = re.tree.1)
+re.list.1 <- list('re.cluster.1' = re.cluster.1, 're.plot.1' = re.plot.1, 're.tree.1' = re.tree.1)
 
 # saveRDS(re.cluster.1, 'data/model_objects/re.cluster.1')
 # saveRDS(re.cluster.m1, 'data/model_objects/re.cluster.m1')
@@ -131,13 +131,43 @@ rmse.conc.table(re.list.1)
 
 for(i in 1:length(re.tree.1$var.summary)){
   par(mfrow = c(1,2))
-  plot.gam(site5a.2, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i)
-  plot.gam(re.tree.1, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i)
+  plot.gam(site5a.2, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i, seWithMean = TRUE)
+  plot.gam(re.tree.1, scheme = 1, residuals = T, rug = F, ylim = c(-5, 4), select = i, seWithMean = TRUE)
 }
 
-
+gam.vcomp(re.cluster.1)
 #saveRDS(re.tree.1, 'data/model_objects/re.tree.1.rds')
 ```
+
+```{r}
+lapply(re.list.1, summary.gam)
+
+plot.gamViz(re.cluster.1)
+```
+
+```{r playing with itsadug}
+library(itsadug)
+
+plot_smooth(re.tree.1, view = 'DIAMETER')
+
+plot_smooth(re.cluster.1, view = 'DIAMETER', cond = list(unique.cluster.f = c('1100', '4100', '6100')),plot_all = 'unique.cluster.f')
+
+plot_diff(re.cluster.1, view = 'DIAMETER', comp = list(unique.cluster.f = c('1100', '18300')))
+
+plot(re.cluster.1, select = 7)
+plot(re.plot.1, select = 7)
+plot(re.tree.1, select = 7)
+
+smooth_estimates(re.cluster.1, 's(unique.cluster.f)')
+
+```
+
+```{r}
+fitted_values(re.cluster.1)
+
+ggplot(bai.site.ids, aes(x = DIAMETER, y = log.bai, color = factor(cluster))) + geom_point(alpha = .15) + facet_wrap(~stand, scales = 'free')
+```
+
 
 
 ```{r random effects - tree}
