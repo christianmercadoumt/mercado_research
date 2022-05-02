@@ -56,7 +56,7 @@ unique(bai.site$PLOT)
 
 bai.site.ids <- bai.site %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id))
 
-re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
+#re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 ```
 
 ```{r}
@@ -83,31 +83,129 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 
 
 ```{r models with random effects}
-#cluster level
+#Shared global smooths with different intercepts at the specified factor level
+
+#cluster level intercepts
 re.cluster.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#saveRDS(re.cluster.1, 'data/model_objects.1/re.cluster.1.rds')
 
-re.cluster.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#re.cluster.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 
-#plot level
+#plot specific intercept
 re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#saveRDS(re.plot.1, 'data/model_objects.1/re.plot.1.rds')
 
-re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#re.plot.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 
-#tree level
-re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#tree level intercepts
+
+#####re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 ```
 
 ```{r more re models}
 
-#random effect for setting id
+#random effect for setting id (same smooth, different intercepts)
 re.stand.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
-#re stand by year
-re.stand.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand,  by = myear, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+#saveRDS(re.stand.1, 'data/model_objects.1/re.stand.1.rds')
+
+
+#re stand by year - i don't think this formulation is legit
+#re.stand.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(stand,  by = myear, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 
 ```
 
+```{r cluster re models}
+
+#stand level - none of my variables vary by setting. Setting id random effect intercept is the simplest random effect I can have (i think)
+
+#note: s(asp_sin, asp_cos) fits thin plate smooths
+
+#cluster level - aspect and slope vary by cluster, so fit re's to these variables
+
+re.cluster.GS <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
+                       s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +
+                       t2(asp_sin, asp_cos, unique.cluster.f, bs = c('tp', 'tp', 're')) +
+                       s(slope_pct, unique.cluster.f, bs = 'fs'), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+re.cluster.GI <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
+                       s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +
+                       s(asp_sin, asp_cos, by = unique.cluster.f, m = 1) +
+                       s(slope_pct, by = unique.cluster.f, m = 1) + 
+                       s(unique.cluster.f, bs = 're'), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+re.cluster.S <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
+                      s(ccf.pl) +
+                      t2(asp_sin, asp_cos, unique.cluster.f, bs = c('tp', 'tp', 're')) +
+                      s(slope_pct, unique.cluster.f, bs = 'fs'), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML', discrete = T, nthreads = 4)
+
+re.cluster.I <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + 
+                       s(ccf.pl) +
+                       s(asp_sin, asp_cos, by = unique.cluster.f) +
+                       s(slope_pct, by = unique.cluster.f) + 
+                       s(unique.cluster.f, bs = 're'), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+#plot level
+
+re.plot.GS <- bam(bai~s(DIAMETER) + s(cr, k = 9) + 
+                    s(bal.pl.ratio) + s(ccf.pl) +
+                    s(bal.pl.ratio, unique.plot.f, bs = 'fs') +
+                    s(ccf.pl, unique.plot.f, bs = 'fs') + 
+                    s(asp_sin, asp_cos) + s(slope_pct), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+re.plot.GI <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
+                    s(ccf.pl) + 
+                    s(bal.pl.ratio, by = unique.plot.f, m = 1) +
+                    s(ccf.pl, by = unique.plot.f, m = 1) + 
+                    s(unique.plot.f, bs = 're') +
+                    s(asp_sin, asp_cos) + s(slope_pct), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+re.plot.S <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
+                   s(bal.pl.ratio, unique.plot.f, bs = 'fs') +
+                   s(ccf.pl, unique.plot.f, bs = 'fs') + 
+                   s(asp_sin, asp_cos) + s(slope_pct), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+
+re.plot.I <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio, by = unique.plot.f) + 
+                   s(ccf.pl, by = unique.plot.f) + s(unique.plot.f, bs = 're') +
+                   s(asp_sin, asp_cos) + s(slope_pct), 
+                     family = 'Gamma'(link = log), 
+                     data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
+                     method = 'ML')
+```
+
+```{r plot re models}
+
+
+
+
+```
+
+
+
 ```{r}
-summary.gam(re.tree.1)
+summary.gam(re.cluster.1)
+
+re.cluster.1$smooth[[5]]
 ```
 
 
