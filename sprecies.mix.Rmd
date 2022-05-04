@@ -94,5 +94,16 @@ saveRDS(spmx.re.gam.st, 'data/model_objects.1/spmx.re.gam.st.rds')
 
 ```
 
+```{r spp. mix no re}
+
+
+system.time(spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4)))
+
+system.time(spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4)))
+
+
+```
+
+
 
 
