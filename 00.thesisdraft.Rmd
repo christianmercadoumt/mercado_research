@@ -165,6 +165,14 @@ For density and competition, I separated out tree-based metrics from plot-based 
 
 Outliers were identified and were omitted because of their strong impact on the diameter partial response. 
 
+### Base model
+
+The final base model chosen included DBH, crown ratio, BAL, crown compeition factor (CCF), aspect (represented by an interaction between sin(ASP) and cos(ASP)). 
+
+#### random effects
+
+Random effects were considered in the form of intercepts at each of the following hierarchies, all exclusive, not together: stand, measurement cluster, plot, and tree. Ultimately, accounting for tree-specific effects improved overall model accuracy the best. To aid in reducing model complexity and computation times, more complex representations of nesting was not accounted for here. 
+
 #Discussion
 
 ## MODEL SELECTION 
@@ -176,7 +184,6 @@ Outliers were identified and were omitted because of their strong impact on the 
 - Two things that I noticed about using GAMs here:
 1. Wiggliness is hard to control when putting all of these variables together. Tryhing to fine-tune adjust smooth terms is too difficult as the model gets more complex. 
 2. Concurvity does not capture everything, and if too heavy of a weight is put on this metric, then model fitting process can become extremely arduous. In this case, concurvity ought to be used as  a rough metric. It's important to acknowledge that these variables do have overlap. 
-
 
 
 

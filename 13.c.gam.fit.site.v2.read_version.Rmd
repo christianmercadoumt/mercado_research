@@ -59,6 +59,13 @@ compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), f
 
 rmse.conc(op2)[[1]]
 rmse.conc(compd.pl4)[[1]]
+
+par(mfrow = c(2,2))
+gam.check(compd.pl4)
+
+gam.check(nosite.compd2)
+
+gam.check(gam.s1a)
 ```
 
 
