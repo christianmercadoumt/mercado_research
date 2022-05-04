@@ -50,7 +50,7 @@ bai.site <- bai.train %>%
   filter(bai != 0)
 
 
-site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+#site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
 
 unique(bai.site$PLOT)
 
@@ -87,6 +87,8 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 
 #cluster level intercepts
 re.cluster.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+
+saveRDS(re.cluster.1, 'data/model_objects.1/re.cluster.1.rds')
 #saveRDS(re.cluster.1, 'data/model_objects.1/re.cluster.1.rds')
 
 #re.cluster.m1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.cluster.meas, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
@@ -101,6 +103,14 @@ re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + 
 
 #####re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
 ```
+
+
+```{r plots?}
+
+head(re.cluster.1$)
+
+```
+
 
 ```{r more re models}
 
@@ -128,8 +138,9 @@ re.cluster.GS <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
                        s(slope_pct, unique.cluster.f, bs = 'fs'), 
                      family = 'Gamma'(link = log), 
                      data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
-                     method = 'ML')
+                     method = 'ML', )
 
+#this one throws an error - 'calloc' could not allocate memory
 re.cluster.GI <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
                        s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +
                        s(asp_sin, asp_cos, by = unique.cluster.f, m = 1) +
@@ -145,7 +156,7 @@ re.cluster.S <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) +
                       s(slope_pct, unique.cluster.f, bs = 'fs'), 
                      family = 'Gamma'(link = log), 
                      data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], 
-                     method = 'ML', discrete = T, nthreads = 4)
+                     method = 'ML')
 
 re.cluster.I <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + 
                        s(ccf.pl) +
@@ -194,8 +205,10 @@ re.plot.I <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio, by = unique.pl
 ```
 
 ```{r plot re models}
-
-
+draw(re.stand.1, select = 7)
+draw(re.cluster.1, select = 7)
+draw(re.plot.1, select = 7)
+draw(re.tree.1, select = 7)
 
 
 ```
@@ -220,6 +233,11 @@ re.list.1 <- list('re.cluster.1' = re.cluster.1, 're.plot.1' = re.plot.1, 're.tr
 # saveRDS(re.cluster.m1, 'data/model_objects/re.tree.1')
 
 summary.gam(re.tree.1)
+
+predict.gam(re.tree.1)[1]
+predict.gam(re.tree.1, newdata = bai.site.ids[1,], type = 'response')
+re.tree.1$fitted.values[1]
+
 
 
 rmse.conc(re.tree.1)
@@ -256,7 +274,11 @@ plot(re.cluster.1, select = 7)
 plot(re.plot.1, select = 7)
 plot(re.tree.1, select = 7)
 
-smooth_estimates(re.cluster.1, 's(unique.cluster.f)')
+cluster.re.data <- smooth_estimates(re.cluster.1, 's(unique.cluster.f)') %>% select(re.int = est, re.int.se = se, unique.cluster.f)
+cluster.re.data.all <- left_join(bai.site.ids, cluster.re.data, by = )
+
+
+concurvity
 
 ```
 
