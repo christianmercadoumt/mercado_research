@@ -85,12 +85,16 @@ fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), dat
 
 ```{r RE spp. mix model}
 
-spmx.re.gam.lf <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', discrete = TRUE, nthreads = 4)
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+  #gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 5))
 
-spmx.re.gam.st <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', discrete = TRUE, nthreads = 4)
+spmx.re.gam.st <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 5))
 
-saveRDS(spmx.re.gam.lf, 'data/model_objects.1/spmx.re.gam.lf.rds')
+#saveRDS(spmx.re.gam.lf, 'data/model_objects.1/spmx.re.gam.lf.rds')
 saveRDS(spmx.re.gam.st, 'data/model_objects.1/spmx.re.gam.st.rds')
+
+
+gamm()
 
 ```
 
@@ -101,7 +105,17 @@ system.time(spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) 
 
 system.time(spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4)))
 
+summary(spmx.gam.lf)
+summary(spmx.gam.st)
 
+plot.gam(spmx.gam.lf, rug = F, residuals = T, ylim = c(-4,2))
+plot.gam(spmx.gam.st, rug = F, residuals = T, ylim = c(-4,2))
+
+gam.check(spmx.gam.lf)
+gam.check(spmx.gam.st)
+
+my.rmse.2(spmx.gam.lf)
+my.rmse.2(spmx.gam.st)
 ```
 
 
