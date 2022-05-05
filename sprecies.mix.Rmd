@@ -91,10 +91,12 @@ spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
 spmx.re.gam.st <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 5))
 
 #saveRDS(spmx.re.gam.lf, 'data/model_objects.1/spmx.re.gam.lf.rds')
+
+spmx.re.gam.st <- gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +  + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', random = ~(1|unique.tree.f))
+
 saveRDS(spmx.re.gam.st, 'data/model_objects.1/spmx.re.gam.st.rds')
 
 
-gamm()
 
 ```
 
