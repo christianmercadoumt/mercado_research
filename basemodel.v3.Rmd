@@ -167,7 +167,7 @@ gam.check(re.tree.1)
 gam.check(re.tree.1alt)
 ```
 
-```{r}
+```{r residual diagnostics}
 res.gams1 <- residuals.gam(gam.s1a)
 res.compd <- residuals.gam(compd.pl4)
 res.site5 <- residuals.gam(site5a.2)
@@ -213,11 +213,15 @@ all.res.full <- left_join(bai.site.ids, all.res.case)
 ggplot(all.w.res, aes(x = aspect_deg, y = res.tree, color = res.case)) + geom_point()
 ```
 
-```{r}
+```{r residual inquiries}
 
 ggplot(all.res.full, aes(x = aspect_deg, y = res.tree, color = res.case)) + geom_point()
 
 ggplot(subset(all.res.full, !is.na(res.case)), aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point()
+
+ggplot(subset(all.res.full, !is.na(res.case)), aes(x = DIAMETER, y = res.tree, color = unique_tree_id)) + geom_point() + facet_wrap(~res.case)
+
+ggplot(subset(all.res.full, !is.na(res.case)), aes(x = grwth.yr, y = res.tree, color = res.case)) + geom_point()
 
 ggplot(all.res.full, aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point() + facet_wrap(~stand)
 

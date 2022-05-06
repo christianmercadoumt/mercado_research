@@ -143,9 +143,11 @@ summary(spmx.gam.st.alt)
 
 for(i in 1:6){
   par(mfrow = c(1,2))
-  plot.gam(spmx.gam.lf.alt, rug = F, residuals = T, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'larch fraction')
-  plot.gam(spmx.gam.st.alt, rug = F, residuals = T, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'shade tol.')
+  plot.gam(spmx.gam.lf.alt, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'larch fraction')
+  plot.gam(spmx.gam.st.alt, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'shade tol.')
 }
+
+draw(spmx.gam.lf, select = 5)
 
 par(mfrow = c(2,2))
 gam.check(spmx.gam.lf.alt)
@@ -153,6 +155,8 @@ gam.check(spmx.gam.st.alt)
 
 my.rmse.2(spmx.gam.lf.alt)
 my.rmse.2(spmx.gam.st.alt)
+
+
 
 ```
 
