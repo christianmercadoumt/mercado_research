@@ -178,7 +178,7 @@ which(res.tree %in% head(sort(res.tree), 10))
 length(res.tree)
 
 (high.res <- tibble(rownames_to_column(re.tree.1$model[which(res.tree %in% tail(sort(res.tree), 10)),]), dev.res = tail(sort(res.tree), 10)))
-(low.res <- tibble(rownames_to_column(re.tree.1$model[which(res.tree %in% head(sort(res.tree), 50)),]), dev.res = head(sort(res.tree), 50)))
+(low.res <- tibble(rownames_to_column(re.tree.1$model[which(res.tree %in% head(sort(res.tree), 50)),]), dev.res = head(sort(res.tree), )))
 
 
 
@@ -187,6 +187,21 @@ low.match <- inner_join(low.res, bai.site.ids)
 
 high.all <- left_join(bai.site.ids, high.res)
 low.all <- left_join(bai.site.ids, low.res)
+
+all.w.res <- tibble(cbind(re.tree.1$model, res.tree))
+summary(res.tree)
+
+all.res.case <- all.w.res %>% mutate(res.case=case_when(res.tree < -1.2 ~ 'low',
+                                        res.tree > 1 ~ 'high'))
+
+
+###########NOTE 
+######## I NEED TO make a tibble that works here which allows me to plot through variables and get to the bottom of the deviance residuals stuff.
+
+ggplot(all.w.res, aes(x = aspect_deg, y = res.tree, color = res.case)) + geom_point()
+```
+
+```{r}
 
 high.match$rowname
 
