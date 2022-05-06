@@ -91,22 +91,33 @@ spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
 #spmx.re.gam.st <- bam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 5))
 
 #saveRDS(spmx.re.gam.lf, 'data/model_objects.1/spmx.re.gam.lf.rds')
-Sys.time()
-spmx.re.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4))
-Sys.time()
+
+spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+  #gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4))
+
 
 saveRDS(spmx.re.gam.st, 'data/model_objects.1/spmx.re.gam.st.rds')
 
-system.time(spmx.re.gam.st1 <- gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +  + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, REML = F, random = ~(1|unique.tree.f)))
+spmx.re.gam.st1 <- readRDS('data/model_objects.1/spmx.re.gam.st1_gamm4.rds')
+              #gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +  + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, REML = F, random = ~(1|unique.tree.f)))
 
+summary(spmx.re.gam.st)
+summary(spmx.re.gam.st1$mer)
+
+plot(spmx.re.gam.st, scheme = 1, rug = F, residuals = T, ylim = c(-2.3, 2.5))
+plot(spmx.re.gam.st1$gam, scheme = 1, rug = F, residuals = T, ylim = c(-2.3, 2.5))
+
+par(mfrow = c(2,2))
+gam.check(spmx.re.gam.st)
+gam.check(spmx.re.gam.st1$gam)
 ```
 
 ```{r spp. mix no re}
 
 
-system.time(spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4)))
+spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
-system.time(spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4)))
+spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
 summary(spmx.gam.lf)
 summary(spmx.gam.st)
@@ -120,6 +131,31 @@ gam.check(spmx.gam.st)
 my.rmse.2(spmx.gam.lf)
 my.rmse.2(spmx.gam.st)
 ```
+
+```{r spp. mix no re ALT}
+
+spmx.gam.lf.alt <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
+spmx.gam.st.alt <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
+summary(spmx.gam.lf.alt)
+summary(spmx.gam.st.alt)
+
+for(i in 1:6){
+  par(mfrow = c(1,2))
+  plot.gam(spmx.gam.lf.alt, rug = F, residuals = T, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'larch fraction')
+  plot.gam(spmx.gam.st.alt, rug = F, residuals = T, ylim = c(-4, 2.5), scheme = 1, select = i, main = 'shade tol.')
+}
+
+par(mfrow = c(2,2))
+gam.check(spmx.gam.lf.alt)
+gam.check(spmx.gam.st.alt)
+
+my.rmse.2(spmx.gam.lf.alt)
+my.rmse.2(spmx.gam.st.alt)
+
+```
+
 
 
 

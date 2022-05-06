@@ -64,17 +64,6 @@ length(unique(bai.site.ids$unique.plot.meas))
 ```
 
 
-```{r looking at other dist. families, include = F}
-# site5a.2.nb <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'nb'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-# 
-# site5a.2.gs <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'gaussian'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-# 
-# par(mfrow = c(2,2))
-# gam.check(site5a.2.nb)
-# gam.check(site5a.2.gs)
-```
-
-
 ```{r read in re model objects}
 
 # re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
@@ -147,6 +136,13 @@ re.model <- c('Stand', 'Cluster', 'Plot', 'Tree')
 rmse.re <- data.frame(t(as.data.frame(lapply(re.list.1, my.rmse.2), )[2,]))
 rmse.re
 ```
+
+```{r rmse table ALT}
+
+
+
+```
+
 
 ```{r}
 par(mfrow = c(2,2))
@@ -384,30 +380,6 @@ saveRDS(re.stand.1, 'data/model_objects.1/re.stand.1.rds')
 #                      method = 'ML')
 ```
 
-```{r plot re models}
-
-
-
-
-```
-
-
-
-```{r}
-summary.gam(re.cluster.1)
-
-re.cluster.1$smooth[[5]]
-```
-
-
-
-
-
-```{r}
-lapply(re.list.1, summary.gam)
-
-plot.gamViz(re.cluster.1)
-```
 
 ```{r playing with itsadug}
 library(itsadug)
@@ -426,18 +398,6 @@ smooth_estimates(re.cluster.1, 's(unique.cluster.f)')
 
 ```
 
-```{r}
-fitted_values(re.cluster.1)
-
-ggplot(bai.site.ids, aes(x = DIAMETER, y = log.bai, color = factor(cluster))) + geom_point(alpha = .15) + facet_wrap(~stand, scales = 'free')
-```
-
-
-
-```{r random effects - tree}
-#don't run this
-# full.t.re1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-```
 
 ```{r random effects - plot}
 ### create plot variable
@@ -452,13 +412,7 @@ my.rmse.2(full.p.re1)[[2]]
 plot.gam(full.p.re1, select = 5, scheme = 1, too.far = 0)
 ```
 
-```{r larch fraction}
 
-```
-
-```{r shade tol}
-
-```
 
 
 
