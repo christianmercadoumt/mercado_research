@@ -96,8 +96,6 @@ spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
   #gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 4))
 
 
-saveRDS(spmx.re.gam.st, 'data/model_objects.1/spmx.re.gam.st.rds')
-
 spmx.re.gam.st1 <- readRDS('data/model_objects.1/spmx.re.gam.st1_gamm4.rds')
               #gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) +  + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, REML = F, random = ~(1|unique.tree.f)))
 
@@ -111,6 +109,22 @@ par(mfrow = c(2,2))
 gam.check(spmx.re.gam.st)
 gam.check(spmx.re.gam.st1$gam)
 ```
+
+```{r re spp mix for ALT model}
+
+
+spmx.gam.alt.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're') + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
+spmx.gam.alt.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're') + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
+saveRDS(spmx.gam.alt.lf, 'data/model_objects.1/spmx.gam.alt.lf.rds')
+saveRDS(spmx.gam.alt.st, 'data/model_objects.1/spmx.gam.alt.st.rds')
+
+saveRDS(spmx.gam.alt.lf, 'C:/Users/cm165878/Box/research_/spmx.gam.alt.lf.rds')
+saveRDS(spmx.gam.alt.st, 'C:/Users/cm165878/Box/research_/spmx.gam.alt.st.rds')
+
+```
+
 
 ```{r spp. mix no re}
 
