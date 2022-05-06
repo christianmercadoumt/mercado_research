@@ -97,6 +97,8 @@ re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 #   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
 # saveRDS(re.tree.1alt, 'data/model_objects.1/re.tree.1alt.rds')
 
+rmse.conc.table(list('stand' = re.stand.1alt, 'clust' = re.cluster.1alt, 'tree' = re.tree.1alt))
+
 ```
 
 
@@ -139,7 +141,19 @@ rmse.re
 
 ```{r rmse table ALT}
 
+model <- c('null', 'size', 'density.comp', 'site', 're')
 
+rmse.sel.alt <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.ba1)[[2]], my.rmse.2(site.n5b)[[2]], my.rmse.2(re.tree.1alt)[[2]])
+
+rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], my.rmse.2(site.n5a)[[2]], NA)
+
+fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], my.rmse.2(fvs.full)[[2]], NA)
+
+tibble(model, rmse.sel.alt, rmse.best1, fvs) #rmse.selected.old
+
+rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]], my.rmse.2(re.tree.1)[[2]])
+
+tibble(model, rmse.selected, rmse.sel.alt)
 
 ```
 
@@ -191,6 +205,8 @@ all.res.case <- all.w.res %>% mutate(res.case=case_when(res.tree < -1.2 ~ 'low',
                                         res.tree > 1 ~ 'high'))
 
 
+all.res.full <- left_join(bai.site.ids, all.res.case)
+
 ###########NOTE 
 ######## I NEED TO make a tibble that works here which allows me to plot through variables and get to the bottom of the deviance residuals stuff.
 
@@ -199,6 +215,18 @@ ggplot(all.w.res, aes(x = aspect_deg, y = res.tree, color = res.case)) + geom_po
 
 ```{r}
 
+ggplot(all.res.full, aes(x = aspect_deg, y = res.tree, color = res.case)) + geom_point()
+
+ggplot(subset(all.res.full, !is.na(res.case)), aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point()
+
+ggplot(all.res.full, aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point() + facet_wrap(~stand)
+
+
+
+unique(all.res.full$habclass)
+```
+
+```{r }
 high.match$rowname
 
 high.match1 <- high.match %>% select(rowname, bai, DIAMETER, stand, MEASUREMENT_NO, myear, cluster, PLOT, unique_tree_id, dev.res)

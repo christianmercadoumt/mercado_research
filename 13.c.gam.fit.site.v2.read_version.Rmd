@@ -310,10 +310,11 @@ model <- c('null', 'size', 'density.comp', 'site')
 
 rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]])
 #rmse.selected.old <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(op2)[[2]], my.rmse.2(site2a)[[2]])
+rmse.sel.alt <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.ba1)[[2]], my.rmse.2(site.n5b)[[2]])
 rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], my.rmse.2(site.n5a)[[2]])
 fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], my.rmse.2(fvs.full)[[2]])
 
-tibble(model, rmse.selected, rmse.best1, fvs) #rmse.selected.old
+tibble(model, rmse.selected, rmse.sel.alt, rmse.best1, fvs) #rmse.selected.old
 
 ```
 
