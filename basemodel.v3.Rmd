@@ -223,7 +223,7 @@ ggplot(subset(all.res.full, !is.na(res.case)), aes(x = DIAMETER, y = res.tree, c
 
 ggplot(subset(all.res.full, !is.na(res.case)), aes(x = grwth.yr, y = res.tree, color = res.case)) + geom_point()
 
-ggplot(all.res.full, aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point() + facet_wrap(~stand)
+ ggplot(all.res.full, aes(x = DIAMETER, y = res.tree, color = res.case)) + geom_point() + facet_wrap(~stand)
 
 
 
