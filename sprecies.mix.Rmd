@@ -50,6 +50,13 @@ bai.spmx <- bai.train %>%
 
 bai.spmx.ids <- bai.spmx %>% group_by(stand) %>% mutate(unique.stand = group_indices()) %>% ungroup() %>% mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), unique.cluster.f = as.factor(unique.cluster), unique.plot.f = as.factor(unique.plot), unique.tree.f = as.factor(unique_tree_id)) %>% filter(unique_tree_id != 15431)
 
+gam.visual.comp <- function(gam1, gam2){
+  for(i in 1:length(term_names(spmx.re.gam.lf))){
+  par(mfrow = c(1,2))
+  plot.gam(gam1, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = deparse(quote(gam1)))
+  plot.gam(gam2, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = deparse(quote(gam2)))
+}
+}
 
 ```
 
@@ -58,6 +65,22 @@ re.stand.1 <- readRDS('data/model_objects.1/re.stand.1.rds')
 re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
 re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
 re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
+
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+spmx.re.gam.st1 <- readRDS('data/model_objects.1/spmx.re.gam.st1_gamm4.rds')
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+
+re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+
+
+spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
+spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
 re.list.1 <- list('re.stand.1' = re.stand.1 ,'re.cluster.1' = re.cluster.1, 're.plot.1' = re.plot.1, 're.tree.1' = re.tree.1)
 
@@ -71,7 +94,11 @@ best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link
 
 compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
+compd.ba1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+
 site.n5a <-update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
+
+site.n5b <- readRDS('data/model_objects.1/site.n5b.rds')
 
 fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log), method = 'ML')
 
@@ -83,8 +110,46 @@ fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), dat
 
 ```
 
+```{r RMSE table}
+
+
+model <- c('null', 'size', 'density.comp', 'site', 'random.tree', 'larch_fraction.random.tree', 'shade.tol.random.tree')
+
+rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]], my.rmse.2(re.tree.1)[[2]], my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
+
+rmse.sel.alt <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.ba1)[[2]], my.rmse.2(site.n5b)[[2]], my.rmse.2(re.tree.1alt)[[2]], my.rmse.2(spmx.gam.alt.lf)[[2]], my.rmse.2(spmx.gam.alt.st)[[2]])
+
+rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(best.6a)[[2]], my.rmse.2(site.n5a)[[2]], NA, NA, NA)
+
+fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.cmp)[[2]], my.rmse.2(fvs.full)[[2]], NA, NA, NA)
+
+tibble(model, rmse.selected, rmse.sel.alt, rmse.best1, fvs) #rmse.selected.old
+
+# re.model <- c('Stand', 'Cluster', 'Plot', 'Tree')
+# rmse.re <- data.frame(t(as.data.frame(lapply(re.list.1, my.rmse.2), )[2,]))
+# rmse.re
+
+```
+
+```{r visualtions}
+
+term_names(spmx.re.gam.lf)[2]
+
+
+gam.visual.comp(site5a.2, site.n5b)
+
+gam.visual.comp()
+
+
+gam.visual.comp(spmx.gam.alt.lf, spmx.gam.alt.st)
+
+
+```
+
+
+
 ```{r RE spp. mix model}
-library(gamm4)
+#library(gamm4)
 spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
   #gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.tree.f, bs = 're') + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 5))
 
