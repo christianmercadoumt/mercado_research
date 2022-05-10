@@ -107,6 +107,8 @@ site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s
 
 #size-selected
 gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
+#size-ba - not selected
+gam.s2a <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
 
 #null
 gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
