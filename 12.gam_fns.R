@@ -1,8 +1,8 @@
 ### Some functions for gams
 require(mgcv)
 require(tidyverse)
-#### TRASP - Topographic solar radiation index. This linearizes aspect. 0 means north-northeast aspect, 1 means south-southwest aspect. (Roberts and Cooper, 1989, page90-) 'Concepts and Techniques of Vegetation Mapping.' - In 'Land Classifications Based on Vegetation'
 
+#### TRASP - Topographic solar radiation index. This linearizes aspect. 0 means north-northeast aspect, 1 means south-southwest aspect. (Roberts and Cooper, 1989, page90-) 'Concepts and Techniques of Vegetation Mapping.' - In 'Land Classifications Based on Vegetation'
 trasp <- function(degrees_aspect){
   (1-cos((pi/180)*(degrees_aspect-30)))/2
 }
@@ -47,6 +47,17 @@ rmse.conc.table <- function(gam.list){
     arrange(rmse) %>% 
     mutate(rmse.rank = row_number())
 }
+
+#compare partial response curves between two gams - best used when gams have same vars
+gam.visual.comp <- function(gam1, gam2){
+  for(i in 1:length(term_names(spmx.re.gam.lf))){
+    par(mfrow = c(1,2))
+    plot.gam(gam1, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = deparse(quote(gam1)))
+    plot.gam(gam2, rug = F, residuals = F, ylim = c(-4, 2.5), scheme = 1, select = i, main = deparse(quote(gam2)))
+  }
+}
+
+
 
 #my.rmse.xval <- function(gam, testdata){
 #  prd <- predict.gam(gam, newdata = testdata, type = 'response')

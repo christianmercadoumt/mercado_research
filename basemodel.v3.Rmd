@@ -17,7 +17,11 @@ library(corrplot)
 library(GGally)
 library(mgcViz)
 source('12.gam_fns.R')
+source('12a.models_fit_read.R')
 
+```
+
+```{r}
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
@@ -25,28 +29,28 @@ hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 bai.train <- readRDS('data/bai.train.4_21_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
-bai.size <- bai.train %>% 
-  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
-         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+bai.size <- bai.train %>%
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id,
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>%
   filter(bai != 0)
 
-bai.site <- bai.train %>% 
-  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
-         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+bai.site <- bai.train %>%
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id,
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg,
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
          ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode) %>% 
-  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         locationcode) %>%
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100,
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
-  mutate(sl_asp_sin = asp_sin*slope_pct, 
-         sl_asp_cos = asp_cos*slope_pct, 
-         asp.trasp = trasp(aspect_deg), 
+  mutate(sl_asp_sin = asp_sin*slope_pct,
+         sl_asp_cos = asp_cos*slope_pct,
+         asp.trasp = trasp(aspect_deg),
          HabType = as.factor(HabType),
          cr = CROWN_RATIO/100,
          bal.pl.ratio = bal.pl/ba.pl,
-         unique_tree_id = factor(unique_tree_id)) %>% 
+         unique_tree_id = factor(unique_tree_id)) %>%
   filter(bai != 0)
 
 
@@ -426,7 +430,28 @@ plot(re.cluster.1, select = 7)
 plot(re.plot.1, select = 7)
 plot(re.tree.1, select = 7)
 
-smooth_estimates(re.cluster.1, 's(unique.cluster.f)')
+smooth_estimates(re.tree.1, 's(DIAMETER)')
+
+```
+
+```{r manual plots}
+#smooth_estimates(re.tree.1)
+sm.1 <- smooth_estimates(gam.s1a, n = 100) %>% add_confint()
+sm2 <- smooth_estimates(compd.pl4, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est2 = est, d2 = DIAMETER ,lwr2 = lower_ci, upr2 = upper_ci) %>% select(d2, lwr2, upr2, est2)
+sm3 <- smooth_estimates(site5a.2, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est3 = est, d3 = DIAMETER, lwr3 = lower_ci, upr3 = upper_ci) %>% select(d3, est3, lwr3, upr3)
+sm4 <- smooth_estimates(re.tree.1, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est4 = est, d4 = DIAMETER, lwr4 = lower_ci, upr4 = upper_ci) %>% select(d4, lwr4, upr4, est4)
+
+df <- tibble(sm.1, sm2)
+
+ggplot(df) + geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, x = DIAMETER), alpha = 0.2, color = 'lightblue2') + geom_ribbon(aes(ymin = lwr2, ymax = upr2, x = d2), alpha = 0.2, color = 'pink') + geom_line(aes(x = DIAMETER, y = est), color = 'lightblue') + geom_line(aes(x = d2, y = est2), color = 'red')
+
+df2 <- tibble(sm2, sm3)
+
+ggplot(df2) + geom_ribbon(aes(ymin = lwr2, ymax = upr2, x = d2), alpha = 0.2, color = 'pink') + geom_ribbon(aes(ymin = lwr3, ymax = upr3, x = d3), alpha = 0.2, color = 'peachpuff') + geom_line(aes(x = d2, y = est2), color = 'red') + geom_line(aes(x = d3, y = est3), color = 'peachpuff')
+
+df3 <- tibble(sm3, sm4)
+
+ggplot(df3) + geom_ribbon(aes(ymin = lwr4, ymax = upr4, x = d4), alpha = 0.2, color = 'green') + geom_ribbon(aes(ymin = lwr3, ymax = upr3, x = d3), alpha = 0.2, color = 'peachpuff') + geom_line(aes(x = d4, y = est4), color = 'green') + geom_line(aes(x = d3, y = est3), color = 'peachpuff')
 
 ```
 
