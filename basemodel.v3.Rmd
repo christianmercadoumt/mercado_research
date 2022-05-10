@@ -21,7 +21,7 @@ source('12a.models_fit_read.R')
 
 ```
 
-```{r}
+```{r, include = F}
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
@@ -67,66 +67,6 @@ length(unique(bai.site.ids$unique.plot.meas))
 #re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 ```
 
-
-```{r read in re model objects}
-
-# re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
-# saveRDS(re.plot.1, 'data/model_objects/re.plot.1.rds')
-
-re.stand.1 <- readRDS('data/model_objects.1/re.stand.1.rds')
-re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
-re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
-re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
-
-re.list.1 <- list('re.stand.1' = re.stand.1 ,'re.cluster.1' = re.cluster.1, 're.plot.1' = re.plot.1, 're.tree.1' = re.tree.1)
-
-re.stand.1alt <- readRDS('data/model_objects.1/re.stand.1alt.rds')
-re.cluster.1alt <- readRDS('data/model_objects.1/re.cluster.1alt.rds')
-re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
-
-summary(re.tree.1)
-```
-
-```{r fit alternatives}
-
-re.stand.1alt <- readRDS('data/model_objects.1/re.stand.1alt.rds')
-  # gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
-# saveRDS(re.stand.1alt, 'data/model_objects.1/re.stand.1alt.rds')
-
-re.cluster.1alt <- readRDS('data/model_objects.1/re.cluster.1alt.rds')
-#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
-# saveRDS(re.cluster.1alt, 'data/model_objects.1/re.cluster.1alt.rds')
-
-re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
-#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
-# saveRDS(re.tree.1alt, 'data/model_objects.1/re.tree.1alt.rds')
-
-rmse.conc.table(list('stand' = re.stand.1alt, 'clust' = re.cluster.1alt, 'tree' = re.tree.1alt))
-
-```
-
-
-```{r fit previous models}
-site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-
-gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.site$unique_tree_id != 15431,], method = 'ML') 
-
-gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-
-best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-
-compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
-
-site.n5a <-update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
-
-fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
-
-fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
-summary(fvs.sz.cmp)
-
-fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id!=15431,], method = 'ML')
-```
-
 ```{r RMSE table}
 
 model <- c('null', 'size', 'density.comp', 'site', 'random.tree')
@@ -160,6 +100,67 @@ rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(
 tibble(model, rmse.selected, rmse.sel.alt)
 
 ```
+
+```{r read in re model objects, include = F}
+
+# re.plot.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique.plot.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML')
+# saveRDS(re.plot.1, 'data/model_objects/re.plot.1.rds')
+
+re.stand.1 <- readRDS('data/model_objects.1/re.stand.1.rds')
+re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
+re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
+
+re.list.1 <- list('re.stand.1' = re.stand.1 ,'re.cluster.1' = re.cluster.1, 're.plot.1' = re.plot.1, 're.tree.1' = re.tree.1)
+
+re.stand.1alt <- readRDS('data/model_objects.1/re.stand.1alt.rds')
+re.cluster.1alt <- readRDS('data/model_objects.1/re.cluster.1alt.rds')
+re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+
+summary(re.tree.1)
+```
+
+```{r fit alternatives, include = F}
+
+re.stand.1alt <- readRDS('data/model_objects.1/re.stand.1alt.rds')
+  # gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(stand, bs = 're'), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
+# saveRDS(re.stand.1alt, 'data/model_objects.1/re.stand.1alt.rds')
+
+re.cluster.1alt <- readRDS('data/model_objects.1/re.cluster.1alt.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.cluster.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
+# saveRDS(re.cluster.1alt, 'data/model_objects.1/re.cluster.1alt.rds')
+
+re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.site.ids[bai.site.ids$unique_tree_id != 15431,], method = 'ML', control = list(nthreads = 3))
+# saveRDS(re.tree.1alt, 'data/model_objects.1/re.tree.1alt.rds')
+
+rmse.conc.table(list('stand' = re.stand.1alt, 'clust' = re.cluster.1alt, 'tree' = re.tree.1alt))
+
+```
+
+
+```{r fit previous models, include = F}
+site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.site$unique_tree_id != 15431,], method = 'ML') 
+
+gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link = log), bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id != 15431,], method = 'ML')
+
+site.n5a <-update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
+
+fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
+
+fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.site[bai.site$unique_tree_id != 15431,], family = 'Gamma'(link = log), method = 'ML')
+summary(fvs.sz.cmp)
+
+fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.site[bai.site$unique_tree_id!=15431,], method = 'ML')
+```
+
+
 
 
 ```{r}
@@ -452,6 +453,17 @@ ggplot(df2) + geom_ribbon(aes(ymin = lwr2, ymax = upr2, x = d2), alpha = 0.2, co
 df3 <- tibble(sm3, sm4)
 
 ggplot(df3) + geom_ribbon(aes(ymin = lwr4, ymax = upr4, x = d4), alpha = 0.2, color = 'green') + geom_ribbon(aes(ymin = lwr3, ymax = upr3, x = d3), alpha = 0.2, color = 'peachpuff') + geom_line(aes(x = d4, y = est4), color = 'green') + geom_line(aes(x = d3, y = est3), color = 'peachpuff')
+
+function(){
+  sm1 <- smooth_estimates(gam1) %>% add_confint()
+  sm2 <- smooth_estimates(gam2) %>% add_confint() %>% rename(est2 = est, var2 = var, lwr2 = lower_ci, upr2 = upper_ci) %>% select(var2, est2, lwr2, upr2)
+  df <- tibble(sm1, sm2)
+  
+}
+
+
+### check that I can plot ggplot objects from separate data on the same plot
+### figure out if there is an easier way to select which smooth's data to extract
 
 ```
 
