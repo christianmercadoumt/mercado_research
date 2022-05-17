@@ -161,6 +161,11 @@ For density and competition, I separated out tree-based metrics from plot-based 
 
 #Results
 
+```{r}
+#source('14.results_larch.R')
+```
+
+
 ### Size
 
 Outliers were identified and were omitted because of their strong impact on the diameter partial response. 
@@ -172,6 +177,8 @@ The final base model chosen included DBH, crown ratio, BAL, crown compeition fac
 #### random effects
 
 Random effects were considered in the form of intercepts at each of the following hierarchies, all exclusive, not together: stand, measurement cluster, plot, and tree. Ultimately, accounting for tree-specific effects improved overall model accuracy the best. To aid in reducing model complexity and computation times, more complex representations of nesting was not accounted for here. 
+
+
 
 #Discussion
 

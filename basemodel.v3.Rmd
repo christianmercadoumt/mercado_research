@@ -438,6 +438,15 @@ smooth_estimates(re.tree.1, 's(DIAMETER)')
 ```{r manual plots}
 #smooth_estimates(re.tree.1)
 sm.1 <- smooth_estimates(gam.s1a, n = 100) %>% add_confint()
+
+sm.1a <- smooth_estimates(compd.pl4, n=100) %>% add_confint()
+
+ggplot() + 
+  geom_ribbon(data = sm.1, aes(x = DIAMETER, ymin = lower_ci, ymax = upper_ci), alpha = 0.2, color = 'lightblue') + 
+  geom_ribbon(data = sm.1a, aes(x = DIAMETER, ymin = lower_ci, ymax = upper_ci), alpha = 0.2, color = 'pink') + 
+  geom_line(data = sm.1, aes(x = DIAMETER, y = est), color = 'lightblue') + 
+  geom_line(data = sm.1a, aes(x = DIAMETER, y = est), color = 'pink')
+
 sm2 <- smooth_estimates(compd.pl4, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est2 = est, d2 = DIAMETER ,lwr2 = lower_ci, upr2 = upper_ci) %>% select(d2, lwr2, upr2, est2)
 sm3 <- smooth_estimates(site5a.2, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est3 = est, d3 = DIAMETER, lwr3 = lower_ci, upr3 = upper_ci) %>% select(d3, est3, lwr3, upr3)
 sm4 <- smooth_estimates(re.tree.1, n = 100, smooth = 's(DIAMETER)') %>% add_confint() %>% rename(est4 = est, d4 = DIAMETER, lwr4 = lower_ci, upr4 = upper_ci) %>% select(d4, lwr4, upr4, est4)
@@ -454,15 +463,42 @@ df3 <- tibble(sm3, sm4)
 
 ggplot(df3) + geom_ribbon(aes(ymin = lwr4, ymax = upr4, x = d4), alpha = 0.2, color = 'green') + geom_ribbon(aes(ymin = lwr3, ymax = upr3, x = d3), alpha = 0.2, color = 'peachpuff') + geom_line(aes(x = d4, y = est4), color = 'green') + geom_line(aes(x = d3, y = est3), color = 'peachpuff')
 
-function(){
-  sm1 <- smooth_estimates(gam1) %>% add_confint()
-  sm2 <- smooth_estimates(gam2) %>% add_confint() %>% rename(est2 = est, var2 = var, lwr2 = lower_ci, upr2 = upper_ci) %>% select(var2, est2, lwr2, upr2)
-  df <- tibble(sm1, sm2)
-  
-}
+
+```
+
+```{r write fn for smooth plotting}
+# function(model, ){
+#   require(mgcv)
+#   require(gratia)
+#   smooth.est <- smooth_estimates(model) %>% add_confint()
+#   
+# }
+
+a <- list(site.n5a, site.n5b, best.6a)
+aa <- lapply(a, smooth_estimates)
 
 
-### check that I can plot ggplot objects from separate data on the same plot
+########## I might just have to do this manually - create list of model objects, then get their smooth estimates using lapply
+########## Then build ggplot objects
+
+# function(sm.est, variable, ribbon.opacity = 0.2){
+#   ggplot() + 
+#     geom_ribbon(data = sm.est, aes(x = variable, ymin = lower_ci, ymax = upper_ci), alpha = ribbon.opacity) +
+#     geom_line(data = sm.est, aes(x = variable, y = est))
+# }
+
+length(a)
+
+sm.1 <- smooth_estimates(gam.s1a, n = 100) %>% add_confint()
+
+sm.1a <- smooth_estimates(compd.pl4, n=100) %>% add_confint()
+
+ggplot() + 
+  geom_ribbon(data = sm.1, aes(x = DIAMETER, ymin = lower_ci, ymax = upper_ci), alpha = 0.2, color = 'lightblue') + 
+  geom_ribbon(data = sm.1a, aes(x = DIAMETER, ymin = lower_ci, ymax = upper_ci), alpha = 0.2, color = 'pink') + 
+  geom_line(data = sm.1, aes(x = DIAMETER, y = est), color = 'lightblue') + 
+  geom_line(data = sm.1a, aes(x = DIAMETER, y = est), color = 'pink')
+
 ### figure out if there is an easier way to select which smooth's data to extract
 
 ```

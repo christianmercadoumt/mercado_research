@@ -98,12 +98,18 @@ spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 
 #species mix without random effects
-spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+spmx.gam.lf <- readRDS('data/model_objects.1/spmx.gam.lf.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+# saveRDS(spmx.gam.lf, 'data/model_objects.1/spmx.gam.lf.rds')
 
-spmx.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+spmx.gam.st <- readRDS('data/model_objects.1/spmx.gam.st.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+# saveRDS(spmx.gam.st, 'data/model_objects.1/spmx.gam.st.rds')
 
 #site-selected
-site5a.2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+site5a.2 <- readRDS('data/model_objects.1/site5a.2.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# saveRDS(site5a.2, 'data/model_objects.1/site5a.2.rds')
 
 #size-selected
 gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
@@ -114,16 +120,24 @@ gam.s2a <- gam(bai~s(treeba), family = 'Gamma'(link = log), data = bai.spmx.ids,
 gam.null <- gam(bai~1, family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #density-competition best
-best.6a <- gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+best.6a <- readRDS('data/model_objects.1/best.6a.rds')
+#   gam(bai~s(DIAMETER) + s(ccf.pl) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# saveRDS(best.6a, 'data/model_objects.1/best.6a.rds')
 
 #dens-comp full selected
-compd.pl4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+compd.pl4 <- readRDS('data/model_objects.1/compd.pl4.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# saveRDS(compd.pl4, 'data/model_objects.1/compd.pl4.rds')
 
 #dens-comp alternative
-compd.ba1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+compd.ba1 <- readRDS('data/model_objects.1/compd.ba1.rds')
+#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# saveRDS(compd.ba1, 'data/model_objects.1/compd.ba1.rds')
 
 # site - best
-site.n5a <-update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
+site.n5a <-readRDS('data/model_objects.1/site.n5a.rds')
+#   update(compd.pl4, . ~ . + s(asp_sin, asp_cos))
+# saveRDS(site.n5a, 'data/model_objects.1/site.n5a.rds')
 
 #site - alternative
 site.n5b <- readRDS('data/model_objects.1/site.n5b.rds')
