@@ -1,0 +1,199 @@
+---
+title: "larch.results"
+author: "Christian Mercado"
+date: "5/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#source('14.results_larch.R')
+```
+
+
+```{r}
+#RMSE table
+rmse_size
+rmse_dcomp
+rmse_site
+rmse_re
+(rmse_spp_mix.t <- rmse_spp_mix %>% rename('Model' = 'model', 'RMSE \n selected model' = rmse.selected, 'RMSE \nselected alternative' = rmse.sel.alt, 'RMSE \n single best' = rmse.best1, 'RMSE \n FVS' = fvs))
+
+rmse_tb <- tableGrob(rmse_spp_mix.t)
+grid.newpage()
+grid.draw(rmse_tb)
+```
+
+```{r partial response curves}
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+lf.a.smest <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.a.smest <- smooth_estimates(spmx.gam.alt.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+
+#larch fraction
+ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+  geom_line() +
+  labs(x = 'Larch ratio', y = 'BAI(in^2)')
+#shade tolerance
+ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl)) + 
+  geom_line() +
+  labs(x = 'Shade in-tolerance', y = 'BAI(in^2)')
+
+draw(spmx.re.gam.lf, select = 8, rug = F)
+draw(spmx.re.gam.st, select = 8, rug = F)
+
+ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+  geom_ribbon(alpha = 0.2, data = st.smest, 
+              aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl), fill = 'blue') +
+  geom_line() +
+  geom_line(data = st.smest, aes(x = shade.tol.pl, y = exp(est)), color = 'blue')+
+  labs(x = 'larch ratio (black), shade tolerance (blue)', y = 'BAI(in^2)')
+
+ggplot(lf.a.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+  geom_ribbon(alpha = 0.2, data = st.a.smest, 
+              aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl), fill = 'blue') +
+  geom_line() +
+  geom_line(data = st.a.smest, aes(x = shade.tol.pl, y = exp(est)), color = 'blue')+
+  labs(x = 'larch ratio (black), shade tolerance (blue)', y = 'BAI(in^2)')
+```
+
+```{r size category curves}
+#size
+dbh.size
+
+#dens-comp
+dbh.dcomp
+
+#site
+dbh.site
+
+#re
+dbh.re
+
+#re w/ larch fraction
+dbh.lf
+
+#re w/ shade tol
+dbh.st
+```
+
+```{r size - ba model}
+#ba model versions
+dbh.dcomp.a
+dbh.site.a
+dbh.re.a
+dbh.lf.a
+dbh.st.a
+```
+
+```{r dense-comp curves}
+
+dbh.dcomp
+cr.dcomp
+bal.dcomp
+ccf.dcomp
+
+
+```
+
+```{r dense-comp curves ba model}
+dbh.dcomp.a
+cr.dcomp.a
+ba.dcomp.a
+bal.dcomp.a
+
+
+```
+
+```{r site curves}
+
+dbh.site
+cr.site
+bal.site
+ccf.site
+asp.site
+sl.site
+
+```
+
+```{r site curves ba model}
+dbh.site.a
+cr.site.a
+bal.site.a
+ba.site.a
+asp.site.a
+
+```
+
+```{r re model curves}
+dbh.re
+cr.re
+bal.re
+ccf.re
+asp.re
+sl.re
+
+
+```
+
+```{r re model ba version}
+dbh.re.a
+cr.re.a
+bal.re.a
+ba.re.a
+asp.re.a
+
+
+```
+
+```{r larch fraction}
+
+dbh.lf
+cr.lf
+bal.lf
+ccf.lf
+asp.lf
+sl.lf
+
+
+```
+
+```{r larch fraction ba version}
+
+dbh.lf.a
+cr.lf.a
+bal.lf.a
+ba.lf.a
+asp.lf.a
+
+```
+
+```{r shade tol}
+
+dbh.st
+cr.st
+bal.st
+ccf.st
+asp.st
+sl.st
+
+
+```
+
+```{r shade tol ba version}
+
+dbh.st.a
+cr.st.a
+bal.st.a
+ba.st.a
+asp.st.a
+
+
+```
+

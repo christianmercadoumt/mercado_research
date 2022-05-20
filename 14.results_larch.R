@@ -3,6 +3,8 @@
 source('12.gam_fns.R')
 source('12a.models_fit_read.R')
 library(gratia)
+library(grid)
+library(gridExtra)
 
 # SIZE ####
 
@@ -12,7 +14,7 @@ rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], NA, NA)
 rmse.best1 <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]],NA, NA)
 fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], NA, NA)
 
-tibble(model, rmse.selected, rmse.best1, fvs)
+#tibble(model, rmse.selected, rmse.best1, fvs)
 
 ### Size partial response #### 
 
@@ -173,10 +175,13 @@ ba.st.a <- draw(spmx.gam.alt.st, rug = F, fun = exp, select = 4)
 asp.st.a <- draw(spmx.gam.alt.st, rug = F, fun = exp, select = 5)
 re.st.a <- draw(spmx.gam.alt.st, rug = F, fun = exp, select = 6)
 st.st.a <- draw(spmx.gam.alt.st, rug = F, fun = exp, select = 7) 
+
+lf.spmx <- smooth_estimates(spmx.re.gam.lf) %>% add_confint()
+st.spmx <- smooth_estimates(spmx.re.gam.st) %>% add_confint()
     
 ### spp. mix RMSE ####
 
-model <- c('null', 'size', 'density.comp', 'site', 'random.tree', 'larch_fraction.random.tree', 'shade.tol.random.tree')
+model <- c('Null', 'Size', 'Density/Comp', 'Site', 'Random tree', 'Larch Fraction w/ RE', 'Shade tolerance w/ RE')
 
 rmse.selected <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(gam.s1a)[[2]], my.rmse.2(compd.pl4)[[2]], my.rmse.2(site5a.2)[[2]], my.rmse.2(re.tree.1)[[2]], my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
 
@@ -189,4 +194,13 @@ fvs <- c(my.rmse.2(gam.null)[[2]], my.rmse.2(fvs.size1)[[2]], my.rmse.2(fvs.sz.c
 rmse_spp_mix <- tibble(model, rmse.selected, rmse.sel.alt, rmse.best1, fvs)
 
 
+### FVS visuals #### 
 
+ggplot(data = bai.spmx.ids, aes(DIAMETER, log.bai)) + 
+  stat_function(data = subset(bai.site.ids, habclass == 2), 
+                fun = function(x){dcof[[1]] + dcof[[4]] + log(x)*dcof[[2]] + dcof[[3]]*x^2}) + 
+  stat_function(data = subset(bai.site.ids, habclass == 3), 
+                fun = function(x){dcof[[1]] + dcof[[5]] + log(x)*dcof[[2]] + dcof[[3]]*x^2}) + 
+  stat_function(data = subset(bai.site.ids, habclass == 5), 
+                fun = function(x){dcof[[1]] + dcof[[6]] + log(x)*dcof[[2]] + dcof[[3]]*x^2}) +
+  geom_point(data = bai.spmx.ids, aes(DIAMETER, log.bai), alpha = 0.2)

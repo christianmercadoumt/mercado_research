@@ -33,9 +33,6 @@ bai.site <- bai.train %>%
   filter(bai != 0)
 
 
-unique(bai.site$PLOT)
-
-
 bai.site.ids <- bai.site %>% group_by(stand) %>% 
   mutate(unique.stand = group_indices()) %>% ungroup() %>% 
   mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% 
@@ -143,9 +140,9 @@ site.n5a <-readRDS('data/model_objects.1/site.n5a.rds')
 site.n5b <- readRDS('data/model_objects.1/site.n5b.rds')
 
 #fvs full
-fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log), method = 'ML')
+fvs.full <- gam(bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.pl/100) + log.diam + I(bal.pl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.pl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log), method = 'ML')
 #fvs size comp
-fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log), method = 'ML')
-summary(fvs.sz.cmp)
+fvs.sz.cmp <- gam(bai~I(ccf.pl/100) + log.diam + I(bal.pl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.pl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log), method = 'ML')
+
 #fvs size
 fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
