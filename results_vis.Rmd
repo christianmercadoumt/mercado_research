@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-#source('14.results_larch.R')
+source('14.results_larch.R')
 ```
 
 
@@ -27,10 +27,13 @@ grid.draw(rmse_tb)
 
 ```{r partial response curves}
 lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.prt <- add_partial_residuals(spmx.re.gam.st$model, spmx.re.gam.st, select = 8)
 st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
 lf.a.smest <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
 st.a.smest <- smooth_estimates(spmx.gam.alt.st, smooth = 's(shade.tol.pl)') %>% add_confint()
 
+wrk.st <- residuals.gam(spmx.gam.alt.st, type = 'working')
+str(spmx.gam.alt.st$smooth)
 
 #larch fraction
 ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
@@ -38,13 +41,16 @@ ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) +
   geom_line() +
   labs(x = 'Larch ratio', y = 'BAI(in^2)')
 #shade tolerance
-ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
-  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl)) + 
+ggplot(st.smest, aes(x = shade.tol.pl, y = est)) +
+  geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci, x = shade.tol.pl)) + 
   geom_line() +
-  labs(x = 'Shade in-tolerance', y = 'BAI(in^2)')
+  labs(x = 'Shade in-tolerance', y = 'BAI(in^2)') +
+  geom_point(data = st.prt, aes(x = shade.tol.pl, y = `s(shade.tol.pl)`))
+  
 
-draw(spmx.re.gam.lf, select = 8, rug = F)
-draw(spmx.re.gam.st, select = 8, rug = F)
+draw(spmx.re.gam.lf, select = 8, rug = F, residuals = T)
+draw(spmx.re.gam.st, select = 8, rug = F, residuals = T)
+draw(spmx.re.gam.st, select = 8, rug = F, residuals = T, fun = exp)
 
 ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
   geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
@@ -61,19 +67,22 @@ ggplot(lf.a.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) +
   geom_line() +
   geom_line(data = st.a.smest, aes(x = shade.tol.pl, y = exp(est)), color = 'blue')+
   labs(x = 'larch ratio (black), shade tolerance (blue)', y = 'BAI(in^2)')
+
+hist((1/(bai.spmx.ids$shade.tol.pl)))
+
 ```
 
 ```{r size category curves}
 #size
 dbh.size
 
-#dens-comp
-dbh.dcomp
-
-#site
-dbh.site
-
-#re
+# #dens-comp
+# dbh.dcomp
+# 
+# #site
+# dbh.site
+# 
+# #re
 dbh.re
 
 #re w/ larch fraction
@@ -134,10 +143,21 @@ asp.site.a
 ```{r re model curves}
 dbh.re
 cr.re
-bal.re
+
 ccf.re
 asp.re
 sl.re
+bal.re
+bal.lf
+
+cr.re
+cr.lf
+
+cr.re.a
+cr.lf.a
+
+ccf.re
+ccf.lf
 
 
 ```
@@ -196,4 +216,9 @@ asp.st.a
 
 
 ```
+
+```{r}
+larch.frac.tpa(bai.train) %>% select(larch.ba.fraction.pl, larch.tpa.fraction.pl)
+```
+
 

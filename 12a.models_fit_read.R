@@ -1,6 +1,5 @@
 ##### Read-in/fit model objects ##### 
-require(mgcv)
-require(tidyverse)
+source('12.gam_fns.R')
 
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)

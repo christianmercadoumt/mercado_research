@@ -39,6 +39,15 @@ larch.fraction.clu <- function(forestdata){
   return(a)
 }
 
+larch.frac.tpa <- function(forestdata){
+  a <- forestdata %>% 
+    mutate(SPECIES_SYMBOL = as.factor(SPECIES_SYMBOL)) %>% 
+    group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
+    mutate(larch.tpa.fraction.pl = (sum(tpa.pl.all[SPECIES_SYMBOL == "LAOC" & TPA_EQUIV != 0], na.rm = T))/(sum(tpa.pl.all[TPA_EQUIV != 0], na.rm = T))) %>% 
+    ungroup()
+  return(a)
+}
+
 shade <- readRDS("data/shade.rds")
 
 #shade.tolerance.plot <- function(forestdata, na.rm = TRUE){

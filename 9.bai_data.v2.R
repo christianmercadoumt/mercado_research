@@ -59,7 +59,7 @@ bai.calc1 <- bai.calc %>%
   rename(bai = bai.calc)
 
 # calculate larch fraction plot and cluster levels - add them to the data
-bai.larch.frac <- bai.calc1 %>% larch.fraction.plot() %>% larch.fraction.clu()
+bai.larch.frac <- bai.calc1 %>% larch.fraction.plot() %>% larch.fraction.clu() %>% larch.frac.tpa()
 
 #Plot-level variables
 bai.plot <- bai.larch.frac %>% variables.plot()
