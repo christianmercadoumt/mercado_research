@@ -13,11 +13,22 @@ larch.fraction.plot <- function(forestdata){
   a <- forestdata %>% 
     mutate(SPECIES_SYMBOL = as.factor(SPECIES_SYMBOL)) %>% 
     group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
-    mutate(larch.ba.fraction.pl = (sum(BASAL_AREA_EQUIV.pl[SPECIES_SYMBOL == "LAOC" & TPA_EQUIV != 0], na.rm = T))/(sum(BASAL_AREA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T))) %>% 
+    mutate(larch.ba.fraction.pl = (sum(BASAL_AREA_EQUIV.pl[SPECIES_SYMBOL == "LAOC" & TPA_EQUIV != 0], 
+                                       na.rm = T))/(sum(BASAL_AREA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T))) %>% 
     ungroup()
   return(a)
 }
 
+dom.spp.ba <- function(forestdata){
+  a <- forestdata %>% 
+    group_by(SETTING_ID, PLOT, MEASUREMENT_NO, SPECIES_SYMBOL) %>%
+    mutate(spp.ba.pl = sum(BASAL_AREA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T)) %>% 
+    ungroup() %>% 
+    group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
+    mutate(dom.spp.pl.ba = SPECIES_SYMBOL[which.max(spp.ba.pl)]) %>% 
+    ungroup()
+  return(a)
+}
 ## sum of BA equivalents
 ## TPA larch fraction - larch fraction variable that differentiates itself from shade-tolerance. 
 
@@ -43,7 +54,7 @@ larch.frac.tpa <- function(forestdata){
   a <- forestdata %>% 
     mutate(SPECIES_SYMBOL = as.factor(SPECIES_SYMBOL)) %>% 
     group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
-    mutate(larch.tpa.fraction.pl = (sum(tpa.pl.all[SPECIES_SYMBOL == "LAOC" & TPA_EQUIV != 0], na.rm = T))/(sum(tpa.pl.all[TPA_EQUIV != 0], na.rm = T))) %>% 
+    mutate(larch.tpa.fraction.pl = (sum(TPA_EQUIV.pl[SPECIES_SYMBOL == "LAOC" & TPA_EQUIV != 0], na.rm = T))/(sum(TPA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T))) %>% 
     ungroup()
   return(a)
 }

@@ -4,7 +4,7 @@ source('12.gam_fns.R')
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
-bai.train <- readRDS('data/bai.train.4_21_22.rds')
+bai.train <- readRDS('data/bai.train.5_23_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.size <- bai.train %>% 
@@ -48,7 +48,7 @@ bai.spmx <- bai.train %>%
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
          ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode, larch.ba.fraction.pl, shade.tol.pl) %>% 
+         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
