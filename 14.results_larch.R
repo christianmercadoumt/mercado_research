@@ -204,3 +204,31 @@ ggplot(data = bai.spmx.ids, aes(DIAMETER, log.bai)) +
   stat_function(data = subset(bai.site.ids, habclass == 5), 
                 fun = function(x){dcof[[1]] + dcof[[6]] + log(x)*dcof[[2]] + dcof[[3]]*x^2}) +
   geom_point(data = bai.spmx.ids, aes(DIAMETER, log.bai), alpha = 0.2)
+
+## extended abstract things ####
+
+#larch fraction
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+f1a <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = cm.sq*exp(est)-cm.sq)) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = cm.sq*exp(lower_ci)-cm.sq, ymax = cm.sq*exp(upper_ci)-cm.sq, x = larch.ba.fraction.pl)) + 
+  geom_line() +
+  labs(x = 'Larch proportion', y = NULL) +
+  scale_y_continuous(breaks = seq(-2, 8, by = 2)) + geom_hline(yintercept = 0, linetype = 'dashed')
+#shade tolerance
+f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = cm.sq*exp(est)-cm.sq)) +
+  geom_ribbon(alpha = 0.2, aes(ymin = cm.sq*exp(lower_ci)-cm.sq, ymax = cm.sq*exp(upper_ci)-cm.sq, x = shade.tol.pl)) + 
+  geom_line() +
+  labs(x = 'Shade intolerance', y = NULL) +
+  scale_y_continuous(breaks = seq(-2, 8, by = 2)) +
+  scale_x_continuous(n.breaks = 5) + geom_hline(yintercept = 0, linetype = 'dashed')
+
+a <- summary(re.tree.1)
+b <- summary(spmx.re.gam.lf)
+c <- summary(spmx.re.gam.st)
+d <- summary(site5a.2)
+RMSE <- c(my.rmse.2(site5a.2)[[2]], my.rmse.2(re.tree.1)[[2]], my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
+deviance.explained <- 100*c(d$dev.expl, a$dev.expl, b$dev.expl, c$dev.expl)
+models <- c('Base model', 'Base model w/ RE', 'Larch proportion', 'Shade-tolerance')

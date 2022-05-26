@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 
 source('14.results_larch.R')
+
+cm.sq <- 6.4516
+cm <- 2.54
 ```
 
 
@@ -18,12 +21,34 @@ rmse_size
 rmse_dcomp
 rmse_site
 rmse_re
-(rmse_spp_mix.t <- rmse_spp_mix %>% rename('Model' = 'model', 'RMSE \n selected model' = rmse.selected, 'RMSE \nselected alternative' = rmse.sel.alt, 'RMSE \n single best' = rmse.best1, 'RMSE \n FVS' = fvs))
+(rmse_spp.mix.in <- rmse_spp_mix %>% rename('Model' = 'model', 'RMSE \n selected model' = rmse.selected, 'RMSE \nselected alternative' = rmse.sel.alt, 'RMSE \n single best' = rmse.best1, 'RMSE \n FVS' = fvs))
+(rmse_spp_mix.t <- rmse_spp_mix %>% mutate(across(c(rmse.selected, rmse.sel.alt, rmse.best1, fvs), ~.x*cm.sq)) %>% rename('Model' = 'model', 'RMSE \n selected model' = rmse.selected, 'RMSE \nselected alternative' = rmse.sel.alt, 'RMSE \n single best' = rmse.best1, 'RMSE \n FVS' = fvs))
+
+rmse_spp_mix.cm <- rmse_spp_mix %>% mutate(across(c(rmse.selected), ~.x*cm.sq)) %>% select(model, rmse.selected) %>% rename('Model' = 'model', 'RMSE \n selected model' = rmse.selected) %>% filter(Model %in% c('NULL', 'Site', 'Random tree', 'Larch Fraction w/ RE', 'Shade tolerance w/ RE'))
+
+a <- summary(re.tree.1)
+b <- summary(spmx.re.gam.lf)
+c <- summary(spmx.re.gam.st)
+d <- summary(site5a.2)
+rmses <- c(my.rmse.2(site5a.2)[[2]], my.rmse.2(re.tree.1)[[2]], my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
+deviance.explained <- 100*c(d$dev.expl, a$dev.expl, b$dev.expl, c$dev.expl)
+models <- c('Base model', 'Base model w/ RE', 'Larch proportion', 'Shade-tolerance')
+
+tibble(models, rmses, deviance.explained)
+
 
 rmse_tb <- tableGrob(rmse_spp_mix.t)
 grid.newpage()
 grid.draw(rmse_tb)
 ```
+
+```{r}
+concurvity(re.tree.1)
+concrvity(re.tree.1, type = 'estimate', pairwise = T)
+concrvity(spmx.re.gam.lf, type = 'estimate', pairwise = T)
+concrvity(spmx.re.gam.st, type = 'estimate', pairwise = T)
+```
+
 
 ```{r partial response curves}
 lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
@@ -33,21 +58,24 @@ lf.a.smest <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl
 st.a.smest <- smooth_estimates(spmx.gam.alt.st, smooth = 's(shade.tol.pl)') %>% add_confint()
 
 wrk.st <- residuals.gam(spmx.gam.alt.st, type = 'working')
-str(spmx.gam.alt.st$smooth)
+#str(spmx.gam.alt.st$smooth)
 
 #larch fraction
-ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
-  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = cm.sq*exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = cm.sq*exp(lower_ci), ymax = cm.sq*exp(upper_ci), x = larch.ba.fraction.pl)) + 
   geom_line() +
-  labs(x = 'Larch ratio', y = 'BAI(in^2)')
+  labs(x = 'Larch ratio', y = 'BAI(cm^2)', title = 'BAI partial response to non-larch:larch') +
+  scale_y_continuous(breaks = seq(5, 13.5, by = 1)) + geom_hline(yintercept = cm.sq, linetype = 'dashed')
 #shade tolerance
-ggplot(st.smest, aes(x = shade.tol.pl, y = est)) +
-  geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci, x = shade.tol.pl)) + 
+ggplot(st.smest, aes(x = shade.tol.pl, y = cm.sq*exp(est))) +
+  geom_ribbon(alpha = 0.2, aes(ymin = cm.sq*exp(lower_ci), ymax = cm.sq*exp(upper_ci), x = shade.tol.pl)) + 
   geom_line() +
-  labs(x = 'Shade in-tolerance', y = 'BAI(in^2)') +
-  geom_point(data = st.prt, aes(x = shade.tol.pl, y = `s(shade.tol.pl)`))
-  
+  labs(x = 'Shade intolerance', y = 'BAI(cm^2)', title = 'BAI partial response to shade-intolerance') +
+  scale_y_continuous(breaks = seq(5, 13.5, by = 1)) + geom_hline(yintercept = cm.sq, linetype = 'dashed') #+
+  #geom_point(data = st.prt, aes(x = shade.tol.pl, y = `s(shade.tol.pl)`))
+```  
 
+```{r more partial response}
 draw(spmx.re.gam.lf, select = 8, rug = F, residuals = T)
 draw(spmx.re.gam.st, select = 8, rug = F, residuals = T)
 draw(spmx.re.gam.st, select = 8, rug = F, residuals = T, fun = exp)
@@ -71,6 +99,135 @@ ggplot(lf.a.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) +
 hist((1/(bai.spmx.ids$shade.tol.pl)))
 
 ```
+
+```{r diameter curves}
+dbh.smest.re <- smooth_estimates(re.tree.1, 's(DIAMETER)') %>% add_confint()
+dbh.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(DIAMETER)')
+dbh.smest.st <- smooth_estimates(spmx.re.gam.st, 's(DIAMETER)')
+
+dbh.smest.re.a <- smooth_estimates(re.tree.1alt, 's(DIAMETER)') %>% add_confint()
+dbh.smest.lf.a <- smooth_estimates(spmx.gam.alt.lf, 's(DIAMETER)')
+dbh.smest.st.a <- smooth_estimates(spmx.gam.alt.st, 's(DIAMETER)')
+
+ggplot() + 
+  geom_line(data = dbh.smest.re, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = dbh.smest.lf, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = dbh.smest.st, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'orange') #+ geom_ribbon(data = dbh.smest.re, aes(ymin = exp(est)-exp(se), ymax = exp(est)+exp(se), x = DIAMETER), linetype = 'dashed', outline.type = 'both', color = 'black', alpha = 0) 
+#+
+#   geom_ribbon(data = dbh.smest.lf, aes(ymin = est-se, ymax = est+se, x = DIAMETER), 
+#                        linetype = 'dashed', outline.type = 'both', color = 'blue', alpha = 0) +
+#   geom_ribbon(data = dbh.smest.st, aes(ymin = est-se, ymax = est+se, x = DIAMETER), 
+#                        linetype = 'dashed', outline.type = 'both', color = 'orange', alpha = 0) +
+  
+# draw(re.tree.1, select = 1, rug = F, fun = inv_link(re.tree.1))
+# 
+# ggplot() + 
+#   geom_line(data = dbh.smest.re, aes(x = DIAMETER, y = exp(est)), color = 'black') +
+#   geom_ribbon(data = dbh.smest.re, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = DIAMETER), 
+#                         linetype = 'dashed', outline.type = 'both', color = 'black', alpha = 0.2)
+
+ggplot() + 
+  geom_line(data = dbh.smest.re.a, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = dbh.smest.lf.a, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = dbh.smest.st.a, aes(x = DIAMETER*cm, y = cm.sq*exp(est)), color = 'orange')
+```
+
+```{r comp-dense curves}
+
+cr.smest.re <- smooth_estimates(re.tree.1, 's(cr)')
+cr.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(cr)')
+cr.smest.st <- smooth_estimates(spmx.re.gam.st, 's(cr)')
+
+
+
+bal.smest.re <- smooth_estimates(re.tree.1, 's(bal.pl.ratio)')
+bal.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(bal.pl.ratio)')
+bal.smest.st <- smooth_estimates(spmx.re.gam.st, 's(bal.pl.ratio)')
+
+
+
+ccf.smest.re <- smooth_estimates(re.tree.1, 's(ccf.pl)')
+ccf.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(ccf.pl)')
+ccf.smest.st <- smooth_estimates(spmx.re.gam.st, 's(ccf.pl)')
+
+
+
+ggplot() + 
+  geom_line(data = cr.smest.re, aes(x = cr, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = cr.smest.lf, aes(x = cr, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = cr.smest.st, aes(x = cr, y = cm.sq*exp(est)), color = 'orange')
+ggplot() + 
+  geom_line(data = bal.smest.re, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = bal.smest.lf, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = bal.smest.st, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'orange')
+ggplot() + 
+  geom_line(data = ccf.smest.re, aes(x = ccf.pl, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = ccf.smest.lf, aes(x = ccf.pl, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = ccf.smest.st, aes(x = ccf.pl, y = cm.sq*exp(est)), color = 'orange')
+
+
+
+```
+
+```{r alt }
+formula(re.tree.1alt)
+cr.smest.re.a <- smooth_estimates(re.tree.1alt, 's(cr)')
+cr.smest.lf.a <- smooth_estimates(spmx.gam.alt.lf, 's(cr)')
+cr.smest.st.a <- smooth_estimates(spmx.gam.alt.st, 's(cr)')
+
+bal.smest.re.a <- smooth_estimates(re.tree.1alt, 's(bal.pl.ratio)')
+bal.smest.lf.a <- smooth_estimates(spmx.gam.alt.lf, 's(bal.pl.ratio)')
+bal.smest.st.a <- smooth_estimates(spmx.gam.alt.st, 's(bal.pl.ratio)')
+
+ba.smest.re.a <- smooth_estimates(re.tree.1alt, 's(ba.pl)')
+ba.smest.lf.a <- smooth_estimates(spmx.gam.alt.lf, 's(ba.pl)')
+ba.smest.st.a <- smooth_estimates(spmx.gam.alt.st, 's(ba.pl)')
+
+ggplot() + 
+  geom_line(data = cr.smest.re.a, aes(x = cr, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = cr.smest.lf.a, aes(x = cr, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = cr.smest.st.a, aes(x = cr, y = cm.sq*exp(est)), color = 'orange')
+ggplot() + 
+  geom_line(data = bal.smest.re.a, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = bal.smest.lf.a, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = bal.smest.st.a, aes(x = bal.pl.ratio, y = cm.sq*exp(est)), color = 'orange')
+ggplot() + 
+  geom_line(data = ba.smest.re.a, aes(x = cm.sq*ba.pl, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = ba.smest.lf.a, aes(x = cm.sq*ba.pl, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = ba.smest.st.a, aes(x = cm.sq*ba.pl, y = cm.sq*exp(est)), color = 'orange')
+
+```
+
+
+```{r site curves}
+formula.gam(re.tree.1)
+
+#asp.smest.re <- smooth_estimates(re.tree.1, 's(asp_sin,asp_cos)')
+# asp.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(asp_sin, asp_cos)')
+# asp.smest.st <- smooth_estimates(spmx.re.gam.st, 's(asp_sin, asp_cos)')
+
+sl.smest.re <- smooth_estimates(re.tree.1, 's(slope_pct)')
+sl.smest.lf <- smooth_estimates(spmx.re.gam.lf, 's(slope_pct)')
+sl.smest.st <- smooth_estimates(spmx.re.gam.st, 's(slope_pct)')
+
+draw(re.tree.1, select = 's(asp_sin,asp_cos)', fun = function(x){cm.sq*exp(x)})
+draw(spmx.re.gam.lf, select = 's(asp_sin,asp_cos)', fun = cm.sq*exp)
+draw(spmx.re.gam.st, select = 's(asp_sin,asp_cos)', fun = cm.sq*exp)
+
+ggplot() + 
+  geom_line(data = sl.smest.re, aes(x = slope_pct, y = cm.sq*exp(est)), color = 'black') +
+  geom_line(data = sl.smest.lf, aes(x = slope_pct, y = cm.sq*exp(est)), color = 'blue') +
+  geom_line(data = sl.smest.st, aes(x = slope_pct, y = cm.sq*exp(est)), color = 'orange')
+
+```
+
+```{r site alt}
+draw(re.tree.1alt, select = 's(asp_sin,asp_cos)', fun = exp)
+draw(spmx.gam.alt.lf, select = 's(asp_sin,asp_cos)', fun = exp)
+draw(spmx.gam.alt.st, select = 's(asp_sin,asp_cos)', fun = exp)
+```
+
+
 
 ```{r size category curves}
 #size

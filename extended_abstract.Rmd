@@ -1,0 +1,48 @@
+---
+title: "Identifying and evaluating the effects of forest community composition on *Larix occidentalis* growth"
+author: "Christian Mercado"
+date: "5/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+cm.sq <- 6.4516
+cm <- 2.54
+source('14.results_larch.R')
+```
+
+Western larch (Larix occidentalis) is an important tree species that is exclusive to the inland northwest region of the United States and Canada; however, climate change may impact its future ability to grow within this region, making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research were: (i) identify whether community species composition impacts the growth of western larch after accounting for the effects of tree size, stand competition and density, and site conditions, (ii) identify if a shade-tolerance-based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch. 
+
+To accomplish these objectives, first, using generalized additive models (GAMs), an individual tree basal area increment (BAI) base-model was developed using variables already known to impact BAI. Explanatory variables were grouped together based on the attributes they represent: tree size, stand density & competition, and site characteristics. Variables were selected within each group based on their contribution to model accuracy, performance, and fit. Then, variables that account for species-mixture were applied to the base-model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric.
+
+Various alternative base-model formulations for estimating BAI were considered; variables selected for the base-model were tree diameter, crown competition factor (CCF), basal area larger than (BAL), crown ratio, slope, and aspect. Tree-level random intercepts were identified and added to the model to account for random variation prior to the addition of species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment \@ref(tab:table) (*FIG1*), although in relatively small amounts (*TABLE*). Their additions to the base-model did not greatly conflict with tree size, density, competition, or site variables. 
+
+```{r table}
+
+tb1 <- tibble(models, rmse, deviance.explained)
+g.tb1 <- tableGrob(tb1, rows = NULL)
+grid.newpage()
+grid.draw(g.tb1)
+
+```
+
+
+```{r species mix figures}
+
+grid.arrange(f1a, f1b,nrow = 1, left = textGrob(bquote('Effect'~(cm^2)), rot = 90), bottom = textGrob(hjust = 0.52,'Figure 1: Partial response curves for each respective species-mixing model term and its effect on estimated BAI.', gp = gpar(fontsize = 10)))
+
+```
+
+However, site variables displayed varying effects when each species-mixing variable was included (*FIG2?*)
+```{r slope partial response, include = F}
+(f2 <- ggplot() + 
+  geom_line(data = sl.smest.re, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'black') +
+  geom_line(data = sl.smest.lf, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'blue') +
+  geom_line(data = sl.smest.st, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'orange') +
+  theme(plot.caption = element_text(hjust = 0)) + labs(y = bquote('Effect'~(cm^2)), x = 'Percent slope', caption = 'Figure 2: Partial effect of slope on BAI for the base model (black) and its alternatives including larch proportion (blue) \nor shade tolerance (orange)'))
+  
+```
+
+
+
