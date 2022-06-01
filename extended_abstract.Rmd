@@ -1,48 +1,234 @@
 ---
-title: "Identifying and evaluating the effects of forest community composition on *Larix occidentalis* growth"
-author: "Christian Mercado"
-date: "5/24/2022"
-output: html_document
+title: \vspace{-0.75cm} \begin{normalsize} Identifying and evaluating the effects of forest community composition on western larch growth \end{normalsize}
+author: \begin{normalsize} Proposed authors - Christian Mercado, Dr. David Affleck \end{normalsize}
+output: pdf_document
+always_allow_html: yes
+toc: false
+bibliography: zotero_library.bib
+csl: forest-ecology-and-management.csl
+header-includes:
+   - \usepackage{caption}
+   - \captionsetup[figure]{font=scriptsize}
+   - \captionsetup[table]{font=scriptsize}
+   - \usepackage{wrapfig}
+   - \usepackage{lipsum}
+   - \usepackage{subfig}
+   - \usepackage{graphicx}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 cm.sq <- 6.4516
 cm <- 2.54
-source('14.results_larch.R')
+source('12.gam_fns.R')
+library(gratia)
+library(grid)
+library(gridExtra)
+library(kableExtra)
+library(xtable)
+library(stringr)
+library(EML)
+
+xtable2kable <- function(x) {
+  out <- capture.output(print(x, table.placement = NULL))[-(1:2)]
+  out <- paste(out, collapse = "\n")
+  structure(out, format = "latex", class = "knitr_kable")
+}
+
+fix_wrap_kable <- function(kbl) {
+
+  kbl <- kbl %>% 
+    str_remove(paste0("\\\\caption[{].+[}]\\n")) %>% # Removes the first caption
+    str_replace("\\\\end[{]tabular[}]",
+                paste0("\\\\end{tabular}\n\\\\caption{",attributes(kbl)$kable_meta$caption %>% # Adds the new caption using the string supplied in the kable 'caption' argument.
+                # The '{0,100}' is just a hack around lookbehind needing a set length, so the function will not work if the table label is longer 
+                         str_replace("(?<=[(]\\\\#.{0,300})[)]","}") %>% # Fixes and issue with pandoc syntax being mixed with LaTeX 
+                         str_replace("\\label[{]|[(]\\\\#","\\\\\\\\label{"),"}\n")) %>% # Adds an appropriate amount of backslashes before "\label"
+    set_attributes(attributes(kbl)) # Ensures that the returned object is still a kable
+  
+  attributes(kbl)$kable_meta$caption <- NA # Removes the caption from the metadata
+  
+  return(kbl)
+}
+
+a <- readRDS('data/model_objects.1/summary_re.tree.1')
+b <- readRDS('data/model_objects.1/summary_spmx.re.gam.lf.rds')
+c <- readRDS('data/model_objects.1/summary_spmx.re.gam.st.rds')
+
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+
+re.edf <- edf(re.tree.1)
+lf.edf <- edf(spmx.re.gam.lf)
+st.edf <- edf(spmx.re.gam.st)
+
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+f1a <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+  geom_line() +
+  labs(x = 'Larch proportion', y = NULL) +
+  scale_y_continuous(breaks = seq(0.6, 2.15, by = 0.2)) + geom_hline(yintercept = 1, linetype = 'dashed') +
+  theme(axis.title = element_text(size = 8))
+#shade tolerance
+f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl)) + 
+  geom_line() +
+  labs(x = 'Shade intolerance', y = NULL) +
+  scale_y_continuous(breaks = seq(0.6, 2.15, by = 0.2)) +
+  scale_x_continuous(n.breaks = 5) + geom_hline(yintercept = 1, linetype = 'dashed')+
+  theme(axis.title = element_text(size = 8))
+
+
+#draw(spmx.re.gam.lf, select = 1, rug = F, fun = function(x){cm.sq*exp(x)})
+#fig 1
+pgp_data_all <- readRDS('data/pgp_data_all.rds')
+
+mdbh <- pgp_data_all %>% filter(SPECIES_SYMBOL == 'LAOC', TPA_EQUIV.pl == 20) %>% group_by(SETTING_ID, myear) %>% summarise(mean_diam = mean(DIAMETER, na.rm = T)) %>% ungroup() %>% group_by(SETTING_ID) %>% mutate(st.mean.d=mean(mean_diam)) %>% ungroup() %>% 
+  mutate(cut = cut_number(st.mean.d, 3), 
+         yrs = 
+           case_when(myear < 1995 ~ 'early',
+                     myear >= 1995 & myear < 2005 ~ 'mid',
+                     myear > 2005 ~ 'late')) %>% 
+  group_by(cut, yrs) %>% mutate(ctyr_dbh = mean(st.mean.d), ctyr_myr = mean(myear))
+
+base.edf <- sum(re.edf$edf)
+base.sz.edf <- re.edf$edf[1]
+base.dcomp.edf <- sum(re.edf$edf[c(2,3,4)])
+base.sit.edf <- sum(re.edf$edf[c(5,6)])
+a$chi.sq
+
+lf.alledf <- sum(lf.edf$edf)
+lf.sz.edf <- lf.edf$edf[1]
+lf.dcomp.edf <- sum(lf.edf$edf[c(2,3,4)])
+lf.sit.edf <- sum(lf.edf$edf[c(5,6)])
+lf.lf <- lf.edf$edf[8]
+
+st.alledf <- sum(st.edf$edf)
+st.sz.edf <- st.edf$edf[1]
+st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
+st.sit.edf <- sum(st.edf$edf[c(5,6)])
+st.st <- st.edf$edf[8]
+
+RMSE <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA,3), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq,rep(NA,4), my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq, rep(NA,4))
+deviance.explained <- 100*c(a$dev.expl, rep(NA,3), b$dev.expl,rep(NA,4), c$dev.expl,rep(NA,4))
+EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.alledf, lf.sz.edf, lf.dcomp.edf, lf.sit.edf, lf.lf, st.alledf, st.sz.edf, st.dcomp.edf, st.sit.edf, st.st)
+models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model', c('Size', 'Density/competition', 'Site', 'Larch prop.'), 'Full model',c('Size', 'Density/competition', 'Site', 'Shade tol.'))
+
 ```
 
-Western larch (Larix occidentalis) is an important tree species that is exclusive to the inland northwest region of the United States and Canada; however, climate change may impact its future ability to grow within this region, making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research were: (i) identify whether community species composition impacts the growth of western larch after accounting for the effects of tree size, stand competition and density, and site conditions, (ii) identify if a shade-tolerance-based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch. 
+# Introduction
 
-To accomplish these objectives, first, using generalized additive models (GAMs), an individual tree basal area increment (BAI) base-model was developed using variables already known to impact BAI. Explanatory variables were grouped together based on the attributes they represent: tree size, stand density & competition, and site characteristics. Variables were selected within each group based on their contribution to model accuracy, performance, and fit. Then, variables that account for species-mixture were applied to the base-model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric.
+Western larch (*Larix occidentalis*) is an important tree species that is exclusive to the inland northwest region of the United States and Canada [@Knudsen1968; @Schmidt1976; @Schmidt1995]; however, climate change may impact its future ability to grow within this region [@Rehfeldt2010], making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species [@Baker1949; @Schmidt1988]. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships[@Forrester2017; @Riofrio2017]. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research are: (i) identify whether community \begin{wrapfigure}[17]{l}{8cm}
+  \vspace{-10pt}
+  \centering
+    \includegraphics[width=7cm]{data/ext_abstract_fig1.png}
+    \caption[width=7cm]{Average stand diameter for each measurement over time where dark transparent lines each represent a stand and colored lines represent linear trend of diameter over time for different diameter groups (small, medium, large).}
+    \label{fig:fig1}
+    \vspace{-5pt}
+\end{wrapfigure}
+species composition impacts the growth of western larch after accounting for other influential factors, (ii) identify if a shade-tolerance based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch (if an effect is observed).
 
-Various alternative base-model formulations for estimating BAI were considered; variables selected for the base-model were tree diameter, crown competition factor (CCF), basal area larger than (BAL), crown ratio, slope, and aspect. Tree-level random intercepts were identified and added to the model to account for random variation prior to the addition of species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment \@ref(tab:table) (*FIG1*), although in relatively small amounts (*TABLE*). Their additions to the base-model did not greatly conflict with tree size, density, competition, or site variables. 
+# Methods
 
-```{r table}
+To establish a monitoring protocol for FVS models, the USDA Forest Service Region 1 developed a network of long-term permanent growth plot clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho). Various stand measurements were initialized and then remeasured at \~5 year increments between 1980 and 2002. The program was then paused, and was only recently revisited in 2018 and 2021, creating a wide gap between recent measurements and reducing consistency of measurement intervals. Each PGP stand consists of 4 plot-clusters, their locations were determined by random selection of (x,y) coordinates on a grid laid over a map of the stand. Every cluster is comprised of three \~202$m^2$ large-tree, fixed-radius plots, with each plot containing three \~13.5 $m^2$ small tree fixed-radius sub-plots. Data from 18 of these stands, all within Montana, were used in this study, which includes 2,381 unique western larch trees analyzed over time. Tree size varied across stands over time as seen in *Figure 1*. A portion of data was withheld prior to model-fitting for the purpose of validation.
 
-tb1 <- tibble(models, rmse, deviance.explained)
-g.tb1 <- tableGrob(tb1, rows = NULL)
-grid.newpage()
-grid.draw(g.tb1)
 
+
+```{r figure1, include=F, out.width='.49\\linewidth', fig.align='left', fig.cap='Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)', fig.ncol=1}
+
+
+figure1 <- ggplot(mdbh, aes(x = myear, y = mean_diam*2.54, group = SETTING_ID)) + geom_point(alpha = 0.2) + geom_line(alpha = 0.2) + labs(y = 'Stand large tree mean diameter (cm)', x='Measurement year') + geom_smooth(inherit.aes = F, method = 'lm', aes(x = myear, y = mean_diam*2.54, color = cut), se = F, linetype = 'F1', alpha = 0.5) + theme(legend.position = 'none', plot.caption.position = 'plot', plot.caption = element_text(hjust = 0))
+figure1
+# fig1.cap <- textGrob('Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)')
+# arrangeGrob(grobs = list(figure1, fig1.cap), )
+# grid.arrange(figure1, bottom = fig1.cap)
+#ggsave('data/ext_abstract_fig1.png')
+#+ geom_point(inherit.aes = F,aes(y = ctyr_dbh*2.54, x = ctyr_myr, color = cut)) + geom_line(inherit.aes = F, aes(y = ctyr_dbh*2.54, x = ctyr_myr, color = cut))
 ```
 
+With these data, an individual tree basal area increment (BAI) model was fit using a generalized additive mixed model-driven (GAMM) approach. Explanatory variables considered in the model were grouped together based on the attributes they represent: tree size, stand density, competition, and site characteristics [@Wykoff1990; @Vospernik2021]. Variables were compared and selected 
+within each group based on their contribution to model accuracy and fit to establish a base-model. Random effects were evaluated at different hierarchies and incorporated into this base model. Then, variables that account for species-mixture were applied to the model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric, where a shade tolerance index [@Lienard2015] was used to quantify species shade tolerance and then inverted for scaling.
 
-```{r species mix figures}
+# Results
 
-grid.arrange(f1a, f1b,nrow = 1, left = textGrob(bquote('Effect'~(cm^2)), rot = 90), bottom = textGrob(hjust = 0.52,'Figure 1: Partial response curves for each respective species-mixing model term and its effect on estimated BAI.', gp = gpar(fontsize = 10)))
+Various alternative base-model formulations for estimating BAI were considered variables selected were: tree diameter, crown competition factor (CCF), basal area larger than (BAL; represented with a ratio), crown ratio, slope, and aspect. Out of all variables selected, Diameter contributed the most to estimating basal area increment, and the nonlinear relationship identified here resembled previously identified parametric relationships between diameter and BAI. Tree-level random intercepts were added to the model to account for random variation prior to including species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment (*Fig.2*) after accounting for other effects (*Table 1*).
+```{r table1, include = T, results='asis'}
 
+tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
+
+
+
+#tb1 %>% 
+xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') %>% xtable2kable() %>% 
+  kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
+  pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
+  collapse_rows(columns = c(3,4), latex_hline = 'linespace')
+  
+
+  # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
+#xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') 
+``` 
+Their additions to the base-model did not greatly conflict with tree size, density, competition, or site variables.
+
+
+
+This work is currently ongoing, and thus more results are to come. For instance, the withheld data will be used to assess the ability to generalize the variable effects identified by this model to other independent data. Further, the portion of the PGP data set used here also contains numerous tree records for Douglas-fir and subalpine fir, both of which are more shade-tolerant than western larch. By performing these analyses on other tree species across the shade-tolerance spectrum, we could further describe and/or nuance the results identified above.
+
+```{r figure2, include = T, fig.align='center', fig.dim=c(4, 1.8), fig.cap='Partial response curves for each respective species-mixing model term and its effect on BAI. The horizontal dashed line represents a threshold of positive/negative effects.'}
+
+fig2 <- grid.arrange(f1a, f1b,nrow = 1, left = textGrob('Effect', rot = 90, gp = gpar(fontsize = 8)))
+
+# ggsave('data/fig2.extabs.png')
+# 
+# knitr::include_graphics('data/fig2.extabs.png')
+
+# , bottom = textGrob(hjust = 0.52,'Figure 2: Partial response curves for each respective species-mixing model term and its effect on BAI. The horizontal dashed line represents.', gp = gpar(fontsize = 8))
 ```
 
-However, site variables displayed varying effects when each species-mixing variable was included (*FIG2?*)
+\newpage
+
+# References
+
+
+
+
 ```{r slope partial response, include = F}
-(f2 <- ggplot() + 
-  geom_line(data = sl.smest.re, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'black') +
-  geom_line(data = sl.smest.lf, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'blue') +
-  geom_line(data = sl.smest.st, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'orange') +
-  theme(plot.caption = element_text(hjust = 0)) + labs(y = bquote('Effect'~(cm^2)), x = 'Percent slope', caption = 'Figure 2: Partial effect of slope on BAI for the base model (black) and its alternatives including larch proportion (blue) \nor shade tolerance (orange)'))
+# However, site variables displayed varying effects when each species-mixing variable was included (*FIG2?*)
+# (f2 <- ggplot() + 
+#   geom_line(data = sl.smest.re, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'black') +
+#   geom_line(data = sl.smest.lf, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'blue') +
+#   geom_line(data = sl.smest.st, aes(x = slope_pct, y = cm.sq*exp(est)-cm.sq), color = 'orange') +
+#   theme(plot.caption = element_text(hjust = 0)) + labs(y = bquote('Effect'~(cm^2)), x = 'Percent slope', caption = 'Figure 2: Partial effect of slope on BAI for the base model (black) and its alternatives including larch proportion (blue) \nor shade tolerance (orange)'))
   
 ```
 
-
-
+```{r, include = F}
+# abbc <- tb1 %>% 
+#   kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T) %>% 
+#     str_remove(paste0("\\\\caption[{].+[}]\\n")) %>% # Removes the first caption
+#     str_replace("\\\\end[{]tabular[}]",
+#                 paste0("\\\\end{tabular}\n\\\\caption{",attributes(.)$kable_meta$caption %>% # Adds the new caption using the string supplied in the kable 'caption' argument.
+#                 # The '{0,100}' is just a hack around lookbehind needing a set length, so the function will not work if the table label is longer 
+#                          str_replace("(?<=[(]\\\\#.{0,300})[)]","}") %>% # Fixes and issue with pandoc syntax being mixed with LaTeX 
+#                          str_replace("\\label[{]|[(]\\\\#","\\\\\\\\label{"),"}\n"))
+# 
+# tb1 %>% 
+#   kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T) %>% kable_styling(latex_options = 'hold_position', bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
+#   pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
+#   collapse_rows(columns = c(3,4), latex_hline = 'linespace') %>% 
+#     str_remove(paste0("\\\\caption[{].+[}]\\n")) %>% # Removes the first caption
+#     str_replace("\\\\end[{]tabular[}]",
+#                 paste0("\\\\end{tabular}\n\\\\caption{",attributes(.)$kable_meta$caption %>% # Adds the new caption using the string supplied in the kable 'caption' argument.
+#                 # The '{0,100}' is just a hack around lookbehind needing a set length, so the function will not work if the table label is longer 
+#                          str_replace("(?<=[(]\\\\#.{0,100})[)]","}") %>% # Fixes and issue with pandoc syntax being mixed with LaTeX 
+#                          str_replace("\\label[{]|[(]\\\\#","\\\\\\\\label{"),"}\n")) %>% # Adds an appropriate amount of backslashes before "\label"
+#     set_attributes(attributes(abb)) # Ensures that the returned object is still a kable
+#   
+#   attributes(tb1)$kable_meta$caption <- NA # Removes the caption from the metadata
+#   
+#   return(kbl)
+```

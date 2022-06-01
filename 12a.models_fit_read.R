@@ -145,3 +145,6 @@ fvs.sz.cmp <- gam(bai~I(ccf.pl/100) + log.diam + I(bal.pl/100) + cr + I(cr^2) + 
 
 #fvs size
 fvs.size1 <- gam(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+
+#fvs re
+fvs.full.re <- readRDS('data/model_objects.1/fvs.full.re.rds')
