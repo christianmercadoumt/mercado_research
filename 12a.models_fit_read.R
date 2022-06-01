@@ -80,10 +80,44 @@ re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
 re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
 re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 
+# re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
+#                    s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'), 
+#                  family = 'Gamma'(link = log), 
+#                  data = bai.spmx.ids, method = 'ML')
+
+nosite.base <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + 
+                     s(unique_tree_id, bs = 're'),
+                   family = 'Gamma'(link = log),
+                   data = bai.spmx.ids, method = 'ML')
+saveRDS(nosite.base, 'data/model_objects.1/nosite.base.RDS')
+saveRDS(nosite.base, 'C:/Users/cm165878/Box/research_/nosite.base.RDS')
+
+nocomp.base <- gam(bai~s(DIAMETER) + s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'),
+                   family = 'Gamma'(link = log),
+                   data = bai.spmx.ids, method = 'ML')
+saveRDS(nocomp.base, 'data/model_objects.1/nocomp.base.RDS')
+saveRDS(nocomp.base, 'C:/Users/cm165878/Box/research_/nocomp.base.RDS')
+
+nosize.base <- gam(bai~s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
+                     s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'),
+                   family = 'Gamma'(link = log),
+                   data = bai.spmx.ids, method = 'ML')
+saveRDS(nosize.base, 'data/model_objects.1/nosize.base.RDS')
+saveRDS(nosize.base, 'C:/Users/cm165878/Box/research_/nosize.base.RDS')
+
+## swap out unique_tree_id for stand, cluster, plot ids
+
 #larch fraction - selected with random
 spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+# spmx.re.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + 
+#       s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl) + s(unique_tree_id, bs = 're'), 
+#     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+
 #shade tol - selected with random
 spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+# spmx.re.gam.st <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + 
+#       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
+#     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
 #larch fraction - alternative with random 
 spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
