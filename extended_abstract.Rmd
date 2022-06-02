@@ -116,26 +116,34 @@ st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
 st.sit.edf <- sum(st.edf$edf[c(5,6)])
 st.st <- st.edf$edf[8]
 
-RMSE <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA,3), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq,rep(NA,4), my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq, rep(NA,4))
-deviance.explained <- 100*c(a$dev.expl, rep(NA,3), b$dev.expl,rep(NA,4), c$dev.expl,rep(NA,4))
-EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.alledf, lf.sz.edf, lf.dcomp.edf, lf.sit.edf, lf.lf, st.alledf, st.sz.edf, st.dcomp.edf, st.sit.edf, st.st)
-models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model', c('Size', 'Density/competition', 'Site', 'Larch prop.'), 'Full model',c('Size', 'Density/competition', 'Site', 'Shade tol.'))
+
 
 ```
 
 # Introduction
 
 Western larch (*Larix occidentalis*) is an important tree species that is 
-exclusive to the inland northwest region of the United States and Canada [@Knudsen1968; @Schmidt1976; @Schmidt1995]; however, climate change may impact its future ability to grow within this region [@Rehfeldt2010], making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species [@Baker1949; @Schmidt1988]. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships[@Forrester2017; @Riofrio2017]. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research are: (i) identify whether community species composition impacts the growth 
-\begin{wrapfigure}[17]{l}{8cm}
-  \vspace{-10pt}
-  \centering
-    \includegraphics[width=7cm]{data/ext_abstract_fig1.png}
-    \caption[width=7cm]{Mean diameter for each stand at each measurement over time.}
-    \label{fig:fig1}
-    \vspace{-5pt}
-\end{wrapfigure}
-of western larch after accounting for other influential factors, (ii) identify if a shade-tolerance based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch (if an effect is observed).
+exclusive to the inland northwest region of the United States and 
+Canada [@Knudsen1968; @Schmidt1976; @Schmidt1995]; however, climate change 
+may impact its future ability to grow within this region [@Rehfeldt2010], 
+making it if critical importance to understand how this species grows. 
+Western larch is very intolerant of shade, and grows across a wide range 
+of communities with both shade-tolerant and -intolerant species [@Baker1949; @Schmidt1988]. 
+A growing body of evidence suggests that mixing species traits in mixed-species 
+forest communities can impact tree growth relationships[@Forrester2017; @Riofrio2017]. 
+Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] 
+help evaluate management alternatives and aid in understanding how forests grow 
+and change over time, but do not explicitly address how community species 
+composition might impact tree growth. This study aims to identify and evaluate 
+if and how western larch growth varies across a range of species mixtures using 
+a unique long-term forest inventory data set that is distributed across forest 
+lands in Montana. The objectives of this research are: 
+(i) identify whether community species composition impacts the growth 
+of western larch after accounting for other influential factors, 
+(ii) identify if a shade-tolerance based species-mixing metric uniquely 
+captures a species-mixing effect on growth when compared to a less 
+specific relative abundance metric, and (iii) quantify the degree to which 
+species-mixing impacts the growth of western larch (if an effect is observed).
 
 # Methods
 
@@ -162,15 +170,26 @@ figure1
  \btabbox{%
 ```{r table1, include = T, fig.align='right', results='asis'}
 
+RMSE <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA,3), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq,rep(NA,4), my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq, rep(NA,4))
+deviance.explained <- 100*c(a$dev.expl, rep(NA,3), b$dev.expl,rep(NA,4), c$dev.expl,rep(NA,4))
+EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.alledf, lf.sz.edf, lf.dcomp.edf, lf.sit.edf, lf.lf, st.alledf, st.sz.edf, st.dcomp.edf, st.sit.edf, st.st)
+models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model', c('Size', 'Density/competition', 'Site', 'Larch prop.'), 'Full model',c('Size', 'Density/competition', 'Site', 'Shade tol.'))
+
+models <- c('Base model', 'Size', 'Competition/Density', 'Site', 'Base model + %WL', 'Base model + Shade')
+EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.lf, st.st)
+dev <- 
+
 tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
+
 
 
 
 tb1 %>% 
   kable(format = 'latex', booktabs = T) %>% 
-  kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
+  kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = T, font_size = 8, position = 'float_left') %>% 
   pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
-  collapse_rows(columns = c(3,4), latex_hline = 'linespace')
+  collapse_rows(columns = c(3,4), latex_hline = 'linespace') %>% 
+  column_spec()
   
 
   # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
