@@ -1,7 +1,9 @@
 ---
 title: \vspace{-0.75cm} \begin{normalsize} Identifying and evaluating the effects of forest community composition on western larch growth \end{normalsize}
 author: \begin{normalsize} Proposed authors - Christian Mercado, Dr. David Affleck \end{normalsize}
-output: pdf_document
+output: 
+  pdf_document:
+    keep_tex: true
 always_allow_html: yes
 toc: false
 bibliography: zotero_library.bib
@@ -14,6 +16,7 @@ header-includes:
    - \usepackage{lipsum}
    - \usepackage{subfig}
    - \usepackage{graphicx}
+   - \usepackage{floatrow}
 ---
 
 ```{r setup, include=FALSE}
@@ -87,7 +90,7 @@ f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
 #fig 1
 pgp_data_all <- readRDS('data/pgp_data_all.rds')
 
-mdbh <- pgp_data_all %>% filter(SPECIES_SYMBOL == 'LAOC', TPA_EQUIV.pl == 20) %>% group_by(SETTING_ID, myear) %>% summarise(mean_diam = mean(DIAMETER, na.rm = T)) %>% ungroup() %>% group_by(SETTING_ID) %>% mutate(st.mean.d=mean(mean_diam)) %>% ungroup() %>% 
+mdbh <- pgp_data_all %>% filter(SPECIES_SYMBOL == 'LAOC', TPA_EQUIV.pl != 0) %>% group_by(SETTING_ID, myear) %>% summarise(mean_diam = mean(DIAMETER, na.rm = T)) %>% ungroup() %>% group_by(SETTING_ID) %>% mutate(st.mean.d=mean(mean_diam)) %>% ungroup() %>% 
   mutate(cut = cut_number(st.mean.d, 3), 
          yrs = 
            case_when(myear < 1995 ~ 'early',
@@ -123,26 +126,31 @@ models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model',
 # Introduction
 
 Western larch (*Larix occidentalis*) is an important tree species that is 
-exclusive to the inland northwest region of the United States and Canada [@Knudsen1968; @Schmidt1976; @Schmidt1995]; however, climate change may impact its future ability to grow within this region [@Rehfeldt2010], making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species [@Baker1949; @Schmidt1988]. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships[@Forrester2017; @Riofrio2017]. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research are: (i) identify whether community \begin{wrapfigure}[17]{l}{8cm}
+exclusive to the inland northwest region of the United States and Canada [@Knudsen1968; @Schmidt1976; @Schmidt1995]; however, climate change may impact its future ability to grow within this region [@Rehfeldt2010], making it if critical importance to understand how this species grows. Western larch is very intolerant of shade, and grows across a wide range of communities with both shade-tolerant and -intolerant species [@Baker1949; @Schmidt1988]. A growing body of evidence suggests that mixing species traits in mixed-species forest communities can impact tree growth relationships[@Forrester2017; @Riofrio2017]. Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] help evaluate management alternatives and aid in understanding how forests grow and change over time, but do not explicitly address how community species composition might impact tree growth. This study aims to identify and evaluate if and how western larch growth varies across a range of species mixtures using a unique long-term forest inventory data set that is distributed across forest lands in Montana. The objectives of this research are: (i) identify whether community species composition impacts the growth 
+\begin{wrapfigure}[17]{l}{8cm}
   \vspace{-10pt}
   \centering
     \includegraphics[width=7cm]{data/ext_abstract_fig1.png}
-    \caption[width=7cm]{Average stand diameter for each measurement over time where dark transparent lines each represent a stand and colored lines represent linear trend of diameter over time for different diameter groups (small, medium, large).}
+    \caption[width=7cm]{Mean diameter for each stand at each measurement over time.}
     \label{fig:fig1}
     \vspace{-5pt}
 \end{wrapfigure}
-species composition impacts the growth of western larch after accounting for other influential factors, (ii) identify if a shade-tolerance based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch (if an effect is observed).
+of western larch after accounting for other influential factors, (ii) identify if a shade-tolerance based species-mixing metric uniquely captures a species-mixing effect on growth when compared to a less specific relative abundance metric, and (iii) quantify the degree to which species-mixing impacts the growth of western larch (if an effect is observed).
 
 # Methods
 
 To establish a monitoring protocol for FVS models, the USDA Forest Service Region 1 developed a network of long-term permanent growth plot clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho). Various stand measurements were initialized and then remeasured at \~5 year increments between 1980 and 2002. The program was then paused, and was only recently revisited in 2018 and 2021, creating a wide gap between recent measurements and reducing consistency of measurement intervals. Each PGP stand consists of 4 plot-clusters, their locations were determined by random selection of (x,y) coordinates on a grid laid over a map of the stand. Every cluster is comprised of three \~202$m^2$ large-tree, fixed-radius plots, with each plot containing three \~13.5 $m^2$ small tree fixed-radius sub-plots. Data from 18 of these stands, all within Montana, were used in this study, which includes 2,381 unique western larch trees analyzed over time. Tree size varied across stands over time as seen in *Figure 1*. A portion of data was withheld prior to model-fitting for the purpose of validation.
 
 
+\newfloatcommand{btabbox}{table}
 
-```{r figure1, include=F, out.width='.49\\linewidth', fig.align='left', fig.cap='Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)', fig.ncol=1}
+\begin{figure}[H]
+  \begin{floatrow}
+    \ffigbox{%
+```{r figure1, include=T, fig.align='right'}
+# mdbh
 
-
-figure1 <- ggplot(mdbh, aes(x = myear, y = mean_diam*2.54, group = SETTING_ID)) + geom_point(alpha = 0.2) + geom_line(alpha = 0.2) + labs(y = 'Stand large tree mean diameter (cm)', x='Measurement year') + geom_smooth(inherit.aes = F, method = 'lm', aes(x = myear, y = mean_diam*2.54, color = cut), se = F, linetype = 'F1', alpha = 0.5) + theme(legend.position = 'none', plot.caption.position = 'plot', plot.caption = element_text(hjust = 0))
+figure1 <- ggplot(mdbh, aes(x = myear, y = mean_diam*2.54, group = SETTING_ID)) + geom_point(alpha = 0.9) + geom_line(alpha = 0.8) + labs(y = 'Stand mean diameter (cm)', x='Measurement year') +  theme(legend.position = 'none', plot.caption.position = 'plot', plot.caption = element_text(hjust = 0)) + theme_bw()
 figure1
 # fig1.cap <- textGrob('Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)')
 # arrangeGrob(grobs = list(figure1, fig1.cap), )
@@ -150,6 +158,27 @@ figure1
 #ggsave('data/ext_abstract_fig1.png')
 #+ geom_point(inherit.aes = F,aes(y = ctyr_dbh*2.54, x = ctyr_myr, color = cut)) + geom_line(inherit.aes = F, aes(y = ctyr_dbh*2.54, x = ctyr_myr, color = cut))
 ```
+}{\caption{Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)}}
+ \btabbox{%
+```{r table1, include = T, fig.align='right', results='asis'}
+
+tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
+
+
+
+tb1 %>% 
+  kable(format = 'latex', booktabs = T) %>% 
+  kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
+  pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
+  collapse_rows(columns = c(3,4), latex_hline = 'linespace')
+  
+
+  # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
+#xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') 
+``` 
+    }{\caption{Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below"}}
+  \end{floatrow}
+\end{figure}
 
 With these data, an individual tree basal area increment (BAI) model was fit using a generalized additive mixed model-driven (GAMM) approach. Explanatory variables considered in the model were grouped together based on the attributes they represent: tree size, stand density, competition, and site characteristics [@Wykoff1990; @Vospernik2021]. Variables were compared and selected 
 within each group based on their contribution to model accuracy and fit to establish a base-model. Random effects were evaluated at different hierarchies and incorporated into this base model. Then, variables that account for species-mixture were applied to the model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric, where a shade tolerance index [@Lienard2015] was used to quantify species shade tolerance and then inverted for scaling.
@@ -157,7 +186,7 @@ within each group based on their contribution to model accuracy and fit to estab
 # Results
 
 Various alternative base-model formulations for estimating BAI were considered variables selected were: tree diameter, crown competition factor (CCF), basal area larger than (BAL; represented with a ratio), crown ratio, slope, and aspect. Out of all variables selected, Diameter contributed the most to estimating basal area increment, and the nonlinear relationship identified here resembled previously identified parametric relationships between diameter and BAI. Tree-level random intercepts were added to the model to account for random variation prior to including species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment (*Fig.2*) after accounting for other effects (*Table 1*).
-```{r table1, include = T, results='asis'}
+```{r table1_no, include = F, results='asis'}
 
 tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
 
