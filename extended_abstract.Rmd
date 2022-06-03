@@ -61,6 +61,9 @@ c <- readRDS('data/model_objects.1/summary_spmx.re.gam.st.rds')
 re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
 spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
+nocomp.base <- readRDS('data/model_objects.1/nocomp.base.RDS')
+nosite.base <- readRDS('data/model_objects.1/nosite.base.RDS')
 
 re.edf <- edf(re.tree.1)
 lf.edf <- edf(spmx.re.gam.lf)
@@ -170,32 +173,37 @@ figure1
  \btabbox{%
 ```{r table1, include = T, fig.align='right', results='asis'}
 
-RMSE <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA,3), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq,rep(NA,4), my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq, rep(NA,4))
-deviance.explained <- 100*c(a$dev.expl, rep(NA,3), b$dev.expl,rep(NA,4), c$dev.expl,rep(NA,4))
-EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.alledf, lf.sz.edf, lf.dcomp.edf, lf.sit.edf, lf.lf, st.alledf, st.sz.edf, st.dcomp.edf, st.sit.edf, st.st)
-models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model', c('Size', 'Density/competition', 'Site', 'Larch prop.'), 'Full model',c('Size', 'Density/competition', 'Site', 'Shade tol.'))
+# RMSE <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA,3), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq,rep(NA,4), my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq, rep(NA,4))
+# deviance.explained <- 100*c(a$dev.expl, rep(NA,3), b$dev.expl,rep(NA,4), c$dev.expl,rep(NA,4))
+# EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.alledf, lf.sz.edf, lf.dcomp.edf, lf.sit.edf, lf.lf, st.alledf, st.sz.edf, st.dcomp.edf, st.sit.edf, st.st)
+# models <- c('Full model',c('Size', 'Density/competition', 'Site'), 'Full model', c('Size', 'Density/competition', 'Site', 'Larch prop.'), 'Full model',c('Size', 'Density/competition', 'Site', 'Shade tol.'))
 
-models <- c('Base model', 'Size', 'Competition/Density', 'Site', 'Base model + %WL', 'Base model + Shade')
+models <- c('Full model', 'Size', 'Comp.', 'Site', 'WL ratio', 'Shade')
 EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, lf.lf, st.st)
-dev <- 
+dev <- c(re.tree.1$deviance, re.tree.1$deviance-c(nosize.base$deviance, nocomp.base$deviance, nosite.base$deviance), spmx.re.gam.lf$deviance, spmx.re.gam.st$deviance)
+rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 3), my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
 
-tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
+tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance'= dev, 'Model RMSE (cm\u00B2)' = rmse.mods)
 
 
 
 
 tb1 %>% 
-  kable(format = 'latex', booktabs = T) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 2, 2, 5)) %>% 
   kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = T, font_size = 8, position = 'float_left') %>% 
-  pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
-  collapse_rows(columns = c(3,4), latex_hline = 'linespace') %>% 
-  column_spec()
+  group_rows(index = c('Base model' = 4, 'Species-mix' = 2)) %>% 
+  add_indent(c(2,3,4)) %>% 
+  column_spec(1, width = '8em', latex_valign = 'm') %>% 
+  column_spec(2, bold = ifelse(EDF > 40, TRUE, FALSE), width = '4em', latex_valign = 'm') %>% 
+  column_spec(3, bold = ifelse(dev > 600, T, F), width = '4em', latex_valign = 'm') %>% 
+  column_spec(4, bold = T, width = '5em') %>% 
+  gsub('NA', '', .)
   
-
+# pack_rows(index = c('Base model' = 4, 'Species-mixing' = 2))
   # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
 #xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') 
 ``` 
-    }{\caption{Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below"}}
+    }{\caption{Effective degrees of freedom (EDF), deviance, and RMSE for the base model, the model including larch proportion, and the model including shade-intolerance. EDF and deviance values are displayed for the full model, and broken out by variable categories below. Bolded numbers represent full-model metrics and non-bold numbers represent variable group and/or a single variable quantities.}}
   \end{floatrow}
 \end{figure}
 
@@ -207,15 +215,15 @@ within each group based on their contribution to model accuracy and fit to estab
 Various alternative base-model formulations for estimating BAI were considered variables selected were: tree diameter, crown competition factor (CCF), basal area larger than (BAL; represented with a ratio), crown ratio, slope, and aspect. Out of all variables selected, Diameter contributed the most to estimating basal area increment, and the nonlinear relationship identified here resembled previously identified parametric relationships between diameter and BAI. Tree-level random intercepts were added to the model to account for random variation prior to including species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment (*Fig.2*) after accounting for other effects (*Table 1*).
 ```{r table1_no, include = F, results='asis'}
 
-tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
-
-
-
-#tb1 %>% 
-xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') %>% xtable2kable() %>% 
-  kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
-  pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
-  collapse_rows(columns = c(3,4), latex_hline = 'linespace')
+# tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
+# 
+# 
+# 
+# #tb1 %>% 
+# xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') %>% xtable2kable() %>% 
+#   kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = F, font_size = 8, position = 'float_left') %>% 
+#   pack_rows(index = c('Base model' = 4, 'Larch proportion' = 5, 'Shade-tolerance' = 5)) %>% 
+#   collapse_rows(columns = c(3,4), latex_hline = 'linespace')
   
 
   # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)

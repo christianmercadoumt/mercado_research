@@ -429,9 +429,11 @@ larch.frac.tpa(bai.train) %>% select(larch.ba.fraction.pl, larch.tpa.fraction.pl
 
 ```{r}
 re.tree.1
-nosize.base
-nocomp.base
-nosite.base
+d <- summary(nosize.base)
+e <- summary(nocomp.base)
+f <- summary(nosite.base)
+
+
 
 deviance(re.tree.1)
 deviance(nosize.base)
