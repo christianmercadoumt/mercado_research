@@ -12,7 +12,6 @@ header-includes:
    - \usepackage{caption}
    - \captionsetup[figure]{font=scriptsize}
    - \captionsetup[table]{font=scriptsize}
-   - \usepackage{wrapfig}
    - \usepackage{lipsum}
    - \usepackage{subfig}
    - \usepackage{graphicx}
@@ -119,7 +118,7 @@ st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
 st.sit.edf <- sum(st.edf$edf[c(5,6)])
 st.st <- st.edf$edf[8]
 
-
+   # - \usepackage{wrapfig}
 
 ```
 
@@ -152,13 +151,14 @@ species-mixing impacts the growth of western larch (if an effect is observed).
 
 To establish a monitoring protocol for FVS models, the USDA Forest Service Region 1 developed a network of long-term permanent growth plot clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho). Various stand measurements were initialized and then remeasured at \~5 year increments between 1980 and 2002. The program was then paused, and was only recently revisited in 2018 and 2021, creating a wide gap between recent measurements and reducing consistency of measurement intervals. Each PGP stand consists of 4 plot-clusters, their locations were determined by random selection of (x,y) coordinates on a grid laid over a map of the stand. Every cluster is comprised of three \~202$m^2$ large-tree, fixed-radius plots, with each plot containing three \~13.5 $m^2$ small tree fixed-radius sub-plots. Data from 18 of these stands, all within Montana, were used in this study, which includes 2,381 unique western larch trees analyzed over time. Tree size varied across stands over time as seen in *Figure 1*. A portion of data was withheld prior to model-fitting for the purpose of validation.
 
+With these data, an individual tree basal area increment (BAI) model was fit using a generalized additive mixed model-driven (GAMM) approach. Explanatory variables considered in the model were grouped together based on the attributes they represent: tree size, stand density, competition, and site characteristics [@Wykoff1990; @Vospernik2021]. Variables were compared and selected 
+within each group based on their contribution to model accuracy and fit to establish a base-model. Random effects were evaluated at different hierarchies and incorporated into this base model. Then, variables that account for species-mixture were applied to the model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric, where a shade tolerance index [@Lienard2015] was used to quantify species shade tolerance and then inverted for scaling.
 
 \newfloatcommand{btabbox}{table}
-
 \begin{figure}[H]
   \begin{floatrow}
     \ffigbox{%
-```{r figure1, include=T, fig.align='right'}
+```{r figure1, include=T, fig.align='center', fig.width=2.5, fig.height=2.2}
 # mdbh
 
 figure1 <- ggplot(mdbh, aes(x = myear, y = mean_diam*2.54, group = SETTING_ID)) + geom_point(alpha = 0.9) + geom_line(alpha = 0.8) + labs(y = 'Stand mean diameter (cm)', x='Measurement year') +  theme(legend.position = 'none', plot.caption.position = 'plot', plot.caption = element_text(hjust = 0)) + theme_bw()
@@ -185,9 +185,6 @@ rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 3), my.rmse.2(spmx.re.ga
 
 tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance'= dev, 'Model RMSE (cm\u00B2)' = rmse.mods)
 
-
-
-
 tb1 %>% 
   kable(format = 'latex', booktabs = T, digits = c(1, 2, 2, 5)) %>% 
   kable_styling(latex_options = c('hold_position'), bootstrap_options = 'striped', full_width = T, font_size = 8, position = 'float_left') %>% 
@@ -203,16 +200,22 @@ tb1 %>%
   # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
 #xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') 
 ``` 
-    }{\caption{Effective degrees of freedom (EDF), deviance, and RMSE for the base model, the model including larch proportion, and the model including shade-intolerance. EDF and deviance values are displayed for the full model, and broken out by variable categories below. Bolded numbers represent full-model metrics and non-bold numbers represent variable group and/or a single variable quantities.}}
+}{\caption{Effective degrees of freedom (EDF), deviance, and RMSE for the base model, the model including larch proportion, and the model including shade-intolerance. EDF and deviance values are displayed for the full model, and broken out by variable categories below. Bolded numbers represent full-model metrics and non-bold numbers represent variable group and/or a single variable quantities.}}
   \end{floatrow}
 \end{figure}
 
-With these data, an individual tree basal area increment (BAI) model was fit using a generalized additive mixed model-driven (GAMM) approach. Explanatory variables considered in the model were grouped together based on the attributes they represent: tree size, stand density, competition, and site characteristics [@Wykoff1990; @Vospernik2021]. Variables were compared and selected 
-within each group based on their contribution to model accuracy and fit to establish a base-model. Random effects were evaluated at different hierarchies and incorporated into this base model. Then, variables that account for species-mixture were applied to the model and their contribution to model accuracy and performance was assessed. Two species-mixing variables were considered: a proportion of stand basal area taken up by larch as well as a stand shade-intolerance weighted relative abundance metric, where a shade tolerance index [@Lienard2015] was used to quantify species shade tolerance and then inverted for scaling.
-
 # Results
 
-Various alternative base-model formulations for estimating BAI were considered variables selected were: tree diameter, crown competition factor (CCF), basal area larger than (BAL; represented with a ratio), crown ratio, slope, and aspect. Out of all variables selected, Diameter contributed the most to estimating basal area increment, and the nonlinear relationship identified here resembled previously identified parametric relationships between diameter and BAI. Tree-level random intercepts were added to the model to account for random variation prior to including species-mixing terms. Both species-mixing terms improved model accuracy and displayed an effect on basal area increment (*Fig.2*) after accounting for other effects (*Table 1*).
+Various alternative base-model formulations for estimating BAI were considered variables selected were: 
+tree diameter, crown competition factor (CCF), basal area larger than (BAL; represented with a ratio), 
+crown ratio, slope, and aspect. Out of all variables selected, Diameter contributed the most to 
+estimating basal area increment, and the nonlinear relationship identified here resembled previously
+identified parametric relationships between diameter and BAI. Tree-level random intercepts were added
+to the model to account for random variation prior to including species-mixing terms. Both species-mixing 
+terms improved model accuracy and displayed an effect on basal area increment (*Fig.2*) after accounting 
+for other effects (*Table 1*).Their additions to the base-model did not greatly conflict with tree size, 
+density, competition, or site variables.
+
 ```{r table1_no, include = F, results='asis'}
 
 # tb1 <- tibble(models, EDF, deviance.explained, RMSE) %>% rename('Model'= models, "EDF" = EDF,'Explained deviance (%)'= deviance.explained, 'RMSE (cm\u00B2)' = RMSE)
@@ -229,8 +232,6 @@ Various alternative base-model formulations for estimating BAI were considered v
   # kable(format = 'latex', caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below",booktabs = T)
 #xtable(tb1, caption = "Model effective degrees of freedom (EDF), RMSE, and percent deviance explained for the base model, larch proportion, and shade tolerance models. EDF values are displayed for the full model, and broken out by variable categories below", booktabs = T, label = 'table1') 
 ``` 
-Their additions to the base-model did not greatly conflict with tree size, density, competition, or site variables.
-
 
 
 This work is currently ongoing, and thus more results are to come. For instance, the withheld data will be used to assess the ability to generalize the variable effects identified by this model to other independent data. Further, the portion of the PGP data set used here also contains numerous tree records for Douglas-fir and subalpine fir, both of which are more shade-tolerant than western larch. By performing these analyses on other tree species across the shade-tolerance spectrum, we could further describe and/or nuance the results identified above.
