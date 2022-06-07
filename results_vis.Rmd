@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-source('14.results_larch.R')
+#source('14.results_larch.R')
 
 cm.sq <- 6.4516
 cm <- 2.54

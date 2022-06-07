@@ -101,12 +101,17 @@ nocomp.base <- readRDS('data/model_objects.1/nocomp.base.RDS')
 # saveRDS(nocomp.base, 'C:/Users/cm165878/Box/research_/nocomp.base.RDS')
 
 nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
-#   gam(bai~s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
-#                      s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'),
-#                    family = 'Gamma'(link = log),
-#                    data = bai.spmx.ids, method = 'ML')
+  # gam(bai~s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
+  #                    s(asp_sin, asp_cos) + s(slope_pct) + s(unique_tree_id, bs = 're'),
+  #                  family = 'Gamma'(link = log),
+  #                  data = bai.spmx.ids, method = 'ML')
 # saveRDS(nosize.base, 'data/model_objects.1/nosize.base.RDS')
 # saveRDS(nosize.base, 'C:/Users/cm165878/Box/research_/nosize.base.RDS')
+
+int.only.base <-   gam(bai~s(unique_tree_id, bs = 're'),
+                       family = 'Gamma'(link = log),
+                       data = bai.spmx.ids, method = 'ML')
+saveRDS(int.only.base, 'data/model_objects.1/int.only.base.rds')
 
 ## swap out unique_tree_id for stand, cluster, plot ids
 
