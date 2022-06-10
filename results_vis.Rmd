@@ -443,3 +443,8 @@ deviance(nosite.base)
 
 ```
 
+```{r}
+plot.gam(re.tree.1, rug = F, select = 4)
+```
+
+

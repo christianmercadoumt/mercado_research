@@ -1,9 +1,8 @@
 ---
-title: \vspace{-3cm} \begin{normalsize} \textbf{Identifying and evaluating the effects of forest community composition on western larch growth} \end{normalsize}
+title: \vspace{-3cm} \begin{normalsize} \textbf{Evaluating the effects of forest community composition on western larch growth} \end{normalsize}
 author: 
-  - \begin{normalsize} \textbf{Christian Mercado} \end{normalsize}
-  - \begin{normalsize} \textbf{David Affleck} \end{normalsize}
-date: \begin{scriptsize} W.A. Franke College of Forestry and Conservation, University of Montana \end{scriptsize}
+  - \begin{normalsize} \textbf{Christian Mercado \& David Affleck} \end{normalsize}
+date: \begin{scriptsize} W.A. Franke College of Forestry and Conservation, University of Montana, Missoula, MT, USA \end{scriptsize}
 header-includes:
    - \usepackage{caption}
    - \captionsetup[figure]{font=scriptsize}
@@ -21,7 +20,7 @@ output:
 always_allow_html: yes
 toc: false
 bibliography: zotero_library.bib
-csl: international-union-of-crystallography.csl
+csl: international-union-of-crystallography_edit.csl
 
 ---
 
@@ -193,19 +192,20 @@ dev <- c(deviance(re.tree.1), deviance(re.tree.1)-c(deviance(nosize.base), devia
 
 dev <- 100*c(dev.expl(re.tree.1), dev.expl(size), dev.expl(compd)-dev.expl(size), dev.expl(site)-dev.expl(compd), dev.expl(re.tree.1)-dev.expl(site), dev.expl(spmx.re.gam.lf), dev.expl(spmx.re.gam.st))
 
-rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 4), my.rmse.2(spmx.re.gam.lf)[[2]], my.rmse.2(spmx.re.gam.st)[[2]])
+rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 4), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
 
 tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm\u00B2/yr.)' = rmse.mods)
 
 kb1 <- tb1 %>% 
-  kable(format = 'latex', booktabs = T, digits = c(1, 2, 2, 5), escape = T) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5), escape = T) %>% 
   kable_styling(latex_options = c('striped', 'hold_position'), full_width = T, font_size = 8, table.envir = 'float') %>% 
-  group_rows(index = c('Base model' = 5, 'Species-mix' = 2)) %>% 
+  group_rows('Species-mix', start_row = 6, end_row = 7) %>% 
   add_indent(c(2,3,4,5)) %>% 
+  row_spec(1, bold = T) %>% 
   column_spec(1, width = '8em', latex_valign = 'm') %>% 
   column_spec(2, bold = ifelse(EDF > 1234, TRUE, FALSE), width = '4em', latex_valign = 'm') %>% 
   column_spec(3, bold = ifelse(dev > 80, T, F), width = '5em', latex_valign = 'm') %>% 
-  column_spec(4, bold = T, width = '5em') %>% 
+  column_spec(4, bold = T, width = '5em', latex_valign = 'm') %>% 
   gsub('NA', '', .)
 ```
 
@@ -219,15 +219,15 @@ A growing body of evidence suggests that species traits in mixed-species
 forest communities can impact tree growth relationships [@Forrester2017; @Riofrio2017]. 
 Regional tree growth models like those used in the Forest Vegetation Simulator (FVS) [@Dixon2020] 
 help evaluate management alternatives and aid in understanding how forests grow 
-and change over time, but do not explicitly address how community species 
-composition impacts tree growth. This study aims to evaluate 
+and change over time, but do not explicitly address community species 
+composition impacts on tree growth. This study aims to evaluate 
 if and how western larch growth varies across a range of species mixtures using 
-a unique long-term data set that is distributed across forest 
-lands in Montana. The objectives of this research are: 
+a long-term data set distributed across forest 
+lands in western Montana. The objectives of this research are: 
 (i) to identify whether community species composition impacts the growth 
 of western larch after accounting for other influential factors, 
-(ii) to identify if a shade-tolerance based species-mixing metric uniquely 
-captures a species-mixing effect on growth when compared to a less 
+(ii) to identify if a stand average shade-tolerance more effectively 
+captures species-mixing effects on growth when compared to a less 
 specific relative abundance metric, and (iii) to quantify the degree to which 
 species-mixing impacts the growth of western larch (if an effect is observed).
 
@@ -242,7 +242,7 @@ figure1
 
 ```
 }{% 
-\caption{Average stand diameter for each measurement. Points connected with lines represent these metrics and colored lines show linear trend of diameter over time in three groups based on diameter (red, green, and blue)}%
+\caption{Average stand diameter for each measurement. Points connected with lines track individual PGP stands.}%
 }
     \btabbox{%
 ```{r table1, include = T, fig.align='right', results='asis'}
@@ -251,7 +251,7 @@ kb1
   
 ``` 
     }{%
-    \caption{Effective degrees of freedom (EDF), explained deviance, and RMSE for the base model, base model including larch proportion, and the base model including shade-intolerance. EDF and deviance values are displayed for the full model and broken out by variable groups. Explained deviance values for variable groups show the increase of percent deviance explained upon the inclusion of each group.  Bold values represent full-model metrics and non-bold values represent variable group quantities.}%
+    \caption{Effective degrees of freedom (EDF), explained deviance, and RMSE for the base model, base model including larch proportion (WL ratio), and the base model including stand average shade-intolerance (Shade). EDF and deviance values are displayed for the full model and broken out by variable groups: size, competition and density (Comp.), site variables (Site), and random individual tree effects (RE). Explained deviance values for variable groups show the increase of percent deviance explained upon the inclusion of each group. Bold values represent full-model metrics and non-bold values represent variable group quantities.}%
     }
   \end{floatrow}
 \end{figure}
@@ -259,20 +259,20 @@ kb1
 ### Methods
 
 To establish a monitoring protocol for FVS, the USDA Forest Service 
-Region 1 developed a network of long-term permanent growth plot clusters (PGPs) 
+developed a network of long-term permanent growth plot clusters (PGPs) 
 in managed stands across northwest Montana. 
 Various stand measurements were initialized and then remeasured at \~5 year 
 increments between 1980 and 2002. The program was then paused, and was only 
 recently revisited in 2018 and 2021, creating a long-term growth record (30-40 years) but reducing consistency of measurement intervals. Each PGP 
-stand consists of 4 randomly selected plot-clusters. 
+stand consists of 4 randomly located plot-clusters. 
 Every cluster is comprised of three \~202$m^2$ large-tree, fixed-radius plots, 
 with each plot containing three \~13.5 $m^2$ small-tree fixed-radius sub-plots. 
 Data from 18 of these stands were used in this study and comprise 2,381 
-unique western larch trees analyzed over time. 
-Tree size varied across stands over time as seen in Fig. 1. 
-Data from 2 plots out of each stand were withheld prior to model-fitting for the purpose of validation.
+unique western larch trees traced over time. 
+Tree size varied across stands and over time as seen in Fig. 1. 
+Data from two plots out of each stand were withheld prior to model-fitting for the purpose of validation.
 
-With these data, an individual tree basal area increment (BAI) model was fit using 
+With these data, an individual tree basal area increment (BAI) model was developed using 
 a generalized additive mixed model (GAMM) approach. 
 Explanatory variables considered in the model were grouped together 
 based on the attributes they represent: tree size, stand density, 
@@ -281,46 +281,56 @@ Variables were compared and selected within each group based on their contributi
 to model accuracy and fit to establish a base model. 
 Random individual tree effects were incorporated into this base model to account for remeasurement. 
 Then, variables describing the degree and/or form of stand species-mixture were added to 
-the model and their contributions to model accuracy and performance was assessed. 
+the model and their contributions to model accuracy and performance were assessed. 
 Two species-mixing variables were considered: a proportion of stand basal 
 area taken up by larch as well as a stand shade-intolerance metric, 
 where a shade tolerance index [@Lienard2015] was used to weight each
-species' total stand basal area by shade tolerance.
+species' proportion of stand basal area by shade tolerance.
 
 
-### Results
+### Results \& Discussion
 
 Various alternative base model formulations for estimating BAI were considered. 
-Ultimately, variables selected were: tree diameter at breast height (DBH), 
-crown competition factor (CCF; [@Krajicek1961]), basal area larger than the subject tree (BAL), 
-crown ratio, slope, and aspect. Out of all variables selected, 
+Ultimately, tree diameter at breast height (DBH) was selected in the size group; 
+crown competition factor [CCF; Krajicek -@Krajicek1961], basal area larger than the subject tree (BAL), and 
+crown ratio (CR) were selected in the competition and density group; 
+slope and aspect were selected in the site group. Out of all *individual* variables selected, 
 DBH contributed the most to estimating BAI, and the nonlinear 
 relationship identified here resembled previously identified parametric relationships 
-between DBH and BAI.
-Both species-mixing terms improved model accuracy and displayed a negative association with 
-BAI (Fig.2). However, the partial effect of the shade intolerance index term was 
-smaller and less stable than that of the proportion of western larch term, 
-and thus may not be as precisely estimated. For both terms, an increase in either variable 
-reduced its effect on BAI after accounting for other effects (Table 1). 
+between DBH and BAI [@Wykoff1990; @Vospernik2021]. 
+By group, competition and density variables contributed the largest share of explained deviance, 
+likely due to it holding the most variables (Table 1). 
+Both species-mixing terms improved model accuracy and fit (deviance explained), 
+where model accuracy was improved more by the 
+larch proportion term and model fit was better when shade-tolerance was accounted for. 
+Both terms also displayed a negative association with 
+BAI (Fig.2), meaning that as the proportion of larch or the proportion of other 
+shade intolerant species increased, larch BAI decreased, 
+given that all other factors remain constant. 
+However, the partial effect on BAI of the shade intolerance index term was 
+smaller and its curve was less stable than that of the proportion of western larch term, 
+and was not as precisely estimated (Fig. 2). 
 Their additions to the base-model did not greatly modify or overlap with the effects of 
-any other variables in any important way such as by an inflation of concurvity [@Hastie1990] or perturbation of fitted smooth-relationships.
+any other variables such as by an inflation of concurvity [@Hastie1990] or perturbation of fitted smooth-relationships.
 
 This work is ongoing, and thus more results are to come. 
 For instance, the withheld data will be used to assess the 
-ability to generalize the variable effects identified by this model. 
+ability to generalize the effects identified by this model. 
 Further, the portion of the PGP data set used here contains growth
 records for Douglas-fir (*Pseudotsuga menzesii*) and subalpine fir (*Abies lasiocarpa*), both of which 
 are more shade-tolerant than western larch. 
 By replicating these analyses on tree species across 
 the shade-tolerance spectrum, we will identify whether 
-community composition varies across species, and evaluate the relative 
+community composition effects vary across species, and evaluate the relative 
 impact of species-mixing on tree growth in select forest ecosystems of the inland northwest. 
 
 
 \begin{figure}[H]
-\fcapside{\caption{Partial response curves for each respective species-mixing model term and its effect on BAI. The horizontal dashed line represents a threshold of positive/negative effects.}}
+\begin{floatrow}
+\ffigbox{%
+\caption{Partial response curves for each respective species-mixing model term and its effect on BAI. WL ratio represents the stand proportion of western larch, and Shade represents the stand average shade-intolerance. The partial effect is multiplicative on estimated BAI, and thus the horizontal dashed line represents a threshold of positive/negative effects.}}%
 {%
-```{r figure2, include = T, fig.align='right', fig.dim=c(4, 2.5)}
+```{r figure2, include = T, fig.align='left', fig.dim=c(3, 1.5)}
 limits <- c(0.8, 2.15)
 breaks <- seq(limits[1], limits[2], by = 0.2)
 
@@ -328,14 +338,14 @@ f1a <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) +
   geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
   geom_line() +
   geom_hline(yintercept = 1, linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) +
-  labs(y = 'Partial effect', x = 'Larch proportion')
+  labs(y = 'Partial effect', x = 'WL ratio')
 #shade tolerance
 f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
   geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl)) + 
   geom_line() +
   geom_hline(yintercept = 1, linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) +
   theme(axis.ticks.y = element_blank(), axis.text.y = element_blank(), axis.title.y = element_blank()) +
-  labs(x = 'Shade intolerance')
+  labs(x = 'Shade')
 
 f1aa <- ggplot_gtable(ggplot_build(f1a))
 f1bb <- ggplot_gtable(ggplot_build(f1b))
@@ -346,6 +356,12 @@ grid.arrange(f1aa, f1bb, ncol = 2)
 
 ```
 }
+\ffigbox{%
+```{r, include=T, fig.align='right', fig.dim=c(3, 2.1), dpi=400}
+knitr::include_graphics('extab_refs.JPG')
+```
+}{}
+\end{floatrow}
 \end{figure}
 \newpage
 
