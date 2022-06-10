@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-*.jpg
 *.jpeg
 *.jpg.rda
 *.doc
