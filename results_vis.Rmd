@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = FALSE)
 
 cm.sq <- 6.4516
 cm <- 2.54
+
+fvs.full <- readRDS('data/model_objects.1/fvs.full.re.rds')
 ```
 
 
@@ -444,7 +446,12 @@ deviance(nosite.base)
 ```
 
 ```{r}
-plot.gam(re.tree.1, rug = F, select = 4)
+plot.gam(re.tree.1, rug = F, pages = 1)
+
+ggplot(bai.spmx.ids, aes(x = DIAMETER)) + geom_histogram() + facet_grid(~split)
+
+my.rmse.2(fvs.full)[[2]]*cm.sq
+summary(fvs.full)
 ```
 
 
