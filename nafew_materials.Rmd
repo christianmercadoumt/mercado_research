@@ -1,0 +1,245 @@
+---
+title: "nafew_stuff"
+author: "cmm"
+date: '2022-06-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+cm.sq <- 6.4516
+cm <- 2.54
+source('12.gam_fns.R')
+source('8.larch_frac_fns.R')
+library(gratia)
+library(grid)
+library(gridExtra)
+library(kableExtra)
+library(patchwork)
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+bai.train <- readRDS('data/bai.train.5_23_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.size <- bai.train %>% 
+  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+  filter(bai != 0)
+
+bai.site <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.site.ids <- bai.site %>% group_by(stand) %>% 
+  mutate(unique.stand = group_indices()) %>% ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), 
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id))
+
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = group_indices()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+a <- readRDS('data/model_objects.1/summary_re.tree.1')
+b <- readRDS('data/model_objects.1/summary_spmx.re.gam.lf.rds')
+c <- readRDS('data/model_objects.1/summary_spmx.re.gam.st.rds')
+
+no.re.model <- readRDS('data/model_objects.1/site5a.2.rds')
+
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
+nocomp.base <- readRDS('data/model_objects.1/nocomp.base.RDS')
+nosite.base <- readRDS('data/model_objects.1/nosite.base.RDS')
+size <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
+compd <- readRDS('data/model_objects.1/compd.pl4.rds')
+site <- readRDS('data/model_objects.1/site.n5a.rds')
+
+dev.expl <- function(model){(model$null.deviance-model$deviance)/model$null.deviance}
+
+re.edf <- edf(re.tree.1)
+lf.edf <- edf(spmx.re.gam.lf)
+st.edf <- edf(spmx.re.gam.st)
+
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+f1a <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = larch.ba.fraction.pl)) + 
+  geom_line() +
+  labs(x = 'Larch proportion', y = NULL) +
+  scale_y_continuous(breaks = seq(0.6, 2.15, by = 0.2)) + scale_x_continuous(n.breaks = 5) + geom_hline(yintercept = 1, linetype = 'dashed') +
+  theme(axis.title = element_text(size = 8))
+#shade tolerance
+f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = exp(est))) +
+  geom_ribbon(alpha = 0.2, aes(ymin = exp(lower_ci), ymax = exp(upper_ci), x = shade.tol.pl)) + 
+  geom_line() +
+  labs(x = 'Shade intolerance', y = NULL) +
+  scale_y_continuous(breaks = seq(0.6, 2.15, by = 0.2)) +
+  scale_x_continuous(n.breaks = 5) + geom_hline(yintercept = 1, linetype = 'dashed')+
+  theme(axis.title = element_text(size = 8))
+
+
+#draw(spmx.re.gam.lf, select = 1, rug = F, fun = function(x){cm.sq*exp(x)})
+#fig 1
+pgp_data_all <- readRDS('data/pgp_data_all.rds')
+
+mdbh <- pgp_data_all %>% filter(SPECIES_SYMBOL == 'LAOC', TPA_EQUIV.pl != 0) %>% group_by(SETTING_ID, myear) %>% summarise(mean_diam = mean(DIAMETER, na.rm = T)) %>% ungroup() %>% group_by(SETTING_ID) %>% mutate(st.mean.d=mean(mean_diam)) %>% ungroup() %>% 
+  mutate(cut = cut_number(st.mean.d, 3), 
+         yrs = 
+           case_when(myear < 1995 ~ 'early',
+                     myear >= 1995 & myear < 2005 ~ 'mid',
+                     myear > 2005 ~ 'late')) %>% 
+  group_by(cut, yrs) %>% mutate(ctyr_dbh = mean(st.mean.d), ctyr_myr = mean(myear))
+
+base.edf <- sum(re.edf$edf)
+base.sz.edf <- re.edf$edf[1]
+base.dcomp.edf <- sum(re.edf$edf[c(2,3,4)])
+base.sit.edf <- sum(re.edf$edf[c(5,6)])
+a$chi.sq
+
+lf.alledf <- sum(lf.edf$edf)
+lf.sz.edf <- lf.edf$edf[1]
+lf.dcomp.edf <- sum(lf.edf$edf[c(2,3,4)])
+lf.sit.edf <- sum(lf.edf$edf[c(5,6)])
+lf.lf <- lf.edf$edf[8]
+
+st.alledf <- sum(st.edf$edf)
+st.sz.edf <- st.edf$edf[1]
+st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
+st.sit.edf <- sum(st.edf$edf[c(5,6)])
+st.st <- st.edf$edf[8]
+
+figure1 <- ggplot(mdbh, aes(x = myear, y = mean_diam*2.54, group = SETTING_ID)) + geom_point(alpha = 0.9) + geom_line(alpha = 0.8) + labs(y = 'Stand mean diameter (cm)', x='Measurement year') +  theme(legend.position = 'none', plot.caption.position = 'plot', plot.caption = element_text(hjust = 0)) + theme_bw()
+
+models <- c('Full model', 'Size', 'Comp.', 'Site', 'RE', 'WL ratio', 'Shade')
+EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, edf(re.tree.1, 's(unique_tree_id)')$edf, lf.lf, st.st)
+
+dev <- c(deviance(re.tree.1), deviance(re.tree.1)-c(deviance(nosize.base), deviance(nocomp.base), deviance(nosite.base)), deviance(spmx.re.gam.lf), deviance(spmx.re.gam.st))
+
+dev <- 100*c(dev.expl(re.tree.1), dev.expl(size), dev.expl(compd)-dev.expl(size), dev.expl(site)-dev.expl(compd), dev.expl(re.tree.1)-dev.expl(site), dev.expl(spmx.re.gam.lf), dev.expl(spmx.re.gam.st))
+
+rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 4), my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
+
+tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm\u00B2/yr.)' = rmse.mods)
+
+kb1 <- tb1 %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5), escape = T) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = T, font_size = 8, table.envir = 'float') %>% 
+  group_rows('Species-mix', start_row = 6, end_row = 7) %>% 
+  add_indent(c(2,3,4,5)) %>% 
+  row_spec(1, bold = T) %>% 
+  column_spec(1, width = '8em', latex_valign = 'm') %>% 
+  column_spec(2, bold = ifelse(EDF > 1234, TRUE, FALSE), width = '4em', latex_valign = 'm') %>% 
+  column_spec(3, bold = ifelse(dev > 80, T, F), width = '5em', latex_valign = 'm') %>% 
+  column_spec(4, bold = T, width = '5em', latex_valign = 'm') %>% 
+  gsub('NA', '', .)
+
+bai.hold <- readRDS('data/bai.hold.5_23_22.rds')
+bai.train <- readRDS('data/bai.train.5_23_22.rds')
+bai.all <- rbind(bai.hold, bai.train)
+```
+
+```{r diameter distributions by crown class}
+bai.all <- bai.all %>% filter(DIAMETER<30, CROWN_CLASS %in% c('DO','CO', 'IN', 'OV'))
+ggplot(bai.all, aes(x = DIAMETER*cm, color = CROWN_CLASS, fill = CROWN_CLASS)) + geom_histogram(alpha = 0.4) #+ geom_density(aes(y = ..count.., color = CROWN_CLASS), alpha = 0.1) #facet_grid(~cut_number(larch.ba.fraction.pl, 2))
+
+
+```
+
+```{r smooths}
+limits <- c(-2, 2.5)
+breaks <- seq(limits[1], limits[2], by = 0.5)
+diam.smest <- smooth_estimates(re.tree.1, smooth = 's(DIAMETER)') %>% add_confint()
+bal.smest <- smooth_estimates(re.tree.1, smooth = 's(bal.pl.ratio)') %>% add_confint()
+ccf.smest <- smooth_estimates(re.tree.1, smooth = 's(ccf.pl)') %>% add_confint()
+sl.smest <- smooth_estimates(re.tree.1, smooth = 's(slope_pct)') %>% add_confint()
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+diam.smth <- ggplot(diam.smest, aes(x = DIAMETER*cm, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'DBH (cm)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+bal.smth <- ggplot(bal.smest, aes(x = bal.pl.ratio, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'BAL (ratio)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+ccf.smth <- ggplot(ccf.smest, aes(x = ccf.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'CCF') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+sl.smth <- ggplot(sl.smest, aes(x = slope_pct, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Slope (%)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+lf.smth <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Larch fraction') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+st.smth <- ggplot(st.smest, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
+
+a <- ggplot_gtable(ggplot_build(diam.smth))
+b <- ggplot_gtable(ggplot_build(bal.smth))
+c <- ggplot_gtable(ggplot_build(ccf.smth))
+d <- ggplot_gtable(ggplot_build(sl.smth))
+e <- ggplot_gtable(ggplot_build(lf.smth))
+f <- ggplot_gtable(ggplot_build(st.smth))
+b$heights <- a$heights
+c$heights <- a$heights
+d$heights <- a$heights
+e$heights <- a$heights
+f$heights <- a$heights
+
+grid.arrange(a)
+grid.arrange(b)
+grid.arrange(c)
+grid.arrange(d)
+grid.arrange(e)
+grid.arrange(f)
+```
+
