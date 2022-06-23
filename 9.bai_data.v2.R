@@ -8,8 +8,8 @@ source("6.plotvars.R")
 source("7.clustervars.new.R")
 
 #Site data
-load("C:/git/research/mercado_research/data/ingy_settings_si.Rdata")
-load("C:/git/research/mercado_research/data/ingy_clusters_googleearth.Rdata")
+load("data/ingy_settings_si.Rdata")
+load('data/ingy_clusters_googleearth.Rdata')
 
 #create lat long variables extracted from list element in ingy_clusters
 options(digits = 10) #without this, the loop rounds numbers. Not sure why. 
@@ -69,6 +69,7 @@ bai.cluster <- bai.plot %>% variables.cluster()
 
 #shade tolerance
 bai.shade <- shade.tolerance.plot.cluster(bai.cluster)
+#saveRDS(bai.shade, 'data/bai.shade.rds')
 
 #filter out na's and non-larch
 bai.data1 <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC')

@@ -198,7 +198,8 @@ kb1 <- tb1 %>%
 
 bai.hold <- readRDS('data/bai.hold.5_23_22.rds')
 bai.train <- readRDS('data/bai.train.5_23_22.rds')
-bai.all <- rbind(bai.hold, bai.train)```
+bai.all <- rbind(bai.hold, bai.train)
+bai.train.cm <- bai.train %>% mutate(bai.cm = bai*cm.sq)
 ```
 
 ```{r Map}
@@ -280,7 +281,20 @@ setting.treecounts <- setting.sumstats %>% group_by(stand) %>%
 setting.treecounts <- rename(setting.treecounts, '# bais' = num.bais, '# trees' = num.trees, 'Min. \nGrowth \nPeriod' = min.gp, 'Max. \nGrowth \nPeriod' = max.gp, '# of \nmeasure-\nments' = num.meas)
 ```
 
-```{r }
+```{r distribution of bai values}
+### should I add a density curve to these? 
+
+#dist of ALL data
+ggplot(bai.all, aes(x = cm.sq*bai)) + geom_histogram(bins = 50, alpha = 0.8, color = 'grey') + labs(y = 'Number of Observations', x = expression(paste('BAI ', cm^2/year)))
+#dist of training data
+ggplot(bai.train.cm, aes(x = bai.cm)) + geom_histogram(bins = 50, alpha = 0.8, color = 'grey') + labs(y = 'Number of Observations', x = expression(paste('BAI ', cm^2/year)))
+
+#dist of training data when log-transformed
+ggplot(bai.train.cm, aes(x = log(bai.cm))) + geom_histogram(bins = 50, alpha = 0.8, color = 'grey') + labs(y = 'Number of Observations', x = expression(log(BAI)))
+
+```
+
+```{r}
 
 ```
 

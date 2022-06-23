@@ -17,18 +17,80 @@ knitr::opts_chunk$set(echo = FALSE)
 # Introduction
 
 
-Western larch (*Larix occidentalis* Nutt.) is an important tree species in the inland northwest region of the USA because of its contribution to ecological, economic, and cultural values across the region. *L. occidentalis* is endemic and nearly exclusive to the upper Columbia river watershed throughout Montana, Idaho, Washington, Oregon, and southern British Columbia, and is well-adapted to the historic climate of the region [@Knudsen1968; @Schmidt1976;@Schmidt1995]. Additionally, its wood possesses desirable qualities such as high specific gravity, straight grains, and tight knots [@KeeganIII1995], and it is the most productive of the three North American larch species [@Rehfeldt2010], adding a unique and localized product value in the region. Further, western larch and its associated forests provide important habitat to native birds, bears, and ungulates [@McClelland1999; @Schmidt1976]. In a setting where fire is historically and currently prevalent, western larch is the most fire resistant of the Northern Rocky Mountain conifers due to its thick bark and uniquely deciduous needles [@Schmidt1976]. *Larix* species also provide unique aesthetic characteristics throughout the year with their phenology, coloring hillsides shades of green, yellow, and brown, depending on the season, adding a colorful representation of seasonality. However, projected climate scenarios are likely to impact the biophysical processes that allow larch to fill its niche within this region [@Rehfeldt2010], threatening these unique values. 
+Western larch (*Larix occidentalis* Nutt.) is an important tree species
+in the inland northwest region of the USA because of its contribution to
+ecological, economic, and cultural values across the region. *L. occidentalis*
+is endemic and nearly exclusive to the upper Columbia river watershed throughout
+Montana, Idaho, Washington, Oregon, and southern British Columbia, and is
+well-adapted to the historic climate of the region [@Knudsen1968; @Schmidt1976;@Schmidt1995].
+Additionally, its wood possesses desirable qualities such as high specific gravity,
+straight grains, and tight knots [@KeeganIII1995], and it is the most productive of
+the three North American larch species [@Rehfeldt2010], adding a unique and
+localized product value in the region. Further, western larch and its associated
+forests provide important habitat to native birds, bears, and ungulates
+[@McClelland1999; @Schmidt1976]. In a setting where fire is historically and
+currently prevalent, western larch is the most fire resistant of the Northern
+Rocky Mountain conifers due to its thick bark and uniquely deciduous needles
+[@Schmidt1976]. *Larix* species also provide unique aesthetic characteristics
+throughout the year with their phenology, coloring hillsides shades of green,
+yellow, and brown, depending on the season, adding a colorful representation of
+seasonality. However, projected climate scenarios are likely to impact the
+biophysical processes that allow larch to fill its niche within this region [@Rehfeldt2010],
+threatening these unique values. 
+
+
+Western larch naturally grows across a compositional gradient of mixed-species
+forests [@Schmidt1988] where interactions among species attributes could impact
+growth and development at the individual- and stand-level. Western larch is
+classified as very intolerant of shade and one of the fastest-growing within
+its communities [@Baker1949; @Schmidt1988]. It is found in communities with:
+Douglas-fir (*Pseudotsuga menziesii*(Mirb.) Franco var. *glauca*), 
+lodgepole pine (*Pinus contorta*(Dougl.)), Engelmann spruce (*Picea engellmanii*),
+subalpine fir (*Abies lasiocarpa*), ponderosa pine (*Pinus ponderosa*),
+western hemlock (*Tsuga heterophylla*), mountain hemlock (*Tsuga mertensiana*),
+and western redcedar (*Thuja plicata*) [@Schmidt1981a; @Schmidt1988]. 
+These conifer species collectively span the range of shade tolerance and growth rates. 
+A combination of shade-tolerance, height growth rate, water use efficiency,
+tree architecture, and other traits within mixed-species communities may lead to
+competitive and/or complementary relationships among species [@Forrester2017].
+Mixing these characteristics can result in altered species growth rates [@Forrester2017],
+even from small differences in such traits [@Riofrio2017]. Lebourgeois [-@Lebourgeois2013]
+found that species mixture modified the growth of *Abies abla* through
+facilitative interactions under drought conditions. In northwestern Montana,
+facilitative and competitive interactions were found to modify growth rates 
+of *Abies lasiocarpa* and *Pinus albicaulis*, depending on environmental
+stressors [@Callaway1997]. Since larch forests range in species-composition 
+and occur across environmental conditions, western larch may be subject to 
+competitive or complementary relationships.  
+
+
+Evidence of how species-mixing impacts tree growth can shed light on
+relationships that are not currently well-understood if new research is
+expanded to more forest-types. Various studies in Europe have revealed that
+facilitation or competitive reduction in mixed-species stands can lead to
+enhanced productivity when compared to monocultures [@Pretzsch2009].
+This effect is sometimes termed overyielding, with reference to the potential
+for higher than anticipated biomass or volume [@Pretzsch2009]. 
+Further evidence suggests that mixture can interact with stand density 
+in the long term, and that the interplay between the two likely depends
+on the characteristics of species-mixtures and stand types [@Brunner2020; @Condes2013].
+In a study of *Abies grandis* (shade-tolerant) and *Pinus ponderosa* (shade-intolerant)
+mixtures in Oregon, USA, mixing impacted volume growth (only) at low spacing
+and was attributed to the light-use characteristics of each species [@Maguire2021]. 
+Vospernik [-@Vospernik2021] found that individual tree basal area increment
+was significantly modified in mixtures of species with different traits, 
+compared to mixtures of species with similar traits. Concerning larch, they
+observed mixing-effects on *Larix decidua* in mixtures with *Picea abies*, *Pinus cembra*, 
+*Fagus sylvatica*, and *Betulus spp.*, where it mutually benefited in mixtures
+with *Picea abies* [@Vospernik2021]. These findings are similar to 
+those of Z&ouml;hrer [-@Zohrer1969] where incremental growth was increased
+in mixtures between shade-tolerant *Picea abies* and shade-intolerant
+*Larix decidua*. Interactions in communities of variable- and similar- trait
+species within North American *Larix* forests are not well-understood, and 
+thus motivate further investigation to characterize how stand species composition 
+modifies western larch growth dynamics. 
 
 **ADD SOMETHING ON MODELING??** -Something to introduce/rationalize the choice of using GAMs instead of GLMs. (Johnston et al 2019 uses GAMs to model BAI - )
-
-*~~Across forests within the inland northwest, precommercial thinning (PCT) is a common, relatively low cost, and effective method to manage stand development and structure, either in response to or in the face of anthropogenic climate change. PCT can reduce inter-tree competition, increase individual volume growth, and promote structure that is conducive to higher yields [@Hawley1921; @Smith1985; @Oliver1996; @Nyland2016]. It can also have long-term impacts on height and diameter growth, as well as individual tree architecture [@Harrington1983; @Weiskittel2009]. Additionally, early thinning is cheaper and less logistically challenging  than other intermediate activities, such as commercial thinning, herbicide treatment, and burning [@Reukema1975]. Furthermore, PCT can be an effective measure for producing forest structure that aids in fuels [@Agee2005; @Dodge2019] and/or wildlife focused objectives [@Hayes1997], making it a versatile management option with lasting, multi-purpose effects. Resulting structure in thinned-forests may also add to resistance and resilience in relation to climate change-aggravated disturbances and perturbations [@Nagel2017]. Lastly, PCT can be an effective method to maximize long-term carbon accumulation without sacrificing individual tree growth or understory development [@Schaedel2017a].~~*
-
-*~~Density treatments in young stands can have short and long term impacts on western larch growth dynamics, as well as on overall stand development. Natural western larch seedling establishment tends to be very dense (many trees/unit area), and young densely-packed larch grow very quickly, making western larch stands ideal candidates for juvenile thinning [@Schmidt1966; @Schmidt1976; @Schmidt1988].Thompson [-@Thompson1992] found that thinning western larch early in stand development capitalizes on juvenile growth rates compared to thinning later in development. In a long-term study, Schaedel [-@Schaedel2017a] found that early density management can lead to larger tree size and stability over a rotation period. Additionally, different target PCT densities led to similar net stand yields over a rotation, suggesting that early thinning can control whether larch stand volume is concentrated in many smaller and less stable trees, or few larger, more stable (more commercially valuable) trees [@Schaedel2017a]. ~~*
-
-Western larch naturally grows across a compositional gradient of mixed-species forests [@Schmidt1988] where interactions among species attributes could impact growth and development at the individual- and stand-level. Western larch is classified as very intolerant of shade and one of the fastest-growing within its communities [@Baker1949; @Schmidt1988]. It is found in communities with: Douglas-fir (*Pseudotsuga menziesii*(Mirb.) Franco var. *glauca*), lodgepole pine (*Pinus contorta*(Dougl.)), Engelmann spruce (*Picea engellmanii*), subalpine fir (*Abies lasiocarpa*), ponderosa pine (*Pinus ponderosa*), western hemlock (*Tsuga heterophylla*), mountain hemlock (*Tsuga mertensiana*), and western redcedar (*Thuja plicata*) [@Schmidt1981a; @Schmidt1988]. These conifer species collectively span the range of shade tolerance and growth rates. A combination of shade-tolerance, height growth rate, water use efficiency, tree architecture, and other traits within mixed-species communities may lead to competitive and/or complementary relationships among species [@Forrester2017]. Mixing these characteristics can result in altered species growth rates [@Forrester2017], even from small differences in such traits [@Riofrio2017]. Lebourgeois [-@Lebourgeois2013] found that species mixture modified the growth of *Abies abla* through facilitative interactions under drought conditions. In northwestern Montana, facilitative and competitive interactions were found to modify growth rates of *Abies lasiocarpa* and *Pinus albicaulis*, depending on environmental stressors [@Callaway1997]. Since larch forests range in species-composition and occur across environmental conditions, western larch may be subject to competitive or complementary relationships.  
-
-Evidence of how species-mixing impacts tree growth can shed light on relationships that are not currently well-understood if new research is expanded to more forest-types. Various studies in Europe have revealed that facilitation or competitive reduction in mixed-species stands can lead to enhanced productivity when compared to monocultures [@Pretzsch2009]. This effect is sometimes termed overyielding, with reference to the potential for higher than anticipated biomass or volume [@Pretzsch2009]. Further evidence suggests that mixture can interact with stand density in the long term, and that the interplay between the two likely depends on the characteristics of species-mixtures and stand types [@Brunner2020; @Condes2013]. In a study of *Abies grandis* (shade-tolerant) and *Pinus ponderosa* (shade-intolerant) mixtures in Oregon, USA, mixing impacted volume growth (only) at low spacing and was attributed to the light-use characteristics of each species [@Maguire2021]. Vospernik [-@Vospernik2021] found that individual tree basal area increment was significantly modified in mixtures of species with different traits, compared to mixtures of species with similar traits. Concerning larch, they observed mixing-effects on *Larix decidua* in mixtures with *Picea abies*, *Pinus cembra*, *Fagus sylvatica*, and *Betulus spp.*, where it mutually benefited in mixtures with *Picea abies* [@Vospernik2021]. These findings are similar to those of Z&ouml;hrer [-@Zohrer1969] where incremental growth was increased in mixtures between shade-tolerant *Picea abies* and shade-intolerant *Larix decidua*. Interactions in communities of variable- and similar- trait species within North American *Larix* forests are not well-understood, and thus motivate further investigation to characterize how stand species composition modifies western larch growth dynamics. 
-
 
 # Research Questions
 
@@ -36,33 +98,102 @@ Given the above, I investigated the following lines of inquiry, hypotheses, and 
 
 ## *How does species-mixing impact basal area increment of western larch?*
 
-Since there is evidence indicating that species-mixing can impact long-term development in temperate forests [@Pretzsch2009; @Pretzsch2010; @Zhang2012], I posit that the different physiological drivers motivating growth that relate to light interception (i.e. shade tolerance) within an interspecific environment can produce appreciable differences in the growth of a species, after accounting for tree size, site productivity, and stand density. This may happen through the enhancement of competition between species of similar shade-tolerance, or competitive reduction and/or facilitation between species of dissimilar shade-tolerance through niche complementarity [@Callaway1997; @Condes2013;@Pretzsch2015; @Riofrio2017]. Further, I suggest that complementary or competitive effects of species traits in a stand can modify how a species interacts with stand density. For example, it is known that the density of western larch stands impacts how western larch grows [@Schaedel2017a]. However, complementary or competitive interactions among species have not been acknowledged within this context, and may modify density effects on western larch growth, (e.g., a western larch in a high density stand may grow more in a mixture with shade-tolerant species than a western larch at the same density in a mixture with shade-intolerant species). I predict that the growth of western larch can respond to species-mixing across a gradient of species, depending on how its surrounding community interacts with light. Specifically, I presume *L. occidentalis* growth will be modified positively in mixtures with shade-tolerant species such as *Picea engallmanii*, *Abies grandis*, and *Abies lasiocarpa*. Conversely, I expect that *L. occidentalis* growth will be negatively impacted in mixtures with shade-intolerant *Pinus contorta* and *Pinus ponderosa*. I expect that the roles of mid-tolerant species such as *Pseudotsuga menziesii* in modifying *L. occidentalis* growth will vary, from positive to negative, if mixing effects are present at all. 
+Since there is evidence indicating that species-mixing can impact long-term
+development in temperate forests [@Pretzsch2009; @Pretzsch2010; @Zhang2012],
+I posit that the different physiological drivers motivating growth that
+relate to light interception (i.e. shade tolerance) within an interspecific
+environment can produce appreciable differences in the growth of a species,
+after accounting for tree size, site productivity, and stand density. 
+This may happen through the enhancement of competition between species of
+similar shade-tolerance, or competitive reduction *and/or facilitation* between
+species of dissimilar shade-tolerance through niche complementarity
+[@Callaway1997; @Condes2013;@Pretzsch2015; @Riofrio2017]. Further, 
+I suggest that complementary or competitive effects of species traits in
+a stand can modify how a species interacts with stand density. For example,
+it is known that the density of western larch stands impacts how western 
+larch grows [@Schaedel2017a]. However, complementary or competitive interactions
+among species have not been acknowledged within this context, and may modify
+density effects on western larch growth, (e.g., a western larch in a high
+density stand may grow more in a mixture with shade-tolerant species than a
+western larch at the same density in a mixture with shade-intolerant species). 
+I predict that the growth of western larch can respond to species-mixing
+across a gradient of species, depending on how its surrounding community 
+interacts with light. Specifically, I presume *L. occidentalis* growth will
+be modified positively in mixtures with shade-tolerant species such as 
+*Picea engallmanii*, *Abies grandis*, and *Abies lasiocarpa*. Conversely, 
+I expect that *L. occidentalis* growth will be negatively impacted in mixtures 
+with shade-intolerant *Pinus contorta* and *Pinus ponderosa*. I expect that the 
+roles of mid-tolerant species such as *Pseudotsuga menziesii* in modifying 
+*L. occidentalis* growth will vary, from positive to negative, if mixing effects
+are present at all. 
 
-Therefore, my related research objectives are: (i) identify whether species-mixing has an effect on western larch growth, (ii) identify whether shade-tolerance, as a measure of interspecificity, captures the effects of mixing, (iii) quantify the degree to which species-mixing ~~(defined by shade-tolerance)~~ impacts basal area increment of western larch, ~~and (iv) disentangle the the modifications that species-mixing may have on western larch growth at different densities.~~
+Therefore, my related research objectives are:
+(i) identify whether species-mixing has an effect on western larch growth, 
+(ii) identify whether shade-tolerance, as a measure of interspecificity, captures the effects of mixing,
+(iii) quantify the degree to which species-mixing ~~(defined by shade-tolerance)~~ 
+impacts basal area increment of western larch, 
+
+~~and 
+(iv) disentangle the the modifications that species-mixing may have
+on western larch growth at different densities.~~
 
 
 
-*In general, I'm not here trying to develop a new model that works better than every model ever, but I do want to create a model which accurately predicts basal increment, and one that is a firm platform upon which the addition of species mixing can be included in order to assess the potential impacts of it. Practically speaking, if species mixing shows an impact on this relationship, I'd like to be able to provide a suggestion on how it can be incorporated into the FVS basal area increment model.. Thus it's important that I stick to the script, so to speak. *
 
-*Since I'm using generalized additive models, then maybe it makes sense to only include one variable from each group? If it's predictive power, then it might actually make sense to include a variable of each type to each group. I do want to avoid overfitting *
-
-*Given that *
-
-*Then what are my objectives?*
-*1. Identify if and how species mixing impacts basal area increment, given a set of variables known to influence basal area increment.*
-*2. Identify if and how shade-tolerance offers an explanation for why/how a species-mixing impact on bai exists, given a set of variables.*
-*3. Identify a model structure suitable for representing this relationship, or a set of variables that does a good enough job*
 
 
 # Methods
 
 ## PGP Data
 
-The Forest Vegetation Simulator (FVS) is a distance-independent, individual tree forest growth model that is widely used in the western United States to predict tree and stand growth as well as to evaluate management decisions [@Dixon2020]. To establish a monitoring protocol for the FVS model, the USDA Forest Service Region 1 developed long-term permanent growth plot clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho), referred herein to as the PGP program. The initial goal of the PGP program was to remeasure the selected stands at regular increments of 5-10 years in order to provide a robust growth increment data set. Various stand measurements were initialized and then remeasured between 1980 and 2002. The program was then paused, and was only recently revisited in 2018 and 2021, creating a wide gap between recent measurements and reducing consistency of measurement intervals. 
+The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
+tree forest growth model that is widely used in the western United States 
+to predict tree and stand growth as well as to evaluate management decisions 
+[@Dixon2020]. To establish a monitoring protocol for the FVS model,
+the USDA Forest Service Region 1 developed long-term permanent growth plot
+clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho),
+referred herein to as the PGP program. The initial goal of the PGP 
+program was to remeasure the selected stands at regular increments of 
+5-10 years in order to provide a robust growth increment data set. 
+Various stand measurements were initialized and then remeasured between 
+1980 and 2002. The program was then paused, and was only recently revisited 
+in 2018 and 2021, creating a wide gap between recent measurements and reducing 
+consistency of measurement intervals. 
 
-Each PGP stand consists of 4 plot-clusters: 1 untreated control plot cluster and 3 treatment plot clusters, the latter were treated with commercial thinning or precommercial thinning, depending on stand age and maturity. Stand prescriptions determined target residual densities by species for the stand in the treatment areas, providing a side-by-side comparison between control and treatments under similar stand and site conditions. The location of control and treatment plots were determined by random selection of (x,y) coordinates on a grid laid over a map of the stand. To ensure that the control plots were not affected by nearby thinning treatments, an unthinned buffer was placed around control clusters. Every cluster is comprised of three ~202$m^2$ large-tree, fixed-radius plots, with each plot containing three ~13.5 $m^2$ small tree fixed-radius sub-plots. Data for trees in large-tree plots were taken based on whether a tree was above a specified diameter threshold. The diameter thresholds varied across and within stands (across control and treatment plots), as well as within clusters over time. Yet the large trees were tagged and distance and azimuth to plot center were taken. Heights were taken on only a subset of large trees due to the operational challenges and added time of measuring tree height. Small tree data were recorded for trees greater than or equal to ~15cm in height from the ground, and up to the specified diameter threshold. 
+Each PGP stand consists of 4 plot-clusters: 1 untreated control plot cluster 
+and 3 treatment plot clusters, the latter were treated with commercial 
+thinning or precommercial thinning, depending on stand age and maturity. 
+Stand prescriptions determined target residual densities by species for
+the stand in the treatment areas, providing a side-by-side comparison between
+control and treatments under similar stand and site conditions. The location 
+of control and treatment plots were determined by random selection of (x,y) 
+coordinates on a grid laid over a map of the stand. To ensure that the control 
+plots were not affected by nearby thinning treatments, an unthinned buffer was
+placed around control clusters. Every cluster is comprised of three ~202$m^2$ 
+large-tree, fixed-radius plots, with each plot containing three ~13.5 $m^2$ 
+small tree fixed-radius sub-plots. Data for trees in large-tree plots were taken 
+based on whether a tree was above a specified diameter threshold. 
+The diameter thresholds varied across and within stands 
+(across control and treatment plots), as well as within clusters over
+time. Yet the large trees were tagged and distance and azimuth to plot center
+were taken. Heights were taken on only a subset of large trees due to the
+operational challenges and added time of measuring tree height. Small tree 
+data were recorded for trees greater than or equal to ~15cm in height from 
+the ground, and up to the specified diameter threshold. 
 
-During the summer of 2018, a re-measurement campaign targeted various accessible stands with at least 3 previously recorded measurements on the Lolo National Forest. During the summer of 2021, PGP stands on the Lolo and Kootenai National Forests that were previously measured at least 3 times and that were composed of >50% overstory western larch (determined by most recent measurement) were targeted for remeasurement. Stands across the remeasured PGPs were spread between $46^\circ$ N and $49^\circ$ N, and between 800 and 1700 $m$ above sea level. Stands were primarily on north-facing aspects. Soil conditions were variable from site-to-site, but most were a silty-loam texture. Species composition varied between almost pure western larch to mixed conifer forests composed of western larch, Douglas-fir, Engelmann spruce, grand fir, subalpine fir, western hemlock, mountain hemlock, western red cedar, cottonwood, and quaking aspen. **Basic stand information is provided in Table \@ref(tab:table1).**
+During the summer of 2018, a re-measurement campaign targeted various 
+accessible stands with at least 3 previously recorded measurements on
+the Lolo National Forest. During the summer of 2021, PGP stands on the
+Lolo and Kootenai National Forests that were previously measured at least
+3 times and that were composed of >50% overstory western larch (determined
+by most recent measurement) were targeted for remeasurement. Stands across 
+the remeasured PGPs were spread between $46^\circ$ N and $49^\circ$ N, and 
+between 800 and 1700 $m$ above sea level. Stands were primarily on north-facing aspects. 
+Soil conditions were variable from site-to-site, but most were a silty-loam texture.
+Species composition varied between almost pure western larch to mixed conifer
+forests composed of western larch, Douglas-fir, Engelmann spruce, grand fir, 
+subalpine fir, western hemlock, mountain hemlock, western red cedar,
+cottonwood, and quaking aspen. **Basic stand information is provided in Table \@ref(tab:table1).**
 
 ## Data Analysis
 
@@ -72,27 +203,76 @@ During the summer of 2018, a re-measurement campaign targeted various accessible
 *- number of variables*
 *- Non-reliance on complicating pre-specified model formulations in order to flexibly evaluate the impacts of species-mix on the overall relationship.*
 
-I used generalized additive models (GAMs) to evaluate effects of predictors on annual basal area increment (BAI) ~~and height~~. This framework followed that of Wykoff [-@Wykoff1990] and Vospernik [-@Vospernik2021], with GAMs used to select variables and examine predictor effects on the resulting modeled relationship. GAMs allow for flexibility in model fitting and an allowance for non-linear relationships across variables [@Zhao2005]. Contrary to traditional parametric modeling approaches, GAMs let the data determine the shape of the functional relationships by fitting predictors with smooth functions instead of specific parametric forms [@Robinson2011].
+I used generalized additive models (GAMs) to evaluate effects of 
+predictors on annual basal area increment (BAI) ~~and height~~. 
+This framework followed that of Wykoff [-@Wykoff1990] and Vospernik 
+[-@Vospernik2021], with GAMs used to select variables and examine 
+predictor effects on the resulting modeled relationship. GAMs allow for
+flexibility in model fitting and an allowance for non-linear 
+relationships across variables [@Zhao2005]. Contrary to traditional 
+parametric modeling approaches, GAMs let the data determine the 
+shape of the functional relationships by fitting predictors with 
+smooth functions instead of specific parametric forms [@Robinson2011].
 
 **MORE ON GAMS HERE: kemp et al 2019, Povik et al 2020**
 
-The following steps outline the modeling workflow that I used: (i) evaluating and estimating potential explanatory variables in the available data set based on established relationships with the dependent variable (BAI~~or height~~), (ii) sequentially selecting predictor variables within pre-determined groups through a novel pragmatic variable selection approach to identify a base-model structure for the GAM, (iii) evaluating random effects due to hierarchical groupings in the sample-design, and finally (iv) assessing effects produced by identified species-mixing variables. 
+The following steps outline the modeling workflow that I used:
+(i) evaluating and estimating potential explanatory variables 
+in the available data set based on established relationships
+with the dependent variable (BAI~~or height~~), (ii) sequentially
+selecting predictor variables within pre-determined groups 
+through a novel pragmatic variable selection approach to identify
+a base-model structure for the GAM, (iii) evaluating random effects
+due to hierarchical groupings in the sample-design, and finally
+(iv) assessing effects produced by identified species-mixing variables. 
 
-For (i), explanatory variables were identified based on availability in the PGP data set and whether they could be calculated from the available data. Variables contained in established and widely-used empirical models, such as the diameter growth model in FVS (*CITE*), were considered because, 1. the PGP data collection focused on such variables, and 2. these variables are relatively easy to collect and commonly found in long-term data collection efforts similar to the PGP data. This allows for the potential expansion of these methodologies to other, similar works, given that they produce reliable estimates in this study. Variables considered that were beyond the scope identified above, related primarily to site conditions. **ADD TABLE that lists variables from the ln(DDS) model, as well as variables not in that model in BOLD text?** Once explanatory variables were identified for consideration, they were then grouped into the following categories: tree size, density and competition, site, and species-mixing.  
+For (i), explanatory variables were identified based on availability 
+in the PGP data set and whether they could be calculated from the 
+available data. Variables contained in established and widely-used
+empirical models, such as the diameter growth model in FVS (*CITE*),
+were considered because, 1. the PGP data collection focused on such
+variables, and 2. these variables are relatively easy to collect 
+and commonly found in long-term data collection efforts similar to
+the PGP data. This allows for the potential expansion of these 
+methodologies to other, similar works, given that they produce 
+reliable estimates in this study. Variables considered that were 
+beyond the scope identified above, related primarily to site 
+conditions. **ADD TABLE that lists variables from the ln(DDS) model, as well as variables not in that model in BOLD text?** 
+Once explanatory variables were identified for consideration,
+they were then grouped into the following categories: tree size,
+density and competition, site, and species-mixing.  
 
-The following steps outline the pragmatic variable selection approach mentioned in step (ii) above:
+The following steps outline the pragmatic variable selection
+approach mentioned in step (ii) above:
 
 **OVERALL WITHIN-GROUP WORKFLOW**
 
-1. Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. Any pair-wise linear relationship with a correlation coefficient of 0.7 or higher was not considered together. (R-squared of .49 or higher). This was chosen as the cutoff because .7 correlation means that variance is roughly 50% accounted for between variables. Additionally, variables known to represent the same processes, like tree basal area and diameter, were not considered together to avoid redundancies and reduce model complexity. 
+1. Evaluate co-linearity of within-group predictors with each
+other to help avoid redundant inclusion of variables. 
+Any pair-wise linear relationship with a correlation coefficient
+of 0.7 or higher was not considered together. (R-squared of .49 or higher).
+This was chosen as the cutoff because .7 correlation means that variance 
+is roughly 50% accounted for between variables. Additionally, variables
+known to represent the same processes, like tree basal area and diameter,
+were not considered together to avoid redundancies and reduce model complexity. 
 
-2. Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). *These two were inherent because they are derived from the same variable, aspect, which cannot be used in its raw form due to scaling issues. The sin/cos transformation and the resulting interaction term allows this variable to represent aspect in a way that parses out east-west from north-south. Model comparisons were made with their inclusion and without.*
+2. Only necessary or inherent interactions were considered, 
+such as an interaction between sin(aspect) and cos(aspect). 
 
-3. Different groups of variables within groups were compared with RMSE. *For example, in the site variables group, 3 different groups were compared - heatload, site index, and raw topographic variables. The model bearing the lowest RMSE (highest predictive accuracy) was selected. These groups were derived as a result of the colinearity assessments as well as prior knowledge that heatload is derived from topographic variables and site index is meant to serve as a catch-all that accounts for all site variables. In the case of site variables as well, a stand categorization intercept was evaluated against the other within-group groups to account for site effects. *
+*These two were inherent because they are derived from the same variable, aspect, which cannot be used in its raw form due to scaling issues. The sin/cos transformation and the resulting interaction term allows this variable to represent aspect in a way that parses out east-west from north-south. Model comparisons were made with their inclusion and without.*
+
+3. Different groups of variables within groups were compared with RMSE. 
+
+*For example, in the site variables group, 3 different groups were compared - heatload, site index, and raw topographic variables. The model bearing the lowest RMSE (highest predictive accuracy) was selected. These groups were derived as a result of the colinearity assessments as well as prior knowledge that heatload is derived from topographic variables and site index is meant to serve as a catch-all that accounts for all site variables. In the case of site variables as well, a stand categorization intercept was evaluated against the other within-group groups to account for site effects. *
 
 4. Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
 
-5. Once selections are made based on the above process, then a concurvity assessment is made within each group. If concurvity is greater than 0.8 for a particular set of terms, *such terms will be scrutinized.* (Johnston et al 2019 uses a very low concurvity cutoff. It oftentimes is arbitrary). **now I'm using the concurvity estimate provided by mgcv, these values are much lower in general - since I'm using the estimate, maybe I should consider dropping my concurvity cutoff to 0.5??? 0.3?? they're more or less arbitrary, but 0.3 would definitely help avoid issues. but is it feasible? I'm investigating.. starting with 0.5, for kicks**
+5. Once selections are made based on the above process, 
+then a concurvity assessment is made within each group. 
+If concurvity is greater than 0.8 for a particular set of terms,
+*such terms will be scrutinized.* (Johnston et al 2019 uses a very low concurvity cutoff. It oftentimes is arbitrary). 
+
+**now I'm using the concurvity estimate provided by mgcv, these values are much lower in general - since I'm using the estimate, maybe I should consider dropping my concurvity cutoff to 0.5??? 0.3?? they're more or less arbitrary, but 0.3 would definitely help avoid issues. but is it feasible? I'm investigating.. starting with 0.5, for kicks**
 
 Step (iii) Random effects
 
@@ -101,24 +281,47 @@ Step (iv) species mixing
 
 ### **Within-group dimensional reduction**
 
-Selecting variables within each group posed challenges due to the number of predictors, colinearity and/or concurvity among variables and terms, and the numerous potential interactions between variables within groups. This required a firmly-structured process where co-variate relationships are assessed. 
+Selecting variables within each group posed challenges due to the 
+number of predictors, colinearity and/or concurvity among variables
+and terms, and the numerous potential interactions between variables
+within groups. This required a firmly-structured process where
+co-variate relationships are assessed. 
 
 **DEFINE CONCURVITY** (Hastie and Tibshirani 1990)
 
-*curse of dimensionality of nonparametric functions* Wood(2004) stable and efficient multiple smoothing parameter estimation for generalized additive models
+*curse of dimensionality of nonparametric functions* Wood(2004) 
+stable and efficient multiple smoothing parameter estimation for
+generalized additive models
 *Sure-independence screening*
 
-Prior to implementing the steps here, assessment of co-linearity was performed between variables within each group, since there is some amount of redundancy within groups. This assessment was made through plotting each variable with each other variable, identifying if there is a relationship through graphical analysis, and then evaluating the strength of linear relationships with r-squared values. Additionally, if one variable is derived from another present, these will not be considered as covariates in the same model.
+Prior to implementing the steps here, assessment of co-linearity
+was performed between variables within each group, since there is
+some amount of redundancy within groups. This assessment was made 
+through plotting each variable with each other variable, identifying
+if there is a relationship through graphical analysis, and then 
+evaluating the strength of linear relationships with r-squared values. 
+Additionally, if one variable is derived from another present, 
+these will not be considered as covariates in the same model.
 
 
 
 ### Evaluating species mixing
 
-Once a parsimonious base-model is selected, species-mixing variables will then be added to detect if there is a species-mixing effect. Further elaboration on applying this approach will be explained in the following text. **The following equation** (Equation...xxx) represents the modeling framework: 
+Once a parsimonious base-model is selected, species-mixing variables 
+will then be added to detect if there is a species-mixing effect. 
+Further elaboration on applying this approach will be explained in
+the following text. **The following equation** (Equation...xxx) 
+represents the modeling framework: 
 
 $$g(E(Y)) = \beta_0 + f_1(x_1) + f_2(x_2) + ... +f_i(x_i)$$
 
-where $g()$ represents a link function, $E(Y)$ represents the expected value of a dependent variable $(Y)$ of interest, $\beta_0$ represents an intercept, and $f_i$ represents a non-linear function applied to an independent variable, $x_i$. **In a case where a linear relationship between a predictor and the dependent variable exists, then a parametric formulation may be applied**. For predictor variables displayed by groups, see Table \@ref(tab:table2).
+where $g()$ represents a link function, $E(Y)$ represents the expected 
+value of a dependent variable $(Y)$ of interest, $\beta_0$ represents 
+an intercept, and $f_i$ represents a non-linear function applied to an 
+independent variable, $x_i$. For predictor variables displayed by groups, see Table \@ref(tab:table2).
+
+
+**In a case where a linear relationship between a predictor and the dependent variable exists, then a parametric formulation may be applied**.
 
 
 ## Basal Area Increment Model
@@ -126,23 +329,60 @@ where $g()$ represents a link function, $E(Y)$ represents the expected value of 
 **A common approach for characterizing BAI is to model it as a function of tree size, site characteristics, competition, and disturbance and management history [@Wykoff1990; @Vospernik2021]. This approach takes advantage of established biological and empirical relationships. It allows the flexibility to add and omit terms to enhance predictive ability and to detect sensitivity of the response to the predictors.** Annual BAI was calculated with the following:
 
 $$BAI_{ijt} = \frac{BA_{ij(t+1)}-BA_{ijt}}{A_{ij(t+1)}-A_{ijt}}$$
-where $BA_{ijt}$ is the basal area of a tree $i$ within cluster $j$ at a given measurement $t$, $BA_{ij(t+1)}$ is the basal area of the same tree at the next measurement $(t+1)$, and $A_{ijt}$ and $A_{ij(t+1)}$ are the corresponding tree's ages. Therefore, the annual Basal Area Increment (BAI) of a tree is the difference in basal area of the same tree between two measurements, divided by the number of years between measurements.
 
-A Gamma distribution with a log-link function was chosen to accommodate the gamma-like distribution of BAI. Other model distribution families and transformations were compared and evaluated using root mean square error to measure prediction accuracy, however model performance/accuracy was best with the Gamma-log combination. **MORE INFO**
+where $BA_{ijt}$ is the basal area of a tree $i$ within cluster $j$ at
+a given measurement $t$, $BA_{ij(t+1)}$ is the basal area of the same 
+tree at the next measurement $(t+1)$, and $A_{ijt}$ and $A_{ij(t+1)}$ 
+are the corresponding tree's ages. Therefore, the annual 
+Basal Area Increment (BAI) of a tree is the difference in basal
+area of the same tree between two measurements, divided by the number 
+of years between measurements.
+
+A Gamma distribution with a log-link function was chosen to 
+accommodate the gamma-like distribution of BAI. Other model 
+distribution families and transformations were compared and 
+evaluated using root mean square error to measure prediction 
+accuracy, however model performance/accuracy was best with the 
+Gamma-log combination. **MORE INFO**
 
 ### Independent variable calculations
 
-To adjust for the sampling design structure, trees were assigned trees per acre equivalence values. For example, for metrics evaluated at the plot-level, a large tree would have a tpa equivalent of 20 trees per acre, and a small tree would have an equivalent of 100 trees per acre, since there are 3-300th acre small tree plots in each measurement plot. At the cluster level, since there are 3 large plots, large-trees represented ~6.7 trees per acre, and small trees represented ~33.3 trees per acre. **Change to metric**
+To adjust for the sampling design structure, trees were assigned 
+trees per acre equivalence values. For example, for metrics 
+evaluated at the plot-level, a large tree would have a tpa equivalent 
+of 20 trees per acre, and a small tree would have an equivalent 
+of 100 trees per acre, since there are 3-300th acre small tree 
+plots in each measurement plot. At the cluster level, since there
+are 3 large plots, large-trees represented ~6.7 trees per acre,
+and small trees represented ~33.3 trees per acre. **Change to metric**
 
-Using field collected GPS points, site variables were extracted for each measurement cluster. The following were captured and/or extracted with **google earth engine**:
+Using field collected GPS points, site variables were extracted 
+for each measurement cluster. The following were captured and/or 
+extracted with **google earth engine**:
+
 -Aspect
-Since aspect is a circular measure (0-360 **degrees**) where different values can represent similar conditions (e.g. low and high values both represent north-facing aspects), different transformations were considered:
--- sin(aspect) and cosine(aspect) together represent east-west and north-south, respectively. This combination was considered to represent effects of aspect on BAI. 
---**CITE Stage 1976** proposed a metric which represents the combined effects of slope and aspect. 
+Since aspect is a circular measure (0-360 **degrees**) where
+different values can represent similar conditions (e.g. low and 
+high values both represent north-facing aspects), different 
+transformations were considered:
+-- sin(aspect) and cosine(aspect) together represent east-west 
+and north-south, respectively. This combination was considered 
+to represent effects of aspect on BAI. 
+--**CITE Stage 1976** proposed a metric which represents the 
+combined effects of slope and aspect. 
 
-Representing aspect with both sin and cos transformations added to model complexity when considering their inherently interacting effects. TRASP provides a single metric that added to flexibility to the model fitting process. (This does require some assumptions about aspect optima - or at least requires generalizations about n-ne aspects and s-sw aspects being wet and dry, respectively)
+Representing aspect with both sin and cos transformations added 
+to model complexity when considering their inherently interacting 
+effects. TRASP provides a single metric that added to flexibility 
+to the model fitting process. (This does require some assumptions 
+about aspect optima - or at least requires generalizations about 
+n-ne aspects and s-sw aspects being wet and dry, respectively)
 
--- topographic solar radiation index (TRASP) was considered **CITE(Roberts & Cooper 1989)**. TRASP is a linear transformation of aspect which linearizes aspect to a range between 0 and 1, where 0 represents N-NE slopes that are cooler and wetter, and 1 represents S-SW slopes, which generally are hotter and drier. 
+-- topographic solar radiation index (TRASP) was considered **CITE(Roberts & Cooper 1989)**. 
+TRASP is a linear transformation of aspect which linearizes aspect 
+to a range between 0 and 1, where 0 represents N-NE slopes that are 
+cooler and wetter, and 1 represents S-SW slopes, which generally are 
+hotter and drier. 
 
 -Slope
 -Elevation
@@ -163,7 +403,10 @@ Larch Fraction...
 
 ### Notes:
 
-For density and competition, I separated out tree-based metrics from plot-based aggregate metrics. Although they were all considered within the same group, selections were made separately, but colinearities between variables in this group as a whole were all still considered together. 
+For density and competition, I separated out tree-based metrics 
+from plot-based aggregate metrics. Although they were all 
+considered within the same group, selections were made separately, 
+but colinearities between variables in this group as a whole were all still considered together. 
 
 **HOW DO I MEASURE HOW MUCH SPECIES MIXING IMPACTS THE OVERALL RELATIONSHIP?? Is there an anova-like test to be done between the base model and the model with species-mixing? Drop in deviance?**
 
@@ -221,15 +464,23 @@ ggplot(lf.a.smest, aes(x = larch.ba.fraction.pl, y = exp(est))) +
 
 ### Size
 
-Outliers were identified and were omitted because of their strong impact on the diameter partial response. 
+Outliers were identified and were omitted because of their 
+strong impact on the diameter partial response. 
 
 ### Base model
 
-The final base model chosen included DBH, crown ratio, BAL, crown compeition factor (CCF), aspect (represented by an interaction between sin(ASP) and cos(ASP)). 
+The final base model chosen included DBH, crown ratio, BAL, 
+crown compeition factor (CCF), aspect (represented by an interaction 
+between sin(ASP) and cos(ASP)). 
 
 #### random effects
 
-Random effects were considered in the form of intercepts at each of the following hierarchies, all exclusive, not together: stand, measurement cluster, plot, and tree. Ultimately, accounting for tree-specific effects improved overall model accuracy the best. To aid in reducing model complexity and computation times, more complex representations of nesting was not accounted for here. 
+Random effects were considered in the form of intercepts at 
+each of the following hierarchies, all exclusive, not together: 
+stand, measurement cluster, plot, and tree. Ultimately, accounting 
+for tree-specific effects improved overall model accuracy the best. 
+To aid in reducing model complexity and computation times, more complex 
+representations of nesting was not accounted for here. 
 
 
 
@@ -237,13 +488,28 @@ Random effects were considered in the form of intercepts at each of the followin
 
 ## MODEL SELECTION 
 
-- One exceptionally large tree was present in the data and proved to have high-influence on the shape of the diameter partial response curve. The decision to choose diameter as the predictor was certainly impacted by this high-influencing data point, so the size variables were reconsidered with and without its presence. 
+- One exceptionally large tree was present in the data and proved 
+to have high-influence on the shape of the diameter partial 
+response curve. The decision to choose diameter as the predictor 
+was certainly impacted by this high-influencing data point, so the 
+size variables were reconsidered with and without its presence. 
 
-- The decision to select groups in the order that we did was decided based on Wykoff 1990 (CITE:), however, we acknowledge that Monserud and Sterba 1996 (CITE) found that tree size accounted for the most variability, followed by competition, and then site factors, however, their modeling efforts were reporting on various European species, many of which were broadleaf species. 
+- The decision to select groups in the order that we did was decided 
+based on Wykoff 1990 (CITE:), however, we acknowledge that Monserud 
+and Sterba 1996 (CITE) found that tree size accounted for the most 
+variability, followed by competition, and then site factors, 
+however, their modeling efforts were reporting on various European 
+species, many of which were broadleaf species. 
 
 - Two things that I noticed about using GAMs here:
-1. Wiggliness is hard to control when putting all of these variables together. Tryhing to fine-tune adjust smooth terms is too difficult as the model gets more complex. 
-2. Concurvity does not capture everything, and if too heavy of a weight is put on this metric, then model fitting process can become extremely arduous. In this case, concurvity ought to be used as  a rough metric. It's important to acknowledge that these variables do have overlap. 
+1. Wiggliness is hard to control when putting all of these 
+variables together. Tryhing to fine-tune adjust smooth terms 
+is too difficult as the model gets more complex. 
+2. Concurvity does not capture everything, and if too heavy of 
+a weight is put on this metric, then model fitting process can 
+become extremely arduous. In this case, concurvity ought to be 
+used as  a rough metric. It's important to acknowledge that 
+these variables do have overlap. 
 
 
 
@@ -252,6 +518,10 @@ Random effects were considered in the form of intercepts at each of the followin
 
 
 # Text bank:
+
+*~~Across forests within the inland northwest, precommercial thinning (PCT) is a common, relatively low cost, and effective method to manage stand development and structure, either in response to or in the face of anthropogenic climate change. PCT can reduce inter-tree competition, increase individual volume growth, and promote structure that is conducive to higher yields [@Hawley1921; @Smith1985; @Oliver1996; @Nyland2016]. It can also have long-term impacts on height and diameter growth, as well as individual tree architecture [@Harrington1983; @Weiskittel2009]. Additionally, early thinning is cheaper and less logistically challenging  than other intermediate activities, such as commercial thinning, herbicide treatment, and burning [@Reukema1975]. Furthermore, PCT can be an effective measure for producing forest structure that aids in fuels [@Agee2005; @Dodge2019] and/or wildlife focused objectives [@Hayes1997], making it a versatile management option with lasting, multi-purpose effects. Resulting structure in thinned-forests may also add to resistance and resilience in relation to climate change-aggravated disturbances and perturbations [@Nagel2017]. Lastly, PCT can be an effective method to maximize long-term carbon accumulation without sacrificing individual tree growth or understory development [@Schaedel2017a].~~*
+
+*~~Density treatments in young stands can have short and long term impacts on western larch growth dynamics, as well as on overall stand development. Natural western larch seedling establishment tends to be very dense (many trees/unit area), and young densely-packed larch grow very quickly, making western larch stands ideal candidates for juvenile thinning [@Schmidt1966; @Schmidt1976; @Schmidt1988].Thompson [-@Thompson1992] found that thinning western larch early in stand development capitalizes on juvenile growth rates compared to thinning later in development. In a long-term study, Schaedel [-@Schaedel2017a] found that early density management can lead to larger tree size and stability over a rotation period. Additionally, different target PCT densities led to similar net stand yields over a rotation, suggesting that early thinning can control whether larch stand volume is concentrated in many smaller and less stable trees, or few larger, more stable (more commercially valuable) trees [@Schaedel2017a]. ~~*
 
 Options:
 1. Double-penalty appraoch:
@@ -278,3 +548,16 @@ Options:
 
 *Thus, my research objectives are to: (v) identify whether species-mixing impacts the height-diameter relationship of western larch after accounting for other key variables, (vi) quantify the degree to which mixing affects western larch height-diameter allometry. *
 
+
+
+
+*In general, I'm not here trying to develop a new model that works better than every model ever, but I do want to create a model which accurately predicts basal increment, and one that is a firm platform upon which the addition of species mixing can be included in order to assess the potential impacts of it. Practically speaking, if species mixing shows an impact on this relationship, I'd like to be able to provide a suggestion on how it can be incorporated into the FVS basal area increment model.. Thus it's important that I stick to the script, so to speak. *
+
+*Since I'm using generalized additive models, then maybe it makes sense to only include one variable from each group? If it's predictive power, then it might actually make sense to include a variable of each type to each group. I do want to avoid overfitting *
+
+*Given that *
+
+*Then what are my objectives?*
+*1. Identify if and how species mixing impacts basal area increment, given a set of variables known to influence basal area increment.*
+*2. Identify if and how shade-tolerance offers an explanation for why/how a species-mixing impact on bai exists, given a set of variables.*
+*3. Identify a model structure suitable for representing this relationship, or a set of variables that does a good enough job*

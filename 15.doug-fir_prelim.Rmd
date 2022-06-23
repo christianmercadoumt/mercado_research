@@ -1,0 +1,101 @@
+---
+title: "doug_fir_prelim"
+author: "cmm"
+date: '2022-06-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("4.readformat_pgp_recentlymeasured.R")
+source("5.species_comp_functions.R")
+source("8.larch_frac_fns.R")
+source("6.plotvars.R")
+source("7.clustervars.new.R")
+
+load("data/ingy_settings_si.Rdata")
+load('data/ingy_clusters_googleearth.Rdata')
+
+#create lat long variables extracted from list element in ingy_clusters
+options(digits = 10) #without this, the loop rounds numbers. Not sure why. 
+lat.cl <- NA
+lon.cl <- NA
+for(i in 1:length(ingy_clusters$geometry)){
+  
+  lat.cl[[i]] <- ingy_clusters$geometry[[i]][1]
+  lon.cl[[i]] <- ingy_clusters$geometry[[i]][2]
+}
+ingy_clusters <- ingy_clusters %>% mutate(lat.cl = lat.cl, lon.cl = lon.cl) %>% select(-geometry)
+
+### get stand data
+stand.data <- read_csv('data/pgp_stand_summary_data_18_21.csv')
+stand.data <- stand.data %>% 
+  select(SETTING_ID, NF, HabType, SCIENTIFIC_NAME, COMMON_NAME)
+#combine stand data with cluster attributes
+stand.cl <- left_join(ingy_clusters, stand.data, by = 'SETTING_ID')
+
+library(tidyverse)
+
+bai.shade <- readRDS('data/bai.shade.rds')
+
+```
+
+9.bai_data.v2.Rmd, line 71 is just before data gets filtered down to only larch. Likely need to modify some functions from the sources above to fit doug-fir
+
+Picking up from that point starting here:
+
+```{r}
+bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'PSME') %>% group_by(SETTING_ID, myear) %>% summarize(n())
+bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC') %>% group_by(SETTING_ID, myear) %>% summarize(n())
+```
+
+
+```{r bottom of 9.bai_data.v2}
+#filter out na's and non-dougfir
+bai.df <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'PSME')
+bai.data2 <- left_join(bai.df, stand.data, by = "SETTING_ID") # adding stand data/site chars. 
+bai.data3 <- bai.data2 %>% group_by(SETTING_ID, NF) %>% 
+  mutate(stand = case_when(NF == 'Kootenai' ~ 1400+cur_group_id(),
+                           NF == 'Lolo' ~ 1600+cur_group_id())) %>% #maybe turn this step into a function
+  ungroup() %>% 
+  mutate(bai = bai*144, treeba = treeba*144) %>%  #Convert from square feet to square inches
+  mutate(log.bai = log(bai), sqrt.bai = sqrt(bai), 
+         log.diam = log(DIAMETER), stand = as.factor(stand)) 
+
+#not sure if these stands need to be removed - need to explore data a bit #%>% #add some vars
+ # filter(!(stand %in% c(1613, 1620)), MEASUREMENT_NO != 0) #Remove stands with barely any larch data
+
+
+bai.df <- left_join(bai.data3, ingy_clusters)
+bai.df <- bai.df %>% select(!c(SET_CN, PLOT_CN, TREE_CN))
+
+bai.df %>% group_by(stand, MEASUREMENT_NO) %>% summarize(n())
+## stand 1402, 1405 - whats going on there 
+bai.df %>% filter(stand == 1402) %>% arrange(unique_tree_id) # lots of ingrowth with the dbh cutoff - or so it appears
+bai.df %>% filter(stand == 1405) %>% arrange(unique_tree_id) # same as above
+bai.df %>% filter(stand %in% c(1402, 1405)) %>% group_by(stand, PURPOSE_CODE, MEASUREMENT_NO) %>% summarize(n(), min(DIAMETER), mean(DIAMETER))
+
+```
+
+```{r 10.holdoutdata.R}
+set.seed(301)
+
+#Identify sample plots within separate data frame
+sample.data <- bai.df %>% group_by(SETTING_ID) %>% #call data and group to settings
+  summarize(PLOT = unique(PLOT)) %>% #identify plots
+  slice_sample(n = 2) %>%  #then sample 2 plots for each setting id
+  mutate(sample = "sample") %>% ungroup() #add variable identifying samples
+
+bai.df.full <- left_join(bai.df, sample.data) #add sample variable to full data set based on matching setting id and plot. NA's produced for non-matches.
+
+#Check equality - make sure it works..
+a <- bai.df.full %>% filter(sample == 'sample') %>% group_by(SETTING_ID, PLOT, sample) %>% summarize()
+all_equal(sample.data,a)
+
+#separate data sets
+bai.hold.df <- bai.data.full %>% filter(sample == 'sample')
+bai.train.df <- bai.data.full %>% filter(is.na(sample))
+```
+
+
