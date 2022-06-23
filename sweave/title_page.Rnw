@@ -1,0 +1,42 @@
+% !Rnw root = thesis_template.Rnw
+
+\begin{center}
+TITLE Line 1\\[10pt] 
+
+TITLE continues, maybe \\[10pt]
+
+By\\[10pt]
+
+YOUR NAME \\[10pt]
+
+B.S. Something, University of Somewhere, City, State, year, 2014\\[10pt]
+
+Thesis\\[10pt]
+
+presented in partial fulfillment of the requirements\\
+for the degree of\\[10pt]
+
+Master of Science\\
+Forestry\\[10pt]
+
+The University of Montana\\
+Missoula, MT\\[10pt]
+
+Month Year\\[10pt]
+
+Approved by:\\[10pt]
+
+Scott Whittenburg,\\
+Graduate School Dean\\[10pt]
+
+David Affleck, Chair\\
+Department of Forest Management\\[10pt]
+
+% Alphebetize
+Andrew Larson\\
+Department of Forest Management\\[10pt]
+
+other\\
+Department of other\\[10pt]
+
+\end{center}
