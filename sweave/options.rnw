@@ -1,0 +1,86 @@
+% !Rnw root = linearmod.Rnw
+
+%%%%%%%%  Misc Packages   %%%%%%%%%%%%%%%%
+\usepackage{amsmath} %,amssymb,amsthm,bm}
+\usepackage[usenames,dvipsnames]{color}
+\definecolor{MyDarkBlue}{rgb}{0,0.08,0.45}
+
+%%%%%%%%  Floats %%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs}
+
+%%%%%%%%  Page Setup %%%%%%%%%%%%%%%%%%
+\usepackage[margin=1in]{geometry}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{12pt plus4mm minus3mm}
+ 
+%%%%%%%%  Dates  %%%%%%%%%%%%%%%%%%%%%%%%%%
+\edef\today{\number\day\space
+\ifcase\month\or January\or February\or March\or April\or 
+May\or June\or July\or August\or September\or October\or 
+November\or December\fi \space \number\year}
+
+
+%% Special command for nice section headers %%
+\makeatletter
+ \renewcommand\section{\@startsection{section}%
+  {1}{0pt}{-\baselineskip}{.5\baselineskip}%
+  {\normalfont\normalsize\bfseries\raggedright}}
+ \renewcommand\subsection{\@startsection{subsection}%
+  {1}{0pt}{-\baselineskip}{.5\baselineskip}%
+  {\normalfont\normalsize\raggedright}}
+ \newcommand\topcaption{\caption}
+\makeatother
+
+%%%%%%%%%%%% Fonts %%%%% 
+\usepackage[T1]{fontenc}
+%\usepackage{mathptmx}
+\usepackage{times}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[slantedGreek,subscriptcorrection,mtpbbi,mtpcal,nofontinfo]{mtpro2}
+
+
+%%%%% Special command to get square brackets for equations %%%%% 
+\mathindent32pt
+\newcommand{\eqnoformat}[1]{[\ignorespaces#1\unskip]}
+ \makeatletter
+ \AtBeginDocument{
+     \def\tagform@#1{%
+       \maketag@@@{\eqnoformat{#1}}}
+ }
+ \makeatother
+ 
+ %% Line numbering %%
+\usepackage{lineno}
+%% Special fix to prevent line numbering errors in align enviro %%
+\let\oldalign\align%
+\let\endoldalign\endalign%
+\renewenvironment{align}%
+  {\linenomath\oldalign}{\endoldalign\endlinenomath}%
+%
+\expandafter\let\expandafter\oldalignstar\csname align*\endcsname%
+\expandafter\let\expandafter\endoldalignstar\csname endalign*\endcsname%
+\renewenvironment{align*}%
+  {\linenomath\oldalignstar}{\endoldalignstar\endlinenomath}%
+ 
+%%%%% Bibliographic stuff %%%%%%%%%
+\usepackage{natbib}  % allows for author year format
+\bibliographystyle{biblio_alpha}   % tells how to list bib entries: authors (year) etc.
+\bibpunct[, ]{(}{)}{;}{a}{}{}  % opt. 5: comma btw author & year
+%\renewcommand\bibname{Literature Cited}
+\renewcommand{\bibsection}{}
+
+%%%%%% SWEAVE Stuff %%%%%%%%%%%%%%
+\usepackage{Sweave}
+\SweaveOpts{engine=R,strip.white=all,prefix=TRUE,prefix.string=fig}
+%\SweaveOpts{include=F,eps=FALSE,pdf=TRUE} %,width=6,height=6}
+\SweaveOpts{include=F,eps=FALSE,pdf=TRUE} %,width=3,height=3}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{formatcom=\small\color{Blue},xleftmargin=3mm} %fontshape=sl,
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=3mm,formatcom=\small\color{MyDarkBlue}}
+\newcommand{\rcd}[1]{{\small\color{Blue}\texttt{#1}}}
+<<preliminaries,echo=FALSE,results=hide>>=
+ options(width=65)
+ library(lattice)
+ lattice.options(default.theme = standard.theme(color = FALSE))
+@
