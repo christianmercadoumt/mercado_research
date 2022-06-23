@@ -1,12 +1,13 @@
 ---
-title: "nafew_stuff"
-author: "cmm"
-date: '2022-06-13'
+title: "thesis_figs_tabs_draft"
+author: "Christian Mercado"
+date: '2022-06-22'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+working space for figure and table creation - create .R file with the relevant figs and tables created here. 
 
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 cm.sq <- 6.4516
 cm <- 2.54
@@ -197,93 +198,23 @@ kb1 <- tb1 %>%
 
 bai.hold <- readRDS('data/bai.hold.5_23_22.rds')
 bai.train <- readRDS('data/bai.train.5_23_22.rds')
-bai.all <- rbind(bai.hold, bai.train)
+bai.all <- rbind(bai.hold, bai.train)```
 ```
 
-```{r diameter distributions by crown class}
-bai.all <- bai.all %>% filter(DIAMETER<30, CROWN_CLASS %in% c('DO','CO', 'IN', 'OV')) %>% mutate(CROWN_CLASS = factor(CROWN_CLASS,levels = c('DO','CO', 'IN', 'OV')))#, ))
+```{r Map}
+### This map is scaled out. To modify scale use the scale argument in getgooglemap
+### scale bar not included. See commented out code below, should be added to ggmap
+### Also modified some styles. style reference material here: "Style Reference for Maps JavaScript API" - https://developers.google.com/maps/documentation/javascript/style-reference
 
-summary(bai.all$CROWN_CLASS)
 
-ggplot(bai.all, aes(x = DIAMETER*cm, color = CROWN_CLASS, fill = CROWN_CLASS)) + geom_histogram(alpha = 0.4, position = 'identity') + labs(y = 'Proportion of Observations', x = 'Larch diameter (cm)', fill = 'Crown Class') + guides(color = F) + scale_fill_hue(labels = c('Dominant', 'Co-dominant', 'Intermediate', 'Overtopped')) + theme(legend.position = c(.65, .65), axis.title = element_text(size = 14), axis.text = element_text(size = 12)) #facet_grid(~cut_number(larch.ba.fraction.pl, 2))
-
-ggplot(bai.all, aes(x = DIAMETER*cm, y = ..count.., color = CROWN_CLASS, fill = CROWN_CLASS)) + 
-  geom_density(alpha = 0.09, position = 'identity') + 
-  labs(y = 'Observations', x = 'Larch diameter (cm)', fill = 'Crown Class') + 
-  guides(color = F) + scale_fill_hue(labels = c('Dominant', 'Co-dominant', 'Intermediate', 'Overtopped')) + theme(legend.position = c(.65, .65), axis.title = element_text(size = 14), axis.text = element_text(size = 12))
-  
-  
-nrow(bai.all)
-
-```
-
-```{r smooths}
-limits <- c(-2, 2.5)
-breaks <- seq(limits[1], limits[2], by = 1)
-diam.smest <- smooth_estimates(re.tree.1, smooth = 's(DIAMETER)') %>% add_confint()
-bal.smest <- smooth_estimates(re.tree.1, smooth = 's(bal.pl.ratio)') %>% add_confint()
-ccf.smest <- smooth_estimates(re.tree.1, smooth = 's(ccf.pl)') %>% add_confint()
-sl.smest <- smooth_estimates(re.tree.1, smooth = 's(slope_pct)') %>% add_confint()
-lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
-st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
-
-diam.smth <- ggplot(diam.smest, aes(x = DIAMETER*cm, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'DBH (cm)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) +  theme(axis.title = element_text(size = 14), axis.text = element_text(size = 12))
-
-bal.smth <- ggplot(bal.smest, aes(x = bal.pl.ratio, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'BAL (ratio)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
-
-ccf.smth <- ggplot(ccf.smest, aes(x = ccf.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Crown Competition Factor') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
-
-sl.smth <- ggplot(sl.smest, aes(x = slope_pct, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Slope (%)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
-
-lf.smth <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Larch fraction') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
-
-st.smth <- ggplot(st.smest, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
-
-a <- ggplot_gtable(ggplot_build(diam.smth))
-b <- ggplot_gtable(ggplot_build(bal.smth))
-c <- ggplot_gtable(ggplot_build(ccf.smth))
-d <- ggplot_gtable(ggplot_build(sl.smth))
-e <- ggplot_gtable(ggplot_build(lf.smth))
-f <- ggplot_gtable(ggplot_build(st.smth))
-
-b$heights <- a$heights
-c$heights <- a$heights
-d$heights <- a$heights
-e$heights <- a$heights
-f$heights <- a$heights
-
-grid.arrange(arrangeGrob(a))
-grid.arrange(b)
-grid.arrange(c)
-grid.arrange(d)
-grid.arrange(e)
-grid.arrange(f)
-```
-
-```{r}
-ggplot(diam.smest, aes(x = DIAMETER*cm, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'DBH (cm)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks)
-
-ggplot(diam.smest, aes(x = DIAMETER*cm, y = cm.sq*exp(est))) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = cm.sq*exp(lower_ci), ymax = cm.sq*exp(upper_ci))) + labs(y = 'Partial effect', x = 'DBH (cm)') + geom_hline(yintercept = cm.sq,linetype = 'dashed') #+ scale_y_continuous(limits = limits, breaks = breaks)
-
-bal.smth <- ggplot(bal.smest, aes(x = bal.pl.ratio, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'BAL (ratio)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank())
-
-ccf.smth <- ggplot(ccf.smest, aes(x = ccf.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Crown Competition Factor') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank())
-
-sl.smth <- ggplot(sl.smest, aes(x = slope_pct, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Slope (%)') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank())
-
-lf.smth <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Larch fraction') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank())
-
-st.smth <- ggplot(st.smest, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank())
-```
+#+ scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black')
 
 
 
-```{r map}
 library(RgoogleMaps)
 library(ggmap)
 library(ggthemes)
 library(ggsn)
-library(tidyverse)
 library(ggrepel)
 
 style1 <- c(feature = 'administrative.country', element = 'labels', visibility = 'simplified')
@@ -306,13 +237,50 @@ center <- c(mean(standsum$lon), mean(standsum$lat))
 map <- get_googlemap(center = center, zoom = 7, maptype = 'hybrid', filename = 'ggmap1', style = style, scale = 4)
 
 (mapp <- ggmap(map, legend = 'none', extent = 'device', padding = 0) + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = standsum, show.legend = F) + theme_map())
-
-ggsave('mapmapmap.png', dpi=450)
-#+ scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black') #+ labs(title = 'Figure 1: Stands in NW Montana') + theme(plot.title = element_text(size = 9)) geom_label_repel(aes(label = stand), data = standsum, label.padding = .08, box.padding = .15) +
 ```
 
-```{r}
-(tb.results <- tibble(models1, rmse.mods1, dev1))
+```{r stand summary table}
+## This probably needs to be re-worked - come back to this later. 
+
+setting.sumstats <- bai.train %>% 
+    group_by(stand, cluster, MEASUREMENT_NO) %>%
+    summarise(num.larch.bai = n(),min.d = min(DIAMETER),
+            max.d = max(DIAMETER),min.larch_frac = min(larch.ba.fraction.pl), 
+            max.larch_frac = max(larch.ba.fraction.pl), 
+            min.shadetol = min(shade.tol.pl), max.shadetol = max(shade.tol.pl), 
+            min.tpa = min(tpa.pl.all), max.tpa = max(tpa.pl.all),
+            mean.tpa = mean(tpa.cl.all), mean.ba = mean(ba.cl),
+            min.yr = min(myear), max.yr = max(myear),
+            growth.period = mean(grwth.yr), 
+            min.gp = min(grwth.yr), max.gp = max(grwth.yr),
+            m1 = mean(myear[MEASUREMENT_NO==1]),
+            m2 = mean(next.yr[MEASUREMENT_NO==1]),
+            m3 = mean(next.yr[MEASUREMENT_NO==2]),
+            m4 = mean(next.yr[MEASUREMENT_NO==3], na.rm = T),
+            m5 = mean(next.yr[MEASUREMENT_NO==4], na.rm = T),
+            num.meas = max(MEASUREMENT_NO)) %>% 
+    ungroup()
+
+trees <- bai.train %>% group_by(stand) %>% summarize(num.tree = length(unique(unique_tree_id))) %>% ungroup()
+
+setting.sumstats <- left_join(setting.sumstats, trees)
+
+setting.treecounts <- setting.sumstats %>% group_by(stand) %>% 
+  summarize(num.bais = sum(num.larch.bai, na.rm = T), 
+            num.trees = mean(num.tree, na.rm=T), 
+            min.gp = min(min.gp, na.rm = T), 
+            max.gp = max(max.gp, na.rm = T),
+            #m1 = min(m1, na.rm = T),
+            #m2 = mean(m2, na.rm = T),
+            #m3 = mean(m3, na.rm = T),
+            #m4 = mean(m4, na.rm = T),
+            #m5 = mean(m5, na.rm = T),
+            num.meas = max(num.meas)+1) %>% 
+  rename(Stand = stand)
+setting.treecounts <- rename(setting.treecounts, '# bais' = num.bais, '# trees' = num.trees, 'Min. \nGrowth \nPeriod' = min.gp, 'Max. \nGrowth \nPeriod' = max.gp, '# of \nmeasure-\nments' = num.meas)
 ```
 
+```{r }
+
+```
 

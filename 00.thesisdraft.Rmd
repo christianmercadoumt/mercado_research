@@ -94,6 +94,9 @@ The following steps outline the pragmatic variable selection approach mentioned 
 
 5. Once selections are made based on the above process, then a concurvity assessment is made within each group. If concurvity is greater than 0.8 for a particular set of terms, *such terms will be scrutinized.* (Johnston et al 2019 uses a very low concurvity cutoff. It oftentimes is arbitrary). **now I'm using the concurvity estimate provided by mgcv, these values are much lower in general - since I'm using the estimate, maybe I should consider dropping my concurvity cutoff to 0.5??? 0.3?? they're more or less arbitrary, but 0.3 would definitely help avoid issues. but is it feasible? I'm investigating.. starting with 0.5, for kicks**
 
+Step (iii) Random effects
+
+Step (iv) species mixing
 
 
 ### **Within-group dimensional reduction**

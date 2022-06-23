@@ -283,7 +283,7 @@ Random individual tree effects were incorporated into this base model to account
 Then, variables describing the degree and/or form of stand species-mixture were added to 
 the model and their contributions to model accuracy and performance were assessed. 
 Two species-mixing variables were considered: a proportion of stand basal 
-area taken up by larch as well as a stand shade-intolerance metric, 
+area taken up by larch (WL ratio) as well as a stand shade-intolerance metric (Shade), 
 where a shade tolerance index [@Lienard2015] was used to weight each
 species' proportion of stand basal area by shade tolerance.
 
@@ -292,7 +292,7 @@ species' proportion of stand basal area by shade tolerance.
 
 Various alternative base model formulations for estimating BAI were considered. 
 Ultimately, tree diameter at breast height (DBH) was selected in the size group; 
-crown competition factor [CCF; Krajicek -@Krajicek1961], basal area larger than the subject tree (BAL), and 
+crown competition factor [CCF\;Krajicek *et al.*, -@Krajicek1961], basal area larger than the subject tree (BAL), and 
 crown ratio (CR) were selected in the competition and density group; 
 slope and aspect were selected in the site group. Out of all *individual* variables selected, 
 DBH contributed the most to estimating BAI, and the nonlinear 
@@ -330,7 +330,7 @@ impact of species-mixing on tree growth in select forest ecosystems of the inlan
 \ffigbox{%
 \caption{Partial response curves for each respective species-mixing model term and its effect on BAI. WL ratio represents the stand proportion of western larch, and Shade represents the stand average shade-intolerance. The partial effect is multiplicative on estimated BAI, and thus the horizontal dashed line represents a threshold of positive/negative effects.}}%
 {%
-```{r figure2, include = T, fig.align='left', fig.dim=c(3, 1.5)}
+```{r figure2, include = T, fig.align='left', fig.dim=c(4, 1.8)}
 limits <- c(0.8, 2.15)
 breaks <- seq(limits[1], limits[2], by = 0.2)
 
@@ -356,11 +356,6 @@ grid.arrange(f1aa, f1bb, ncol = 2)
 
 ```
 }
-\ffigbox{%
-```{r, include=T, fig.align='right', fig.dim=c(3, 2.1), dpi=400}
-knitr::include_graphics('extab_refs.JPG')
-```
-}{}
 \end{floatrow}
 \end{figure}
 \newpage
