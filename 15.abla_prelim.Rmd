@@ -1,7 +1,7 @@
 ---
-title: "doug_fir_prelim"
-author: "cmm"
-date: '2022-06-23'
+title: "15a.abla_prelim"
+author: "Christian Mercado"
+date: '2022-06-24'
 output: html_document
 ---
 
@@ -38,29 +38,12 @@ stand.cl <- left_join(ingy_clusters, stand.data, by = 'SETTING_ID')
 library(tidyverse)
 
 bai.shade <- readRDS('data/bai.shade.rds')
-
 ```
-
-9.bai_data.v2.Rmd, line 71 is just before data gets filtered down to only larch. Likely need to modify some functions from the sources above to fit doug-fir
-
-Picking up from that point starting here:
-
-```{r}
-bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'PSME') %>% group_by(SETTING_ID, myear) %>% summarize(n())
-bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'LAOC') %>% group_by(SETTING_ID, myear) %>% summarize(n())
-
-bai.shade %>% filter(SETTING_ID == '01140120010011') %>% group_by(cluster, MEASUREMENT_NO) %>% summarize(n())
-
-bai.shade %>% filter(SETTING_ID == '01140120010011') %>% group_by(cluster, MEASUREMENT_NO)
-
-bai.shade %>% filter(unique_tree_id[unique_tree_id != ])
-```
-
 
 ```{r bottom of 9.bai_data.v2}
 #filter out na's and non-dougfir
-bai.df <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'PSME')
-bai.data2 <- left_join(bai.df, stand.data, by = "SETTING_ID") # adding stand data/site chars. 
+bai.abla <- bai.shade %>% filter(!is.na(bai) & bai >= 0, SPECIES_SYMBOL == 'ABLA')
+bai.data2 <- left_join(bai.abla, stand.data, by = "SETTING_ID") # adding stand data/site chars. 
 bai.data3 <- bai.data2 %>% group_by(SETTING_ID, NF) %>% 
   mutate(stand = case_when(NF == 'Kootenai' ~ 1400+cur_group_id(),
                            NF == 'Lolo' ~ 1600+cur_group_id())) %>% #maybe turn this step into a function
@@ -73,40 +56,41 @@ bai.data3 <- bai.data2 %>% group_by(SETTING_ID, NF) %>%
  # filter(!(stand %in% c(1613, 1620)), MEASUREMENT_NO != 0) #Remove stands with barely any larch data
 
 
-bai.df <- left_join(bai.data3, ingy_clusters)
-bai.df <- bai.df %>% select(!c(SET_CN, PLOT_CN, TREE_CN))
+bai.abla <- left_join(bai.data3, ingy_clusters)
+bai.abla <- bai.abla %>% select(!c(SET_CN, PLOT_CN, TREE_CN))
 
 
 
 
-bai.df %>% group_by(stand, MEASUREMENT_NO) %>% summarize(n())
+bai.abla %>% group_by(stand, MEASUREMENT_NO) %>% summarize(n())
 
-## stand 1402, 1405 - whats going on there 
-bai.df %>% filter(stand == 1402) %>% arrange(unique_tree_id) # lots of ingrowth with the dbh cutoff - or so it appears
-bai.df %>% filter(stand == 1405) %>% arrange(unique_tree_id) # same as above
 
-bai.df %>% filter(stand %in% c(1402, 1405)) %>% group_by(stand, cluster, MEASUREMENT_NO) %>% summarize(n(), min(DIAMETER), mean(DIAMETER))
 ```
 
 ```{r 10.holdoutdata.R}
+### unable to sample abla - quick solution is to run model on full abla data
+
+
+
 set.seed(301)
 
 #Identify sample plots within separate data frame
-sample.data <- bai.df %>% group_by(SETTING_ID) %>% #call data and group to settings
+sample.data <- bai.abla %>% group_by(SETTING_ID) %>% #call data and group to settings
   summarize(PLOT = unique(PLOT)) %>% #identify plots
   slice_sample(n = 2) %>%  #then sample 2 plots for each setting id
   mutate(sample = "sample") %>% ungroup() #add variable identifying samples
 
-bai.df.full <- left_join(bai.df, sample.data) #add sample variable to full data set based on matching setting id and plot. NA's produced for non-matches.
+bai.abla.full <- left_join(bai.abla, sample.data) #add sample variable to full data set based on matching setting id and plot. NA's produced for non-matches.
 
 #Check equality - make sure it works..
-a <- bai.df.full %>% filter(sample == 'sample') %>% group_by(SETTING_ID, PLOT, sample) %>% summarize()
+a <- bai.abla.full %>% filter(sample == 'sample') %>% group_by(SETTING_ID, PLOT, sample) %>% summarize()
 all_equal(sample.data,a)
 
 #separate data sets
-bai.hold.df <- bai.df.full %>% filter(sample == 'sample')
-bai.train.df <- bai.df.full %>% filter(is.na(sample))
+bai.hold.abla <- bai.abla.full %>% filter(sample == 'sample')
+bai.train.abla <- bai.abla.full %>% filter(is.na(sample))
 ```
+
 
 ```{r ready data for model fitting}
 source('12.gam_fns.R')
@@ -114,10 +98,10 @@ hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
 #bai.train.df <- readRDS('data/bai.train.5_23_22.rds')
-bai.train.df <- left_join(bai.train.df, hab_loc_codes, by = "SETTING_ID")
+bai.abla.1 <- left_join(bai.abla, hab_loc_codes, by = "SETTING_ID")
 
 #model-ready data
-bai.spmx.df <- bai.train.df %>% 
+bai.spmx.abla <- bai.abla.1 %>% 
   select(SETTING_ID, stand, MEASUREMENT_NO, SPECIES_SYMBOL, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
@@ -137,7 +121,7 @@ bai.spmx.df <- bai.train.df %>%
   filter(bai != 0)
 
 
-bai.spmx.ids.df <- bai.spmx.df %>% 
+bai.spmx.ids.abla <- bai.spmx.abla %>% 
   group_by(stand) %>% 
   mutate(unique.stand = cur_group_id()) %>%
   ungroup() %>% 
@@ -158,19 +142,22 @@ bai.spmx.ids.df <- bai.spmx.df %>%
 ```{r fit models}
 library(mgcv)
 library(gratia)
-shade.df <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
+shade.abla <- gam(bai~s(DIAMETER) + s(cr, k = 6) + s(bal.pl.ratio) + s(ccf.pl) + 
       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
-    family = 'Gamma'(link = log), data = bai.spmx.ids.df, method = 'ML', control = list(nthreads = 3))
-saveRDS(shade.df, 'data/model_objects.1/shade.df.gam1.rds')
+    family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
+saveRDS(shade.abla, 'data/model_objects.1/shade.abla.gam1.rds')
+
+summary(shade.abla)
+plot(shade.abla)
+
 plot(shade.df, select = 7, ylim = c(-1, 1))
 
 abcd <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), 
-    family = 'Gamma'(link = log), data = bai.spmx.ids.df, method = 'ML', control = list(nthreads = 3))
+    family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
 
 plot(abcd, select = 7, ylim = c(-1,1))
 summary(abcd)
 plot(abcd)
-length(unique(bai.spmx.ids.df$cr))
+length(unique(bai.spmx.ids.abla$cr))
 ```
-
