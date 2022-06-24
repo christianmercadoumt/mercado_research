@@ -295,6 +295,19 @@ ggplot(bai.train.cm, aes(x = log(bai.cm))) + geom_histogram(bins = 50, alpha = 0
 ```
 
 ```{r}
+limits <- c(-2, 2.5)
+breaks <- seq(limits[1], limits[2], by = 1)
 
+df.shadetol <- smooth_estimates(shade.df, smooth = 's(shade.tol.pl)') %>% add_confint()
+abla.shadetol <- smooth_estimates(shade.abla, smooth = 's(shade.tol.pl)') %>% add_confint()
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+mod1 <- ggplot(st.smest, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
+
+mod2 <- ggplot(df.shadetol, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
+
+mod3 <- ggplot(abla.shadetol, aes(x = shade.tol.pl, y = est)) + geom_line() + geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci)) + labs(y = 'Partial effect', x = 'Shade intolerance') + geom_hline(yintercept = 0,linetype = 'dashed') + scale_y_continuous(limits = limits, breaks = breaks) + theme(axis.title.y = element_blank(), axis.text = element_text(size = 12), axis.title.x = element_text(size = 14))
+
+grid.arrange(mod1, mod2, mod3, ncol = 3)
 ```
 

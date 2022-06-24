@@ -158,15 +158,17 @@ bai.spmx.ids.df <- bai.spmx.df %>%
 ```{r fit models}
 library(mgcv)
 library(gratia)
-shade.df <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
-      s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
-    family = 'Gamma'(link = log), data = bai.spmx.ids.df, method = 'ML', control = list(nthreads = 3))
-saveRDS(shade.df, 'data/model_objects.1/shade.df.gam1.rds')
+#shade.df <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
+ #     s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
+  #  family = 'Gamma'(link = log), data = bai.spmx.ids.df, method = 'ML', control = list(nthreads = 3))
+shade.df <- readRDS('data/model_objects.1/shade.df.gam1.rds')
 plot(shade.df, select = 7, ylim = c(-1, 1))
 
 abcd <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), 
     family = 'Gamma'(link = log), data = bai.spmx.ids.df, method = 'ML', control = list(nthreads = 3))
+
+
 
 plot(abcd, select = 7, ylim = c(-1,1))
 summary(abcd)

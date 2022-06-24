@@ -7,7 +7,7 @@
 
 %%%%%%%%  Floats %%%%%%%%%%%
 \usepackage{graphicx}
-\usepackage{subfigure}
+%\usepackage{subfigure}
 \usepackage{booktabs}
 
 %%%%%%%%  Page Setup %%%%%%%%%%%%%%%%%%
@@ -38,7 +38,7 @@ November\or December\fi \space \number\year}
 %\usepackage{mathptmx}
 \usepackage{times}
 \usepackage[scaled=0.92]{helvet}
-\usepackage[slantedGreek,subscriptcorrection,mtpbbi,mtpcal,nofontinfo]{mtpro2}
+%\usepackage[slantedGreek,subscriptcorrection,mtpbbi,mtpcal,nofontinfo]{mtpro2}
 
 
 %%%%% Special command to get square brackets for equations %%%%% 

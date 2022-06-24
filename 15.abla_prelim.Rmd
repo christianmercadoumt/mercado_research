@@ -142,22 +142,22 @@ bai.spmx.ids.abla <- bai.spmx.abla %>%
 ```{r fit models}
 library(mgcv)
 library(gratia)
-shade.abla <- gam(bai~s(DIAMETER) + s(cr, k = 6) + s(bal.pl.ratio) + s(ccf.pl) + 
-      s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
-    family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
-saveRDS(shade.abla, 'data/model_objects.1/shade.abla.gam1.rds')
+# shade.abla <- gam(bai~s(DIAMETER) + s(cr, k = 6) + s(bal.pl.ratio) + s(ccf.pl) + 
+#       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl) + s(unique_tree_id, bs = 're'), 
+#     family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
+shade.abla <- readRDS('data/model_objects.1/shade.abla.gam1.rds')
 
 summary(shade.abla)
 plot(shade.abla)
 
-plot(shade.df, select = 7, ylim = c(-1, 1))
+plot(shade.abla, select = 7, ylim = c(-1, 1))
 
-abcd <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
-      s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), 
-    family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
-
-plot(abcd, select = 7, ylim = c(-1,1))
-summary(abcd)
-plot(abcd)
-length(unique(bai.spmx.ids.abla$cr))
+# abcd <- gam(bai~s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ccf.pl) + 
+#       s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), 
+#     family = 'Gamma'(link = log), data = bai.spmx.ids.abla, method = 'ML', control = list(nthreads = 3))
+# 
+# plot(abcd, select = 7, ylim = c(-1,1))
+# summary(abcd)
+# plot(abcd)
+# length(unique(bai.spmx.ids.abla$cr))
 ```
