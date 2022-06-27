@@ -395,11 +395,19 @@ BAL was calculated with...
 
 Diameter:QMD ratio was calcluated by... 
 
-Crown competition factor (CCF) was calculated by...
+Crown competition factor (CCF) was calculated by... (krajicek et al )
 
 Shade tolerance... 
 
 Larch Fraction...
+
+
+Crown competition factor notes:
+- CCF partially accounts for differences in individual tree crown structure and in species composition (Wykoff 1990)
+- "In stands having mixture of species, the determination of CCF may need to be handled by proportional representation" (Krajicek et al 1961)
+- Given this information, then I can say something about species not being explicitly accounted for in the FVS model formulations. 
+- CCF is NOT an explicit metric of species-mixture
+- A species-identity-weighted CCF could be useful - perhaps weighting it with shade-tolerance could be satisfactory as a species-mixing term 
 
 ### Notes:
 
