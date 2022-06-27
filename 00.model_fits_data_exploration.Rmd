@@ -1,0 +1,78 @@
+---
+title: "Untitled"
+author: "cmm"
+date: '2022-06-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(gratia)
+#null model to compare to for results
+re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+#larch fraction - alternative with random 
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+#shade tol - alternative with random
+spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+#ccf model
+ccf.gam <- gamm(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random = list(unique_tree_id=~1) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+ccf.gam1 <- gamm4::gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random=~(1|unique_tree_id) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+
+summary(ccf.gam$gam)
+ccf.gam$lme
+
+ff <- exp(fitted(ccf.gam$lme))
+
+a <- summary(re.tree.1alt)
+b <- summary(spmx.gam.alt.lf)
+c <- summary(spmx.gam.alt.st)
+```
+
+```{r}
+#### Here is where I fit models which look at a weighted density metric (BASAL AREA). Comparing larch % weighted ba, shade intolerancce weighted ba, and crown competition factor. 
+
+### Interestingly, the functional relationship among all of them is very similar.
+
+## Curious what I will see after accounting for random effets
+## curious what it would look like if instead these were accounted for through the addition of a interaction term. 
+## This may mean that crown competition factor is perfectly adequately accounting for species mixing.. HOWEVER.. the ba term also functionally looks the same, which might suggest that CCF is mostly accounting for density..(which is what we already knew..)
+## how do i figure out how much of species mixture is accounted for by ccf?
+
+#### Next step is to parse this out and add random effects. Also evaluate 
+
+bai.shade <- bai.spmx.ids %>% 
+  mutate(shade.tol.ba = ba.pl*shade.tol.pl, larch.ba = larch.ba.fraction.pl*ba.pl)
+
+ba.shade <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(shade.tol.ba) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+ba.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(larch.ba) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+ccf.abc <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+
+summary(ba.shade)
+plot(ba.shade)
+
+summary(ba.lf)
+plot(ba.lf)
+
+summary(ccf.abc)
+plot(ccf.abc)
+
+plot(re.tree.1alt)
+# saveRDS(spmx.gam.lf, 'data/model_objects.1/spmx.gam.lf.rds')
+```
+
+
+```{r}
+#compare spp mix models to null model
+my.rmse.2(re.tree.1alt)[[2]]
+my.rmse.2(spmx.gam.alt.lf)[[2]]
+my.rmse.2(spmx.gam.alt.st)[[2]]
+
+a$dev.expl
+b$dev.expl
+c$dev.expl
+```
+
+
