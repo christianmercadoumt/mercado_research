@@ -108,10 +108,13 @@ nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
 # saveRDS(nosize.base, 'data/model_objects.1/nosize.base.RDS')
 # saveRDS(nosize.base, 'C:/Users/cm165878/Box/research_/nosize.base.RDS')
 
-int.only.base <-   gam(bai~s(unique_tree_id, bs = 're'),
-                       family = 'Gamma'(link = log),
-                       data = bai.spmx.ids, method = 'ML')
-saveRDS(int.only.base, 'data/model_objects.1/int.only.base.rds')
+#intercept only version (random effect)
+int.only.base <- readRDS('data/model_objects.1/int.only.base.rds')
+
+# int.only.base <-   gam(bai~s(unique_tree_id, bs = 're'),
+#                        family = 'Gamma'(link = log),
+#                        data = bai.spmx.ids, method = 'ML')
+# saveRDS(int.only.base, 'data/model_objects.1/int.only.base.rds')
 
 ## swap out unique_tree_id for stand, cluster, plot ids
 
