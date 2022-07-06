@@ -21,5 +21,5 @@ bai.hold <- bai.data.full %>% filter(sample == 'sample')
 bai.train <- bai.data.full %>% filter(is.na(sample))
 
 #save RDS files - change date every time this is run
-#saveRDS(bai.hold, 'data/bai.hold.5_23_22.rds')
-#saveRDS(bai.train, 'data/bai.train.5_23_22.rds')
+# saveRDS(bai.hold, 'data/bai.hold.7_5_22.rds') #7522 - added ccf variable that takes species identity out of the equation (used average of all parameters (r1-r5))
+# saveRDS(bai.train, 'data/bai.train.7_5_22.rds') 

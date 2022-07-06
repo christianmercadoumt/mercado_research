@@ -14,8 +14,14 @@ variables.plot <- function(forestdata, na.rm = TRUE){
              (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER >= 1.0) ~ r1 + (r2*DIAMETER) + (r3*(DIAMETER^2)),
              (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER < 1.0) ~ r4*DIAMETER^(r5),
              DIAMETER >= 10.0 ~ r1 + (r2*DIAMETER) + (r3*(DIAMETER^2)),
-             DIAMETER < 10.0 ~ r4*DIAMETER^(r5))) %>% #This step adds tree crown competition factor based on a series of conditionals which determine which equation/coefficients to use - this step could probably be simplified with custom funcions
+             DIAMETER < 10.0 ~ r4*DIAMETER^(r5)),
+           ccf.t1 = case_when(
+             (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER >= 1.0) ~ 0.0321 + (0.0206*DIAMETER) + (0.0036*(DIAMETER^2)),
+             (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER < 1.0) ~ 0.0102*DIAMETER^(1.743),
+             DIAMETER >= 10.0 ~ 0.0321 + (0.0206*DIAMETER) + (0.0036*(DIAMETER^2)),
+             DIAMETER < 10.0 ~ 0.0102*DIAMETER^(1.743))) %>% #This step adds tree crown competition factor based on a series of conditionals which determine which equation/coefficients to use - this step could probably be simplified with custom funcions
     mutate(ccf.pl = sum(ccf.tree[TPA_EQUIV != 0]*TPA_EQUIV.pl[TPA_EQUIV != 0], na.rm = na.rm),#sum of ccf to get plot-level ccf value. 
+           ccf.nospp = sum(ccf.t1[TPA_EQUIV != 0]*TPA_EQUIV.pl[TPA_EQUIV != 0], na.rm = na.rm),
            dq.pl.all = DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.all)/pi),
            dq.pl.cutoff = DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.cutoff)/pi),
            qmd.pl.all = sqrt(576*(ba.pl)/(tpa.pl.all)/pi),

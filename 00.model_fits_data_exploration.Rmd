@@ -11,6 +11,41 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(gratia)
+library(tidyverse)
+library(mgcv)
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff, HabType, habclass,
+         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = group_indices()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
 #null model to compare to for results
 re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 #larch fraction - alternative with random 
@@ -18,9 +53,9 @@ spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
 #shade tol - alternative with random
 spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 #ccf model
-ccf.gam <- gamm(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random = list(unique_tree_id=~1) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
-ccf.gam1 <- gamm4::gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random=~(1|unique_tree_id) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
-
+# ccf.gam <- gamm(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random = list(unique_tree_id=~1) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+# ccf.gam1 <- gamm4::gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random=~(1|unique_tree_id) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# 
 summary(ccf.gam$gam)
 ccf.gam$lme
 
@@ -75,4 +110,14 @@ b$dev.expl
 c$dev.expl
 ```
 
+```{r}
+#fit nospp ccf and spp-informed ccf models
+
+ccf.model <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+
+ccf.nospp <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.nospp) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+
+plot.gam(ccf.model, rug = F)
+plot.gam(ccf.nospp, rug = F)
+```
 
