@@ -13,6 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(gratia)
 library(tidyverse)
 library(mgcv)
+source('12.gam_fns.R')
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_5_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.spmx <- bai.train %>% 
   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
@@ -112,12 +117,41 @@ c$dev.expl
 
 ```{r}
 #fit nospp ccf and spp-informed ccf models
+bai.nospp <- bai.spmx.ids %>% mutate(ccf.pl = ccf.nospp)
 
-ccf.model <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+ccf.model <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
-ccf.nospp <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.nospp) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.shade, method = 'ML', control = list(nthreads = 3))
+ccf.nospp <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos), family = 'Gamma'(link = log), data = bai.nospp, method = 'ML', control = list(nthreads = 3))
 
 plot.gam(ccf.model, rug = F)
 plot.gam(ccf.nospp, rug = F)
+
+
+comp <- compare_smooths(ccf.model, ccf.nospp, smooths = 's(ccf.pl)')
+draw(comp)
+
+#most of what ccf is accounting for is density. There is a slight difference in these two curves, but I'm fairly confident that if ccf is accounting for species mix, that its relatively un-impactful. 
+
+my.rmse.2(ccf.model)
+my.rmse.2(ccf.nospp)
+```
+
+```{r}
+#1 bai~dbh + bal + CR + BA + Asp.
+re.tree.1alt
+
+#2 bai~dbh + bal + CR + ccf + Asp.
+mod_2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+saveRDS(mod_2, 'data/model_objects.1/ccf_noslope.rds')
+saveRDS(mod_2, 'C:/Users/cm165878/Box/research_/ccf_noslope.rds')
+
+#3 bai~dbh + bal + CR + (BA * %larch) + Asp.
+spmx.gam.alt.lf #this is not an interaction version, this just has ba and larch% separately
+
+#4 bai~dbh + bal + CR + (BA * shade) + Asp.
+spmx.gam.alt.st #this does not include interaction, just ba and shade separately
+
+#4 bai~dbh + bal + CR + (ccf * shade)??? + Asp.
+
 ```
 

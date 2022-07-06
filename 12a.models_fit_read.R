@@ -75,9 +75,9 @@ bai.spmx.ids <- bai.spmx %>%
          unique.tree.f = as.factor(unique_tree_id)) %>% 
   filter(unique_tree_id != 15431)
 
-re.stand.1 <- readRDS('data/model_objects.1/re.stand.1.rds')
-re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
-re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
+# re.stand.1 <- readRDS('data/model_objects.1/re.stand.1.rds')
+# re.cluster.1 <- readRDS('data/model_objects.1/re.cluster.1.rds')
+# re.plot.1 <- readRDS('data/model_objects.1/re.plot.1.rds')
 re.tree.1 <- readRDS('data/model_objects.1/re.tree.1.rds')
 
 # re.tree.1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
