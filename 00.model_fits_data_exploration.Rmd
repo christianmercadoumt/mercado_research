@@ -57,14 +57,17 @@ re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
 #shade tol - alternative with random
 spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+
+ccf_noslope <- readRDS('data/model_objects.1/ccf_noslope.rds')
+
 #ccf model
 # ccf.gam <- gamm(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random = list(unique_tree_id=~1) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 # ccf.gam1 <- gamm4::gamm4(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random=~(1|unique_tree_id) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 # 
-summary(ccf.gam$gam)
-ccf.gam$lme
-
-ff <- exp(fitted(ccf.gam$lme))
+# summary(ccf.gam$gam)
+# ccf.gam$lme
+# 
+# ff <- exp(fitted(ccf.gam$lme))
 
 a <- summary(re.tree.1alt)
 b <- summary(spmx.gam.alt.lf)
@@ -141,9 +144,11 @@ my.rmse.2(ccf.nospp)
 re.tree.1alt
 
 #2 bai~dbh + bal + CR + ccf + Asp.
-mod_2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
-saveRDS(mod_2, 'data/model_objects.1/ccf_noslope.rds')
-saveRDS(mod_2, 'C:/Users/cm165878/Box/research_/ccf_noslope.rds')
+
+ccf_noslope
+  #gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(unique.tree.f, bs = 're'), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+# saveRDS(mod_2, 'data/model_objects.1/ccf_noslope.rds')
+# saveRDS(mod_2, 'C:/Users/cm165878/Box/research_/ccf_noslope.rds')
 
 #3 bai~dbh + bal + CR + (BA * %larch) + Asp.
 spmx.gam.alt.lf #this is not an interaction version, this just has ba and larch% separately
