@@ -70,6 +70,7 @@ ccf_noslope <- readRDS('data/model_objects.1/ccf_noslope.rds')
 # ff <- exp(fitted(ccf.gam$lme))
 
 a <- summary(re.tree.1alt)
+aa <- summary(ccf_noslope)
 b <- summary(spmx.gam.alt.lf)
 c <- summary(spmx.gam.alt.st)
 ```
@@ -158,5 +159,59 @@ spmx.gam.alt.st #this does not include interaction, just ba and shade separately
 
 #4 bai~dbh + bal + CR + (ccf * shade)??? + Asp.
 
+```
+
+```{r}
+#how much does species mixing matter?
+models <- c('ba_model', 'ccf_model', 'larch%', 'shade')
+rmses <- c(my.rmse.2(re.tree.1alt)[[2]],
+  my.rmse.2(ccf_noslope)[[2]],
+  my.rmse.2(spmx.gam.alt.lf)[[2]],
+  my.rmse.2(spmx.gam.alt.st)[[2]])*6.452
+dev.exp <- 100*c(a$dev.expl, aa$dev.expl, b$dev.expl, c$dev.expl)
+aics <- c(AIC(re.tree.1alt), AIC(ccf_noslope), AIC(spmx.gam.alt.lf), AIC(spmx.gam.alt.st))
+
+
+tibble(models, rmses, dev.exp, aics)
+
+lf.sm <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.sm <- smooth_estimates(spmx.gam.alt.st, 's(shade.tol.pl)') %>% add_confint()
+
+ggplot(lf.sm, aes(x = larch.ba.fraction.pl, y = est)) + 
+  geom_line() + geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + geom_hline(yintercept = 0, linetype = 'dashed') + 
+  geom_line(data = st.sm, aes(x = shade.tol.pl, y = est), color = 'blue') + 
+  geom_ribbon(inherit.aes = F, data = st.sm, aes(ymin = est-se, ymax = est+se, x = shade.tol.pl), alpha = 0.2, fill = 'blue') + 
+  geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = larch.ba.fraction.pl),alpha = 0.2) +
+  geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = shade.tol.pl), alpha = 0.2, color = 'blue', sides = 't') + labs(x = 'larch fraction (black) & shade-intolerance (blue)')
+
+```
+
+```{r}
+#original models
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
+lf.smest <- smooth_estimates(spmx.re.gam.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+
+st.smest <- smooth_estimates(spmx.re.gam.st, smooth = 's(shade.tol.pl)') %>% add_confint()
+
+f1a <- ggplot(lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + 
+  geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci, x = larch.ba.fraction.pl)) + 
+  geom_line() +
+  labs(x = 'Larch proportion') +
+  scale_y_continuous(breaks = seq(-2, 8, by = 2)) + geom_hline(yintercept = 0, linetype = 'dashed')
+
+f1b <- ggplot(st.smest, aes(x = shade.tol.pl, y = est)) +
+  geom_ribbon(alpha = 0.2, aes(ymin = lower_ci, ymax = upper_ci, x = shade.tol.pl)) + 
+  geom_line() +
+  labs(x = 'Shade intolerance') +
+  scale_y_continuous(breaks = seq(-2, 8, by = 2)) +
+  scale_x_continuous(n.breaks = 5) + geom_hline(yintercept = 0, linetype = 'dashed')
+f1a
+f1b
+
+ggplot() + geom_line(data = lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + geom_ribbon(data = lf.smest, aes(x= larch.ba.fraction.pl, y = est, ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_line(data = st.smest, aes(x = shade.tol.pl, y = est), color = 'blue') + geom_ribbon(data = st.smest, aes(x = shade.tol.pl, ymin = est-se, ymax = est+se), alpha = 0.2, fill = 'blue') +
+  geom_hline(yintercept = 0, linetype = 'dashed') + geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = larch.ba.fraction.pl),alpha = 0.2) +
+  geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = shade.tol.pl), alpha = 0.2, color = 'blue', sides = 't') + labs(x = 'larch fraction (black) & shade-intolerance (blue)')
 ```
 

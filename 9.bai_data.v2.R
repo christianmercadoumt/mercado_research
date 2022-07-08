@@ -56,10 +56,12 @@ bai.calc1 <- bai.calc %>%
   arrange(SETTING_ID, unique_tree_id, MEASUREMENT_NO) %>% 
   mutate(next.yr = lead(myear)) %>% 
   mutate(grwth.yr = next.yr-myear) %>%  #create growth period variable
-  rename(bai = bai.calc)
+  rename(bai = bai.calc) %>% ungroup()
 
 # calculate larch fraction plot and cluster levels - add them to the data
-bai.larch.frac <- bai.calc1 %>% larch.fraction.plot() %>% larch.fraction.clu() %>% larch.frac.tpa() %>% dom.spp.ba()
+
+#7/7/22 added spp.frac.all here and added ungoup to bai.calc1 above
+bai.larch.frac <- bai.calc1 %>% larch.fraction.plot() %>% larch.fraction.clu() %>% larch.frac.tpa() %>% dom.spp.ba() %>% spp.frac.all()
 
 #Plot-level variables
 bai.plot <- bai.larch.frac %>% variables.plot()

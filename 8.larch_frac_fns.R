@@ -19,6 +19,51 @@ larch.fraction.plot <- function(forestdata){
   return(a)
 }
 
+
+#### ADD SPECIES PERCENTS FOR EVERY SPECIES - added 7/7/22
+spp.frac <- function(forestdata, species){
+
+  a <- forestdata %>% 
+    mutate(SPECIES_SYMBOL = as.factor(SPECIES_SYMBOL)) %>% 
+    group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
+    mutate('percent_{species}' := round(((sum(BASAL_AREA_EQUIV.pl[SPECIES_SYMBOL == species & TPA_EQUIV != 0], 
+                                       na.rm = T))/(sum(BASAL_AREA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T))),5)) %>% 
+    ungroup()
+  return(a)
+}
+
+spp.frac.all <- function(data){
+  main.spp <- c('LAOC', 'PSME', 'PIEN', 'ABLA', 'PICO', 'PIPO', 'ABGR')
+  a <- data
+  for(i in main.spp){
+    a <- a %>% spp.frac(i)
+  }
+  a <- a %>% mutate(percent_other = round((1-(percent_LAOC + percent_PSME + 
+                                                percent_PIEN + percent_ABLA + 
+                                                percent_PICO + percent_PIPO + 
+                                                percent_ABGR)),3))
+  return(a)
+}
+
+
+
+
+# spp.frac <- function(forestdata, species){
+#   a <- forestdata %>% 
+#     mutate(SPECIES_SYMBOL = as.factor(SPECIES_SYMBOL)) %>% 
+#     group_by(SETTING_ID, PLOT, MEASUREMENT_NO) %>% 
+#     mutate(!!species := (sum(BASAL_AREA_EQUIV.pl[SPECIES_SYMBOL == species & TPA_EQUIV != 0], 
+#                                        na.rm = T))/(sum(BASAL_AREA_EQUIV.pl[TPA_EQUIV != 0], na.rm = T))) %>% 
+#     ungroup()
+#   return(a)
+# }
+
+#this is an example of how to name something with an argument
+# meanofcol <- function(df, col) {
+#   mutate(df, "Mean of {{col}}" := mean({{col}}))
+# }
+# meanofcol(iris, Petal.Width)
+
 dom.spp.ba <- function(forestdata){
   a <- forestdata %>% 
     group_by(SETTING_ID, PLOT, MEASUREMENT_NO, SPECIES_SYMBOL) %>%
