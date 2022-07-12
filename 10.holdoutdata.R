@@ -21,7 +21,8 @@ bai.hold <- bai.data.full %>% filter(sample == 'sample')
 bai.train <- bai.data.full %>% filter(is.na(sample))
 
 #save RDS files - change date every time this is run
-# saveRDS(bai.hold, 'data/bai.hold.7_7_22.rds') 
-# saveRDS(bai.train, 'data/bai.train.7_7_22.rds') 
+saveRDS(bai.hold, 'data/bai.hold.7_11_22.rds') 
+saveRDS(bai.train, 'data/bai.train.7_11_22.rds') 
+#7/11/22 - larch fraction and shade tol values were calculated with live and dead trees, this edit changes that to reflect only live tree data
 #7/7/22 - added function and calculations for percent of each species - modified the following: 8.larch_frac_fns.R, 9.bai_data.v2.R
 #7522 - added ccf variable that takes species identity out of the equation (used average of all parameters (r1-r5))

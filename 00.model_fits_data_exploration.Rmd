@@ -13,18 +13,23 @@ knitr::opts_chunk$set(echo = TRUE)
 library(gratia)
 library(tidyverse)
 library(mgcv)
+library(gridExtra)
 source('12.gam_fns.R')
+
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
-bai.train <- readRDS('data/bai.train.7_5_22.rds')
+bai.train <- readRDS('data/bai.train.7_11_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.spmx <- bai.train %>% 
   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
-         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff, HabType, habclass,
-         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
@@ -40,7 +45,7 @@ bai.spmx <- bai.train %>%
 
 bai.spmx.ids <- bai.spmx %>% 
   group_by(stand) %>% 
-  mutate(unique.stand = group_indices()) %>%
+  mutate(unique.stand = cur_group_id()) %>%
   ungroup() %>% 
   mutate(unique.cluster = (1000*unique.stand)+cluster, 
          unique.plot = (1000*unique.stand)+PLOT) %>% 
@@ -54,7 +59,7 @@ bai.spmx.ids <- bai.spmx %>%
 #null model to compare to for results
 re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 #larch fraction - alternative with random 
-spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
 #shade tol - alternative with random
 spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 
@@ -213,5 +218,192 @@ ggplot() + geom_line(data = lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + 
   geom_line(data = st.smest, aes(x = shade.tol.pl, y = est), color = 'blue') + geom_ribbon(data = st.smest, aes(x = shade.tol.pl, ymin = est-se, ymax = est+se), alpha = 0.2, fill = 'blue') +
   geom_hline(yintercept = 0, linetype = 'dashed') + geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = larch.ba.fraction.pl),alpha = 0.2) +
   geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = shade.tol.pl), alpha = 0.2, color = 'blue', sides = 't') + labs(x = 'larch fraction (black) & shade-intolerance (blue)')
+```
+
+```{r}
+
+# spmx.gam.alt.st
+
+#lf.sm <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+st.sm <- smooth_estimates(spmx.gam.alt.st, 's(shade.tol.pl)') %>% add_confint()
+
+# create rug plot where mixture is categorized.
+# 
+spp.cats <- bai.spmx.ids %>% 
+  mutate(spp.cat.value = pmax(percent_PSME, percent_PIEN, 
+                              percent_ABLA, percent_ABGR, 
+                              percent_PICO, percent_PIPO, 
+                              percent_other)) %>% 
+  mutate(spp.cat = 
+           case_when(spp.cat.value < .2 ~ 'laoc',
+                     spp.cat.value == percent_PSME & spp.cat.value >= .2 ~ 'psme',
+                     spp.cat.value == percent_PIEN & spp.cat.value >= .2 ~ 'pien',
+                     spp.cat.value == percent_ABLA & spp.cat.value >= .2 ~ 'abla',
+                     spp.cat.value == percent_ABGR & spp.cat.value >= .2 ~ 'abgr',
+                     spp.cat.value == percent_PICO & spp.cat.value >= .2 ~ 'pico',
+                     spp.cat.value == percent_PIPO & spp.cat.value >= .2 ~ 'pipo',
+                     spp.cat.value == percent_other & spp.cat.value >= .2 ~ 'other'))
+
+psme <- spp.cats %>% filter(spp.cat == 'psme')
+pien <- spp.cats %>% filter(spp.cat == 'pien')
+abla <- spp.cats %>% filter(spp.cat == 'abla')
+abgr <- spp.cats %>% filter(spp.cat == 'abgr')
+pico <- spp.cats %>% filter(spp.cat == 'pico')
+pipo <- spp.cats %>% filter(spp.cat == 'pipo')
+other <- spp.cats %>% filter(spp.cat == 'other')
+laoc <- spp.cats %>% filter(spp.cat == 'laoc')
+
+ggplot() + 
+  geom_line(data = st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_ribbon(data = st.sm, aes(x = shade.tol.pl, ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = spp.cats, aes(x = shade.tol.pl, color = factor(spp.cat))) #+ theme(legend.position = 'none')
+
+plot.psme <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = psme, aes(x = shade.tol.pl)) + labs(title = 'psme')
+
+plot.pien <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pien, aes(x = shade.tol.pl)) + labs(title = 'pien')
+
+plot.abla <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = abla, aes(x = shade.tol.pl)) + labs(title = 'abla')
+
+plot.abgr <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = abgr, aes(x = shade.tol.pl)) + labs(title = 'abgr')
+
+plot.pico <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pico, aes(x = shade.tol.pl)) + labs(title = 'pico')
+
+plot.pipo <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pipo, aes(x = shade.tol.pl)) + labs(title = 'pipo')
+
+plot.oth <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = other, aes(x = shade.tol.pl)) + labs(title = 'other')
+
+plot.laoc <- ggplot(st.sm, aes(x = shade.tol.pl, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = laoc, aes(x = shade.tol.pl)) + labs(title = 'laoc')
+
+grid.arrange(plot.laoc, plot.pico, plot.pipo, plot.psme, plot.abla, plot.pien, plot.oth)
+grid.arrange(plot.abla, plot.pien, nrow=2)
+plot.psme
+
+```
+
+10. here, I created figures of shade tol partial response with rug plots for each species that has >20% representation by basal area
+ --- at the moment I see PICO and LAOC influence the curve at high shade-intolerance values (as expected). 
+ --- there is a strong dip in the partial response curve that may be associated with a high presence pico and/or larch
+ --- pipo values also appear to be present as the partial response curve dips at the higher-end of shade-intolerance values
+ --- psme may be expressing a positive influence on growth. There are numerous psme data points associated with the peak around 0.75
+ --- along the same lines, the peak at .75 may be influenced by the presence of pien, as that's where the most pien values seem to sit. 
+ --- abla values are most present underneath the far left peak and a handful are present at the second peak (~0.75)
+
+```{r}
+# spp.cats
+laoc.sc <- ggplot(subset(spp.cats, percent_LAOC>.01), aes(x = percent_LAOC, shade.tol.pl)) + geom_point() + labs(title = 'LAOC') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+psme.sc <- ggplot(subset(spp.cats, percent_PSME>.01), aes(x = percent_PSME, shade.tol.pl)) + geom_point() + labs(title = 'psme') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+abla.sc <- ggplot(subset(spp.cats, percent_ABLA>.01), aes(x = percent_ABLA, shade.tol.pl)) + geom_point() + labs(title = 'abla') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+abgr.sc <- ggplot(subset(spp.cats, percent_ABGR>.01), aes(x = percent_ABGR, shade.tol.pl)) + geom_point() + labs(title = 'abgr') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+pien.sc <- ggplot(subset(spp.cats, percent_PIEN>.01), aes(x = percent_PIEN, shade.tol.pl)) + geom_point() + labs(title = 'pien') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+pico.sc <- ggplot(subset(spp.cats, percent_PICO>.01), aes(x = percent_PICO, shade.tol.pl)) + geom_point() + labs(title = 'pico') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+pipo.sc <- ggplot(subset(spp.cats, percent_PIPO>.01), aes(x = percent_PIPO, shade.tol.pl)) + geom_point() + labs(title = 'pipo') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+oth.sc <- ggplot(subset(spp.cats, percent_other>.01), aes(x = percent_other, shade.tol.pl)) + geom_point() + labs(title = 'other') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
+
+grid.arrange(laoc.sc, pico.sc, pipo.sc, psme.sc, abgr.sc, abla.sc, pien.sc, oth.sc)
+
+```
+
+I created scatterplots which show the percent of a species (laoc, pico, pipo, psme, abla, abgr, pien, other) on the x-axis and the shade-intolerance values on the y-axis.
+ --- both larch and pico seem to approach the expected value of 1.
+ --- pipo appears to approach 0.75
+ --- psme seems to approach 0.5 (maybe a bit higher). 
+ --- abla approahces 0.25
+ --- abgr may be approaching a point of 0.45-0.5, but there may not be enough data to say yet. This is somewhat interesting.
+ --- pien looks to be appraoching 0.25 as its abundance increases. 
+
+```{r}
+# metric cateogrizing larch with each other species
+# larch.mixtures <- function(data, species, maximum, combined_min){
+#   a <- data %>% filter(percent_LAOC < maximum & '{species}' < maximum & (percent_LAOC+'{species}') > combined_min)
+#   return(a)
+# }
+# bai.spmx.ids %>% filter(percent_LAOC>0.4 & percent_PSME>0.4 & (percent_LAOC+percent_PSME)>0.6)
+
+# larch.mixtures(bai.spmx.ids, percent_PSME, maximum = 0.8, combined_min =.4)
+
+spp.fun <- function(spp_min, spp_maximum, combined_min){
+  a <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min)
+  b <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min)
+  c <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min)
+  d <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min)
+  e <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min)
+  f <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f))
+  }
+mixtures <- spp.fun(0.2, 0.6, 0.7)
+individual.obs <- lapply(mixtures, function(x)
+  length(unique(x$unique_tree_id)))
+(dbh.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
+(dens.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = ba.pl)) + geom_histogram()))
+
+data.frame(unlist(individual.obs))
+
+dbh.plots
+
+
+
+# bai.spmx.ids %>% filter(percent_LAOC<.6, percent_PSME<.6, (percent_LAOC+percent_PSME)>.6)
+# bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_ABLA<.6 & (percent_LAOC+percent_ABLA)>.8)
+# bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_ABGR<.6 & (percent_LAOC+percent_ABGR)>.8)
+# bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_PICO<.6 & (percent_LAOC+percent_PICO)>.8)
+# bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_PIPO<.6 & (percent_LAOC+percent_PIPO)>.8)
+# bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_PIEN<.6 & (percent_LAOC+percent_PIEN)>.8)
+
+
+
 ```
 

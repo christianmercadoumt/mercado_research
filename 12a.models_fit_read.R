@@ -4,7 +4,7 @@ source('12.gam_fns.R')
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
-bai.train <- readRDS('data/bai.train.7_5_22.rds')
+bai.train <- readRDS('data/bai.train.7_11_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.size <- bai.train %>% 
@@ -46,9 +46,11 @@ bai.spmx <- bai.train %>%
   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
-         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
@@ -64,7 +66,7 @@ bai.spmx <- bai.train %>%
 
 bai.spmx.ids <- bai.spmx %>% 
   group_by(stand) %>% 
-  mutate(unique.stand = group_indices()) %>%
+  mutate(unique.stand = cur_group_id()) %>%
   ungroup() %>% 
   mutate(unique.cluster = (1000*unique.stand)+cluster, 
          unique.plot = (1000*unique.stand)+PLOT) %>% 
@@ -119,10 +121,11 @@ int.only.base <- readRDS('data/model_objects.1/int.only.base.rds')
 ## swap out unique_tree_id for stand, cluster, plot ids
 
 #larch fraction - selected with random
-spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
-# spmx.re.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + 
-#       s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl) + s(unique_tree_id, bs = 're'), 
-#     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+spmx.re.gam.lf <- readRDS('data/model_objects.1/spmx.re.gam.lf_7.11.rds')
+# spmx.re.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
+#       s(asp_sin, asp_cos) + s(slope_pct) + s(percent_LAOC) + s(unique_tree_id, bs = 're'),
+#     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 2))
+# saveRDS(spmx.re.gam.lf, 'data/model_objects.1/spmx.re.gam.lf_7.11.rds')
 
 #shade tol - selected with random
 spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
@@ -131,7 +134,12 @@ spmx.re.gam.st <- readRDS('data/model_objects.1/spmx.re.gam.st.rds')
 #     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
 
 #larch fraction - alternative with random 
-spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+# spmx.gam.alt.lf <- gam(bai ~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl) + 
+#   s(asp_sin, asp_cos) + s(unique.tree.f, bs = "re") + s(percent_LAOC),
+#   family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 2))
+# saveRDS(spmx.gam.alt.lf, 'data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+
 #shade tol - alternative with random
 spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 
@@ -139,9 +147,9 @@ spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 
 #species mix without random effects
-spmx.gam.lf <- readRDS('data/model_objects.1/spmx.gam.lf.rds')
-#   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(larch.ba.fraction.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
-# saveRDS(spmx.gam.lf, 'data/model_objects.1/spmx.gam.lf.rds')
+spmx.gam.lf <- readRDS('data/model_objects.1/spmx.gam.lf_7.11.rds')
+# spmx.gam.lf <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(percent_LAOC), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
+# saveRDS(spmx.gam.lf, 'data/model_objects.1/spmx.gam.lf_7.11.rds')
 
 spmx.gam.st <- readRDS('data/model_objects.1/spmx.gam.st.rds')
 #   gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) + s(asp_sin, asp_cos) + s(slope_pct) + s(shade.tol.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
