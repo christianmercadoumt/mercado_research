@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "Christian Mercado"
+date: '2022-07-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+bai.train <- readRDS('data/bai.train.7_7_22.rds')
+bai.train %>% filter(percent_other>.5)
+bai.calc1 %>% filter(SETTING_ID == '01140528020011', SPECIES_SYMBOL == 'PIMO3', DIAMETER >50)
+
+
+bai.larch.frac <- bai.calc1 %>% filter(LIVE_DEAD == 'L') %>% larch.fraction.plot() %>% larch.fraction.clu() %>% larch.frac.tpa() %>% dom.spp.ba() %>% spp.frac.all()
+
+#Plot-level variables
+bai.plot <- bai.larch.frac %>% variables.plot()
+
+#Cluster-level - this step requires that the previous step is done
+bai.cluster <- bai.plot %>% variables.cluster()
+
+#shade tolerance
+bai.shade <- shade.tolerance.plot.cluster(bai.cluster)
+
+bai.reshade <- readRDS('data/bai.shade.rds')
+
+bai.shade
+bai.reshade
+
+aa <- bai.shade %>% select(SETTING_ID, PLOT, MEASUREMENT_NO, larch.ba.fraction.pl)
+bb <- bai.reshade %>% select(SETTING_ID, PLOT, MEASUREMENT_NO, larch.ba.fraction.pl)
+cc <- bai.train %>% select(SETTING_ID, PLOT, MEASUREMENT_NO, percent_LAOC)
+bai.spmx.a <- bai.spmx.ids %>% rename(larch.fr = larch.ba.fraction.pl) %>% select(SETTING_ID, PLOT, MEASUREMENT_NO, larch.fr)
+left_join(aa, cc)
+left_join(bb, cc)
+(abc <- left_join(bai.spmx.a, aa))
+abc %>% filter(percent_LAOC <.1)
+
+# There may be an issue with how larch fraction was calculated:
+## it appears as though it was calculated with both live and dead trees that have a diameter
+## This could mess with 
+
+## it appears that what ive been using is not correctly calculating larch fraction, and likely not correctly calculating shade tolerance either...
+
+abc %>% group_by(SETTING_ID, MEASUREMENT_NO, PLOT) %>% summarize(mean(larch.fr), mean(larch.ba.fraction.pl))
+```
+

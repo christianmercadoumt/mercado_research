@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+author: "Christian Mercado"
+date: '2022-07-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#checking out issues of larch fraction an
+bai.train
+hist(bai.train$larch.ba.fraction.pl)
+hist(bai.train$shade.tol.pl)
+hist(bai.train.old$shade.tol.pl)
+hist(bai.train$percent_LAOC)
+hist(bai.train.old$larch.ba.fraction.pl)
+```
+```{r}
+identical(bai.train[[2]], bai.train.old[[2]])
+length(bai.train)
+ncol(bai.train.old)
+
+colss <- colnames(bai.train)
+equal <- c()
+for(i in 1:length(bai.train)){
+  equal[i] <- identical(bai.train.old[[i]], bai.train[[i]])
+}
+tibble(colss, equal)
+
+bai.spmx.ids
+```
+
+```{r}
+ddd <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+identical(bai.spmx.ids$unique.stand, ddd$unique.stand)
+```
+
+```{r}
+lf.gam <- readRDS('data/model_objects.1/spmx.gam.lf_7.11.rds')
+lf.gam.alt <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+
+spmx.lf.gam <- readRDS('data/model_objects.1/spmx.re.gam.lf.rds')
+spmx.lf.gam.alt <- readRDS('data/model_objects.1/spmx.gam.alt.lf.rds')
+
+plot(lf.gam, select = 7, rug = F)
+plot(lf.gam.alt, select = 7, rug = F)
+
+plot(spmx.lf.gam, select = 8, rug = F)
+plot(spmx.lf.gam.alt, select = 7, rug = F)
+
+summary(lf.gam.alt)
+summary(spmx.lf.gam.alt)
+
+gam.check(lf.gam.alt)
+gam.check(spmx.lf.gam.alt)
+
+
+```
+

@@ -9,7 +9,7 @@ trasp <- function(degrees_aspect){
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
-bai.train <- readRDS('data/bai.train.7_5_22.rds')
+bai.train <- readRDS('data/bai.train.7_11_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.size <- bai.train %>% 
@@ -51,9 +51,11 @@ bai.spmx <- bai.train %>%
   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
-         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode, larch.ba.fraction.pl, shade.tol.pl, dom.spp.pl.ba) %>% 
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
@@ -141,7 +143,7 @@ save(re.tree.p7a,file=file.path(getwd(),"data","re.tree.p7a.Rdata"))
 rm(re.tree.p7a)
 
 re.tree.p8a <- gamm(bai~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl)+
-                      s(asp_sin, asp_cos)+ s(slope_pct)+s(larch.ba.fraction.pl),
+                      s(asp_sin, asp_cos)+ s(slope_pct)+s(percent_LAOC),
                     random=list(unique_tree_id=~1),niterPQL = 80,
                     family = 'Gamma'(link = log),
                     data = bai.spmx.ids, method = 'ML')
