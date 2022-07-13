@@ -74,10 +74,10 @@ ccf_noslope <- readRDS('data/model_objects.1/ccf_noslope.rds')
 # 
 # ff <- exp(fitted(ccf.gam$lme))
 
-a <- summary(re.tree.1alt)
-aa <- summary(ccf_noslope)
-b <- summary(spmx.gam.alt.lf)
-c <- summary(spmx.gam.alt.st)
+# a <- summary(re.tree.1alt)
+# aa <- summary(ccf_noslope)
+# b <- summary(spmx.gam.alt.lf)
+# c <- summary(spmx.gam.alt.st)
 ```
 
 ```{r}
@@ -227,7 +227,7 @@ ggplot() + geom_line(data = lf.smest, aes(x = larch.ba.fraction.pl, y = est)) + 
 #lf.sm <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
 st.sm <- smooth_estimates(spmx.gam.alt.st, 's(shade.tol.pl)') %>% add_confint()
 
-# create rug plot where mixture is categorized.
+# create rug plot where mixture is categorized. selecting species that has >= 20% portion of basal area
 # 
 spp.cats <- bai.spmx.ids %>% 
   mutate(spp.cat.value = pmax(percent_PSME, percent_PIEN, 
@@ -322,6 +322,94 @@ plot.psme
  --- abla values are most present underneath the far left peak and a handful are present at the second peak (~0.75)
 
 ```{r}
+#lf.sm <- smooth_estimates(spmx.gam.alt.lf, smooth = 's(larch.ba.fraction.pl)') %>% add_confint()
+lf.sm <- smooth_estimates(spmx.gam.alt.lf, 's(percent_LAOC)') %>% add_confint()
+
+# create rug plot where mixture is categorized.
+# 
+spp.cats <- bai.spmx.ids %>% 
+  mutate(spp.cat.value = pmax(percent_PSME, percent_PIEN, 
+                              percent_ABLA, percent_ABGR, 
+                              percent_PICO, percent_PIPO, 
+                              percent_other)) %>% 
+  mutate(spp.cat = 
+           case_when(spp.cat.value < .2 ~ 'laoc',
+                     spp.cat.value == percent_PSME & spp.cat.value >= .2 ~ 'psme',
+                     spp.cat.value == percent_PIEN & spp.cat.value >= .2 ~ 'pien',
+                     spp.cat.value == percent_ABLA & spp.cat.value >= .2 ~ 'abla',
+                     spp.cat.value == percent_ABGR & spp.cat.value >= .2 ~ 'abgr',
+                     spp.cat.value == percent_PICO & spp.cat.value >= .2 ~ 'pico',
+                     spp.cat.value == percent_PIPO & spp.cat.value >= .2 ~ 'pipo',
+                     spp.cat.value == percent_other & spp.cat.value >= .2 ~ 'other'))
+
+psme <- spp.cats %>% filter(spp.cat == 'psme')
+pien <- spp.cats %>% filter(spp.cat == 'pien')
+abla <- spp.cats %>% filter(spp.cat == 'abla')
+abgr <- spp.cats %>% filter(spp.cat == 'abgr')
+pico <- spp.cats %>% filter(spp.cat == 'pico')
+pipo <- spp.cats %>% filter(spp.cat == 'pipo')
+other <- spp.cats %>% filter(spp.cat == 'other')
+laoc <- spp.cats %>% filter(spp.cat == 'laoc')
+
+ggplot() + 
+  geom_line(data = lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_ribbon(data = lf.sm, aes(x = percent_LAOC, ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = spp.cats, aes(x = percent_LAOC, color = factor(spp.cat))) #+ theme(legend.position = 'none')
+
+plot.psme.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = psme, aes(x = percent_LAOC)) + labs(title = 'psme')
+
+plot.pien.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pien, aes(x = percent_LAOC)) + labs(title = 'pien')
+
+plot.abla.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = abla, aes(x = percent_LAOC)) + labs(title = 'abla')
+
+plot.abgr.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = abgr, aes(x = percent_LAOC)) + labs(title = 'abgr')
+
+plot.pico.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pico, aes(x = percent_LAOC)) + labs(title = 'pico')
+
+plot.pipo.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = pipo, aes(x = percent_LAOC)) + labs(title = 'pipo')
+
+plot.oth.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = other, aes(x = percent_LAOC)) + labs(title = 'other')
+
+plot.laoc.lf <- ggplot(lf.sm, aes(x = percent_LAOC, y = est)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = est-se, ymax = est+se), alpha = 0.2) + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_rug(inherit.aes = F, data = laoc, aes(x = percent_LAOC)) + labs(title = 'laoc')
+
+grid.arrange(plot.laoc.lf, plot.pico.lf, plot.pipo.lf, plot.psme.lf, plot.abla.lf, plot.pien.lf, plot.oth.lf)
+```
+
+
+```{r}
 # spp.cats
 laoc.sc <- ggplot(subset(spp.cats, percent_LAOC>.01), aes(x = percent_LAOC, shade.tol.pl)) + geom_point() + labs(title = 'LAOC') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
 
@@ -340,6 +428,9 @@ pipo.sc <- ggplot(subset(spp.cats, percent_PIPO>.01), aes(x = percent_PIPO, shad
 oth.sc <- ggplot(subset(spp.cats, percent_other>.01), aes(x = percent_other, shade.tol.pl)) + geom_point() + labs(title = 'other') + scale_y_continuous(breaks = c(0,.25,.5, .75,1), limits = c(0,1))
 
 grid.arrange(laoc.sc, pico.sc, pipo.sc, psme.sc, abgr.sc, abla.sc, pien.sc, oth.sc)
+
+
+
 
 ```
 
