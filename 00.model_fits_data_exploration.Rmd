@@ -471,9 +471,10 @@ spp.fun <- function(spp_min, spp_maximum, combined_min){
   f <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
                                (percent_LAOC+percent_PIPO)>combined_min)
-   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f))
+  g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
-mixtures <- spp.fun(0.2, 0.6, 0.7)
+(mixtures <- spp.fun(0.2, 0.6, 0.7))
 individual.obs <- lapply(mixtures, function(x)
   length(unique(x$unique_tree_id)))
 (dbh.plots <- lapply(mixtures, function(m)
