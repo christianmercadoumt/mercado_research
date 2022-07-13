@@ -474,7 +474,7 @@ spp.fun <- function(spp_min, spp_maximum, combined_min){
   g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
-(mixtures <- spp.fun(0.2, 0.6, 0.7))
+(mixtures <- spp.fun(0.2, 0.65, 0.7))
 individual.obs <- lapply(mixtures, function(x)
   length(unique(x$unique_tree_id)))
 (dbh.plots <- lapply(mixtures, function(m)
@@ -487,7 +487,6 @@ data.frame(unlist(individual.obs))
 dbh.plots
 
 
-
 # bai.spmx.ids %>% filter(percent_LAOC<.6, percent_PSME<.6, (percent_LAOC+percent_PSME)>.6)
 # bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_ABLA<.6 & (percent_LAOC+percent_ABLA)>.8)
 # bai.spmx.ids %>% filter(percent_LAOC<.6 & percent_ABGR<.6 & (percent_LAOC+percent_ABGR)>.8)
@@ -498,4 +497,93 @@ dbh.plots
 
 
 ```
+
+```{r}
+#fit gams for subsets of data
+laoc_psme <- mixtures$psme
+hist(laoc_psme$bai)
+length(unique(laoc_psme$asp_sin))
+ggplot(laoc_psme, aes(x = percent_LAOC, y = percent_PSME)) + geom_point()
+psme.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 20),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_psme, method = 'ML')
+
+laoc_pico <- mixtures$pico
+length(unique(laoc_pico$cr))
+hist(laoc_pico$bai)
+plot(laoc_pico$DIAMETER, laoc_pico$bai)
+filter(laoc_pico, bai>3)
+ggplot(laoc_pico, aes(x = percent_LAOC, y = percent_PICO)) + geom_point()
+pico.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 13),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_pico, method = 'ML')
+
+laoc_laoc <- mixtures$laoc
+length(unique(laoc_laoc$asp_sin))
+laoc.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 20),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_laoc, method = 'ML')
+
+laoc_pien <- mixtures$pien
+ggplot(laoc_pien, aes(x = percent_LAOC, y = percent_PIEN)) + geom_point()
+length(unique(laoc_pien$asp_sin))
+length(unique(laoc_pien$cr))
+pien.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 8),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_pien, method = 'ML')
+
+mod.list <- list(psme.gam$gam, pico.gam$gam, pien.gam$gam, laoc.gam$gam)
+lapply(mod.list, gam.check)
+plot(pico.gam$gam)
+
+```
+
+```{r}
+max(as.numeric(bai.spmx.ids$unique_tree_id))
+#simulated data
+DIAMETER <- sample(seq(1, 25, 0.1), 100, replace = T)
+# cr <- sample(seq(.5,.9,0.1), 100, replace = T)
+# bal.pl.ratio <- sample(seq(0.3658, 0.8419), 100, replace = T)
+# ba.pl <- sample(seq(25, 200, 1), 100, replace = T)
+asp_sin <- rep(-0.08693, 100)
+asp_cos <- rep(0.6327, 100)
+
+#varying diameter values - everything else constant
+unique_tree_id <- sample(seq(2000, 3000, 1), 100)
+cr <- rep(mean(bai.spmx.ids$cr, na.rm = T), 100)
+bal.pl.ratio <- rep(mean(bai.spmx.ids$bal.pl.ratio, na.rm = T), 100)
+ba.pl <- rep(mean(bai.spmx.ids$ba.pl, na.rm = T), 100)
+
+hist(laoc_laoc$bai)
+summary(sim.diam$DIAMETER)
+sim.diam <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+
+bai.diam <- predict(laoc.gam$gam, newdata = sim.diam)
+a <- tibble(sim.diam, bai = as.vector(bai.diam))
+
+bai.diam <- predict(psme.gam$gam, newdata = sim.diam)
+b <- tibble(sim.diam, bai = as.vector(bai.diam))
+
+bai.diam <- predict(pico.gam$gam, newdata = sim.diam)
+c <- tibble(sim.diam, bai = as.vector(bai.diam))
+
+rm(DIAMETER)
+ggplot() + geom_point(data = a, aes(x = DIAMETER, y = bai), color = 'red') + 
+  geom_point(data = b, aes(x = DIAMETER, y = bai), color = 'blue') + 
+  geom_point(data = c, aes(x = DIAMETER, y = bai), color = 'orange')
+
+a
+b
+c
+```
+
+
 
