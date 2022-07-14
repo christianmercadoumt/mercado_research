@@ -64,7 +64,7 @@ forests provide important habitat to native birds, bears, and ungulates
 \citep{McClelland1999, Schmidt1976}. In a setting where fire is historically and
 currently prevalent, western larch is the most fire resistant of the Northern
 Rocky Mountain conifers due to its thick bark and uniquely deciduous needles
-{Schmidt1976}. \emph{Larix} species also provide unique aesthetic characteristics
+\citep{Schmidt1976}. \emph{Larix} species also provide unique aesthetic characteristics
 throughout the year with their phenology, coloring hillsides shades of green,
 yellow, and brown, depending on the season, adding a colorful representation of
 seasonality. However, projected climate scenarios are likely to impact the
@@ -94,7 +94,22 @@ facilitative and competitive interactions were found to modify growth rates
 of \emph{Abies lasiocarpa} and \emph{Pinus albicaulis}, depending on environmental
 stressors \citep{Callaway1997}. Since larch forests range in species-composition 
 and occur across environmental conditions, western larch may be subject to 
-competitive or complementary relationships.  
+competitive or complementary relationships through its strong intolerance to shade.  
+
+--- Niche complementarity 
+- steed and goeking 2020 talks about niche differentiation in terms of larch and climate
+- phylogenetically dissimilarity may affect tree growth through a reduction in suspeptibility to species specific pests, pathogens, predators. (quote from Searle \& Chen 2020)
+- Original papers (janzen 1970 and Connell 1978)
+- Theory etended to mature plants through resource concentration hypothesis (Parker et al. 2015, groosman et al. 2018)
+- Mature plant communities with more phylogenetically close host species are more susceptable to specialized pest and pathogen outbreak. Thus a tree with phylogenetically distant neighbors may experience less competition and may experience higher growth rates. (Searle \& Chen 2020)
+
+Niche complementarity (CITE), or more specifically, the resource concentration 
+hypothesis (CITE parker, grossman), describes conditions where phylogenically
+dissimilar species growing together may experience higher rates 
+of growth from the mixing of traits in a mixed-species forest (CITE. .. .). 
+Previous studies have identified complementary effects among trees with
+differing shade tolerances. \citep{Searle2020} SEARLE 2020 found that such complementary 
+effects on individual tree growth increased with competition intensity. 
 
 point: It's important to have models that account for processes that drive tree growth which are easy to measure or acquire.
 Individual tree growth models are commonly used to estimate future stand characteristics 
@@ -108,6 +123,37 @@ tree growth under some conditions. ***X provides evidence here. Y says this.***
 point: species mixing can be captured by different metrics, but not always in the same way? 
 - get after niche complementarity, shade tolerance, weighted density metrics, etc. 
 - add some kind of discussion regarding crown competition factor (ccf paper where he says something about mixed species forests)
+
+
+
+Capturing the effects of species-mixing can be accomplished by various 
+methods, one simply being the incorporation of species-identity into density metrics (CITE?). 
+Several such methods rely on a comparison between mixed-species stands 
+and mono-specific stands (Forrester et al? pretzsch?).
+In the north american west, empirical models such as FVS (CITE) 
+are used to estimate tree growth across a variety of conditions 
+where the model relies on averages from extensive growth samples within 
+a region to provide estimates. Under this paradigm, and where conditions vary so broadly, 
+how can the effects of species-mixing and niche complementarity best be captured in an empirical modeling framework?
+FVS uses crown competition factor (CCF; \citep{Krajicek1961}) which is a species-weighted percent of basal area
+occupied by the theoretical maximum crown area for trees of a given diameter, if they were open grown. 
+This measure is effectively a density that is informed by species crown allometry 
+from which one could infer the relative light use of trees at a site given the stand density, 
+but not the interspecific environmental effects of light-use-diversity on tree growth. 
+
+
+Other measures 
+
+CCF measures density based on a verified relationship between crown width and dbh \citep{Krajicek1961}, 
+and generally follows the following form: \begin{equation}
+\label{eq:}
+CCF = \sum\limits_{i}^{n} \beta_0 + \beta_1 D + \beta_2 D^2
+\end{equation}, where $\beta_i$ parameters represent species-specific coefficents. 
+Values are summed across observations and the measure ultimately provides a percentage of 
+stand basal area occupied by tree crowns. 
+
+but for the purpose of including species-mixing in empirical models, 
+
 
 Evidence of how species-mixing impacts tree growth can shed light on
 relationships that are not currently well-understood if new research is
@@ -252,8 +298,9 @@ with the dependent variable (BAI), (ii) sequentially
 selecting predictor variables within pre-determined groups 
 through a novel pragmatic variable selection approach to identify
 a base-model structure for the GAM, (iii) evaluating random effects
-due to hierarchical groupings in the sample-design, and finally
-(iv) assessing effects produced by identified species-mixing variables. 
+due to hierarchical groupings in the sample-design, and 
+(iv-a) assess whether larch growth varies across different types of mixtures
+(iv-b) assessing effects produced by identified species-mixing variables. 
 
 For (i), explanatory variables were identified based on availability 
 in the PGP data set and whether they could be calculated from the 
