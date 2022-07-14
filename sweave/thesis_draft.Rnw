@@ -93,8 +93,8 @@ facilitative interactions under drought conditions. In northwestern Montana,
 facilitative and competitive interactions were found to modify growth rates 
 of \emph{Abies lasiocarpa} and \emph{Pinus albicaulis}, depending on environmental
 stressors \citep{Callaway1997}. Since larch forests range in species-composition 
-and occur across environmental conditions, western larch may be subject to 
-competitive or complementary relationships through its strong intolerance to shade.  
+and occur across biophysical conditions, western larch may be subject to 
+competitive or complementary relationships within communities that it grows.  
 
 --- Niche complementarity 
 - steed and goeking 2020 talks about niche differentiation in terms of larch and climate

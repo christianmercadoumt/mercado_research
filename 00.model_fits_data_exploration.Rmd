@@ -18,7 +18,7 @@ source('12.gam_fns.R')
 
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
-bai.train <- readRDS('data/bai.train.7_11_22.rds')
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
 bai.spmx <- bai.train %>% 
@@ -57,13 +57,13 @@ bai.spmx.ids <- bai.spmx %>%
   filter(unique_tree_id != 15431)
 
 #null model to compare to for results
-re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+#re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 #larch fraction - alternative with random 
 spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
 #shade tol - alternative with random
 spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 
-ccf_noslope <- readRDS('data/model_objects.1/ccf_noslope.rds')
+#ccf_noslope <- readRDS('data/model_objects.1/ccf_noslope.rds')
 
 #ccf model
 # ccf.gam <- gamm(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(asp_sin, asp_cos) + s(ccf.pl), random = list(unique_tree_id=~1) , family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 3))
@@ -481,6 +481,8 @@ individual.obs <- lapply(mixtures, function(x)
   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
 (dens.plots <- lapply(mixtures, function(m)
   p <- ggplot(m, aes(x = ba.pl)) + geom_histogram()))
+(bai.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = bai)) + geom_histogram()))
 
 data.frame(unlist(individual.obs))
 
@@ -542,47 +544,73 @@ pien.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
 
 mod.list <- list(psme.gam$gam, pico.gam$gam, pien.gam$gam, laoc.gam$gam)
 lapply(mod.list, gam.check)
-plot(pico.gam$gam)
+# plot(pico.gam$gam)
+# filter(bai.spmx.ids, unique_tree_id == 2505)
+# bbb <- readRDS('data/bai.shade.rds')
+# bbb %>% filter(unique_tree_id == 2505)
+# bbb %>% filter(!(unique_tree_id == 2505 & MEASUREMENT_NO == 4))
+# rm(data)
 
+## change bai to 4.611038134
+plot(psme.gam$gam, residuals = T, pages = 1)
+plot(pico.gam$gam, residuals = T, pages = 1)
+plot(laoc.gam$gam, residuals = T, pages = 1)
+plot(pien.gam$gam, residuals = T, pages = 1)
 ```
 
 ```{r}
-max(as.numeric(bai.spmx.ids$unique_tree_id))
+# max(as.numeric(bai.spmx.ids$unique_tree_id))
 #simulated data
-DIAMETER <- sample(seq(1, 25, 0.1), 100, replace = T)
+DIAMETER <- (seq(1, 10, length = 100))
 # cr <- sample(seq(.5,.9,0.1), 100, replace = T)
 # bal.pl.ratio <- sample(seq(0.3658, 0.8419), 100, replace = T)
 # ba.pl <- sample(seq(25, 200, 1), 100, replace = T)
-asp_sin <- rep(-0.08693, 100)
-asp_cos <- rep(0.6327, 100)
+asp_sin <- rep(sin(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
+asp_cos <- rep(cos(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
 
 #varying diameter values - everything else constant
-unique_tree_id <- sample(seq(2000, 3000, 1), 100)
+
 cr <- rep(mean(bai.spmx.ids$cr, na.rm = T), 100)
 bal.pl.ratio <- rep(mean(bai.spmx.ids$bal.pl.ratio, na.rm = T), 100)
 ba.pl <- rep(mean(bai.spmx.ids$ba.pl, na.rm = T), 100)
 
-hist(laoc_laoc$bai)
-summary(sim.diam$DIAMETER)
-sim.diam <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+# hist(laoc_laoc$bai)
 
-bai.diam <- predict(laoc.gam$gam, newdata = sim.diam)
-a <- tibble(sim.diam, bai = as.vector(bai.diam))
+var.diam <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
 
-bai.diam <- predict(psme.gam$gam, newdata = sim.diam)
-b <- tibble(sim.diam, bai = as.vector(bai.diam))
+bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam, type = 'response')
+a <- tibble(var.diam, bai = as.vector(bai.diam.a))
 
-bai.diam <- predict(pico.gam$gam, newdata = sim.diam)
-c <- tibble(sim.diam, bai = as.vector(bai.diam))
+bai.diam.b <- predict(psme.gam$gam, newdata = var.diam, type = 'response')
+b <- tibble(var.diam, bai = as.vector(bai.diam.b))
+
+bai.diam.c <- predict(pico.gam$gam, newdata = var.diam, type = 'response')
+c <- tibble(var.diam, bai = as.vector(bai.diam.c))
 
 rm(DIAMETER)
-ggplot() + geom_point(data = a, aes(x = DIAMETER, y = bai), color = 'red') + 
+ggplot() + geom_point(data = a, aes(x = DIAMETER, y = bai), color = 'black') + 
   geom_point(data = b, aes(x = DIAMETER, y = bai), color = 'blue') + 
   geom_point(data = c, aes(x = DIAMETER, y = bai), color = 'orange')
 
-a
-b
-c
+DIAMETER <- rep(median(bai.spmx.ids$DIAMETER), 100)
+ba.pl <- seq(min(bai.spmx.ids$ba.pl), max(bai.spmx.ids$ba.pl), length = 100)
+var.ba <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+
+bai.ba.a <- predict(laoc.gam$gam, newdata = var.ba, type = 'response')
+aa <- tibble(var.ba, bai = as.vector(bai.ba.a))
+
+bai.ba.b <- predict(psme.gam$gam, newdata = var.ba, type = 'response')
+bb <- tibble(var.ba, bai = as.vector(bai.ba.b))
+
+bai.ba.c <- predict(pico.gam$gam, newdata = var.ba, type = 'response')
+cc <- tibble(var.ba, bai = as.vector(bai.ba.c))
+
+rm(ba.pl)
+ggplot() + 
+  geom_point(data = aa, aes(x = ba.pl, y = bai), color = 'black') +
+  geom_point(data = bb, aes(x = ba.pl, y = bai), color = 'blue') #+
+  #geom_point(data = cc, aes(x = ba.pl, y = bai), color = 'orange')
+
 ```
 
 
