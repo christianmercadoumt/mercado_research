@@ -97,15 +97,15 @@ and occur across biophysical conditions, western larch may be subject to
 competitive or complementary relationships within communities that it grows.  
 
 Tree shade tolerance relates to the physiological and morphological characteristics which drive growth \citep{Reich1998}, 
-and in-turn, relates to inter-tree competitive dynamics. Productivity in forests can 
+and in-turn, relates to inter-tree competitive dynamics \citep{Canham2006}. Productivity in forests can 
 be enhanced by mixing shade tolerant and intolerant species \citep{Williams2017}, 
-where different species niches are considered complementary \citep{Thurm2016}. 
+where different species' niches are considered complementary \citep{Thurm2016}. 
 Searle and Chen \citep{-Searle2020} found that positive complementary effects on 
 individual tree growth increase with community shade-tolerance dissimilarity.
 Additionally, variation of shade tolerance within a community can lead to 
 enhancements on overall community productivity \citep{Zhang2012}. 
 Furthermore, due to complementary effects, quantifying community 
-competition for light can sufficiently capture the effect of biodiversity on productivity \citep{Morin2011}. 
+competition for light can sufficiently capture the effects of biodiversity on productivity \citep{Morin2011}. 
 Given this information then, a shade tolerance informed metric may capture complementarity 
 effects on tree growth and lead to improved estimates thereof. 
 
