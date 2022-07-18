@@ -74,7 +74,7 @@ threatening these unique values.
 
 Western larch naturally grows across a compositional gradient of mixed-species
 forests \citep{Schmidt1988} where interactions among species attributes could impact
-growth and development at the individual- and stand-level. Western larch is
+growth and development at individual tree and stand levels. Western larch is
 classified as very intolerant of shade and one of the fastest-growing within
 its communities \citep{Baker1949, Schmidt1988}. It is found in communities with:
 Douglas-fir (\emph{Pseudotsuga menziesii}(Mirb.) Franco var. \emph{glauca}), 
@@ -96,20 +96,42 @@ stressors \citep{Callaway1997}. Since larch forests range in species-composition
 and occur across biophysical conditions, western larch may be subject to 
 competitive or complementary relationships within communities that it grows.  
 
---- Niche complementarity 
-- steed and goeking 2020 talks about niche differentiation in terms of larch and climate
-- phylogenetically dissimilarity may affect tree growth through a reduction in suspeptibility to species specific pests, pathogens, predators. (quote from Searle \& Chen 2020)
-- Original papers (janzen 1970 and Connell 1978)
-- Theory etended to mature plants through resource concentration hypothesis (Parker et al. 2015, groosman et al. 2018)
-- Mature plant communities with more phylogenetically close host species are more susceptable to specialized pest and pathogen outbreak. Thus a tree with phylogenetically distant neighbors may experience less competition and may experience higher growth rates. (Searle \& Chen 2020)
+Tree shade tolerance relates to the physiological and morphological characteristics which drive growth \citep{Reich1998}, 
+and in-turn, relates to inter-tree competitive dynamics. Productivity in forests can 
+be enhanced by mixing shade tolerant and intolerant species \citep{Williams2017}, 
+where different species niches are considered complementary \citep{Thurm2016}. 
+Searle and Chen \citep{-Searle2020} found that positive complementary effects on 
+individual tree growth increase with community shade-tolerance dissimilarity.
+Additionally, variation of shade tolerance within a community can lead to 
+enhancements on overall community productivity \citep{Zhang2012}. 
+Furthermore, due to complementary effects, quantifying community 
+competition for light can sufficiently capture the effect of biodiversity on productivity \citep{Morin2011}. 
+Given this information then, a shade tolerance informed metric may capture complementarity 
+effects on tree growth and lead to improved estimates thereof. 
 
-Niche complementarity (CITE), or more specifically, the resource concentration 
-hypothesis (CITE parker, grossman), describes conditions where phylogenically
-dissimilar species growing together may experience higher rates 
-of growth from the mixing of traits in a mixed-species forest (CITE. .. .). 
-Previous studies have identified complementary effects among trees with
-differing shade tolerances. \citep{Searle2020} SEARLE 2020 found that such complementary 
-effects on individual tree growth increased with competition intensity. 
+
+
+
+% When quantified, shade tolerance may aid in characterizing 
+% competition and/or complementarity among species in a mixed-species forest.
+% 
+% 
+% --- Niche complementarity 
+% - steed and goeking 2020 talks about niche differentiation in terms of larch and climate
+% - phylogenetically dissimilarity may affect tree growth through a reduction in suspeptibility to species specific pests, pathogens, predators. (quote from Searle \& Chen 2020)
+% - Original papers (janzen 1970 and Connell 1978)
+% - Theory etended to mature plants through resource concentration hypothesis (Parker et al. 2015, groosman et al. 2018)
+% - Mature plant communities with more phylogenetically close host species are more susceptable to specialized pest and pathogen outbreak. Thus a tree with phylogenetically distant neighbors may experience less competition and may experience higher growth rates. (Searle \& Chen 2020)
+% 
+% The mixing of phylogenetically dissimilar species
+% 
+% Niche complementarity (CITE), or more specifically, the resource concentration 
+% hypothesis (CITE parker, grossman), describes conditions where phylogenically
+% dissimilar species growing together may experience higher rates 
+% of growth from the mixing of traits in a mixed-species forest (CITE. .. .). 
+% Previous studies have identified complementary effects among trees with
+% differing shade tolerances. \citep{Searle2020} SEARLE 2020 found that such complementary 
+% effects on individual tree growth increased with competition intensity. 
 
 point: It's important to have models that account for processes that drive tree growth which are easy to measure or acquire.
 Individual tree growth models are commonly used to estimate future stand characteristics 
@@ -185,7 +207,7 @@ modifies western larch growth dynamics.
 
 Given the above, I investigated the following: %lines of inquiry, hypotheses, and predictions:
 
-\emph{How **much** does species mixing influence the growth of western larch?} 
+\emph{How does community composition (species-mixing) influence the growth of western larch?} 
 %alternative: How does species-mixing impact basal area increment of western larch?
 
 Since there is evidence indicating that species-mixing can impact long-term
@@ -218,13 +240,19 @@ roles of mid-tolerant species such as \emph{Pseudotsuga menziesii} in modifying
 \emph{L. occidentalis} growth will vary, from positive to negative, if mixing effects
 are present at all. 
 
+\emph{Comparing species-informed measures, how can the effects of species-mixing be best accounted for within an individual-tree growth model?}
+
 Therefore, my related research objectives were:
-(i) to identify variables that \emph{explicitly} capture the effect of species-mixing on growth and 
-quantify their respective influences on growth
+%(i) to identify variables that capture the effect of species-mixing on growth 
+(i) determine if western larch growth varies depending on what type of mixture it is in 
+after accounting for other factors that influence tree growth
+% and quantify their respective influences on growth
 % quantify the degree to which species-mixing impacts western larch growth, 
-(ii) to determine whether species shade tolerance effectively captures the effects of niche complementarity on western larch
+(ii) to determine whether a species shade tolerance informed metric improves growth estimates of western larch trees
+% effectively captures the effects of niche complementarity on western larch
 % identify whether shade-tolerance, as a measure of interspecificity, captures the effects of mixing,
-(iii) compare and contrast different measures of species-mixing
+(iii) identify, quantify, and compare different species-composition informed metrics within an empirical modelling framework
+% the effectiveness of different measures of species-mixing
 
 \section{Methods}
 \subsection{Tree growth data}
