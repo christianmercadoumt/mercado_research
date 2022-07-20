@@ -60,9 +60,9 @@ bai.spmx.ids <- bai.spmx %>%
 #null model to compare to for results
 #re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
 #larch fraction - alternative with random 
-spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+# spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
 #shade tol - alternative with random
-spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+# spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
 ```
 
 ```{r}
@@ -107,7 +107,7 @@ individual.obs <- lapply(mixtures, function(x)
 (bai.plots <- lapply(mixtures, function(m)
   p <- ggplot(m, aes(x = bai)) + geom_histogram()))
 
-638, 58, 197, 396
+
 
 data.frame(unlist(individual.obs))
 ```
@@ -123,6 +123,11 @@ psme.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
                     random=list(unique_tree_id=~1),
                     family = 'Gamma'(link = log),
                     data = laoc_psme, method = 'ML')
+# med.psme <- median(laoc_psme)
+summary(laoc_psme$DIAMETER)
+bp.psme <- boxplot(laoc_psme$DIAMETER, plot = F)
+l.u.psme <- bp.psme$stats[c(2, 4)]
+
 
 laoc_pico <- mixtures$pico
 length(unique(laoc_pico$cr))
@@ -135,6 +140,7 @@ pico.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
                     random=list(unique_tree_id=~1),
                     family = 'Gamma'(link = log),
                     data = laoc_pico, method = 'ML')
+
 
 laoc_laoc <- mixtures$laoc
 length(unique(laoc_laoc$asp_sin))
@@ -162,65 +168,188 @@ lapply(mod.list, gam.check)
 # bbb %>% filter(unique_tree_id == 2505)
 # bbb %>% filter(!(unique_tree_id == 2505 & MEASUREMENT_NO == 4))
 # rm(data)
-
+plot.gam(mod.list[[1]])
 ## change bai to 4.611038134
-plot(psme.gam$gam, residuals = T, pages = 1, select = 1)
-plot(pico.gam$gam, residuals = T, pages = 1, select = 1)
-plot(laoc.gam$gam, residuals = T, pages = 1, select = 1)
-plot(pien.gam$gam, residuals = T, pages = 1, select = 1)
+summary(laoc.gam$gam)
+summary(pico.gam$gam)
+summary(psme.gam$gam)
+summary(pien.gam$gam)
+for(i in 1:5){
+  par(mfrow = c(2,2))
+  plot(laoc.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.0228)
+  plot(pico.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.15581)
+  plot(psme.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.426596)
+  plot(pien.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.38111221)
+}
+
+
+bp.psme <- boxplot(laoc_psme$DIAMETER, plot = F)
+l.u.psme <- bp.psme$stats[c(2, 4)]
+bp.laoc <- boxplot(laoc_laoc$DIAMETER, plot = F)
+l.u.laoc <- bp.laoc$stats[c(2,4)]
+bp.pico <- boxplot(laoc_pico$DIAMETER, plot = F)
+l.u.pico <- bp.pico$stats[c(2, 4)]
+bp.pien <- boxplot(laoc_pien$DIAMETER, plot = F)
+l.u.pien <- bp.pien$stats[c(2, 4)]
 ```
 
 ```{r}
-# max(as.numeric(bai.spmx.ids$unique_tree_id))
 #simulated data
-DIAMETER <- (seq(1, 10, length = 100))
-# cr <- sample(seq(.5,.9,0.1), 100, replace = T)
-# bal.pl.ratio <- sample(seq(0.3658, 0.8419), 100, replace = T)
-# ba.pl <- sample(seq(25, 200, 1), 100, replace = T)
-asp_sin <- rep(sin(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
-asp_cos <- rep(cos(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
-
 #varying diameter values - everything else constant
 
-cr <- rep(mean(bai.spmx.ids$cr, na.rm = T), 100)
-bal.pl.ratio <- rep(mean(bai.spmx.ids$bal.pl.ratio, na.rm = T), 100)
-ba.pl <- rep(mean(bai.spmx.ids$ba.pl, na.rm = T), 100)
+####Constants####
 
-# hist(laoc_laoc$bai)
+##aspect##
+aspects <- c(unique(laoc_laoc$aspect_deg), unique(laoc_pico$aspect_deg), unique(laoc_psme$aspect_deg), unique(laoc_pien$aspect_deg))
+asp_s <- c(unique(laoc_laoc$asp_sin), unique(laoc_pico$asp_sin), unique(laoc_psme$asp_sin), unique(laoc_pien$asp_sin))
+asp_c <- c(unique(laoc_laoc$asp_cos), unique(laoc_pico$asp_cos), unique(laoc_psme$asp_cos), unique(laoc_pien$asp_cos))
+asp_s <- sort(asp_s)
+asp_c <- sort(asp_c)
+# median(asp_s)
+# median(asp_c)
+# mean(asp_s)
+# mean(asp_c)
 
-var.diam <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+aspects <- sort(aspects)
+# plot(asp_c, asp_s)
+aspects <- sort(aspects)
+# summary(aspects)
+# median(aspects)
+# #do they fall within the same range? (NW, NE, SE, SW)
+# ggplot() + geom_point(data = laoc_laoc, aes(y = asp_cos, x = asp_sin), color = 'black') +
+#   geom_point(data = laoc_psme, aes(y = asp_cos, x = asp_sin), color = 'blue') +
+#   geom_point(data = laoc_pico, aes(y = asp_cos, x = asp_sin), color = 'orange') +
+#   geom_point(data = laoc_pien, aes(y = asp_cos, x = asp_sin), color = 'pink') + 
+#   geom_point(data = NULL, aes(x = sin(315*(pi/180)), y = cos(315*(pi/180))), size = 5)
 
-bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam, type = 'response')
-a <- tibble(var.diam, bai = as.vector(bai.diam.a))
+#chose 315 because it's somewhat in between. Could look at N-NW, N, N-NE and compare? 
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
 
-bai.diam.b <- predict(psme.gam$gam, newdata = var.diam, type = 'response')
-b <- tibble(var.diam, bai = as.vector(bai.diam.b))
+##CR##
+# ggplot() + geom_point(data = laoc_laoc, aes(x = DIAMETER, y = cr), color = 'black') +
+#   geom_point(data = laoc_psme, aes(x = DIAMETER, y = cr), color = 'blue') +
+#   geom_point(data = laoc_pico, aes(x = DIAMETER, y = cr), color = 'orange') +
+#   geom_point(data = laoc_pien, aes(x = DIAMETER, y = cr), color = 'pink')
+crs <- c(unique(laoc_laoc$cr), unique(laoc_pico$cr), unique(laoc_psme$cr), unique(laoc_pien$cr))
+crs <- sort(crs)
+# unique(crs)
+# median(crs)
 
-bai.diam.c <- predict(pico.gam$gam, newdata = var.diam, type = 'response')
-c <- tibble(var.diam, bai = as.vector(bai.diam.c))
+cr <- rep(median(crs, na.rm = T), 25)
+
+#BAL#
+# ggplot() + geom_point(data = laoc_laoc, aes(x = DIAMETER, y = bal.pl.ratio), color = 'black') +
+#   geom_point(data = laoc_psme, aes(x = DIAMETER, y = bal.pl.ratio), color = 'blue') +
+#   geom_point(data = laoc_pico, aes(x = DIAMETER, y = bal.pl.ratio), color = 'orange') +
+#   geom_point(data = laoc_pien, aes(x = DIAMETER, y = bal.pl.ratio), color = 'pink')
+bals <- c(unique(laoc_laoc$bal.pl.ratio), unique(laoc_pico$bal.pl.ratio), unique(laoc_psme$bal.pl.ratio), unique(laoc_pien$bal.pl.ratio))
+bals <- sort(bals)
+# median(bals)
+
+bal.pl.ratio <- rep(median(bals, na.rm = T), 25)
+summary(bals)
+#BA#
+# ggplot() + geom_point(data = laoc_laoc, aes(x = DIAMETER, y = ba.pl), color = 'black') +
+#   geom_point(data = laoc_psme, aes(x = DIAMETER, y = ba.pl), color = 'blue') +
+#   geom_point(data = laoc_pico, aes(x = DIAMETER, y = ba.pl), color = 'orange') +
+#   geom_point(data = laoc_pien, aes(x = DIAMETER, y = ba.pl), color = 'pink')
+bas <- c(unique(laoc_laoc$ba.pl), unique(laoc_pico$ba.pl), unique(laoc_psme$ba.pl), unique(laoc_pien$ba.pl))
+bas <- sort(bas)
+# median(bas)
+
+ba.pl <- rep(median(bas, na.rm = T), 25)
+
+#generate diameter ranges for lower quartile to upper quartile
+DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam.a, type = 'response', se.fit = T)
+a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), se = as.vector(bai.diam.a$se.fit))
+# aaa <- smooth_estimates(laoc.gam$gam, data = var.diam.a, smooth = 's(DIAMETER)')
+
+
+#repeat for psme
+DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+bai.diam.b <- predict(psme.gam$gam, newdata = var.diam.b, type = 'response', se.fit = T)
+b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), se = as.vector(bai.diam.b$se.fit))
+
+#repeat for pico
+DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
+var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+bai.diam.c <- predict(pico.gam$gam, newdata = var.diam.c, type = 'response', se.fit = T)
+c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), se = as.vector(bai.diam.c$se.fit))
+
+#repeat for pien
+DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
+var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+bai.diam.d <- predict(pien.gam$gam, newdata = var.diam.d, type = 'response', se.fit = T)
+d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), se = as.vector(bai.diam.d$se.fit))
 
 rm(DIAMETER)
-ggplot() + geom_point(data = a, aes(x = DIAMETER, y = bai), color = 'black') + 
-  geom_point(data = b, aes(x = DIAMETER, y = bai), color = 'blue') + 
-  geom_point(data = c, aes(x = DIAMETER, y = bai), color = 'orange')
+ggplot() + geom_line(data = a, aes(x = DIAMETER, y = bai), color = 'black') + 
+  geom_ribbon(data = a, aes(x = DIAMETER, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'black') +
+  geom_line(data = b, aes(x = DIAMETER, y = bai), color = 'blue') + 
+  geom_ribbon(data = b, aes(x = DIAMETER, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'blue') +
+  geom_line(data = c, aes(x = DIAMETER, y = bai), color = 'orange') +
+  geom_ribbon(data = c, aes(x = DIAMETER, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'orange') +
+  geom_line(data = d, aes(x = DIAMETER, y = bai), color = 'pink') +
+  geom_ribbon(data = d, aes(x = DIAMETER, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'pink')
 
-DIAMETER <- rep(median(bai.spmx.ids$DIAMETER), 100)
-ba.pl <- seq(min(bai.spmx.ids$ba.pl), max(bai.spmx.ids$ba.pl), length = 100)
+```
+
+```{r}
+#varying BA
+#constants
+#diameter is derived by first taking the man of each lower and upper quartile values, and then averaging them all. 
+DIAMETER <- rep(4.4, 25)
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
+bal.pl.ratio <- rep(median(bals, na.rm = T), 25)
+cr <- rep(median(crs, na.rm = T), 25)
+
+#basal areas
+summary(laoc_psme$ba.pl)
+bp.psme <- boxplot(laoc_psme$ba.pl, plot = F)
+l.u.psme <- bp.psme$stats[c(2, 4)]
+bp.laoc <- boxplot(laoc_laoc$ba.pl, plot = F)
+l.u.laoc <- bp.laoc$stats[c(2,4)]
+bp.pico <- boxplot(laoc_pico$ba.pl, plot = F)
+l.u.pico <- bp.pico$stats[c(2, 4)]
+bp.pien <- boxplot(laoc_pien$ba.pl, plot = F)
+l.u.pien <- bp.pien$stats[c(2, 4)]
+
+#first try basal areas varying between 0 and 150
+# ba.pl <- seq(l.u.laoc[1], l.u.laoc[2], length = 25)
+ba.pl <- seq(20, 150, length = 25)
 var.ba <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
 
-bai.ba.a <- predict(laoc.gam$gam, newdata = var.ba, type = 'response')
-aa <- tibble(var.ba, bai = as.vector(bai.ba.a))
+bai.ba.a <- predict(laoc.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+aa <- tibble(var.ba, bai = as.vector(bai.ba.a$fit), se = as.vector(bai.ba.a$se.fit))
 
-bai.ba.b <- predict(psme.gam$gam, newdata = var.ba, type = 'response')
-bb <- tibble(var.ba, bai = as.vector(bai.ba.b))
+bai.ba.b <- predict(psme.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+bb <- tibble(var.ba, bai = as.vector(bai.ba.b$fit), se = as.vector(bai.ba.b$se.fit))
 
-bai.ba.c <- predict(pico.gam$gam, newdata = var.ba, type = 'response')
-cc <- tibble(var.ba, bai = as.vector(bai.ba.c))
+bai.ba.c <- predict(pico.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+cc <- tibble(var.ba, bai = as.vector(bai.ba.c$fit), se = as.vector(bai.ba.c$se.fit))
+
+bai.ba.d <- predict(pien.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+dd <- tibble(var.ba, bai = as.vector(bai.ba.d$fit), se = as.vector(bai.ba.d$se.fit))
 
 rm(ba.pl)
-ggplot() + 
-  geom_point(data = aa, aes(x = ba.pl, y = bai), color = 'black') +
-  geom_point(data = bb, aes(x = ba.pl, y = bai), color = 'blue') #+
-  #geom_point(data = cc, aes(x = ba.pl, y = bai), color = 'orange')
+ggplot() + geom_line(data = aa, aes(x = ba.pl, y = bai), color = 'black') + 
+  geom_ribbon(data = aa, aes(x = ba.pl, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'black') +
+  geom_line(data = bb, aes(x = ba.pl, y = bai), color = 'blue') + 
+  geom_ribbon(data = bb, aes(x = ba.pl, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'blue') +
+  geom_line(data = cc, aes(x = ba.pl, y = bai), color = 'orange') +
+  geom_ribbon(data = cc, aes(x = ba.pl, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'orange') +
+  geom_line(data = dd, aes(x = ba.pl, y = bai), color = 'pink') +
+  geom_ribbon(data = dd, aes(x = ba.pl, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'pink')
+```
+
+```{r}
+#varying aspect
+
+
 ```
 
