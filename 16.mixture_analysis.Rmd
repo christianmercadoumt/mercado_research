@@ -1,0 +1,226 @@
+---
+title: "different_mixtures"
+author: "Christian Mercado"
+date: '2022-07-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#readin
+library(gratia)
+library(tidyverse)
+library(mgcv)
+library(gridExtra)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+#null model to compare to for results
+#re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+#larch fraction - alternative with random 
+spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+#shade tol - alternative with random
+spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+```
+
+```{r}
+# metric cateogrizing larch with each other species
+# larch.mixtures <- function(data, species, maximum, combined_min){
+#   a <- data %>% filter(percent_LAOC < maximum & '{species}' < maximum & (percent_LAOC+'{species}') > combined_min)
+#   return(a)
+# }
+# bai.spmx.ids %>% filter(percent_LAOC>0.4 & percent_PSME>0.4 & (percent_LAOC+percent_PSME)>0.6)
+
+# larch.mixtures(bai.spmx.ids, percent_PSME, maximum = 0.8, combined_min =.4)
+
+spp.fun <- function(spp_min, spp_maximum, combined_min){
+  a <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min)
+  b <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min)
+  c <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min)
+  d <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min)
+  e <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min)
+  f <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min)
+  g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+  }
+(mixtures <- spp.fun(0.2, .65, 0.7))
+individual.obs <- lapply(mixtures, function(x)
+  length(unique(x$unique_tree_id)))
+(dbh.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
+(dens.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = ba.pl)) + geom_histogram()))
+(bai.plots <- lapply(mixtures, function(m)
+  p <- ggplot(m, aes(x = bai)) + geom_histogram()))
+
+638, 58, 197, 396
+
+data.frame(unlist(individual.obs))
+```
+
+```{r}
+#fit gams for subsets of data
+laoc_psme <- mixtures$psme
+hist(laoc_psme$bai)
+length(unique(laoc_psme$asp_sin))
+ggplot(laoc_psme, aes(x = percent_LAOC, y = percent_PSME)) + geom_point()
+psme.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 20),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_psme, method = 'ML')
+
+laoc_pico <- mixtures$pico
+length(unique(laoc_pico$cr))
+hist(laoc_pico$bai)
+plot(laoc_pico$DIAMETER, laoc_pico$bai)
+filter(laoc_pico, bai>3)
+ggplot(laoc_pico, aes(x = percent_LAOC, y = percent_PICO)) + geom_point()
+pico.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 13),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_pico, method = 'ML')
+
+laoc_laoc <- mixtures$laoc
+length(unique(laoc_laoc$asp_sin))
+laoc.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 20),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_laoc, method = 'ML')
+
+laoc_pien <- mixtures$pien
+ggplot(laoc_pien, aes(x = percent_LAOC, y = percent_PIEN)) + geom_point()
+length(unique(laoc_pien$asp_sin))
+length(unique(laoc_pien$cr))
+pien.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 8),
+                    random=list(unique_tree_id=~1),
+                    family = 'Gamma'(link = log),
+                    data = laoc_pien, method = 'ML')
+
+mod.list <- list(psme.gam$gam, pico.gam$gam, pien.gam$gam, laoc.gam$gam)
+lapply(mod.list, gam.check)
+# plot(pico.gam$gam)
+# filter(bai.spmx.ids, unique_tree_id == 2505)
+# bbb <- readRDS('data/bai.shade.rds')
+# bbb %>% filter(unique_tree_id == 2505)
+# bbb %>% filter(!(unique_tree_id == 2505 & MEASUREMENT_NO == 4))
+# rm(data)
+
+## change bai to 4.611038134
+plot(psme.gam$gam, residuals = T, pages = 1, select = 1)
+plot(pico.gam$gam, residuals = T, pages = 1, select = 1)
+plot(laoc.gam$gam, residuals = T, pages = 1, select = 1)
+plot(pien.gam$gam, residuals = T, pages = 1, select = 1)
+```
+
+```{r}
+# max(as.numeric(bai.spmx.ids$unique_tree_id))
+#simulated data
+DIAMETER <- (seq(1, 10, length = 100))
+# cr <- sample(seq(.5,.9,0.1), 100, replace = T)
+# bal.pl.ratio <- sample(seq(0.3658, 0.8419), 100, replace = T)
+# ba.pl <- sample(seq(25, 200, 1), 100, replace = T)
+asp_sin <- rep(sin(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
+asp_cos <- rep(cos(median(bai.spmx.ids$aspect_deg)*(pi/180)), 100)
+
+#varying diameter values - everything else constant
+
+cr <- rep(mean(bai.spmx.ids$cr, na.rm = T), 100)
+bal.pl.ratio <- rep(mean(bai.spmx.ids$bal.pl.ratio, na.rm = T), 100)
+ba.pl <- rep(mean(bai.spmx.ids$ba.pl, na.rm = T), 100)
+
+# hist(laoc_laoc$bai)
+
+var.diam <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+
+bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam, type = 'response')
+a <- tibble(var.diam, bai = as.vector(bai.diam.a))
+
+bai.diam.b <- predict(psme.gam$gam, newdata = var.diam, type = 'response')
+b <- tibble(var.diam, bai = as.vector(bai.diam.b))
+
+bai.diam.c <- predict(pico.gam$gam, newdata = var.diam, type = 'response')
+c <- tibble(var.diam, bai = as.vector(bai.diam.c))
+
+rm(DIAMETER)
+ggplot() + geom_point(data = a, aes(x = DIAMETER, y = bai), color = 'black') + 
+  geom_point(data = b, aes(x = DIAMETER, y = bai), color = 'blue') + 
+  geom_point(data = c, aes(x = DIAMETER, y = bai), color = 'orange')
+
+DIAMETER <- rep(median(bai.spmx.ids$DIAMETER), 100)
+ba.pl <- seq(min(bai.spmx.ids$ba.pl), max(bai.spmx.ids$ba.pl), length = 100)
+var.ba <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+
+bai.ba.a <- predict(laoc.gam$gam, newdata = var.ba, type = 'response')
+aa <- tibble(var.ba, bai = as.vector(bai.ba.a))
+
+bai.ba.b <- predict(psme.gam$gam, newdata = var.ba, type = 'response')
+bb <- tibble(var.ba, bai = as.vector(bai.ba.b))
+
+bai.ba.c <- predict(pico.gam$gam, newdata = var.ba, type = 'response')
+cc <- tibble(var.ba, bai = as.vector(bai.ba.c))
+
+rm(ba.pl)
+ggplot() + 
+  geom_point(data = aa, aes(x = ba.pl, y = bai), color = 'black') +
+  geom_point(data = bb, aes(x = ba.pl, y = bai), color = 'blue') #+
+  #geom_point(data = cc, aes(x = ba.pl, y = bai), color = 'orange')
+```
+
