@@ -285,10 +285,10 @@ Therefore, my related research objectives were:
 after accounting for other factors that influence tree growth
 % and quantify their respective influences on growth
 % quantify the degree to which species-mixing impacts western larch growth, 
-(ii) to determine whether a species shade tolerance informed metric improves growth estimates of western larch trees
+% (ii) to determine whether a species shade tolerance informed metric improves growth estimates of western larch trees
 % effectively captures the effects of niche complementarity on western larch
 % identify whether shade-tolerance, as a measure of interspecificity, captures the effects of mixing,
-(iii) identify, quantify, and compare different species-composition informed metrics within an empirical modelling framework
+(ii) identify, quantify, and compare different species-composition informed metrics within an empirical modelling framework
 % the effectiveness of different measures of species-mixing
 
 \section{Methods}
