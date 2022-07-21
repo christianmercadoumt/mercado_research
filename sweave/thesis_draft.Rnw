@@ -72,62 +72,109 @@ biophysical processes that allow larch to fill its niche within this region \cit
 threatening these unique values. 
 
 
-Western larch naturally grows across a compositional gradient of mixed-species
-forests \citep{Schmidt1988} where interactions among species attributes could impact
-growth and development at individual tree and stand levels. Western larch is
-classified as very intolerant of shade and one of the fastest-growing within
+% Western larch naturally grows across a compositional gradient of mixed-species
+% forests \citep{Schmidt1988} where interactions among species attributes could impact
+% growth and development at individual tree and stand levels.
+
+Western larch naturally grows across a species-compositional gradient in mixed-species
+forests \citep{Schmidt1988}. It is sometimes managed 
+in even-aged, homogeneous plantations, but more typically is managed in mixed-conifer settings
+where interactions among species attributes that impact
+growth and development at tree and stand levels may occur.
+Western larch is classified as very intolerant of shade and one of the fastest-growing within
 its communities \citep{Baker1949,Schmidt1988}. It is found in communities with:
 Douglas-fir (\emph{Pseudotsuga menziesii}(Mirb.) Franco var. \emph{glauca}), 
 lodgepole pine (\emph{Pinus contorta}(Dougl.)), Engelmann spruce (Picea engellmanii),
 subalpine fir (\emph{Abies lasiocarpa}), ponderosa pine (\emph{Pinus ponderosa}),
 western hemlock (\emph{Tsuga heterophylla}), mountain hemlock (\emph{Tsuga mertensiana}),
 and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1981a,Schmidt1988}. 
-These conifer species collectively span the range of shade tolerance and growth rates. 
-A combination of shade-tolerance, height growth rate, water use efficiency,
-tree architecture, and other traits within mixed-species communities may lead to
-competitive and/or complementary relationships among species \citep{Forrester2017}.
-Mixing these characteristics can result in altered species growth rates \citep{Forrester2017},
-even from small differences in such traits \citep{Riofrio2017}. Lebourgeois \citep{Lebourgeois2013}
-found that species mixture modified the growth of \emph{Abies abla} through
-facilitative interactions under drought conditions. In northwestern Montana,
-facilitative and competitive interactions were found to modify growth rates 
-of \emph{Abies lasiocarpa} and \emph{Pinus albicaulis}, depending on environmental
-stressors \citep{Callaway1997}. Since larch forests range in species-composition 
-and occur across biophysical conditions, western larch may be subject to 
-competitive or complementary relationships within communities that it grows.  
 
-Maximum stand density can be impacted at different 
-levels of species purity in a stand for different focal species. 
+
+
+Stand density %, pertaining to competition-dependent mortality, or self-thinning (CITE),
+can be modified at different levels of species 
+purity in a stand, depending on the species and/or mixture 
+\citep{Condes2013,Brunner2020}. 
+% Since stand density closely relates to tree growth \citep{Reineke1933}, 
+% the effects of species-mixing on density can translate 
+% to modified competition impact tree growth.
 Weiskittel et al. (\citeyear{Weiskittel2009a}) found that the 
-density of self-thinning for a given species was positively 
+density of a stand at which self-thinning occurs for a given species was positively 
 associated with stand purity, meaning an increase in diversity 
-could reduce a site's maximum potential density. Conversely, Pretzsch and Biber 
+could reduce a site's maximum potential density. In contrast, Pretzsch and Biber 
 (\citeyear{Pretzsch2016}) showed that stand carrying capacity was 
-positively impacted in more diverse stands. Moreover, 
-maximum stand density was increased in ponderosa pine and 
+positively impacted in more diverse stands. A similar study found that 
+maximum stand density increased in shade intolerant ponderosa pine and 
 Douglas-fir when species-diversity was higher, but in 
-comparatively shade-tolerant grand fir, the relative impact 
+shade-tolerant grand fir, the relative impact 
 of stand purity on stand density was unimportant \citep{Kimsey2019}. 
-Since stand density closely relates to tree growth \citep{Reineke1933}, 
-stand purity and its relationship with density 
-may help explain varying competitive effects on tree growth across mixtures. 
 
-Species shade tolerance relates to the physiological and 
+Altering density can modify competition, 
+which has further implications on stand productivity and tree growth.
+In a study of \emph{Abies grandis} (shade-tolerant) and \emph{Pinus ponderosa} (shade-intolerant)
+mixtures in Oregon, USA, mixing impacted volume growth (only) at low spacing
+and was attributed to the shade tolerance of each species \citep{Maguire2021}. 
+
+In fact,
+Brunner \& Forrester (\citeyear{Brunner2020}) found that mixture 
+affected tree growth only at high densities for their studied mixture.
+So if density can vary depending on species-mixture, 
+then competition may be modified, leading to an impact on tree growth.
+
+
+% Further evidence suggests that species-mixing can interact with stand density 
+% in the long term, and that the interplay between the two likely depends
+% on the characteristics of species-mixtures and stand types \citep{Brunner2020, Condes2013}.
+
+% These conifer species collectively span the range of shade tolerance and growth rates. 
+A combination of shade-tolerance, height growth rate, water use efficiency,
+tree architecture, and other species characteristics within mixed-species 
+communities can lead to modifications in competitive and/or complementary 
+relationships among species \citep{Forrester2017}. 
+In these communities, even small differences in such attributes 
+can result in altered species growth rates \citep{Riofrio2017,Forrester2017}.
+Moreover, ecological niche theory suggests that mixture effects are stronger 
+for highly complementary species \citep{Loreau2010}.
+In particular, species shade tolerance relates to the physiological and 
 morphological characteristics which drive growth \citep{Reich1998}, 
-and in-turn, relates to inter-tree competitive dynamics \citep{Canham2006}. 
-Productivity in forests can be enhanced by mixing shade tolerant and 
-intolerant species \citep{Williams2017}, where different species' 
-light requirement niches are considered complementary \citep{Thurm2016}. 
-Searle and Chen (\citeyear{Searle2020}) found that positive complementary effects on 
-individual tree growth increase with both community 
-shade-tolerance and phyologenetic dissimilarity. 
-Additionally, variation of shade tolerance within a community can lead to 
-enhancements on overall community productivity \citep{Zhang2012}. 
-Furthermore, due to complementary effects, quantifying community 
-competition for light can sufficiently capture the 
-effects of biodiversity on productivity \citep{Morin2011}.
-Thus, a shade tolerance informed metric may capture complementarity 
-effects on tree growth and lead to improved estimates thereof. 
+and thus relates to inter-tree competitive dynamics \citep{Canham2006}.
+Additionally, productivity in forests can be enhanced by mixing shade tolerant and 
+intolerant species \citep{Zhang2012,Williams2017}, where different species' 
+light requirement (or shade tolerance) niches are complementary \citep{Thurm2016}. 
+Furthermore, quantifying community competition for light can sufficiently 
+capture the effects of biodiversity on productivity \citep{Morin2011}.
+At a finer scale, Searle and Chen (\citeyear{Searle2020}) found that 
+positive complementary effects on individual tree growth increase with both community 
+shade-tolerance and phyologenetic dissimilarity.
+Since western larch forests range in species-composition 
+and occur across biophysical conditions, western larch may 
+be subject to the effects of modified competitive or complementary 
+relationships within communities that it grows. 
+
+
+% due to complementary effects, quantifying community competition for 
+% light can sufficiently capture the effects of biodiversity on productivity \citep{Morin2011}.
+%  Lebourgeois \citep{Lebourgeois2013}
+% found that species mixture modified the growth of \emph{Abies abla} through
+% facilitative interactions under drought conditions. In northwestern Montana,
+% facilitative and competitive interactions were found to modify growth rates 
+% of \emph{Abies lasiocarpa} and \emph{Pinus albicaulis}, depending on environmental
+% stressors \citep{Callaway1997}. 
+% 
+% Species , 
+% and in-turn, . 
+
+ 
+% Additionally, variation of shade tolerance within a community can lead to 
+% enhancements on overall community productivity \citep{Zhang2012}. 
+
+% Thus, a shade tolerance informed metric may capture complementarity 
+% effects on tree growth and lead to improved estimates thereof. 
+
+
+
+
+
 
 
 
@@ -215,13 +262,13 @@ expanded to more forest-types. Various studies in Europe have revealed that
 facilitation or competitive reduction in mixed-species stands can lead to
 enhanced productivity when compared to monocultures \citep{Pretzsch2009}.
 This effect is sometimes termed overyielding, with reference to the potential
-for higher than anticipated biomass or volume \citep{Pretzsch2009}. 
-Further evidence suggests that mixture can interact with stand density 
-in the long term, and that the interplay between the two likely depends
-on the characteristics of species-mixtures and stand types \citep{Brunner2020, Condes2013}.
-In a study of \emph{Abies grandis} (shade-tolerant) and \emph{Pinus ponderosa} (shade-intolerant)
-mixtures in Oregon, USA, mixing impacted volume growth (only) at low spacing
-and was attributed to the shade tolerance of each species \citep{Maguire2021}. 
+for higher than anticipated biomass or volume \citep{Pretzsch2009,Loreau2010}.
+
+% Further evidence suggests that species-mixing can interact with stand density 
+% in the long term, and that the interplay between the two likely depends
+% on the characteristics of species-mixtures and stand types \citep{Brunner2020, Condes2013}.
+
+
 Vospernik (\citeyear{Vospernik2021}) found that individual tree basal area increment %\citep{Vospernik2021}
 was significantly modified in mixtures of species with different traits, 
 compared to mixtures of species with similar traits. Concerning larch, they

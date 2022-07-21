@@ -100,13 +100,15 @@ spp.fun <- function(spp_min, spp_maximum, combined_min){
 (mixtures <- spp.fun(0.2, .65, 0.7))
 individual.obs <- lapply(mixtures, function(x)
   length(unique(x$unique_tree_id)))
-(dbh.plots <- lapply(mixtures, function(m)
-  p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
-(dens.plots <- lapply(mixtures, function(m)
-  p <- ggplot(m, aes(x = ba.pl)) + geom_histogram()))
-(bai.plots <- lapply(mixtures, function(m)
-  p <- ggplot(m, aes(x = bai)) + geom_histogram()))
 
+# (dbh.plots <- lapply(mixtures, function(m)
+#   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
+# (dens.plots <- lapply(mixtures, function(m)
+#   p <- ggplot(m, aes(x = ba.pl)) + geom_histogram()))
+# (bai.plots <- lapply(mixtures, function(m)
+#   p <- ggplot(m, aes(x = bai)) + geom_histogram()))
+
+rm(bai.plots)
 
 
 data.frame(unlist(individual.obs))
@@ -296,9 +298,10 @@ ggplot() + geom_line(data = a, aes(x = DIAMETER, y = bai), color = 'black') +
   geom_line(data = d, aes(x = DIAMETER, y = bai), color = 'pink') +
   geom_ribbon(data = d, aes(x = DIAMETER, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'pink')
 
+
 ```
 
-```{r}
+```{r varying ba}
 #varying BA
 #constants
 #diameter is derived by first taking the man of each lower and upper quartile values, and then averaging them all. 
@@ -347,9 +350,95 @@ ggplot() + geom_line(data = aa, aes(x = ba.pl, y = bai), color = 'black') +
   geom_ribbon(data = dd, aes(x = ba.pl, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'pink')
 ```
 
-```{r}
-#varying aspect
+```{r varying bal}
+#varying BAL
+DIAMETER <- rep(4.4, 25)
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
+cr <- rep(median(crs, na.rm = T), 25)
+bas <- c(unique(laoc_laoc$ba.pl), unique(laoc_pico$ba.pl), unique(laoc_psme$ba.pl), unique(laoc_pien$ba.pl))
+bas <- sort(bas)
+ba.pl <- rep(median(bas, na.rm = T), 25)
 
+bal.pl.ratio <- seq(0 ,1 ,length = 25)
+var.bal <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+
+bai.bal.a <- predict(laoc.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+aa <- tibble(var.bal, bai = as.vector(bai.bal.a$fit), se = as.vector(bai.bal.a$se.fit))
+
+bai.bal.b <- predict(psme.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+bb <- tibble(var.bal, bai = as.vector(bai.bal.b$fit), se = as.vector(bai.bal.b$se.fit))
+
+bai.bal.c <- predict(pico.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+cc <- tibble(var.bal, bai = as.vector(bai.bal.c$fit), se = as.vector(bai.bal.c$se.fit))
+
+bai.bal.d <- predict(pien.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+dd <- tibble(var.bal, bai = as.vector(bai.bal.d$fit), se = as.vector(bai.bal.d$se.fit))
+
+
+ggplot() + geom_line(data = aa, aes(x = bal.pl.ratio, y = bai), color = 'black') + 
+  geom_ribbon(data = aa, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'black') +
+  geom_line(data = bb, aes(x = bal.pl.ratio, y = bai), color = 'blue') + 
+  geom_ribbon(data = bb, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'blue') +
+  geom_line(data = cc, aes(x = bal.pl.ratio, y = bai), color = 'orange') +
+  geom_ribbon(data = cc, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'orange') +
+  geom_line(data = dd, aes(x = bal.pl.ratio, y = bai), color = 'pink') +
+  geom_ribbon(data = dd, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'pink')
+
+```
+
+
+```{r data slice}
+#try out data slice
+#create data frame with one value for psme
+DIAMETER <- 4.4
+asp_sin <- sin(315*(pi/180))
+asp_cos <- cos(315*(pi/180))
+cr <- median(crs, na.rm = T)
+bas <- c(unique(laoc_laoc$ba.pl), unique(laoc_pico$ba.pl), unique(laoc_psme$ba.pl), unique(laoc_pien$ba.pl))
+bas <- sort(bas)
+ba.pl <- median(bas, na.rm = T)
+
+bal.test <- data.frame(DIAMETER, asp_sin, asp_cos, cr, ba.pl)
+
+bal.pred.data <- data_slice(psme.gam$gam, 'bal.pl.ratio', data = bal.test, n = 25)
+pred <- predict(psme.gam$gam, newdata = bal.pred.data, type = 'link', se.fit = T)
+pred <- as.data.frame(pred)
+ilink <- family(psme.gam$gam)$linkinv
+dddd <- family(psme.gam$gam)
+dddd$linkinv(pred$fit)
+exp(pred$fit)
+pred <- transform(pred,
+                  bai = ilink(fit),
+                  upr = ilink(fit+se.fit),
+                  lwr = ilink(fit-se.fit),
+                  bal.pl.ratio=bal.pred.data$bal.pl.ratio)
+vals <- bal.pred.data[,2:7]
+bal.pr <- tibble(vals, pred)
+
+
+#laoc
+bal.pred.data_l <- data_slice(laoc.gam$gam, 'bal.pl.ratio', data = bal.test, n = 25)
+p1 <- predict(laoc.gam$gam, newdata = bal.pred.data_l, type = 'link', se.fit = T)
+p1 <- as.data.frame(p1)
+p1 <- transform(p1,
+                bai = ilink(fit),
+                upr = ilink(fit + se.fit),
+                lwr = ilink(fit - se.fit),
+                bal.pl.ratio = bal.pred.data_l$bal.pl.ratio)
+v1 <- bal.pred.data_l[,2:7]
+bal.llll <- tibble(v1, p1)
+
+ggplot() + geom_line(data = bal.pr, aes(x = bal.pl.ratio, y = bai)) + geom_ribbon(data = bal.pr, aes(x = bal.pl.ratio, ymin = lwr, ymax = upr), alpha = 0.2, fill = 'blue') + geom_line(data = bal.llll, aes(x = bal.pl.ratio, y = bai), color = 'black') + 
+  geom_ribbon(data = bal.llll, aes(x = bal.pl.ratio, ymin = lwr, ymax = upr), alpha = 0.2, fill = 'black')
+ggplot() + geom_line(data = aa, aes(x = bal.pl.ratio, y = bai), color = 'black') + 
+  geom_ribbon(data = aa, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'black') +
+  geom_line(data = bb, aes(x = bal.pl.ratio, y = bai), color = 'blue') + 
+  geom_ribbon(data = bb, aes(x = bal.pl.ratio, ymin = bai-se, ymax = bai+se), alpha = 0.2, fill = 'blue')
+
+
+var.bal
+bal.pred.data
 
 ```
 
