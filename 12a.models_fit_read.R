@@ -165,10 +165,10 @@ spmx.gam.alt.ccf <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds')
 #     family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 2)))
 # try(saveRDS(spmx.gam.alt.st, 'data/model_objects.1/spmx.gam.alt.st_7.14.rds'))
 # 
-try(spmx.gam.alt.ccf <- gam(bai ~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
-                         s(asp_sin, asp_cos) + s(unique.tree.f, bs = "re"),
-                       family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 2)))
-try(saveRDS(spmx.gam.alt.ccf, 'data/model_objects.1/spmx.gam.alt.ccf_7.14.rds'))
+# try(spmx.gam.alt.ccf <- gam(bai ~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ccf.pl) +
+#                          s(asp_sin, asp_cos) + s(unique.tree.f, bs = "re"),
+#                        family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML', control = list(nthreads = 2)))
+# try(saveRDS(spmx.gam.alt.ccf, 'data/model_objects.1/spmx.gam.alt.ccf_7.14.rds'))
 
 #alt model - tree RE
 re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
