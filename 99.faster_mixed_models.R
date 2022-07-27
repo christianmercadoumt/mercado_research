@@ -12,39 +12,39 @@ hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 bai.train <- readRDS('data/bai.train.7_11_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
-bai.size <- bai.train %>% 
-  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
-         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
-  filter(bai != 0)
-
-bai.site <- bai.train %>% 
-  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
-         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
-         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
-         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
-         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode) %>% 
-  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
-         asp_sin = sin(aspect_deg*(pi/180)),
-         asp_cos = cos(aspect_deg*(pi/180))) %>%
-  mutate(sl_asp_sin = asp_sin*slope_pct, 
-         sl_asp_cos = asp_cos*slope_pct, 
-         asp.trasp = trasp(aspect_deg), 
-         HabType = as.factor(HabType),
-         cr = CROWN_RATIO/100,
-         bal.pl.ratio = bal.pl/ba.pl,
-         unique_tree_id = factor(unique_tree_id)) %>% 
-  filter(bai != 0)
-
-
-bai.site.ids <- bai.site %>% group_by(stand) %>% 
-  mutate(unique.stand = group_indices()) %>% ungroup() %>% 
-  mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% 
-  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
-         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), 
-         unique.cluster.f = as.factor(unique.cluster), 
-         unique.plot.f = as.factor(unique.plot), 
-         unique.tree.f = as.factor(unique_tree_id))
+# bai.size <- bai.train %>% 
+#   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+#          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+#   filter(bai != 0)
+# 
+# bai.site <- bai.train %>% 
+#   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+#          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+#          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+#          ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+#          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+#          locationcode) %>% 
+#   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+#          asp_sin = sin(aspect_deg*(pi/180)),
+#          asp_cos = cos(aspect_deg*(pi/180))) %>%
+#   mutate(sl_asp_sin = asp_sin*slope_pct, 
+#          sl_asp_cos = asp_cos*slope_pct, 
+#          asp.trasp = trasp(aspect_deg), 
+#          HabType = as.factor(HabType),
+#          cr = CROWN_RATIO/100,
+#          bal.pl.ratio = bal.pl/ba.pl,
+#          unique_tree_id = factor(unique_tree_id)) %>% 
+#   filter(bai != 0)
+# 
+# 
+# bai.site.ids <- bai.site %>% group_by(stand) %>% 
+#   mutate(unique.stand = group_indices()) %>% ungroup() %>% 
+#   mutate(unique.cluster = (1000*unique.stand)+cluster, unique.plot = (1000*unique.stand)+PLOT) %>% 
+#   mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+#          unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO), 
+#          unique.cluster.f = as.factor(unique.cluster), 
+#          unique.plot.f = as.factor(unique.plot), 
+#          unique.tree.f = as.factor(unique_tree_id))
 
 
 bai.spmx <- bai.train %>% 

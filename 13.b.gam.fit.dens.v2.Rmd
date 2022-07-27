@@ -22,13 +22,13 @@ hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
 #load data
-bai.train <- readRDS('data/bai.train.4_21_22.rds')
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
-bai.size <- bai.train %>% 
-  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
-         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
-  filter(bai != 0)
+# bai.size <- bai.train %>% 
+#   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+#          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr) %>% 
+#   filter(bai != 0)
 
 # bai.site <- bai.train %>% 
 #   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
@@ -43,13 +43,33 @@ bai.size <- bai.train %>%
 #          asp.trasp = trasp(aspect_deg)) %>% 
 #   filter(bai != 0)
 
-bai.dcomp <- bai.train %>% 
-  select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+# bai.dcomp <- bai.train %>% 
+#   select(stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+#          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+#          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+#          ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+#          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+#          locationcode) %>% 
+#   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+#          asp_sin = sin(aspect_deg*(pi/180)),
+#          asp_cos = cos(aspect_deg*(pi/180))) %>%
+#   mutate(sl_asp_sin = asp_sin*slope_pct, 
+#          sl_asp_cos = asp_cos*slope_pct, 
+#          asp.trasp = trasp(aspect_deg), 
+#          HabType = as.factor(HabType),
+#          cr = CROWN_RATIO/100,
+#          bal.pl.ratio = bal.pl/ba.pl) %>% 
+#   filter(bai != 0)
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
          heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
-         ba.pl, bal.pl, ccf.pl, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
          ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
-         locationcode) %>% 
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
   mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
          asp_sin = sin(aspect_deg*(pi/180)),
          asp_cos = cos(aspect_deg*(pi/180))) %>%
@@ -58,17 +78,34 @@ bai.dcomp <- bai.train %>%
          asp.trasp = trasp(aspect_deg), 
          HabType = as.factor(HabType),
          cr = CROWN_RATIO/100,
-         bal.pl.ratio = bal.pl/ba.pl) %>% 
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
   filter(bai != 0)
 
-gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id != 15431,], method = 'ML') #without giant trees
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = group_indices()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+gam.s1a <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') #without giant trees
+
+
 ```
 
 ```{r corrmat}
 
-compd.tree <- bai.dcomp %>% select(cr, bal.pl.ratio, dq.pl.all)
-compd.plot <- bai.dcomp %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
-compd.all <- bai.dcomp %>% select(cr, bal.pl.ratio, qmd.pl.all, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl)
+compd.tree <- bai.spmx.ids %>% select(cr, bal.pl.ratio, dq.pl.all)
+compd.plot <- bai.spmx.ids %>% select(tpa.pl.all, qmd.pl.all, ba.pl, ccf.pl)
+compd.all <- bai.spmx.ids %>% select(cr, bal.pl.ratio, qmd.pl.all, dq.pl.all, tpa.pl.all, ba.pl, ccf.pl)
 
 ggpairs(compd.tree)
 ggpairs(compd.plot)
@@ -88,26 +125,26 @@ ggpairs(compd.all)
 ### honorable mention: qmd-cr, ccf-qmd
 
 ## Begin with tree vars - all included - adding to model with site vars
-nosite.compd1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #cr and bal
-nosite.compd2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #cr and dq
-nosite.compd3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #bal and dq
-nosite.compd4 <- gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd4 <- gam(bai~s(DIAMETER) + s(dq.pl.all) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 ### INDIVIDUALS
 #cr
-nosite.compd.cr <- gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.cr <- gam(bai~s(DIAMETER) + s(cr, k = 9), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #bal
-nosite.compd.bal <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.bal <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 #dq
-nosite.compd.dq <- gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML')
+nosite.compd.dq <- gam(bai~s(DIAMETER) + s(dq.pl.all), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
 
 
 nosite.compdlist.full <- list('full compd' = nosite.compd1, 'cr-bal' = nosite.compd2, 'cr-dq' = nosite.compd3, 'bal-dq' = nosite.compd4)
@@ -140,13 +177,13 @@ rmse.conc.table(nosite.compdlist.ind)
 ### honorable mention: qmd-cr, ccf-qmd
 
 #no dq and tpa - dropped dq for this option
-op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #using tpa, no dqratio, noBA
+op1 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') #using tpa, no dqratio, noBA
 
-op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #no ba, keep dq, no tpa
+op2 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(qmd.pl.all) + s(ccf.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') #no ba, keep dq, no tpa
 
-op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, notpa
+op3 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(dq.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') #noccf, noqmd, notpa
 
-op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], method = 'ML') #noccf, noqmd, nodq
+op4 <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(tpa.pl.all) + s(ba.pl), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') #noccf, noqmd, nodq
 
 
 
@@ -186,7 +223,7 @@ tb <- tibble(op2$model, ft) %>% mutate(residuals = bai-ft)
 #residuals.gam(op2)[3400]
 #tb %>% filter(residuals > 5 | residuals < -5)
 
-bai.dcomp.nb <- bai.dcomp[bai.dcomp$unique_tree_id != 15431,]
+bai.dcomp.nb <- bai.spmx.ids
 filter(bai.dcomp.nb, DIAMETER == 3.4, cr == 0.93, bai>6)
 ##UNIQUE TREE ID 2505 - stand 1403, setting id 01140120010011, meas3, plot 130, tag312
 filter(bai.dcomp.nb, DIAMETER == 5.5, cr == 0.4, bai>6)
@@ -313,13 +350,13 @@ best.2 <- nosite.compd.bal
 
 best.3 <- nosite.compd.dq
 
-best.4 <- gam(bai~s(DIAMETER) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.4 <- gam(bai~s(DIAMETER) + s(tpa.pl.all), family = 'Gamma'(link = log), bai.spmx.ids)
 
-best.5 <- gam(bai~s(DIAMETER) + s(ba.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.5 <- gam(bai~s(DIAMETER) + s(ba.pl), family = 'Gamma'(link = log), bai.spmx.ids)
 
-best.6 <- gam(bai~s(DIAMETER) + s(ccf.pl), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.6 <- gam(bai~s(DIAMETER) + s(ccf.pl), family = 'Gamma'(link = log), bai.spmx.ids)
 
-best.7 <- gam(bai~s(DIAMETER) + s(qmd.pl.all), family = 'Gamma'(link = log), bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+best.7 <- gam(bai~s(DIAMETER) + s(qmd.pl.all), family = 'Gamma'(link = log), bai.spmx.ids)
 
 best.4a <- update(best.4, . ~ . + s(cr, k = 9))
 
@@ -342,13 +379,13 @@ rmse.conc.table(best.list.plot.withtree)
 
 ```{r FVS model}
 ### 
-fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,], family = 'Gamma'(link = log))
+fvs.sz.cmp <- gam(bai~I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids, family = 'Gamma'(link = log))
 summary(fvs.sz.cmp)
 
 my.rmse.2(fvs.sz.cmp)[2]
 
 fvs.size1 <- glm(bai~log.diam + I(DIAMETER^2), family = 'Gamma'(link = log), data = bai.size[bai.size$unique_tree_id!=15431,])
-#fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.dcomp[bai.dcomp$unique_tree_id != 15431,])
+#fvs.full <- glm(log.bai~elev_m + I(elev_m^2) + sl_asp_sin + sl_asp_cos + slope_pct + I(slope_pct^2) + I(ccf.cl/100) + log.diam + I(bal.cl/100) + cr + I(cr^2) + I(DIAMETER^2) + I(bal.cl/(100*log(DIAMETER+1))) + factor(habclass), data = bai.spmx.ids)
 #summary(fvs.full)
 #my.rmse.2(fvs.full)
 

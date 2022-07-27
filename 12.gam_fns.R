@@ -16,6 +16,13 @@ my.rmse.2 <- function(gam){
   return(c('rmse' = rmse, 'rmse.df' = rmse.df))
 }
 
+my.rmse.3 <- function(model, testdata){
+  error <- testdata$bai-as.vector(predict.gam(model, newdata = testdata, type = 'response', exclude = 's(unique.tree.f)'))
+  mse <- (sum(error^2))/length(error)
+  rmse <- sqrt(mse)
+  return(rmse)
+}
+
 #output which returns list (based on list of gam objects) of summary, rmse, and concurvity for each input gam object
 gam.output <- function(x){
   x <- list('summary' = summary.gam(x), 'rmse' = my.rmse.2(x), 'concurvity' = concurvity(x))

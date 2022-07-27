@@ -1,4 +1,4 @@
-% !Rnw root = linearmod.Rnw
+
 
 %%%%%%%%  Misc Packages   %%%%%%%%%%%%%%%%
 \usepackage{amsmath} %,amssymb,amsthm,bm}
@@ -9,6 +9,9 @@
 \usepackage{graphicx}
 %\usepackage{subfigure}
 \usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{float}
+\usepackage{tabularx}
 
 %%%%%%%%  Page Setup %%%%%%%%%%%%%%%%%%
 \usepackage[margin=1in]{geometry}

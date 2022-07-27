@@ -50,6 +50,8 @@ The abstract.
 \chapter{}
 \section{Introduction}
 
+
+
 % Western larch grows within pure stands and mixed-species stands alike, 
 % and is an important species that is unique to the inland northwest 
 % region of north america. Evidence shows that ecological dynamics within 
@@ -455,113 +457,469 @@ forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, g
 subalpine fir, western hemlock, mountain hemlock, western red cedar,
 cottonwood, and quaking aspen. 
 
---TABLE OF \#of PLOTS, \# OF TREES, Range of conditions--
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlrrrr}
+  \hline
+ & stand & number.plots & number.trees & number.obs & n.meas \\ 
+  \hline
+1 & 1401 &  10 &  53 & 150 & 4.00 \\ 
+  2 & 1402 &  10 & 188 & 631 & 5.00 \\ 
+  3 & 1403 &  10 & 113 & 313 & 5.00 \\ 
+  4 & 1404 &  10 & 146 & 465 & 5.00 \\ 
+  5 & 1405 &  10 & 188 & 676 & 5.00 \\ 
+  6 & 1406 &  10 &  99 & 304 & 5.00 \\ 
+  7 & 1407 &  19 &  74 & 108 & 4.00 \\ 
+  8 & 1408 &  10 &  77 & 212 & 4.00 \\ 
+  9 & 1609 &   9 &  37 & 139 & 5.00 \\ 
+  10 & 1610 &  10 & 129 & 416 & 5.00 \\ 
+  11 & 1611 &  10 &  77 & 222 & 5.00 \\ 
+  12 & 1612 &  10 & 211 & 548 & 4.00 \\ 
+  13 & 1614 &   9 &  49 & 181 & 5.00 \\ 
+  14 & 1615 &  10 & 133 & 379 & 4.00 \\ 
+  15 & 1616 &  10 & 106 & 291 & 4.00 \\ 
+  16 & 1617 &  10 & 131 & 355 & 4.00 \\ 
+  17 & 1618 &   9 &  30 &  66 & 4.00 \\ 
+  18 & 1619 &  10 & 134 & 338 & 4.00 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
 
-\subsection{Data analysis}
+\subsection{PGP Data}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
-annual growth of western larch quantified by basal area increment (BAI) -EQUATION for BAI-. 
-GAMMs allow for flexibility in model fitting and an allowance for non-linear 
-relationships across variables \citep{Zhao2005}. Contrary to traditional 
-parametric modeling approaches, GAMMs let the data determine the 
-shape of the functional relationships by fitting predictors with 
-smooth functions instead of specified parameters \citep{Robinson2011}.
+annual growth of western larch, quantified by basal area increment (BAI; \ref{eq:bai}).
 
--discuss thin plate smooths, allowed mgcv model fitting to select smoothness/penalties/etc-?
+\begin{equation}
+\label{eq:bai}
+BAI = \frac{BA_{m+1}-BA_{m}}{(m+1)-m}
+\end{equation}
+
+GAMs allow for flexibility in model fitting and an allowance for non-linear 
+relationships across variables \citep{Zhao2005}. Contrary to traditional 
+parametric modeling approaches, GAMs let the data determine the 
+shape of the functional relationships by fitting predictors with 
+smooth functions instead of specified parameters \citep{Robinson2011}, 
+which also proved beneficial in this case due to the inconsistency of measurement intervals. 
+The choice to use a mixed-model approach was made due to the  
+residual dependence structure that arises from repeat measurements 
+on the same trees over time, and thus for each mixed model (GAMM) 
+fit, a random effect was specified at the individual tree-level.
+
+---include something visual about dependence structure?---
+
+GAMMs were fit using using the mgcv package \citep{Wood2011} in R \citep{RCoreTeam2021}. 
+The mgcv package allows for the specification of smooth functions (or smoothers). 
+Smoothers are a sum of fitted estimated basis 
+functions that characterize the conditional relationship between the predictor 
+and independent variable. They are penalized by a smoothing parameter, which 
+constrains a smoother's complexity as it grows higher \citaep{Pedersen2019}. 
+Mgcv allows for smoothing parameters to be estimated via different methods - 
+the maximum likelihood method was used in this study because it allows for 
+better comparison across models that use different terms. 
+Random effects may be coded as smooths in this format, 
+which is essentially equivalent to other mixed-model approaches, however, 
+when fitting large numbers intercepts (as done in this study) 
+computation can extremely slow \citep{Pedersen2019}. %%%more here?? do I talk about using both methods since the way random effects are handled with the gamm case is kinda weird? (see pedersen 2019 page 34)
+With mgcv, the thin-plate regression smoother (TPRS) type
+is the default due to its simple and effective behavior \citep{Wood2003}
+and is what was used in the present study for all terms including interactions. 
+GAMs in mgcv also allow for 
+
 
 The model formulation described here was developed with a training 
 data set which allowed for varying conditions across all variables. 
-The resulting formulation was used to evaluate effects of predictors 
+Data for 2 measurement plots out of each stand were withheld for 
+the purpose of model validation and quantifying variable effect size.
+The model formulation resulting from the selection process described below
+was used to evaluate effects of predictors 
 on BAI across the entire data set and was also used to assess 
 growth across different species mixtures, where the model was re-fit 
 with subsets of the training data set, depending on the type of mixture. 
-Data for 2 measurement plots out of each stand were withheld for 
-the purpose of model validation. 
 
--DISTRIBUTION OF BAI HERE-
+% 
+% -DISTRIBUTION OF BAI HERE-
+% 
+% -Figure showing distribution of bai?-
 
--Figure showing distribution of bai?-
+\subsection{Base model selection}
 
-\subsubsection{Variable selection}
 Variable selection followed the logic of Wykoff (\citeyear{Wykoff1990}), 
 Monserud \& Sterba (\citeyear{Monserud1996}), and 
 Vospernik (\citeyear{Vospernik2021}) where variables were grouped together 
-based on the following groups in order of how much variation in BAI they captured: 
+based on the following categories: 
 size, density \& competition, and site. 
-Variable selection was performed group-by-group in an additive manner. 
-For example, size variables were compared first, then, additive to the selected 
-size variable(s), competition and density variables were compared, 
-followed by site variables.
+Initial size variables considered were tree diameter at breast 
+height (DBH) and tree basal area ($BA_t$). 
+Density and competition variables considered were: plot basal area (BA), 
+basal area larger than the 
+subject tree (BAL; expressed as a ratio of plot basal area), 
+plot quadratic mean diameter (QMD), ratio of tree DBH to QMD ($D_q$), and trees per acre (tpa).
+Site variables initially considered were: slope, aspect, elevation, 
+mean site index (CITE), and heatload \citep{Theobald2015}. 
+These initial explanatory variables were identified based on availability 
+in the PGP data set, whether they could be calculated from the 
+available data, and if they have been used in predicting 
+BAI in previous empirical modeling efforts. 
 
--BAI MODEL HERE-
+% crown competition factor (CCF;\cite{Krajicek1961}), remove??
+-TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
 
-GAMMs were used to select variables and examine 
-predictor effects on the resulting modeled relationship. 
-Variables were added to the model respective of their groupings, 
-and highly correlated same-group variables were compared in alternative models.
+A pair-wise colinearity assessment was 
+then performed among each group of variables to avoid including 
+highly correlated variables together in the model. 
+Any pair-wise linear relationship with a correlation of 
+0.65 or higher were not considered together. Although somewhat arbitrary, 
+this threshold was selected because a 0.65 correlation means that 
+variation shared between variables exceeds 40\%. Additionally, variables 
+known to represent the same processes, even if not highly linearly correlated 
+(such as heatload and aspect, for instance), were not considered together to 
+avoid redundancies and reduce model complexity.
+
+GAMs were used to select variables and visually examine 
+predictor partial effects on the BAI as well as examine residual structure. 
+Models were iteratively fit by group, including non-correlated variables together 
+respective of grouping while maximizing model accuracy and avoiding overlap. 
+The order of this group-wise selection process was based on 
+previously identified contribution of these variable group-types 
+to estimating BAI \citep{Wykoff1990,Monserud1996}. Highly 
+correlated same-group variables were compared in alternative models.
+For example, alternative models were fit for both tree diameter 
+and tree basal area, selecting whichever best predicted BAI. 
+Then, with the selected size variable present in the model, 
+competition and density variables were evaluated and selected 
+based on maximizing model accuracy and reducing overlap between variables. 
+The same process was used for site variables thereafter, 
+finalizing the base model formulation (\ref{eq:baiform}). 
+
+\begin{equation}
+\label{eq:baiform}
+g(E(BAI)) = \beta_0 + f_1(Size) + f_2(Density \& Competition) + f_3(Site) \\
+\text{$g()$ represents a link function, $E(BAI)$ represents the expected 
+value of BAI of interest, $\beta_0$ represents 
+an intercept, and $f_i$ represents a non-linear function applied to an 
+independent variable, $x_i$.}
+\end{equation}
+
 Root mean squared error (RMSE; \ref{eq:rmse}) was 
 calculated to assess model accuracy, where when comparing models, 
-a model with the lowest RMSE (highest predictive accuracy) was selected. 
-RMSE was calculated using residual degrees of freedom to remove bias. 
-Explained deviance (CITE??) and AIC (CITE?) were also considered for evaluating model fit, %Do i even say this?
-but not used as strict selection criteria. %Do i even say this?
+a model formulation with the lowest RMSE (highest predictive accuracy) 
+was selected over alternatives. RMSE was calculated using residual degrees of 
+freedom to reduce bias. Explained deviance (CITE??) and AIC (CITE?) were also 
+considered for ensuring acceptable model fit, %Do i even say this?
+but they were not used as strict selection criteria because
+each improved proportionally to RMSE. %Do i even say this?
 
 \begin{equation}
 \label{eq:rmse}
 RMSE = \sqrt{\frac{\sum (\hat{y} - y)^2}{n_{df}}}
 \end{equation}
 
+\subsection{Assessing species-mixing impacts on growth}
+
+- Once a model exists, we can use it on subsets of the data set to 
+determine types of species-mixing effects and their effects on BAI
+
+After establishing a parsimonious base model structure, 
+subsets of the PGP data for different types of species-mixtures were determined 
+and fit using the same model formulation. Using each species-mixture model, 
+growth was predicted from a data set holding all but one variable constant 
+to isolate the effects of that variable, and then was plotted to examine  
+effects. Additionally, to investigate whether the given variable relationship 
+with BAI was impacted at different levels of another variable, the same 
+process was repeated for 
+For example, predictions were made 
+across a range of tree diameters for each of the mixture models
+
+Furthermore, additional variables 
+were categorized
+
+
+
+% 
+% -how to do this: 
+% -first see the comments on this post from Gavin S. :https://stats.stackexchange.com/questions/470980/continuously-test-where-two-generalized-additive-models-differ
+% - I want to test the difference of expected values across a given range of x (whichever covariate).
+% -- https://fromthebottomoftheheap.net/2016/12/15/simultaneous-interval-revisited/
+% -- extract baysian covariacne matrix with vcov()
+% -- define new data with dubbed values of whichever covariate
+% -- predict from that
+% -- pull the se.fit object
+
+
+
+
+%can i use by variable to test for differences in spp mix?
+To determine 
+if growth was characterized differently across different mixtures, 
+
+- Explain and rationalize how subsets were identified
+- Fit model to data subsets
+- Use resulting models to predict on a static data set where only one (or two)
+variables are changing
+- Explain basis of comparison (how do i compare these things)
+--do i compare visually? Is there a hypothesis testing?
+--- do i compare pointwise, based on the confidence interval?
+
+
+\subsection{Capturing and comparing species-mixing measures}
+
+Three different species-informed measures were identified for comparison: 
+crown competition factor, proportion of basal area occupied by larch, and 
+proportion of basal area weighted by species-shade tolerance values. 
+
+Crown competition factor (CCF) is a species-informed density measure that 
+is based on tree crown allometry \citep{Krajicek1961}. In this measure, 
+each species has an identified maximum crown width in open-grown conditions for 
+a given diameter. These values are expressed as a percentage of 
+area that could be occupied by open grown tree crowns, and summed within 
+a stand to express overall competition for crown space. Theoretically, 
+different tree species of a given diameter with high maximum crown widths mixed together 
+would drive the CCF value well over 100\% representing high competition.  
+In contrary, a mixture of species of a given size composed of large and 
+small crown widths could increase utilization of crown space, 
+reducing competition. This measure does not explicitly  
+represent different species proportions, so interpreting species-mixing 
+effects from it can be challenging. 
+
+-- CCF equation here --
+
+The proportion of basal area occupied by larch is a measure of species 
+purity within a stand, and is simply calculated as a ratio of plot basal 
+area occupied by western larch. 
+
+\begin{equation}
+\label{eq:purity}
+L_{jt} = \frac{\sum_{i}{BA_{ijt}\ I_{ijt}}}{\sum_{i}{BA_{ijt}}}\ \ \ I_{ijt} = \begin{cases} 1,\ \text{if}\ i\ \text{is western larch}\\0,\ \text{otherwise}\end{cases}
+\end{equation}
+
+\text{$L_{jt}$ denotes the ratio, $BA_{ijt}$ is the of basal area of a tree $i$, $I_{ijt}$ is a binary operator which indicates whether a tree $i$ is western larch ($I_{ijt} = 1$), or otherwise ($I_{ijt} = 0$)}
+
+The third species-informed measure makes use of a shade-tolerance index 
+\citep{Lienard2015} where different species are assigned with values 
+ranging between 0 and 1, 0 being very shade-tolerant, and 1 being very 
+shade-intolerant. Since this study focused on shade-intolerant western larch, 
+these values were inverted so that they could be easily compared with the 
+purity metric (REFERENCE SHADE INTOLERANCE TABLE). Shade tolerance values were multiplied by individual tree 
+basal area values, and then summed, effectively describing community 
+shade-intolerance through a proportion of basal area. 
+
+\begin{table}
+\caption{shade intolerance}
+\centering
+\begin{tabular}[t]{>{}l>{}lr}
+\toprule
+Genus & Species & Shade intolerance\\
+\midrule
+\em{\cellcolor{gray!6}{Larix}} & \em{\cellcolor{gray!6}{occidentalis}} & \cellcolor{gray!6}{1.00}\\
+\em{Pinus} & \em{contorta} & 1.00\\
+\em{\cellcolor{gray!6}{Pinus}} & \em{\cellcolor{gray!6}{ponderosa}} & \cellcolor{gray!6}{0.75}\\
+\em{Pinus} & \em{monticola} & 0.50\\
+\em{\cellcolor{gray!6}{Pseudotsuga}} & \em{\cellcolor{gray!6}{menziesii}} & \cellcolor{gray!6}{0.50}\\
+\addlinespace
+\em{Abies} & \em{grandis} & 0.25\\
+\em{\cellcolor{gray!6}{Abies}} & \em{\cellcolor{gray!6}{lasiocarpa}} & \cellcolor{gray!6}{0.25}\\
+\em{Picea} & \em{engelmannii} & 0.25\\
+\em{\cellcolor{gray!6}{Thuja}} & \em{\cellcolor{gray!6}{plicata}} & \cellcolor{gray!6}{0}\\
+\em{Tsuga} & \em{heterophylla} & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\begin{equation}
+\label{eq:shade}
+T_{jt} = \frac{\sum_{i}{\rho_{ijt}\ BA_{ijt}}}{\sum_{ijt}{BA_{ijt}}}
+\text{$\rho_{ijt}$ represents the species specific shade-tolerance ranking of tree $i$ \citep{Lienard2015}.}
+\end{equation}
+
+% - Using them in a model
+% - comparing models based on RMSE, quantifying accuracy improvements by each
+
+To evaluate and compare these measures they were added as predictors 
+to the identified base model formulation, each in its own respective model, 
+and fit with the same data. Models were then compared on the basis of 
+accuracy (RMSE) and fit (explained deviance; CITE?), quantifying 
+each predictor's relative improvement to model performance. To calculate 
+RMSE, BAI was predicted by each model from the withheld portion data set, 
+and model prediction errors were calculated. 
+
+
+
+
+\section{Results}
+
+\subsection{BAI model}
+
+A basal area increment model was specified with the following predictors: 
+DBH, crown ratio (CR), basal area larger than the subject (BAL; expressed as a ratio), 
+plot basal area (BA), aspect, and a tree-level random effect. 
+The model was fit with a gamma distribution because BAI is bounded by zero  and log-link. 
+The model training data set consisted of 
+5,792 basal area increments across 1,975 individual western larch trees. 
+The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used 
+~53 degrees of freedom, and total model deviance explained was 84.9\%. 
+Random effects were accounted for using a spline basis \citep{Wood2017}, and thus 
+had an associated degrees of freedom of ~1338. Model residual 
+degrees of freedom was ~4401.
+
+Tree DBH and basal area were highly correlated (0.938) and were 
+evaluated in separate models. DBH as a predictor yielded higher 
+accuracy in predicting BAI than tree BA, with model RMSE values  
+of 5.64 $cm^2/yr.$ and 5.70 $cm^2/yr.$, respectively. 
+
+Competition and density variables were partitioned into two sub-groups:  
+variables representing a tree's competitive position in a stand, and variables 
+that represent the overall competitive environment. High-collinear variable 
+combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
+Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to 
+4.31 $cm^2/yr.$ with plot BA included.
+
+Topographic variables (slope, aspect, elevation) were evaluated as 
+potential predictors separately from site index and heatload. Since aspect
+is a circular measure, both sin (easting) and cosine (northing) 
+transformations were applied as in previous works (CITE). Aspect was best 
+accounted for as an interaction term in the form of an isotropic smooth \citep{Wood2017}. 
+Slope and elevation contributed little to prediction accuracy 
+when included with aspect and were associated with concurvity values 
+beyond the established threshold. Thus, building on the model and 
+comparing aspect, site index, and heatload, aspect was selected as 
+the best term, further reducing model RMSE to 4.01 $cm^2/yr.$
+
+Given the order in which variables were included, 
+competition and density metrics contributed the most in deviance explained, 
+followed by size. However, considering variables individually, 
+DBH explained more deviance and reduced RMSE more than any other 
+variable in the model. These results are more or less concurrent with 
+previous studies on the matter.
+
+-- model fitting rmse table -- 
+
+% Furthermore, aspect effects were evaluated in the model separately as easting, 
+% northing, as a joint interaction term, and as a decomposed tensor 
+% product interaction term (CITE - wood?).
+% to ensure that multi-level competitive effects were captured
+
+\subsection{Assessing species-mixing impacts on growth}
+
+\subsection{Capturing and comparing species-mixing measures}
+
+
+
+-Plot BA and CCF were highly correlated with one 
+another, so CCF was included in place of BA in the model formulation. 
+Larch purity and shade intolerance were simply added as an additional 
+predictors in separate models. 
+
+-table of RMSE, dev.expl values for each model
+
+
+\section{Discussion}
+
+\subsection{BAI model selection}
+
+- Intially ccf was considered as a competition and density measure, 
+and CCF was selected in a model formulation with slope as well, however 
+the benefit to RMSE that this formula provided was marginal compared 
+to the formula that included BA. Further, to accommodate analyses which 
+recognized CCF as a species composition informed measure, 
+it was deemed more practical to compare non-species informed BA to CCF
+
+- The use of generalized additive models is becoming more prevalent in 
+forest ecological research. 
+- using generalized additive models for each task in this study presented 
+challenges. One such challenge was the time that it took to fit models 
+with random effects. 
+- One benefit was the realized 
+
+\subsection{Assessing species-mixing impacts on growth}
+
+
+
+\subsection{Comparing species-mixing measures}
+
+- discussion on BA proportion as a measure of species-mixing
+- pros and cons of ccf as a mixture variable
+-
+
+
+\section{Conclusions}
+
+
+
+
 % \captionof{equation}{Root mean squared error (RMSE) equation, where \hat{y} 
 % represents a predicted value, y represents an observed value, and n_{df} 
 % represents model residual degrees of freedom}
 
-The following steps outline the implemented selection framework:
-(i) evaluating and estimating potential explanatory variables 
-in the available data set based on established relationships
-with the dependent variable (BAI), (ii) sequentially
-selecting predictor variables within the pre-determined groups 
-through a pragmatic variable selection approach to identify
-a base-model structure for the GAM, and (iii) evaluating random effects
-due to hierarchical groupings in the sample-design over inconsistent remeasurement periods
-% , and 
+% The following steps outline the pragmatic variable selection
+% approach mentioned in step (ii) above:
+% \begin{enumerate}
+%   \item Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. 
+%   \item Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). 
+%   \item Different groups of variables within groups were compared with RMSE. 
+%   \item Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
+%   \item A concurvity \citep{Hastie1990} assessment was then conducted between variables within each group. If concurvity was greater than 0.8 for a particular set of terms, then an alternative not including both terms was evaluated. 
+% \end{enumerate}
+% 
+% The following steps outline the implemented selection framework:
+% (i) evaluating and estimating potential explanatory variables 
+% in the available data set based on established relationships
+% with the dependent variable (BAI), (ii) sequentially
+% selecting predictor variables within the pre-determined groups 
+% through a pragmatic variable selection approach to identify
+% a base-model structure for the GAM, and (iii) evaluating random effects.
+% 
+
+
+
+
+% The order of these variable groups is 
+% the order in which the model formulation was iteratively constructed, 
+% based on their previously identified relative importance 
+% in estimating BAI .
+
+
 % (iv-a) assess whether larch growth varies across different types of mixtures
 % (iv-b) assessing effects produced by identified species-mixing variables. 
 
-For (i), explanatory variables were identified based on availability 
-in the PGP data set and whether they could be calculated from the 
-available data. 
+% For (i), explanatory variables were identified based on availability 
+% in the PGP data set and whether they could be calculated from the 
+% available data. 
 % Variables contained in established and widely-used
 % empirical models, such as the diameter growth model in FVS \textbf{(*CITE*)},
 % were considered because, 1. the PGP data collection focused on such
 % variables, and 2. these variables are relatively easy to collect 
 % and commonly found in long-term data collection efforts similar to
 % the PGP data. 
-This allows for the potential expansion of these 
-methodologies to other, similar works. 
+% This allows for the potential expansion of these 
+% methodologies to other, similar works. 
 % Variables considered that were beyond the scope identified above, related primarily to site conditions. 
 
 % \textbf{**ADD TABLE that lists variables from the ln(DDS) model, as well as variables not in that model in BOLD text?**} 
-Once explanatory variables were identified for consideration,
-they were then grouped into the following categories: tree size,
-density and competition, and site.
-
--TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
+% Once explanatory variables were identified for consideration,
+% they were then grouped into the following categories: tree size,
+% density and competition, and site.
 
 
-The following steps outline the pragmatic variable selection
-approach mentioned in step (ii) above:
 
-\begin{enumerate}
-  \item Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. Any pair-wise linear relationship with a correlation coefficient of 0.7 or higher was not considered together. (R-squared of .49 or higher). This was chosen as the cutoff because .7 correlation means that variance is roughly 50\% accounted for between variables. Additionally, variables known to represent the same processes, like tree basal area and diameter, were not considered together to avoid redundancies and reduce model complexity. 
-  \item Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). 
-  \item Different groups of variables within groups were compared with RMSE. 
-  \item Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
-  \item A concurvity \citep{Hastie1990} assessment was then conducted between variables within each group. If concurvity was greater than 0.8 for a particular set of terms, then an alternative not including both terms was evaluated. 
-\end{enumerate}
 
--FIGRE/TABLE of colinearity assessment?- (maybe include in table of variables?) tile plot? table of corrs?--
+% The following steps outline the pragmatic variable selection
+% approach mentioned in step (ii) above:
+% 
+% \begin{enumerate}
+%   \item Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. Any pair-wise linear relationship with a correlation coefficient of 0.7 or higher was not considered together. (R-squared of .49 or higher). This was chosen as the cutoff because .7 correlation means that variance is roughly 50\% accounted for between variables. Additionally, variables known to represent the same processes, like tree basal area and diameter, were not considered together to avoid redundancies and reduce model complexity. 
+%   \item Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). 
+%   \item Different groups of variables within groups were compared with RMSE. 
+%   \item Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
+%   \item A concurvity \citep{Hastie1990} assessment was then conducted between variables within each group. If concurvity was greater than 0.8 for a particular set of terms, then an alternative not including both terms was evaluated. 
+% \end{enumerate}
+
+% -FIGRE/TABLE of colinearity assessment?- (maybe include in table of variables?) tile plot? table of corrs?--
 
 
 % , *such terms will be scrutinized.* (Johnston et al 2019 uses a very low concurvity cutoff. It oftentimes is arbitrary). 
@@ -599,89 +957,78 @@ approach mentioned in step (ii) above:
 % Additionally, if one variable is derived from another present, 
 % these will not be considered as covariates in the same model.
 
-\subsubsection{Evaluating species mixing}
+% \subsubsection{Evaluating species mixing}
 
-Once a parsimonious base-model is selected, species-mixing variables 
-will then be added to detect if there is a species-mixing effect. 
-Further elaboration on applying this approach will be explained in
-the following text. **The following equation** (Equation...xxx) 
-represents the modeling framework: 
-
-\begin{equation}
-\label{eq:}
-g(E(Y)) = \beta_0 + f_1(x_1) + f_2(x_2) + ... +f_i(x_i)
-\end{equation}
-
-where $g()$ represents a link function, $E(Y)$ represents the expected 
-value of a dependent variable $(Y)$ of interest, $\beta_0$ represents 
-an intercept, and $f_i$ represents a non-linear function applied to an 
-independent variable, $x_i$. For predictor variables displayed by groups, see Table %\@ref(tab:table2).
-
-\subsection{Basal Area Increment Model}
+% Once a parsimonious base-model is selected, species-mixing variables 
+% will then be added to detect if there is a species-mixing effect. 
+% Further elaboration on applying this approach will be explained in
+% the following text. **The following equation** (Equation...xxx) 
+% represents the modeling framework: 
 
 
 
+% \subsection{Basal Area Increment Model}
 
+% Here is an equation:
+% \begin{align}
+% B & = \frac{2^x}{\sin{\theta}} \sum_{i=1}^N y_i^3 \\ \nonumber
+% & = 3
+% \end{align}
+% 
+% \section{A second section}
+% \subsection{With one subsection}
 
-
-
-Here is an equation:
-\begin{align}
-B & = \frac{2^x}{\sin{\theta}} \sum_{i=1}^N y_i^3 \\ \nonumber
-& = 3
-\end{align}
-
-\section{A second section}
-\subsection{With one subsection}
-
-Here is a code chunk.
-<<no_need_for_a_name>>=
-10^3
+% Here is a code chunk.
+% 
+% <<no_need_for_a_name>>=
+% 10^3
+% @
+% and another without the call showing.
+% 
+% <<no_need_for_a_name,echo=F>>=
+% 10^3
+% @
+% and you can also do inline \Sexpr{round(pi,5)}.
 @
-and another without the call showing.
-<<no_need_for_a_name,echo=F>>=
-10^3
-@
-and you can also do inline \Sexpr{round(pi,5)}.
 
-\chapter{Chunks of extended abstract}
-
-Western larch (\emph{Larix occidentalis}) is an important tree species that is 
-exclusive to the inland northwest region of North America %[@Knudsen1968; @Schmidt1976; @Schmidt1995]. 
-\citep{Knudsen1968,Schmidt1976,Schmidt1995}.
-It is very intolerant of shade, and grows across a wide range 
-of communities with both shade-tolerant and -intolerant species %[@Baker1949; @Schmidt1988]. 
-A growing body of evidence suggests that species traits in mixed-species 
-forest communities can impact tree growth relationships %[@Forrester2017; @Riofrio2017]. 
-The objectives of this research are: 
-\begin{enumerate}
-\item
-to identify whether community species composition impacts the growth 
-of western larch after accounting for other influential factors, 
-\item to identify if a stand average shade-tolerance more effectively 
-captures species-mixing effects on growth when compared to a less 
-specific relative abundance metric, and
-\item to quantify the degree to which 
-species-mixing impacts the growth of western larch (if an effect is observed).
-\end{enumerate}
-
-As shown in Fig.~\ref{fig:junk}, there are many references to consider.
-\begin{figure}\centering
-%\includegraphics[width=\textwidth]{../extab_refs.JPG}
-\includegraphics[width=2in]{../extab_refs.JPG}
-\caption{This is a figure.}\label{fig:junk}
-\end{figure}
-
-Next I have a table, called Table \ref{tab:fake}.
-\begin{table}\centering
-\caption{This is my table.}\label{tab:fake}
-\begin{tabular}{cc}
-\hline
-Row 1 & Column 2 \\ \hline
-1 & 2 \\
-3 & 4 \\ \hline
-\end{tabular}
-\end{table}
+% \chapter{Chunks of extended abstract}
+% 
+% Western larch (\emph{Larix occidentalis}) is an important tree species that is 
+% exclusive to the inland northwest region of North America %[@Knudsen1968; @Schmidt1976; @Schmidt1995]. 
+% \citep{Knudsen1968,Schmidt1976,Schmidt1995}.
+% It is very intolerant of shade, and grows across a wide range 
+% of communities with both shade-tolerant and -intolerant species %[@Baker1949; @Schmidt1988]. 
+% A growing body of evidence suggests that species traits in mixed-species 
+% forest communities can impact tree growth relationships %[@Forrester2017; @Riofrio2017]. 
+% The objectives of this research are: 
+% \begin{enumerate}
+% \item
+% to identify whether community species composition impacts the growth 
+% of western larch after accounting for other influential factors, 
+% \item to identify if a stand average shade-tolerance more effectively 
+% captures species-mixing effects on growth when compared to a less 
+% specific relative abundance metric, and
+% \item to quantify the degree to which 
+% species-mixing impacts the growth of western larch (if an effect is observed).
+% \end{enumerate}
+% 
+% As shown in Fig.~\ref{fig:junk}, there are many references to consider.
+% \begin{figure}\centering
+% %\includegraphics[width=\textwidth]{../extab_refs.JPG}
+% \includegraphics[width=2in]{../extab_refs.JPG}
+% \caption{This is a figure.}\label{fig:junk}
+% \end{figure}
+% 
+% Next I have a table, called Table \ref{tab:fake}.
+% \begin{table}\centering
+% \caption{This is my table.}\label{tab:fake}
+% \begin{tabular}{cc}
+% \hline
+% Row 1 & Column 2 \\ \hline
+% 1 & 2 \\
+% 3 & 4 \\ \hline
+% \end{tabular}
+% \end{table}
 
 %%%% BACK MATTER
 \backmatter

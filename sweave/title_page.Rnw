@@ -1,15 +1,15 @@
 % !Rnw root = thesis_template.Rnw
 
 \begin{center}
-TITLE Line 1\\[10pt] 
+Evaluating the effects of forest community composition on \emph{Larix occidentalis} growth\\[10pt] 
 
 TITLE continues, maybe \\[10pt]
 
 By\\[10pt]
 
-YOUR NAME \\[10pt]
+Christian Mercado \\[10pt]
 
-B.S. Something, University of Somewhere, City, State, year, 2014\\[10pt]
+M.S. Forestry, University of Montana, Missoula, Montana, year, 2022\\[10pt]
 
 Thesis\\[10pt]
 
@@ -22,7 +22,7 @@ Forestry\\[10pt]
 The University of Montana\\
 Missoula, MT\\[10pt]
 
-Month Year\\[10pt]
+August 2022\\[10pt]
 
 Approved by:\\[10pt]
 
@@ -36,7 +36,11 @@ Department of Forest Management\\[10pt]
 Andrew Larson\\
 Department of Forest Management\\[10pt]
 
-other\\
-Department of other\\[10pt]
+Justin Crotteau\\
+United States Forest Service\\
+Department of Forest Management, Affiliate\\[10pt]
+
+David Patterson\\
+Department of Mathematics\\[10pt]
 
 \end{center}

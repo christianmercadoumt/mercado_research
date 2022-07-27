@@ -1,10 +1,120 @@
 ## RESULTS ####
 
 source('12.gam_fns.R')
-source('12a.models_fit_read.R')
+#source('12a.models_fit_read.R')
 library(gratia)
 library(grid)
 library(gridExtra)
+
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+
+#load data
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = group_indices()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+# table from ex.abs####
+
+# re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+# spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+# spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+# nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
+# nocomp.base <- readRDS('data/model_objects.1/nocomp.base.RDS')
+# nosite.base <- readRDS('data/model_objects.1/nosite.base.RDS')
+# size <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
+# compd.ba <- gam(bai~s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl), 
+#                  family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML')
+# site.n5b <- update(compd.ba, . ~ . + s(asp_sin, asp_cos))
+# 
+# dev.expl <- function(model){(model$null.deviance-model$deviance)/model$null.deviance}
+# 
+# library(mgcv)
+# 
+# a <- summary(re.tree.1alt)
+# b <- summary(spmx.gam.alt.lf)
+# c <- summary(spmx.gam.alt.st)
+# 
+# re.edf <- edf(re.tree.1alt)
+# lf.edf <- edf(spmx.gam.alt.lf)
+# st.edf <- edf(spmx.gam.alt.st)
+# base.edf <- sum(re.edf$edf)
+# base.sz.edf <- re.edf$edf[1]
+# base.dcomp.edf <- sum(re.edf$edf[c(2,3,4)])
+# base.sit.edf <- sum(re.edf$edf[c(5,6)])
+# a$chi.sq
+# 
+# lf.alledf <- sum(lf.edf$edf)
+# lf.sz.edf <- lf.edf$edf[1]
+# lf.dcomp.edf <- sum(lf.edf$edf[c(2,3,4)])
+# lf.sit.edf <- sum(lf.edf$edf[c(5,6)])
+# lf.lf <- lf.edf$edf[8]
+# 
+# st.alledf <- sum(st.edf$edf)
+# st.sz.edf <- st.edf$edf[1]
+# st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
+# st.sit.edf <- sum(st.edf$edf[c(5,6)])
+# st.st <- st.edf$edf[8]
+# 
+# models <- c('Full model', 'Size', 'Comp.', 'Site', 'RE', 'WL ratio', 'Shade')
+# EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, edf(re.tree.1alt, 's(unique.tree.f)')$edf, lf.lf, st.st)
+# 
+# dev <- c(deviance(re.tree.1alt), deviance(re.tree.1alt)-c(deviance(nosize.base), deviance(nocomp.base), deviance(nosite.base)), deviance(spmx.gam.alt.lf), deviance(spmx.gam.alt.st))
+# 
+# dev <- 100*c(dev.expl(re.tree.1alt), dev.expl(size), dev.expl(compd.ba)-dev.expl(size), dev.expl(site.n5b)-dev.expl(compd.ba), dev.expl(re.tree.1alt)-dev.expl(site.n5b), dev.expl(spmx.gam.alt.lf), dev.expl(spmx.gam.alt.st))
+# cm.sq <- 2.54^2
+# rmse.mods <- c(my.rmse.2(re.tree.1alt)[[2]]*cm.sq, rep(NA, 4), my.rmse.2(spmx.gam.alt.lf)[[2]]*cm.sq, my.rmse.2(spmx.gam.alt.st)[[2]]*cm.sq)
+# tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm\u00B2/yr.)' = rmse.mods)
+# saveRDS(tb1, 'data/rmse_edf_dev_table.Rds')
+tb1 <- readRDS('data/rmse_edf_dev_table.Rds')
+
+kb1 <- tb1 %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5), escape = T) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = T, font_size = 8, table.envir = 'float') %>% 
+  group_rows('Species-mix', start_row = 6, end_row = 7) %>% 
+  add_indent(c(2,3,4,5)) %>% 
+  row_spec(1, bold = T) %>% 
+  column_spec(1, width = '8em', latex_valign = 'm') %>% 
+  column_spec(2, bold = ifelse(EDF > 1234, TRUE, FALSE), width = '4em', latex_valign = 'm') %>% 
+  column_spec(3, bold = ifelse(dev > 80, T, F), width = '5em', latex_valign = 'm') %>% 
+  column_spec(4, bold = T, width = '5em', latex_valign = 'm') %>% 
+  gsub('NA', '', .)
+
+
 
 # SIZE ####
 
