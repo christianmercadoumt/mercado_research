@@ -620,8 +620,8 @@ RMSE = \sqrt{\frac{\sum (\hat{y} - y)^2}{n_{df}}}
 
 \subsection{Assessing species-mixing impacts on growth}
 
-- Once a model exists, we can use it on subsets of the data set to 
-determine types of species-mixing effects and their effects on BAI
+% - Once a model exists, we can use it on subsets of the data set to 
+% determine types of species-mixing effects and their effects on BAI
 
 After establishing a parsimonious base model structure, 
 subsets of the PGP data for different types of species-mixtures were determined 
@@ -645,9 +645,12 @@ area in the other species, where neither larch nor the other species percent
 BA could exceed 65\% in a plot, and both species combined basal area had 
 to be at least 70\% of total plot BA. This ensured that a range of 
 each mixture-type was captured while prohibiting over-representation of 
-either species within the mixture. Since the data was subset in favor 
-of these specific scenarios, it was important to consider the size of subsets 
-before fitting models with them. Ultimately, mixtures chosen were composed of 
+either species within the mixture. Additionally, pure larch  
+conditions were identified by selecting plots where basal area was composed of 
+at least 90\% western larch. Since the data was subset in favor 
+of specific scenarios, it was important to consider the size of subsets 
+before fitting models with them to ensure sample size was large enough. 
+Ultimately, mixtures chosen were composed of 
 larch with lodgepole pine, douglas-fir, and Engallmann spruce, spanning 
 from shade intolerant to shade-tolerant. 
 
@@ -655,7 +658,10 @@ from shade intolerant to shade-tolerant.
 % of each mixture type across to other species identified. 
 
 A hypothesis test was conducted to identify differences between predicted values 
-of BAI across the range of DBH. However, since the values of 
+of BAI across the range of DBH. There is a level of uncertainty associated 
+with smoothing parameter estimation in the mgcv package which is not accounted for . 95\% confidence intervals for each predicted 
+value were calculated based on a simulation of the posterior distribution at 
+each value of DBH. This ensures that the uncertainty 
 
 %may be able to get away with adding unconditional = T to the predict function to generate intervals that account for the fact that smoothing parameters were estiamted. 
 %additionally, I can add sewithmean=T to the plot command, save the plot object, and then inspect the object and see that its a list with one comoponentper smooth. 

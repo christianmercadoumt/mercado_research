@@ -100,7 +100,7 @@ spp.fun <- function(spp_min, spp_maximum, combined_min){
                                percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
                                (percent_LAOC+percent_PIPO)>combined_min) %>% 
     mutate(other.pct = percent_PIPO)
-  g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min) %>% 
+  g <- bai.spmx.ids %>% filter(percent_LAOC>0.9) %>% 
     mutate(other.pct = percent_LAOC)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
@@ -115,12 +115,13 @@ individual.obs <- lapply(mixtures, function(x)
 # (bai.plots <- lapply(mixtures, function(m)
 #   p <- ggplot(m, aes(x = bai)) + geom_histogram()))
 
-rm(bai.plots)
+# rm(bai.plots)
 
 
-data.frame(unlist(individual.obs))
-
-
+# data.frame(unlist(individual.obs))
+dddd <- bai.spmx.ids %>% filter(percent_LAOC>.9) %>% 
+    mutate(other.pct = percent_LAOC)
+summary(dddd$aspect_deg)
 ```
 
 ```{r fit gams}
@@ -128,12 +129,12 @@ data.frame(unlist(individual.obs))
 laoc_psme <- mixtures$psme
 # hist(laoc_psme$bai)
 # length(unique(laoc_psme$asp_sin))
-ggplot(laoc_psme, aes(x = percent_LAOC, y = percent_PSME)) + geom_point()
-psme.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
-                      s(asp_sin, asp_cos, k = 20),
-                    random=list(unique_tree_id=~1),
-                    family = 'Gamma'(link = log),
-                    data = laoc_psme, method = 'ML')
+# ggplot(laoc_psme, aes(x = percent_LAOC, y = percent_PSME)) + geom_point()
+psme.gam <- readRDS('data/model_objects.1/psme.gam_728.rds')
+  # gam(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+  #                     s(asp_sin, asp_cos, k = 20) + s(unique_tree_id, bs = 're'),
+  #                   family = 'Gamma'(link = log),
+  #                   data = laoc_psme, method = 'ML')
 # med.psme <- median(laoc_psme)
 # summary(laoc_psme$DIAMETER)
 
@@ -143,13 +144,13 @@ laoc_pico <- mixtures$pico
 # hist(laoc_pico$bai)
 # plot(laoc_pico$DIAMETER, laoc_pico$bai)
 # filter(laoc_pico, bai>3)
-ggplot(laoc_pico, aes(x = percent_LAOC, y = percent_PICO)) + geom_point()
-pico.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
-                      s(asp_sin, asp_cos, k = 13),
-                    random=list(unique_tree_id=~1),
-                    family = 'Gamma'(link = log),
-                    data = laoc_pico, method = 'ML', verbosePQL = T)
-
+# ggplot(laoc_pico, aes(x = percent_LAOC, y = percent_PICO)) + geom_point()
+pico.gam <- readRDS('data/model_objects.1/pico.gam728.rds')
+  # gam(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
+  #                     s(asp_sin, asp_cos, k = 13) + s(unique_tree_id, bs = 're'),
+  #                   family = 'Gamma'(link = log),
+  #                   data = laoc_pico, method = 'ML')
+# saveRDS(pico.gam, 'data/model_objects.1/pico.gam728.rds')
 # a <- gamm4::gamm4(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
 #                       s(asp_sin, asp_cos, k = 13),
 #                     random=~(1|unique_tree_id),
@@ -158,27 +159,29 @@ pico.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 7) + s(bal.pl.ratio) + s(ba.pl)+
 # laoc_pico$unique_tree_id
 # summary(pico.gam$lme)
 
-laoc_laoc <- mixtures$laoc
-# length(unique(laoc_laoc$asp_sin))
-laoc.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl)+
-                      s(asp_sin, asp_cos, k = 20),
-                    random=list(unique_tree_id=~1),
-                    family = 'Gamma'(link = log),
-                    data = laoc_laoc, method = 'ML')
-
 laoc_pien <- mixtures$pien
-ggplot(laoc_pien, aes(x = percent_LAOC, y = percent_PIEN)) + geom_point()
+# ggplot(laoc_pien, aes(x = percent_LAOC, y = percent_PIEN)) + geom_point()
 # length(unique(laoc_pien$asp_sin))
 # length(unique(laoc_pien$cr))
-pien.gam <- gamm(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
-                      s(asp_sin, asp_cos, k = 8),
-                    random=list(unique_tree_id=~1),
-                    family = 'Gamma'(link = log),
-                    data = laoc_pien, method = 'ML')
+pien.gam <- readRDS('data/model_objects.1/pien.gam728.rds')
+  # gam(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+  #                     s(asp_sin, asp_cos, k = 8) + s(unique_tree_id, bs = 're'),
+  #                   family = 'Gamma'(link = log),
+  #                   data = laoc_pien, method = 'ML')
+# saveRDS(pien.gam, 'data/model_objects.1/pien.gam728.rds')
 
-mod.list <- list(psme.gam$gam, pico.gam$gam, pien.gam$gam, laoc.gam$gam)
+laoc_laoc <- mixtures$laoc
+# length(unique(laoc_laoc$asp_sin))
+laoc.gam <- readRDS('data/model_objects.1/laoc.gam728.rds')
+  # gam(bai~ s(DIAMETER) + s(cr, k = 9) + s(bal.pl.ratio) + s(ba.pl)+
+  #                     s(asp_sin, asp_cos, k = 20) + s(unique_tree_id, bs = 're'),
+  #                   family = 'Gamma'(link = log),
+  #                   data = laoc_laoc, method = 'ML')
+# saveRDS(laoc.gam, 'data/model_objects.1/laoc.gam728.rds')
+
+mod.list <- list(psme.gam, pico.gam, pien.gam, laoc.gam)
 lapply(mod.list, gam.check)
-# plot(pico.gam$gam)
+# plot(pico.gam)
 # filter(bai.spmx.ids, unique_tree_id == 2505)
 # bbb <- readRDS('data/bai.shade.rds')
 # bbb %>% filter(unique_tree_id == 2505)
@@ -186,16 +189,16 @@ lapply(mod.list, gam.check)
 # rm(data)
 # plot.gam(mod.list[[1]])
 ## change bai to 4.611038134
-# summary(laoc.gam$gam)
-# summary(pico.gam$gam)
-# summary(psme.gam$gam)
-# summary(pien.gam$gam)
+# summary(laoc.gam)
+# summary(pico.gam)
+# summary(psme.gam)
+# summary(pien.gam)
 for(i in 1:5){
   par(mfrow = c(2,2))
-  plot(laoc.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.0228)
-  plot(pico.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.15581)
-  plot(psme.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.426596)
-  plot(pien.gam$gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.38111221)
+  plot(laoc.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.0228)
+  plot(pico.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.15581)
+  plot(psme.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.426596)
+  plot(pien.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.38111221)
 }
 
 
@@ -207,6 +210,8 @@ bp.pico <- boxplot(laoc_pico$DIAMETER, plot = F)
 l.u.pico <- bp.pico$stats[c(2, 4)]
 bp.pien <- boxplot(laoc_pien$DIAMETER, plot = F)
 l.u.pien <- bp.pien$stats[c(2, 4)]
+
+
 ```
 
 ```{r summary plot for mixtures}
@@ -221,13 +226,17 @@ mixtures.all <- mixtures.all %>%
   mutate(more.larch = case_when(percent_LAOC/other.pct >= 1 ~ 'yes',
                                 percent_LAOC/other.pct < 1 ~ 'no'))
 ggplot(mixtures.all, aes(x = mixtype, y = laoc_to_other)) + geom_jitter(alpha = 0.5, aes(color = more.larch))
-  geom_col(position = position_dodge())
+
+
+  # geom_col(position = position_dodge())
   
 ```
 
 
 ```{r diam and plot fun}
 library(ggpubr)
+
+
 diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   asp_sin <- rep(sin(asp*(pi/180)), 25)
   asp_cos <- rep(cos(asp*(pi/180)), 25)
@@ -238,28 +247,28 @@ diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   #diameter function
   DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
   var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam.a, type = 'response', se.fit = T)
+  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
   a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
               se = as.vector(bai.diam.a$se.fit),
               whichmix=rep('larch', 25))
   #repeat for psme
   DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
   var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.b <- predict(psme.gam$gam, newdata = var.diam.b, type = 'response', se.fit = T)
+  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
   b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
               se = as.vector(bai.diam.b$se.fit),
               whichmix=rep('doug-fir', 25))
   #repeat for pico
   DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
   var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.c <- predict(pico.gam$gam, newdata = var.diam.c, type = 'response', se.fit = T)
+  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
   c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
               se = as.vector(bai.diam.c$se.fit),
               whichmix=rep('lodgepole', 25))
   #repeat for pien
   DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
   var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.d <- predict(pien.gam$gam, newdata = var.diam.d, type = 'response', se.fit = T)
+  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
   d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
               se = as.vector(bai.diam.d$se.fit),
               whichmix=rep('e.spruce', 25))
@@ -290,8 +299,95 @@ plotting_fun <- function(all.data, ylims = c(0, 2), y.brks = seq(0,2,.25)){
 #   return(p)
 # }
 # plotting_fun(abcde)
+# asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5
 
+ ######
+# psmegam1 <- gam(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+#                       s(asp_sin, asp_cos, k = 20) + s(unique_tree_id, bs = 're'),
+#                     family = 'Gamma'(link = log),
+#                     data = laoc_psme, method = 'ML')
+# laoc_psme$uniq
+# 
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
+bal.pl.ratio <- rep(0.6622384, 25)
+ba.pl <- rep(40.83743, 25)
+cr <- rep(0.5, 25)
+DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+
+var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id=laoc.gam$model$unique_tree_id)
+predict(laoc.gam, newdata = var.diam.b, unconditional = T)
+# 
+# bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'lpmatrix')
+# bai.diam.b1 <- predict(psme.gam, newdata = var.diam.b, type = 'link', se.fit = T, unconditional = T)
+# 
+# plot.gam(psme.gam, select = 1)
+# plot.gam(psmegam1, select = 1)
+# 
+# aaaaa <- compare_smooths(psme.gam, psmegam1, smooths = 's(DIAMETER)')
+# draw(aaaaa)
+# 
+# psme.gam$Vp == vcov.gam(psme.gam)
+# 
+# 
+# bai.diam.b
+# bai.diam.b1
+# 
+# plot.gam(psmegam1, select = 1)
+# plot.gam(psmegam1, select = 1, unconditional = T)
+# 
+# 
+# b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
+#             se = as.vector(bai.diam.b$se.fit),
+#             whichmix=rep('doug-fir', 25))
+# 
+# b1 <- tibble(var.diam.b, bai = as.vector(bai.diam.b1$fit), 
+#             se = as.vector(bai.diam.b$se.fit),
+#             whichmix=rep('doug-fir', 25))
 ```
+
+```{r}
+diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
+  asp_sin <- rep(sin(asp*(pi/180)), 25)
+  asp_cos <- rep(cos(asp*(pi/180)), 25)
+  bal.pl.ratio <- rep(bal, 25)
+  ba.pl <- rep(ba, 25)
+  cr <- rep(cr, 25)
+  
+  #diameter function
+  DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+  var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
+  a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
+              se = as.vector(bai.diam.a$se.fit),
+              whichmix=rep('larch', 25))
+  #repeat for psme
+  DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+  var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
+  b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
+              se = as.vector(bai.diam.b$se.fit),
+              whichmix=rep('doug-fir', 25))
+  #repeat for pico
+  DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
+  var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
+  c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
+              se = as.vector(bai.diam.c$se.fit),
+              whichmix=rep('lodgepole', 25))
+  #repeat for pien
+  DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
+  var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
+  d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
+              se = as.vector(bai.diam.d$se.fit),
+              whichmix=rep('e.spruce', 25))
+  
+  thing <- rbind(a, b, c, d)
+  return(thing)
+}
+```
+
 
 ```{r plots}
 only.dbh.varies <- diam_fun()
@@ -425,27 +521,27 @@ plot.list
 #generate diameter ranges for lower quartile to upper quartile
 DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
 var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-bai.diam.a <- predict(laoc.gam$gam, newdata = var.diam.a, type = 'response', se.fit = T)
+bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
 a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), se = as.vector(bai.diam.a$se.fit))
-# aaa <- smooth_estimates(laoc.gam$gam, data = var.diam.a, smooth = 's(DIAMETER)')
+# aaa <- smooth_estimates(laoc.gam, data = var.diam.a, smooth = 's(DIAMETER)')
 
 
 #repeat for psme
 DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
 var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-bai.diam.b <- predict(psme.gam$gam, newdata = var.diam.b, type = 'response', se.fit = T)
+bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
 b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), se = as.vector(bai.diam.b$se.fit))
 
 #repeat for pico
 DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
 var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-bai.diam.c <- predict(pico.gam$gam, newdata = var.diam.c, type = 'response', se.fit = T)
+bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
 c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), se = as.vector(bai.diam.c$se.fit))
 
 #repeat for pien
 DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
 var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-bai.diam.d <- predict(pien.gam$gam, newdata = var.diam.d, type = 'response', se.fit = T)
+bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
 d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), se = as.vector(bai.diam.d$se.fit))
 
 rm(DIAMETER)
@@ -487,16 +583,16 @@ l.u.pien <- bp.pien$stats[c(2, 4)]
 ba.pl <- seq(20, 150, length = 25)
 var.ba <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
 
-bai.ba.a <- predict(laoc.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+bai.ba.a <- predict(laoc.gam, newdata = var.ba, type = 'response', se.fit = T)
 aa <- tibble(var.ba, bai = as.vector(bai.ba.a$fit), se = as.vector(bai.ba.a$se.fit))
 
-bai.ba.b <- predict(psme.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+bai.ba.b <- predict(psme.gam, newdata = var.ba, type = 'response', se.fit = T)
 bb <- tibble(var.ba, bai = as.vector(bai.ba.b$fit), se = as.vector(bai.ba.b$se.fit))
 
-bai.ba.c <- predict(pico.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+bai.ba.c <- predict(pico.gam, newdata = var.ba, type = 'response', se.fit = T)
 cc <- tibble(var.ba, bai = as.vector(bai.ba.c$fit), se = as.vector(bai.ba.c$se.fit))
 
-bai.ba.d <- predict(pien.gam$gam, newdata = var.ba, type = 'response', se.fit = T)
+bai.ba.d <- predict(pien.gam, newdata = var.ba, type = 'response', se.fit = T)
 dd <- tibble(var.ba, bai = as.vector(bai.ba.d$fit), se = as.vector(bai.ba.d$se.fit))
 
 rm(ba.pl)
@@ -523,16 +619,16 @@ ba.pl <- rep(median(bas, na.rm = T), 25)
 bal.pl.ratio <- seq(0 ,1 ,length = 25)
 var.bal <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
 
-bai.bal.a <- predict(laoc.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+bai.bal.a <- predict(laoc.gam, newdata = var.bal, type = 'response', se.fit = T)
 aa <- tibble(var.bal, bai = as.vector(bai.bal.a$fit), se = as.vector(bai.bal.a$se.fit))
 
-bai.bal.b <- predict(psme.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+bai.bal.b <- predict(psme.gam, newdata = var.bal, type = 'response', se.fit = T)
 bb <- tibble(var.bal, bai = as.vector(bai.bal.b$fit), se = as.vector(bai.bal.b$se.fit))
 
-bai.bal.c <- predict(pico.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+bai.bal.c <- predict(pico.gam, newdata = var.bal, type = 'response', se.fit = T)
 cc <- tibble(var.bal, bai = as.vector(bai.bal.c$fit), se = as.vector(bai.bal.c$se.fit))
 
-bai.bal.d <- predict(pien.gam$gam, newdata = var.bal, type = 'response', se.fit = T)
+bai.bal.d <- predict(pien.gam, newdata = var.bal, type = 'response', se.fit = T)
 dd <- tibble(var.bal, bai = as.vector(bai.bal.d$fit), se = as.vector(bai.bal.d$se.fit))
 
 
@@ -562,16 +658,16 @@ bal.pl.ratio <- rep(median(bals, na.rm = T), 25)
 cr <- seq(.1,1,length=25)
 var.cr <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
 
-bai.cr.a <- predict(laoc.gam$gam, newdata = var.cr, type = 'response', se.fit = T)
+bai.cr.a <- predict(laoc.gam, newdata = var.cr, type = 'response', se.fit = T)
 aaa <- tibble(var.cr, bai = as.vector(bai.cr.a$fit), se = as.vector(bai.cr.a$se.fit))
 
-bai.cr.b <- predict(psme.gam$gam, newdata = var.cr, type = 'response', se.fit = T)
+bai.cr.b <- predict(psme.gam, newdata = var.cr, type = 'response', se.fit = T)
 bbb <- tibble(var.cr, bai = as.vector(bai.cr.b$fit), se = as.vector(bai.cr.b$se.fit))
 
-bai.cr.c <- predict(pico.gam$gam, newdata = var.cr, type = 'response', se.fit = T)
+bai.cr.c <- predict(pico.gam, newdata = var.cr, type = 'response', se.fit = T)
 ccc <- tibble(var.cr, bai = as.vector(bai.cr.c$fit), se = as.vector(bai.cr.c$se.fit))
 
-bai.cr.d <- predict(pien.gam$gam, newdata = var.cr, type = 'response', se.fit = T)
+bai.cr.d <- predict(pien.gam, newdata = var.cr, type = 'response', se.fit = T)
 ddd <- tibble(var.cr, bai = as.vector(bai.cr.d$fit), se = as.vector(bai.cr.d$se.fit))
 
 
@@ -600,11 +696,11 @@ ba.pl <- median(bas, na.rm = T)
 
 bal.test <- data.frame(DIAMETER, asp_sin, asp_cos, cr, ba.pl)
 
-bal.pred.data <- data_slice(psme.gam$gam, 'bal.pl.ratio', data = bal.test, n = 25)
-pred <- predict(psme.gam$gam, newdata = bal.pred.data, type = 'link', se.fit = T)
+bal.pred.data <- data_slice(psme.gam, 'bal.pl.ratio', data = bal.test, n = 25)
+pred <- predict(psme.gam, newdata = bal.pred.data, type = 'link', se.fit = T)
 pred <- as.data.frame(pred)
-ilink <- family(psme.gam$gam)$linkinv
-dddd <- family(psme.gam$gam)
+ilink <- family(psme.gam)$linkinv
+dddd <- family(psme.gam)
 dddd$linkinv(pred$fit)
 exp(pred$fit)
 pred <- transform(pred,
@@ -617,8 +713,8 @@ bal.pr <- tibble(vals, pred)
 
 
 #laoc
-bal.pred.data_l <- data_slice(laoc.gam$gam, 'bal.pl.ratio', data = bal.test, n = 25)
-p1 <- predict(laoc.gam$gam, newdata = bal.pred.data_l, type = 'link', se.fit = T)
+bal.pred.data_l <- data_slice(laoc.gam, 'bal.pl.ratio', data = bal.test, n = 25)
+p1 <- predict(laoc.gam, newdata = bal.pred.data_l, type = 'link', se.fit = T)
 p1 <- as.data.frame(p1)
 p1 <- transform(p1,
                 bai = ilink(fit),
