@@ -78,23 +78,30 @@ bai.spmx.ids <- bai.spmx %>%
 spp.fun <- function(spp_min, spp_maximum, combined_min){
   a <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PSME<spp_maximum & percent_PSME>spp_min, 
-                               (percent_LAOC+percent_PSME)>combined_min)
+                               (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
   b <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
-                               (percent_LAOC+percent_ABLA)>combined_min)
+                               (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
   c <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
-                               (percent_LAOC+percent_ABGR)>combined_min)
+                               (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
   d <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
-                               (percent_LAOC+percent_PIEN)>combined_min)
+                               (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
   e <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PICO<spp_maximum & percent_PICO>spp_min, 
-                               (percent_LAOC+percent_PICO)>combined_min)
+                               (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
   f <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
-                               (percent_LAOC+percent_PIPO)>combined_min)
-  g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min)
+                               (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- bai.spmx.ids %>% filter(percent_LAOC>combined_min) %>% 
+    mutate(other.pct = percent_LAOC)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
 (mixtures <- spp.fun(0.2, .65, 0.7))
@@ -112,6 +119,8 @@ rm(bai.plots)
 
 
 data.frame(unlist(individual.obs))
+
+
 ```
 
 ```{r fit gams}
@@ -199,6 +208,23 @@ l.u.pico <- bp.pico$stats[c(2, 4)]
 bp.pien <- boxplot(laoc_pien$DIAMETER, plot = F)
 l.u.pien <- bp.pien$stats[c(2, 4)]
 ```
+
+```{r summary plot for mixtures}
+# lapply(mixtures, function(x) mutate(x, mixwith = print()))
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+mixtures.all <- mixtures.all %>%  
+  mutate(laoc_to_other = case_when(percent_LAOC/other.pct >= 1 ~ (percent_LAOC/other.pct),
+                                   percent_LAOC/other.pct < 1 ~ (other.pct/percent_LAOC))) %>% 
+  ungroup() %>% 
+  mutate(more.larch = case_when(percent_LAOC/other.pct >= 1 ~ 'yes',
+                                percent_LAOC/other.pct < 1 ~ 'no'))
+ggplot(mixtures.all, aes(x = mixtype, y = laoc_to_other)) + geom_jitter(alpha = 0.5, aes(color = more.larch))
+  geom_col(position = position_dodge())
+  
+```
+
 
 ```{r diam and plot fun}
 library(ggpubr)

@@ -625,11 +625,64 @@ determine types of species-mixing effects and their effects on BAI
 
 After establishing a parsimonious base model structure, 
 subsets of the PGP data for different types of species-mixtures were determined 
-and fit using the same model formulation. Using each species-mixture model, 
-growth was predicted from a data set holding all but one variable constant 
-to isolate the effects of that variable, and then was plotted to examine  
-effects. Additionally, to investigate whether the given variable relationship 
-with BAI was impacted at different levels of another variable, the same 
+and fit using the same model formulation. Using each resulting model, 
+growth was predicted from a data set holding every variable except DBH constant 
+to isolate the effects of tree size on growth across mixtures. Resulting curves respective of 
+species-mix type were then plotted and visually examined. Additionally, 
+the DBH-BAI relationship was evaluated at different 
+levels of each other variable to examine how the size-growth relationship 
+is modified across densities, competitive symmetries, crown ratios, and aspects.
+
+% It was of interest to examine these relationships of larch growth in mixtures 
+% with species that span the shade-tolerance spectrum, including stands  
+% that are predominantly composed of larch as well as stands where larch was mixed 
+% with a different species. 
+Mixture-types were identified by  
+proportions of plot basal area occupied by larch and species it was mixed with. 
+For instance, to qualify as a specific mixture-type, a minimum of 20\% total plot 
+basal area had to be in western larch trees and a minimum of 20\% plot basal 
+area in the other species, where neither larch nor the other species percent 
+BA could exceed 65\% in a plot, and both species combined basal area had 
+to be at least 70\% of total plot BA. This ensured that a range of 
+each mixture-type was captured while prohibiting over-representation of 
+either species within the mixture. Since the data was subset in favor 
+of these specific scenarios, it was important to consider the size of subsets 
+before fitting models with them. Ultimately, mixtures chosen were composed of 
+larch with lodgepole pine, douglas-fir, and Engallmann spruce, spanning 
+from shade intolerant to shade-tolerant. 
+
+% Figure (XXX) shows the distribution 
+% of each mixture type across to other species identified. 
+
+A hypothesis test was conducted to identify differences between predicted values 
+of BAI across the range of DBH. However, since the values of 
+
+%may be able to get away with adding unconditional = T to the predict function to generate intervals that account for the fact that smoothing parameters were estiamted. 
+%additionally, I can add sewithmean=T to the plot command, save the plot object, and then inspect the object and see that its a list with one comoponentper smooth. 
+%% see this post: https://stats.stackexchange.com/questions/33327/confidence-interval-for-gam-model/33328#33328
+%% simultaneous confidence intervals 
+
+%%see also: https://stats.stackexchange.com/questions/503819/confidence-intervals-for-derivatives-from-gam-predictions
+%% https://stats.stackexchange.com/questions/190348/can-i-use-bootstrapping-to-estimate-the-uncertainty-in-a-maximum-value-of-a-gam/191489#191489
+%%  https://stats.stackexchange.com/questions/464961/issues-with-posterior-simulation-from-gam - simon wood on SE
+
+% make figure or table that describes the range of conditions for each mixture type
+%% including minimum and maximum percent of each species in a mixture, while including their combined basal area. 
+%%% perhaps a stacked barchart where each bar totaled to the percent mixture, 
+%%% and with one color representing larch ba, and other color for each species representing BA.  
+%%%% Or boxplots of each mixture type
+%%%% jittered points for each mixture, where x is mixture type and y is larch:spp mixture ratio
+% visualize the BA thresholds for selecting different mixture-types?
+
+occupied by larch 
+had to be at least  and likewise for a given species.
+Identifying different mixtures 
+
+Different categories of species-mixtures were identified by evaluating 
+the amount of plot basal area 
+
+impacted at different levels other variables, 
+the same 
 process was repeated for 
 For example, predictions were made 
 across a range of tree diameters for each of the mixture models
