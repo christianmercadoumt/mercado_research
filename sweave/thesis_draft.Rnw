@@ -491,7 +491,10 @@ cottonwood, and quaking aspen.
 \subsection{PGP Data}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
-annual growth of western larch, quantified by basal area increment (BAI; \ref{eq:bai}).
+annual growth of western larch, quantified by basal area increment (BAI; \ref{eq:bai}). 
+The choice to annualize BAI was made because re-measurement intervals were inconsistent 
+across the data set and annulization allows for flexibility and a finer-scale measure of 
+stand dynamics over time \citep{weiskittel2011forest}.
 
 \begin{equation}
 \label{eq:bai}

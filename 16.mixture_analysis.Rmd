@@ -75,36 +75,36 @@ bai.spmx.ids <- bai.spmx %>%
 
 # larch.mixtures(bai.spmx.ids, percent_PSME, maximum = 0.8, combined_min =.4)
 
-spp.fun <- function(spp_min, spp_maximum, combined_min){
-  a <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PSME<spp_maximum & percent_PSME>spp_min, 
                                (percent_LAOC+percent_PSME)>combined_min) %>% 
     mutate(other.pct = percent_PSME)
-  b <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
                                (percent_LAOC+percent_ABLA)>combined_min) %>% 
     mutate(other.pct = percent_ABLA)
-  c <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
                                (percent_LAOC+percent_ABGR)>combined_min) %>% 
     mutate(other.pct = percent_ABGR)
-  d <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
                                (percent_LAOC+percent_PIEN)>combined_min) %>% 
     mutate(other.pct = percent_PIEN)
-  e <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PICO<spp_maximum & percent_PICO>spp_min, 
                                (percent_LAOC+percent_PICO)>combined_min) %>% 
     mutate(other.pct = percent_PICO)
-  f <- bai.spmx.ids %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
                                percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
                                (percent_LAOC+percent_PIPO)>combined_min) %>% 
     mutate(other.pct = percent_PIPO)
-  g <- bai.spmx.ids %>% filter(percent_LAOC>0.9) %>% 
+  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
     mutate(other.pct = percent_LAOC)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
-(mixtures <- spp.fun(0.2, .65, 0.7))
+mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7)
 individual.obs <- lapply(mixtures, function(x)
   length(unique(x$unique_tree_id)))
 
@@ -117,11 +117,16 @@ individual.obs <- lapply(mixtures, function(x)
 
 # rm(bai.plots)
 
+#summary plots of average tree bai and diameter
 
-# data.frame(unlist(individual.obs))
-dddd <- bai.spmx.ids %>% filter(percent_LAOC>.9) %>% 
-    mutate(other.pct = percent_LAOC)
-summary(dddd$aspect_deg)
+#figure#####
+# full.mix <- bind_rows(mixtures, .id = 'id')
+# 
+# bai.diam <- full.mix %>% 
+#   group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+#   summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+# 
+# ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
 ```
 
 ```{r fit gams}
@@ -193,12 +198,13 @@ lapply(mod.list, gam.check)
 # summary(pico.gam)
 # summary(psme.gam)
 # summary(pien.gam)
+laoc.gam$coefficients[[1]]
 for(i in 1:5){
   par(mfrow = c(2,2))
-  plot(laoc.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.0228)
-  plot(pico.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.15581)
-  plot(psme.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.426596)
-  plot(pien.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.38111221)
+  plot(laoc.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = laoc.gam$coefficients[[1]])
+  plot(pico.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = pico.gam$coefficients[[1]])
+  plot(psme.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = psme.gam$coefficients[[1]])
+  plot(pien.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = pien.gam$coefficients[[1]])
 }
 plot(laoc.gam)
 
@@ -269,6 +275,49 @@ library(ggpubr)
 # apredict <- predict(laoc.gam, newdata = vd, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
 # ilink(apredict)
 
+#not corrected for smoothing parameter uncertainty#####
+diam_fun.a <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
+  asp_sin <- rep(sin(asp*(pi/180)), 25)
+  asp_cos <- rep(cos(asp*(pi/180)), 25)
+  bal.pl.ratio <- rep(bal, 25)
+  ba.pl <- rep(ba, 25)
+  cr <- rep(cr, 25)
+  
+  unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
+  #diameter function
+  DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+  var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+  a <- tibble(bai=bai.diam.a[[1]], se = bai.diam.a[[2]], var.diam.a,
+              whichmix=rep('larch', 25))
+  
+  #repeat for psme
+  unique_tree_id <- rep(sample(psme.gam$model$unique_tree_id, 1), 25)
+  DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+  var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+  b <- tibble(bai=bai.diam.b[[1]], se = bai.diam.b[[2]], var.diam.b, 
+              whichmix=rep('doug-fir', 25))
+  #repeat for pico
+  unique_tree_id <- rep(sample(pico.gam$model$unique_tree_id, 1), 25)
+  DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
+  var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+  c <- tibble(bai=bai.diam.c[[1]], se = bai.diam.c[[2]], var.diam.c,
+              whichmix=rep('lodgepole', 25))
+  #repeat for pien
+  unique_tree_id <- rep(sample(pien.gam$model$unique_tree_id, 1), 25)
+  DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
+  var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+  d <- tibble(bai=bai.diam.d[[1]], se = bai.diam.d[[2]], var.diam.d, 
+              whichmix=rep('e.spruce', 25))
+  
+  thing <- rbind(a, b, c, d)
+  return(thing)
+}
+
+
 ilink <- function(prediction){
   fitted <- exp(as.vector(prediction$fit))
   se.fitted <- exp(as.vector(prediction$se.fit))
@@ -276,7 +325,7 @@ ilink <- function(prediction){
   return(trans.pred)
 }
 
-
+#taking into account smoothness estimation#####
 diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   asp_sin <- rep(sin(asp*(pi/180)), 25)
   asp_cos <- rep(cos(asp*(pi/180)), 25)
@@ -322,19 +371,68 @@ diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   return(thing)
 }
 
-abcde <- diam_fun()
+test.diamfun <- diam_fun()
+test.diamfuna <- diam_fun.a()
+
+summary(test.diamfun$bai)
+summary(test.diamfuna$bai)
+
+summary(test.diamfun$se)
+summary(test.diamfuna$se)
+
 ggplot(abcde, aes(x = whichmix, y = se)) + geom_point()
 summary(abcde$bai)
 
 plotting_fun <- function(all.data, ylims = c(0, 4), y.brks = seq(0,4,.25)){
-  p <- ggplot(all.data) + geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+  p1 <- ggplot(all.data) + geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
     geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
     scale_y_continuous(breaks = y.brks, limits = ylims)
-  return(p)
+  return(p1)
 }
 
-plotting_fun(abcde)
+plotting_fun.pairs <- function(all.data, ylims = c(0, 4), y.brks = seq(0,4,.25)){
+  p2 <- ggplot(subset(all.data, whichmix %in% c('larch', 'doug-fir')), 
+               aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
+    scale_y_continuous(breaks = y.brks, limits = ylims) +
+    scale_color_manual(values = c('larch' = 'black', 'doug-fir' = 'green')) +
+    scale_fill_manual(values = c('larch' = 'black', 'doug-fir' = 'green'))
+  
+  p3 <- ggplot(subset(all.data, whichmix %in% c('larch', 'lodgepole')), 
+               aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
+    scale_y_continuous(breaks = y.brks, limits = ylims) +
+    scale_color_manual(values = c('larch' = 'black', 'lodgepole' = 'red')) +
+    scale_fill_manual(values = c('larch' = 'black', 'lodgepole' = 'red'))
+  
+  p4 <- ggplot(subset(all.data, whichmix %in% c('larch', 'e.spruce')), 
+               aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
+    scale_y_continuous(breaks = y.brks, limits = ylims) +
+    scale_color_manual(values = c('larch' = 'black', 'e.spruce' = 'lightblue')) +
+    scale_fill_manual(values = c('larch' = 'black', 'e.spruce' = 'lightblue'))
+  
+  all.things <- ggarrange(p2, p3, p4)
+  return(all.things)
+}
 
+plotting_fun(test.diamfun)
+plotting_fun(test.diamfuna)
+
+plotting_fun.pairs(test.diamfun)
+plotting_fun.pairs(test.diamfuna)
+
+
+unique(test.diamfun$whichmix)
+ggplot(subset(test.diamfun, whichmix %in% c('laoc', 'psme')), 
+               aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_point(alpha = 0.2) + 
+    geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+    geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
+    scale_y_continuous(breaks = seq(0,4,.25), limits = c(0, 4))
 ```
 
 ```{r}
@@ -526,10 +624,17 @@ for(i in ba.values){
   nam <- paste('ba.',i,sep = "")
   pl <- plotting_fun(a) + labs(title = nam, x = 'DBH', y = 'BAI')
   assign(nam, pl)
+  nam.pairs <- paste('pairs.ba.', i, sep="")
+  pl.pairs <- plotting_fun.pairs(a) + labs(title = nam, x = 'DBH', y = 'BAI')
+  assign(nam.pairs, pl.pairs)
 }
 ggarrange(ba.50, ba.100, ba.150, ba.200, 
           nrow = 2, ncol = 2, 
           common.legend = T, legend = 'bottom')
+pairs.ba.50
+pairs.ba.100
+pairs.ba.150
+pairs.ba.200
 
 
 bal.values <- seq(0,1,0.2)
