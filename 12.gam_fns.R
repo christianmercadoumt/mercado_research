@@ -2,6 +2,7 @@
 require(mgcv)
 require(tidyverse)
 
+cm.sq <- 2.54^2
 #### TRASP - Topographic solar radiation index. This linearizes aspect. 0 means north-northeast aspect, 1 means south-southwest aspect. (Roberts and Cooper, 1989, page90-) 'Concepts and Techniques of Vegetation Mapping.' - In 'Land Classifications Based on Vegetation'
 trasp <- function(degrees_aspect){
   (1-cos((pi/180)*(degrees_aspect-30)))/2

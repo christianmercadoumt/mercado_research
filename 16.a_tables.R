@@ -1,4 +1,5 @@
 library(xtable)
+library(tidyverse)
 source('12.gam_fns.R')
 
 hab_loc_codes <- read_csv('data/habtypes.csv')
@@ -31,7 +32,7 @@ bai.spmx <- bai.train %>%
 
 bai.spmx.ids <- bai.spmx %>% 
   group_by(stand) %>% 
-  mutate(unique.stand = group_indices()) %>%
+  mutate(unique.stand = cur_group_id()) %>%
   ungroup() %>% 
   mutate(unique.cluster = (1000*unique.stand)+cluster, 
          unique.plot = (1000*unique.stand)+PLOT) %>% 
@@ -116,10 +117,10 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 # nosite.base <- readRDS('data/model_objects.1/nosite.base.RDS')
 size <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), 
             data = bai.spmx.ids, method = 'ML') 
-compd <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), s(cr, k = 9) + 
+compd <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) + 
                s(ba.pl), family = 'Gamma'(link = log), 
              data = bai.spmx.ids, method = 'ML') 
-site <- gam(bai~s(DIAMETER) + s(bal.pl.ratio), s(cr, k = 9) + 
+site <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) + 
               s(ba.pl) + s(asp_cos, asp_sin), 
             family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
 
@@ -134,14 +135,22 @@ no.re.model <- readRDS('data/model_objects.1/site5a.2.rds')
 dev.expl <- function(model){(model$null.deviance-model$deviance)/model$null.deviance}
 
 re.edf <- edf(re.tree.1)
-lf.edf <- edf(spmx.re.gam.lf)
-st.edf <- edf(spmx.re.gam.st)
+# lf.edf <- edf(spmx.re.gam.lf)
+# st.edf <- edf(spmx.re.gam.st)
 
 base.edf <- sum(re.edf$edf)
 base.sz.edf <- re.edf$edf[1]
 base.dcomp.edf <- sum(re.edf$edf[c(2,3,4)])
-base.sit.edf <- sum(re.edf$edf[c(5,6)])
+base.sit.edf <- sum(re.edf$edf[5])
 a$chi.sq
+re.edf$edf
+
+
+
+sum(size$edf)
+sum(compd$edf)
+sum(site$edf)
+
 
 # lf.alledf <- sum(lf.edf$edf)
 # lf.sz.edf <- lf.edf$edf[1]
@@ -155,30 +164,64 @@ a$chi.sq
 # st.sit.edf <- sum(st.edf$edf[c(5,6)])
 # st.st <- st.edf$edf[8]
 
-models <- c('Full model', 'Size', 'Comp.', 'Site', 'RE')#, 'WL ratio', 'Shade')
-EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, edf(re.tree.1, 's(unique_tree_id)')$edf)#, lf.lf, st.st)
+smooth <- c('DBH', 'crown ratio', 'BAL', 
+            'BA', 'aspect', 'tree random intercept', 'full model')#, 'WL ratio', 'Shade')
+EDF <- rbind(edf(re.tree.1)[,2], sum(edf(re.tree.1)[,2]))
+
+#EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, edf(re.tree.1, 's(unique.tree.f)')$edf)#, lf.lf, st.st)
 
 #dev <- c(deviance(re.tree.1), deviance(re.tree.1)-c(deviance(nosize.base), deviance(nocomp.base), deviance(nosite.base)), deviance(spmx.re.gam.lf), deviance(spmx.re.gam.st))
 
-dev <- 100*c(dev.expl(re.tree.1), dev.expl(size), dev.expl(compd)-dev.expl(size), dev.expl(site)-dev.expl(compd), dev.expl(re.tree.1)-dev.expl(site))#, dev.expl(spmx.re.gam.lf), dev.expl(spmx.re.gam.st))
+#dev <- 100*c(dev.expl(re.tree.1), dev.expl(size), dev.expl(compd)-dev.expl(size), dev.expl(site)-dev.expl(compd), dev.expl(re.tree.1)-dev.expl(site))#, dev.expl(spmx.re.gam.lf), dev.expl(spmx.re.gam.st))
+dev <- c(dev.expl(size),
+         dev.expl(compd), NA, NA,
+         dev.expl(site), NA,
+         dev.expl(re.tree.1))*100
 
-rmse.mods <- c(my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 4))#, my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
+rmse.mods <- c(my.rmse.2(size)[[2]]*cm.sq, 
+               my.rmse.2(compd)[[2]]*cm.sq, NA, NA, 
+               my.rmse.2(site)[[2]]*cm.sq, NA,
+               my.rmse.2(re.tree.1)[[2]]*cm.sq)#, my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
 
-tb1 <- tibble(models, EDF, dev, rmse.mods) %>% rename('Model'= models, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm\u00B2/yr.)' = rmse.mods)
+tb1 <- tibble(smooth, EDF, dev, rmse.mods) #%>% rename('Smooth'= smooth, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm^2/yr.)' = rmse.mods)
+
+xtable(tb1)
+library(kableExtra)
 
 kb1 <- tb1 %>% 
-  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5), escape = T) %>% 
-  kable_styling(latex_options = c('striped', 'hold_position'), full_width = T, font_size = 8, table.envir = 'float') %>% 
-  group_rows('Species-mix', start_row = 6, end_row = 7) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = F) %>% 
   add_indent(c(2,3,4,5)) %>% 
-  row_spec(1, bold = T) %>% 
+  row_spec(7, bold = T) %>% 
+  group_rows('Size', 1, 1) %>% 
+  group_rows('Competition & density', 2, 4) %>% 
+  group_rows('Site', 5, 5) %>% 
   column_spec(1, width = '8em', latex_valign = 'm') %>% 
-  column_spec(2, bold = ifelse(EDF > 1234, TRUE, FALSE), width = '4em', latex_valign = 'm') %>% 
-  column_spec(3, bold = ifelse(dev > 80, T, F), width = '5em', latex_valign = 'm') %>% 
-  column_spec(4, bold = T, width = '5em', latex_valign = 'm') %>% 
+  column_spec(2, width = '4em', latex_valign = 'm') %>% 
+  column_spec(3, width = '5em', latex_valign = 'm') %>% 
+  column_spec(4, width = '5em', latex_valign = 'm') %>% 
   gsub('NA', '', .)
 
+# \begin{table}[!h]
+# \label{tab:basemod}
+# \centering
+# \begin{tabular}{>{\raggedright\arraybackslash}m{8em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+# \toprule
+# Model & EDF & Deviance Explained (\%) & Model RMSE ($cm^2/yr.$)\\
+# \midrule
+# \hspace{1em}Size & 8 & 30.82 & \textbf{}\\
+# \hspace{1em}\cellcolor{gray!6}{Comp.} & \cellcolor{gray!6}{18} & \cellcolor{gray!6}{32.05} & \textbf{\cellcolor{gray!6}{}}\\
+# \hspace{1em}Site & 26 & 4.52 & \textbf{}\\
+# \hspace{1em}\cellcolor{gray!6}{RE} & {\cellcolor{gray!6}{1337}} & \cellcolor{gray!6}{17.52} & \textbf{\cellcolor{gray!6}{}}\\
+# \textbf{\cellcolor{gray!6}{Full model}} & \textbf{\textbf{\cellcolor{gray!6}{1389}}} & \textbf{\textbf{\cellcolor{gray!6}{84.91}}} & \textbf{\textbf{\cellcolor{gray!6}{3.32142}}}\\
+# \bottomrule
+# \end{tabular}
+# \end{table}
 
+shade %>%
+  kable(format = 'latex', booktabs = T) %>% #caption = 'Shade tolerance for western conifers (ref:caption2)',
+  kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F) %>%
+  column_spec(c(1,2), italic = TRUE)
 #tb1 <- readRDS('data/rmse_edf_dev_table.Rds')
 tb1 %>% filter()
 # 

@@ -179,7 +179,7 @@ laoc.gam <- readRDS('data/model_objects.1/laoc.gam728.rds')
   #                   data = laoc_laoc, method = 'ML')
 # saveRDS(laoc.gam, 'data/model_objects.1/laoc.gam728.rds')
 
-mod.list <- list(psme.gam, pico.gam, pien.gam, laoc.gam)
+mod.list <- list('psme'=psme.gam, 'pico'=pico.gam, 'pien'=pien.gam, 'laoc'=laoc.gam)
 lapply(mod.list, gam.check)
 # plot(pico.gam)
 # filter(bai.spmx.ids, unique_tree_id == 2505)
@@ -200,7 +200,7 @@ for(i in 1:5){
   plot(psme.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = -.426596)
   plot(pien.gam, residuals = T, trans = exp, select = i, ylim = c(0,4), shift = 0.38111221)
 }
-
+plot(laoc.gam)
 
 bp.psme <- boxplot(laoc_psme$DIAMETER, plot = F)
 l.u.psme <- bp.psme$stats[c(2, 4)]
@@ -225,16 +225,56 @@ mixtures.all <- mixtures.all %>%
   ungroup() %>% 
   mutate(more.larch = case_when(percent_LAOC/other.pct >= 1 ~ 'yes',
                                 percent_LAOC/other.pct < 1 ~ 'no'))
-ggplot(mixtures.all, aes(x = mixtype, y = laoc_to_other)) + geom_jitter(alpha = 0.5, aes(color = more.larch))
+ggplot(subset(mixtures.all, !(mixtype %in% c('abla', 'laoc', 'pipo'))), aes(x = mixtype, y = laoc_to_other)) + geom_jitter(alpha = 0.5, aes(color = more.larch))
 
 
   # geom_col(position = position_dodge())
   
+mixtures.all %>% group_by(mixtype) %>% summarize(n(), n_distinct(unique_tree_id))
+
+
 ```
+
+```{r gratia fitted values version}
+#posterior dist. sim
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
+bal.pl.ratio <- rep(0.6622384, 25)
+ba.pl <- rep(40.83743, 25)
+cr <- rep(0.5, 25)
+unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
+DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+
+vd <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+fitted_samples(laoc.gam, newdata = vd)
+
+```
+
 
 
 ```{r diam and plot fun}
 library(ggpubr)
+
+
+# asp_sin <- rep(sin(315*(pi/180)), 25)
+# asp_cos <- rep(cos(315*(pi/180)), 25)
+# bal.pl.ratio <- rep(0.6622384, 25)
+# ba.pl <- rep(40.83743, 25)
+# cr <- rep(0.5, 25)
+# 
+# unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
+#   #diameter function
+# DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+# vd <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+# apredict <- predict(laoc.gam, newdata = vd, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+# ilink(apredict)
+
+ilink <- function(prediction){
+  fitted <- exp(as.vector(prediction$fit))
+  se.fitted <- exp(as.vector(prediction$se.fit))
+  trans.pred <- tibble(bai = fitted, se = se.fitted)
+  return(trans.pred)
+}
 
 
 diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
@@ -244,33 +284,38 @@ diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   ba.pl <- rep(ba, 25)
   cr <- rep(cr, 25)
   
+  unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
   #diameter function
   DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
-  var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
-  a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
-              se = as.vector(bai.diam.a$se.fit),
+  var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+  bai.diam.a <- ilink(bai.diam.a)
+  a <- tibble(bai=bai.diam.a[[1]], se = bai.diam.a[[2]], var.diam.a,
               whichmix=rep('larch', 25))
+  
   #repeat for psme
+  unique_tree_id <- rep(sample(psme.gam$model$unique_tree_id, 1), 25)
   DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
-  var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
-  b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
-              se = as.vector(bai.diam.b$se.fit),
+  var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+  bai.diam.b <- ilink(bai.diam.b)
+  b <- tibble(bai=bai.diam.b[[1]], se = bai.diam.b[[2]], var.diam.b, 
               whichmix=rep('doug-fir', 25))
   #repeat for pico
+  unique_tree_id <- rep(sample(pico.gam$model$unique_tree_id, 1), 25)
   DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
-  var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
-  c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
-              se = as.vector(bai.diam.c$se.fit),
+  var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+  bai.diam.c <- ilink(bai.diam.c)
+  c <- tibble(bai=bai.diam.c[[1]], se = bai.diam.c[[2]], var.diam.c,
               whichmix=rep('lodgepole', 25))
   #repeat for pien
+  unique_tree_id <- rep(sample(pien.gam$model$unique_tree_id, 1), 25)
   DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
-  var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
-  d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
-              se = as.vector(bai.diam.d$se.fit),
+  var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+  bai.diam.d <- ilink(bai.diam.d)
+  d <- tibble(bai=bai.diam.d[[1]], se = bai.diam.d[[2]], var.diam.d, 
               whichmix=rep('e.spruce', 25))
   
   thing <- rbind(a, b, c, d)
@@ -278,13 +323,22 @@ diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
 }
 
 abcde <- diam_fun()
+ggplot(abcde, aes(x = whichmix, y = se)) + geom_point()
+summary(abcde$bai)
 
-plotting_fun <- function(all.data, ylims = c(0, 2), y.brks = seq(0,2,.25)){
+plotting_fun <- function(all.data, ylims = c(0, 4), y.brks = seq(0,4,.25)){
   p <- ggplot(all.data) + geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
     geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
     scale_y_continuous(breaks = y.brks, limits = ylims)
   return(p)
 }
+
+plotting_fun(abcde)
+
+```
+
+```{r}
+#####
 # plotting_fun(abcde) + labs(title = 'dog')
 
 # plotting_fun <- function(oblist){
@@ -308,16 +362,42 @@ plotting_fun <- function(all.data, ylims = c(0, 2), y.brks = seq(0,2,.25)){
 #                     data = laoc_psme, method = 'ML')
 # laoc_psme$uniq
 # 
-asp_sin <- rep(sin(315*(pi/180)), 25)
-asp_cos <- rep(cos(315*(pi/180)), 25)
-bal.pl.ratio <- rep(0.6622384, 25)
-ba.pl <- rep(40.83743, 25)
-cr <- rep(0.5, 25)
-DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
 
-var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id=laoc.gam$model$unique_tree_id)
-predict(laoc.gam, newdata = var.diam.b, unconditional = T)
+# asp_sin <- rep(sin(315*(pi/180)), 25)
+# asp_cos <- rep(cos(315*(pi/180)), 25)
+# bal.pl.ratio <- rep(0.6622384, 25)
+# ba.pl <- rep(40.83743, 25)
+# cr <- rep(0.5, 25)
+# DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
 # 
+# var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id=laoc.gam$model$unique_tree_id)
+# predict(laoc.gam, newdata = var.diam.b, unconditional = T)
+
+#test to see if i type = 'link' then converting is different from type = 'response' #####
+
+# asp_sin <- rep(sin(315*(pi/180)), 25)
+# asp_cos <- rep(cos(315*(pi/180)), 25)
+# bal.pl.ratio <- rep(0.6622384, 25)
+# ba.pl <- rep(40.83743, 25)
+# cr <- rep(0.5, 25)
+# DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+# 
+# var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id=sample(laoc.gam$model$unique_tree_id, 25))
+# abc <- predict(laoc.gam, newdata = var.diam.a, type = 'link', se.fit = T, exclude = 's(unique_tree_id)', unconditional = T)
+# list(laoc.gam$family$linkinv(abc$fit), laoc.gam$family$linkinv(abc$se.fit))
+# (bcd <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T, exclue = 's(unique_tree_id)', unconditional = T))
+# 
+# cde <- plot.gam(laoc.gam, seWithMean = T, select = 1)
+# def <- plot.gam(laoc.gam, select = 1)
+# str(cde)
+# 
+# efg <- compare_smooths(laoc.gam, pico.gam, psme.gam, pien.gam)
+# draw(efg)
+# fgh <- compare_smooths(laoc.gam, pico.gam, psme.gam, pien.gam, overall_uncertainty = T)
+# draw(fgh)
+# 
+# lapply(mod.list, summary.gam)
+#checking to see if I can get lpmatrix #####
 # bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'lpmatrix')
 # bai.diam.b1 <- predict(psme.gam, newdata = var.diam.b, type = 'link', se.fit = T, unconditional = T)
 # 
@@ -344,55 +424,100 @@ predict(laoc.gam, newdata = var.diam.b, unconditional = T)
 # b1 <- tibble(var.diam.b, bai = as.vector(bai.diam.b1$fit), 
 #             se = as.vector(bai.diam.b$se.fit),
 #             whichmix=rep('doug-fir', 25))
+
+#whoops #####
+    # #diameter function
+  # DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+  # var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  # bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
+  # a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
+  #             se = as.vector(bai.diam.a$se.fit),
+  #             whichmix=rep('larch', 25))
+  #repeat for psme
+  # DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+  # var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  # bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
+  # b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
+  #             se = as.vector(bai.diam.b$se.fit),
+  #             whichmix=rep('doug-fir', 25))
+  # #repeat for pico
+  # DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
+  # var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  # bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
+  # c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
+  #             se = as.vector(bai.diam.c$se.fit),
+  #             whichmix=rep('lodgepole', 25))
+  # #repeat for pien
+  # DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
+  # var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
+  # bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
+  # d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
+  #             se = as.vector(bai.diam.d$se.fit),
+  #             whichmix=rep('e.spruce', 25))
 ```
 
 ```{r}
-diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
-  asp_sin <- rep(sin(asp*(pi/180)), 25)
-  asp_cos <- rep(cos(asp*(pi/180)), 25)
-  bal.pl.ratio <- rep(bal, 25)
-  ba.pl <- rep(ba, 25)
-  cr <- rep(cr, 25)
-  
-  #diameter function
-  DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
-  var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'response', se.fit = T)
-  a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
-              se = as.vector(bai.diam.a$se.fit),
-              whichmix=rep('larch', 25))
-  #repeat for psme
-  DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
-  var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T)
-  b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
-              se = as.vector(bai.diam.b$se.fit),
-              whichmix=rep('doug-fir', 25))
-  #repeat for pico
-  DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
-  var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T)
-  c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
-              se = as.vector(bai.diam.c$se.fit),
-              whichmix=rep('lodgepole', 25))
-  #repeat for pien
-  DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
-  var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos)
-  bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T)
-  d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
-              se = as.vector(bai.diam.d$se.fit),
-              whichmix=rep('e.spruce', 25))
-  
-  thing <- rbind(a, b, c, d)
-  return(thing)
-}
+
+# ilink <- function(prediction){
+#   prediction$fit <- exp(prediction$fit)
+#   prediction$se.fit <- exp(prediction$se)
+#   return(prediction)
+# }
+# 
+# diam_fun <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
+#   asp_sin <- rep(sin(asp*(pi/180)), 25)
+#   asp_cos <- rep(cos(asp*(pi/180)), 25)
+#   bal.pl.ratio <- rep(bal, 25)
+#   ba.pl <- rep(ba, 25)
+#   cr <- rep(cr, 25)
+#   
+#   unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
+#   #diameter function
+#   DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+#   var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+#   bai.diam.a <- predict(laoc.gam, newdata = var.diam.a, type = 'link', se.fit = T, exclude = 's(unique_tree_id)')
+#   ilink(bai.diam.a)
+#   a <- tibble(var.diam.a, bai = as.vector(bai.diam.a$fit), 
+#               se = as.vector(bai.diam.a$se.fit),
+#               whichmix=rep('larch', 25))
+#   #repeat for psme
+#   unique_tree_id <- rep(sample(psme.gam$model$unique_tree_id, 1), 25)
+#   DIAMETER <- (seq(l.u.psme[1], l.u.psme[2], length = 25))
+#   var.diam.b <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+#   bai.diam.b <- predict(psme.gam, newdata = var.diam.b, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+#   ilink <- bai.diam.b
+#   b <- tibble(var.diam.b, bai = as.vector(bai.diam.b$fit), 
+#               se = as.vector(bai.diam.b$se.fit),
+#               whichmix=rep('doug-fir', 25))
+#   #repeat for pico
+#   unique_tree_id <- rep(sample(pico.gam$model$unique_tree_id, 1), 25)
+#   DIAMETER <- (seq(l.u.pico[1], l.u.pico[2], length = 25))
+#   var.diam.c <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+#   bai.diam.c <- predict(pico.gam, newdata = var.diam.c, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+#   ilink(bai.diam.c)
+#   c <- tibble(var.diam.c, bai = as.vector(bai.diam.c$fit), 
+#               se = as.vector(bai.diam.c$se.fit),
+#               whichmix=rep('lodgepole', 25))
+#   #repeat for pien
+#   unique_tree_id <- rep(sample(pien.gam$model$unique_tree_id, 1), 25)
+#   DIAMETER <- (seq(l.u.pien[1], l.u.pien[2], length = 25))
+#   var.diam.d <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+#   bai.diam.d <- predict(pien.gam, newdata = var.diam.d, type = 'response', se.fit = T, exclude = 's(unique_tree_id)')
+#   ilink(bai.diam.d)
+#   d <- tibble(var.diam.d, bai = as.vector(bai.diam.d$fit), 
+#               se = as.vector(bai.diam.d$se.fit),
+#               whichmix=rep('e.spruce', 25))
+#   
+#   thing <- rbind(a, b, c, d)
+#   return(thing)
+# }
 ```
 
 
 ```{r plots}
 only.dbh.varies <- diam_fun()
 plotting_fun(only.dbh.varies) + labs(x = 'DBH', y = 'BAI')
-
+only.dbh.varies
 
 
 ba.values <- c(50, 100, 150, 200)

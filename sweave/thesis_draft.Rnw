@@ -502,32 +502,32 @@ GAMs allow for flexibility in model fitting and an allowance for non-linear
 relationships across variables \citep{Zhao2005}. Contrary to traditional 
 parametric modeling approaches, GAMs let the data determine the 
 shape of the functional relationships by fitting predictors with 
-smooth functions instead of specified parameters \citep{Robinson2011}, 
-which also proved beneficial in this case due to the inconsistency of measurement intervals. 
+smooth functions instead of specified parameters \citep{Robinson2011}. 
+%which also proved beneficial in this case due to the inconsistency of measurement intervals. 
 The choice to use a mixed-model approach was made due to the  
 residual dependence structure that arises from repeat measurements 
 on the same trees over time, and thus for each mixed model (GAMM) 
-fit, a random effect was specified at the individual tree-level.
+fit, a random effect was specified at the individual tree-level. %was it? should it?
 
----include something visual about dependence structure?---
+%---include something visual about dependence structure?---
 
-GAMMs were fit using using the mgcv package \citep{Wood2011} in R \citep{RCoreTeam2021}. 
+GAMMs were fit using the mgcv package \citep{Wood2011} in R \citep{RCoreTeam2021}. 
 The mgcv package allows for the specification of smooth functions (or smoothers). 
 Smoothers are a sum of fitted estimated basis 
 functions that characterize the conditional relationship between the predictor 
 and independent variable. They are penalized by a smoothing parameter, which 
-constrains a smoother's complexity as it grows higher \citaep{Pedersen2019}. 
+constrains a smoother's complexity as it grows higher \citep{Pedersen2019}. 
 Mgcv allows for smoothing parameters to be estimated via different methods - 
 the maximum likelihood method was used in this study because it allows for 
-better comparison across models that use different terms. 
+better comparison across models that use different terms and smoothing parameters. 
 Random effects may be coded as smooths in this format, 
 which is essentially equivalent to other mixed-model approaches, however, 
-when fitting large numbers intercepts (as done in this study) 
+when fitting large numbers of intercepts (as done in this study) 
 computation can extremely slow \citep{Pedersen2019}. %%%more here?? do I talk about using both methods since the way random effects are handled with the gamm case is kinda weird? (see pedersen 2019 page 34)
 With mgcv, the thin-plate regression smoother (TPRS) type
 is the default due to its simple and effective behavior \citep{Wood2003}
 and is what was used in the present study for all terms including interactions. 
-GAMs in mgcv also allow for 
+% GAMs in mgcv also allow for 
 
 
 The model formulation described here was developed with a training 
@@ -566,7 +566,7 @@ available data, and if they have been used in predicting
 BAI in previous empirical modeling efforts. 
 
 % crown competition factor (CCF;\cite{Krajicek1961}), remove??
--TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
+%-TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
 
 A pair-wise colinearity assessment was 
 then performed among each group of variables to avoid including 
@@ -597,21 +597,22 @@ finalizing the base model formulation (\ref{eq:baiform}).
 
 \begin{equation}
 \label{eq:baiform}
-g(E(BAI)) = \beta_0 + f_1(Size) + f_2(Density \& Competition) + f_3(Site) \\
-\text{$g()$ represents a link function, $E(BAI)$ represents the expected 
+g(E(BAI)) = \beta_0 + f_1(Size) + f_2(Density \& Competition) + f_3(Site)\\
+\end{equation}
+
+$g()$ represents a link function, $E(BAI)$ represents the expected 
 value of BAI of interest, $\beta_0$ represents 
 an intercept, and $f_i$ represents a non-linear function applied to an 
-independent variable, $x_i$.}
-\end{equation}
+independent variable, $x_i$.
 
 Root mean squared error (RMSE; \ref{eq:rmse}) was 
 calculated to assess model accuracy, where when comparing models, 
 a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
-freedom to reduce bias. Explained deviance (CITE??) and AIC (CITE?) were also 
+freedom to provide an unbiased estimate. Explained deviance (CITE??) was also 
 considered for ensuring acceptable model fit, %Do i even say this?
-but they were not used as strict selection criteria because
-each improved proportionally to RMSE. %Do i even say this?
+but was not used as strict selection criteria because
+it changed in accordance with RMSE. %Do i even say this?
 
 \begin{equation}
 \label{eq:rmse}
@@ -658,8 +659,10 @@ from shade intolerant to shade-tolerant.
 % of each mixture type across to other species identified. 
 
 A hypothesis test was conducted to identify differences between predicted values 
-of BAI across the range of DBH. There is a level of uncertainty associated 
-with smoothing parameter estimation in the mgcv package which is not accounted for . 95\% confidence intervals for each predicted 
+of BAI across the range of DBH. 
+There is a level of uncertainty associated 
+with smoothing parameter estimation in the mgcv package 
+which is not accounted for . 95\% confidence intervals for each predicted 
 value were calculated based on a simulation of the posterior distribution at 
 each value of DBH. This ensures that the uncertainty 
 
@@ -680,21 +683,21 @@ each value of DBH. This ensures that the uncertainty
 %%%% jittered points for each mixture, where x is mixture type and y is larch:spp mixture ratio
 % visualize the BA thresholds for selecting different mixture-types?
 
-occupied by larch 
-had to be at least  and likewise for a given species.
-Identifying different mixtures 
-
-Different categories of species-mixtures were identified by evaluating 
-the amount of plot basal area 
-
-impacted at different levels other variables, 
-the same 
-process was repeated for 
-For example, predictions were made 
-across a range of tree diameters for each of the mixture models
-
-Furthermore, additional variables 
-were categorized
+% occupied by larch 
+% had to be at least  and likewise for a given species.
+% Identifying different mixtures 
+% 
+% Different categories of species-mixtures were identified by evaluating 
+% the amount of plot basal area 
+% 
+% impacted at different levels other variables, 
+% the same 
+% process was repeated for 
+% For example, predictions were made 
+% across a range of tree diameters for each of the mixture models
+% 
+% Furthermore, additional variables 
+% were categorized
 
 
 
@@ -712,16 +715,16 @@ were categorized
 
 
 %can i use by variable to test for differences in spp mix?
-To determine 
-if growth was characterized differently across different mixtures, 
-
-- Explain and rationalize how subsets were identified
-- Fit model to data subsets
-- Use resulting models to predict on a static data set where only one (or two)
-variables are changing
-- Explain basis of comparison (how do i compare these things)
---do i compare visually? Is there a hypothesis testing?
---- do i compare pointwise, based on the confidence interval?
+% To determine 
+% if growth was characterized differently across different mixtures, 
+% 
+% - Explain and rationalize how subsets were identified
+% - Fit model to data subsets
+% - Use resulting models to predict on a static data set where only one (or two)
+% variables are changing
+% - Explain basis of comparison (how do i compare these things)
+% --do i compare visually? Is there a hypothesis testing?
+% --- do i compare pointwise, based on the confidence interval?
 
 
 \subsection{Capturing and comparing species-mixing measures}
@@ -744,29 +747,45 @@ reducing competition. This measure does not explicitly
 represent different species proportions, so interpreting species-mixing 
 effects from it can be challenging. 
 
--- CCF equation here --
+\begin{equation}
+\label{eq:ccf}
+\begin{aligned}
+&CCF_{jt}& = &\sum CCF_{tree} \\
+&CCF_{it}& = &r_1 + r_2 DBH + r_3 \ DBH^2 + r_4 + DBH^{r_5} 
+\end{aligned}
+\begin{cases} r_1, r_2, r_3 = 0\ \text{if}\ DBH > 10" \\ r_4, r_5 = 0\ 
+\text{if}\ 0.1" < DBH < 10" \end{cases}
+\end{equation}
 
-The proportion of basal area occupied by larch is a measure of species 
+In \ref{eq:ccf}, $CCF_{jt}$ is plot $j$ crown competition factor calculated at 
+a given measurement $t$ which is the sum of crown competition factor values at 
+$CCF{it}$ across trees $i$ within the plot $j$. $r_{n}$ coefficients represent parameters 
+provided for each species.
+
+The proportion of basal area occupied by larch is a measure of species  
 purity within a stand, and is simply calculated as a ratio of plot basal 
-area occupied by western larch. 
+area occupied by western larch to plot basal area occupied by other species.
 
 \begin{equation}
 \label{eq:purity}
 L_{jt} = \frac{\sum_{i}{BA_{ijt}\ I_{ijt}}}{\sum_{i}{BA_{ijt}}}\ \ \ I_{ijt} = \begin{cases} 1,\ \text{if}\ i\ \text{is western larch}\\0,\ \text{otherwise}\end{cases}
 \end{equation}
 
-\text{$L_{jt}$ denotes the ratio, $BA_{ijt}$ is the of basal area of a tree $i$, $I_{ijt}$ is a binary operator which indicates whether a tree $i$ is western larch ($I_{ijt} = 1$), or otherwise ($I_{ijt} = 0$)}
+In \ref{eq:purity} $L_{jt}$ denotes the ratio, $BA_{ijt}$ is the of basal 
+area of a tree $i$, $I_{ijt}$ is a binary operator which indicates whether a 
+tree $i$ is western larch ($I_{ijt} = 1$), or otherwise ($I_{ijt} = 0$)
 
 The third species-informed measure makes use of a shade-tolerance index 
 \citep{Lienard2015} where different species are assigned with values 
 ranging between 0 and 1, 0 being very shade-tolerant, and 1 being very 
 shade-intolerant. Since this study focused on shade-intolerant western larch, 
 these values were inverted so that they could be easily compared with the 
-purity metric (REFERENCE SHADE INTOLERANCE TABLE). Shade tolerance values were multiplied by individual tree 
+purity metric (\ref{tab:shade}). Shade tolerance values were multiplied by individual tree 
 basal area values, and then summed, effectively describing community 
 shade-intolerance through a proportion of basal area. 
 
 \begin{table}
+\label{tab:shade}
 \caption{shade intolerance}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
@@ -793,19 +812,22 @@ Genus & Species & Shade intolerance\\
 \begin{equation}
 \label{eq:shade}
 T_{jt} = \frac{\sum_{i}{\rho_{ijt}\ BA_{ijt}}}{\sum_{ijt}{BA_{ijt}}}
-\text{$\rho_{ijt}$ represents the species specific shade-tolerance ranking of tree $i$ \citep{Lienard2015}.}
 \end{equation}
 
+In \ref{eq:shade} $T_{jt}$ represents plot shade intolerance at a given measurement, 
+$\rho_{ijt}$ represents the species specific shade-tolerance ranking of 
+tree $i$ \citep{Lienard2015}.
 % - Using them in a model
 % - comparing models based on RMSE, quantifying accuracy improvements by each
 
 To evaluate and compare these measures they were added as predictors 
 to the identified base model formulation, each in its own respective model, 
 and fit with the same data. Models were then compared on the basis of 
-accuracy (RMSE) and fit (explained deviance; CITE?), quantifying 
-each predictor's relative improvement to model performance. To calculate 
-RMSE, BAI was predicted by each model from the withheld portion data set, 
-and model prediction errors were calculated. 
+accuracy (RMSE) and fit (explained deviance; \citep{wood2006generalized}), quantifying 
+each predictor's relative improvement to model performance. 
+% To calculate 
+% RMSE, BAI was predicted by each model from the withheld portion data set, 
+% and model prediction errors were calculated. 
 
 
 
@@ -857,6 +879,30 @@ variable in the model. These results are more or less concurrent with
 previous studies on the matter.
 
 -- model fitting rmse table -- 
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+\toprule
+\hspace{1em}Smooth & EDF & Explained deviance & RMSE ($cm^2/yr.$)\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Size}}\\
+\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{30.82} & \cellcolor{gray!6}{5.64312}\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Competition \& density}}\\
+\hspace{1em}Crown ratio & 2 & 62.87 & 4.30911\\
+\hspace{1em}\cellcolor{gray!6}{BAL} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{1em}BA & 9 &  & \\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{\textbf{Site}}\\
+\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6}{67.39} & \cellcolor{gray!6}{4.01197}\\
+\addlinespace[0.3em]
+\textbf{\cellcolor{gray!6}{Base model}} & \textbf{\cellcolor{gray!6}{1389}} & \textbf{\cellcolor{gray!6}{84.91}} & \textbf{\cellcolor{gray!6}{3.32142}}\\
+\hspace{1em}Random intercept & 1337 &  & \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % Furthermore, aspect effects were evaluated in the model separately as easting, 
 % northing, as a joint interaction term, and as a decomposed tensor 
