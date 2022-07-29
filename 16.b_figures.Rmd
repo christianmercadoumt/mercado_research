@@ -1,0 +1,162 @@
+---
+title: "Untitled"
+author: "Christian Mercado"
+date: '2022-07-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r get data}
+#get data
+library(gratia)
+library(tidyverse)
+library(mgcv)
+library(gridExtra)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+full.data <- bind_rows(bai.train, bai.hold)
+
+#identify mixtures
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+    mutate(other.pct = percent_LAOC)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+  }
+
+```
+
+
+```{r all data mixtures}
+mix.data <- spp.fun(full.data, 0.2, .65, 0.7)
+
+full.mix <- bind_rows(mix.data, .id = 'id')
+
+full.mix %>% group_by(id, NF, stand) %>% summarize(num.obs = n())
+
+bai.diam <- full.mix %>% 
+  group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+  summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+
+ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+
+```
+
+```{r mixture analysis figs.}
+#make data
+(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+
+full.mix <- bind_rows(mixtures, .id = 'id')
+
+#mixtures_summary#####.
+mixtures.all <- full.mix %>%  
+  mutate(laoc_to_other = case_when(percent_LAOC/other.pct >= 1 ~ (percent_LAOC/other.pct),
+                                   percent_LAOC/other.pct < 1 ~ (other.pct/percent_LAOC))) %>% 
+  ungroup() %>% 
+  mutate(more.larch = case_when(percent_LAOC/other.pct >= 1 ~ 'yes',
+                                percent_LAOC/other.pct < 1 ~ 'no'))
+ggplot(subset(mixtures.all, !(id %in% c('abla', 'laoc', 'pipo'))), 
+       aes(x = id, y = laoc_to_other)) + 
+  geom_jitter(alpha = 0.5, aes(color = more.larch))
+
+#mixes average.tree.bai-avg.tree.diam smoothed by type#####
+
+
+bai.diam <- full.mix %>% 
+  group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+  summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+
+ggplot(bai.diam, aes(x = meandbh, y = meanbai, color = id)) + geom_point(alpha = 0.2) + geom_smooth(se = F)
+ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+ggplot(subset(bai.diam, id %in% c('laoc', 'psme')), 
+       aes(x = meandbh, y = meanbai, color = id)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F)
+ggplot(subset(bai.diam, id %in% c('laoc', 'pico')), 
+       aes(x = meandbh, y = meanbai, color = id)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F)
+ggplot(subset(bai.diam, id %in% c('laoc', 'pien')), 
+       aes(x = meandbh, y = meanbai, color = id)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F)
+ggplot(subset(bai.diam, id %in% c('laoc', 'pipo')), 
+       aes(x = meandbh, y = meanbai, color = id)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F)
+ggplot(subset(bai.diam, id %in% c('laoc', 'abla')), 
+       aes(x = meandbh, y = meanbai, color = id)) +
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F)
+
+```
+
+
