@@ -495,7 +495,6 @@ annual growth of western larch, quantified by basal area increment (BAI; \ref{eq
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{weiskittel2011forest}.
-
 \begin{equation}
 \label{eq:bai}
 BAI = \frac{BA_{m+1}-BA_{m}}{(m+1)-m}
@@ -842,8 +841,10 @@ each predictor's relative improvement to model performance.
 A basal area increment model was specified with the following predictors: 
 DBH, crown ratio (CR), basal area larger than the subject (BAL; expressed as a ratio), 
 plot basal area (BA), aspect, and a tree-level random effect. 
-The model was fit with a gamma distribution because BAI is bounded by zero  and log-link. 
-The model training data set consisted of 
+The model was fit with a gamma distribution family because it allows for 
+increasing dispersion in the response variable. A log-link function was chosen 
+to ensure that predictions of growth were positive and trunkated at zero.
+The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
 The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
@@ -858,7 +859,7 @@ of 5.64 $cm^2/yr.$ and 5.70 $cm^2/yr.$, respectively.
 
 Competition and density variables were partitioned into two sub-groups:  
 variables representing a tree's competitive position in a stand, and variables 
-that represent the overall competitive environment. High-collinear variable 
+that represent the overall competitive environment. Highly collinear variable 
 combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
 Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to 
 4.31 $cm^2/yr.$ with plot BA included.
@@ -874,14 +875,12 @@ beyond the established threshold. Thus, building on the model and
 comparing aspect, site index, and heatload, aspect was selected as 
 the best term, further reducing model RMSE to 4.01 $cm^2/yr.$
 
-Given the order in which variables were included, 
-competition and density metrics contributed the most in deviance explained, 
-followed by size. However, considering variables individually, 
-DBH explained more deviance and reduced RMSE more than any other 
-variable in the model. These results are more or less concurrent with 
-previous studies on the matter.
+By group, competition and density metrics contributed the most in 
+deviance explained, followed by size. However, considering 
+variables individually, DBH explained more deviance and reduced RMSE 
+more than any other variable in the model. 
 
--- model fitting rmse table -- 
+% -- model fitting rmse table -- 
 
 \begin{table}[!h]
 \centering
@@ -914,16 +913,30 @@ previous studies on the matter.
 
 \subsection{Assessing species-mixing impacts on growth}
 
+
+
 \subsection{Capturing and comparing species-mixing measures}
-
-
 
 -Plot BA and CCF were highly correlated with one 
 another, so CCF was included in place of BA in the model formulation. 
 Larch purity and shade intolerance were simply added as an additional 
 predictors in separate models. 
 
--table of RMSE, dev.expl values for each model
+% -table of RMSE, dev.expl values for each model-
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+model & rmse\_values & rmse\_values.df & dev.expl & r.sqr\\
+\midrule
+\cellcolor{gray!6}{Base} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{3.32} & \cellcolor{gray!6}{84.91255} & \cellcolor{gray!6}{0.8}\\
+CCF & 5 & 3.34 & 84.41606 & 0.8\\
+\cellcolor{gray!6}{Purity} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{3.32} & \cellcolor{gray!6}{85.06852} & \cellcolor{gray!6}{0.8}\\
+Shade intol. & 5 & 3.32 & 85.01691 & 0.8\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \section{Discussion}
@@ -943,6 +956,12 @@ forest ecological research.
 challenges. One such challenge was the time that it took to fit models 
 with random effects. 
 - One benefit was the realized 
+
+- These results are more or less concurrent with previous studies on the matter.
+ -- perhaps important to highlight the fact it was different from others
+  -- contrast with other bai models
+  -- gam fitted bai models in particular?
+
 
 \subsection{Assessing species-mixing impacts on growth}
 

@@ -56,6 +56,7 @@ bai.spmx.ids <- bai.spmx %>%
          unique.plot.f = as.factor(unique.plot), 
          unique.tree.f = as.factor(unique_tree_id)) %>% 
   filter(unique_tree_id != 15431)
+rm(bai.spmx)
 
 #null model to compare to for results
 #re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
@@ -100,14 +101,16 @@ spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
                                percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
                                (percent_LAOC+percent_PIPO)>combined_min) %>% 
     mutate(other.pct = percent_PIPO)
-  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+  g <- data.set %>% filter(percent_LAOC>combined_min) %>% 
     mutate(other.pct = percent_LAOC)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
 mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7)
 individual.obs <- lapply(mixtures, function(x)
   length(unique(x$unique_tree_id)))
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
 
+mixtures.all <- bind_rows(mix.w.names)
 # (dbh.plots <- lapply(mixtures, function(m)
 #   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
 # (dens.plots <- lapply(mixtures, function(m)
@@ -128,6 +131,27 @@ individual.obs <- lapply(mixtures, function(x)
 # 
 # ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
 ```
+
+```{r}
+#fit gam with difference smooths
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+unique(mixtures.all$mixtype)
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, unique_tree_id) %>% 
+  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+
+try(mix.diff.gam <- gam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + s(cr, k = 9) + s(cr, by = omixtype, k = 9) + s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) + s(ba.pl) + s(ba.pl, by = omixtype) +
+                      s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) + s(unique_tree_id, bs = 're'),
+                    family = 'Gamma'(link = log), data = o.mixtures.all))
+try(saveRDS('C:/Users/cm165878/Box/research_/mix.diff.gam.rds'))
+try(saveRDS('data/model_objects.1/mix.diff.gam.rds'))
+
+```
+
 
 ```{r fit gams}
 #fit gams for subsets of data
@@ -238,7 +262,7 @@ ggplot(subset(mixtures.all, !(mixtype %in% c('abla', 'laoc', 'pipo'))), aes(x = 
   
 mixtures.all %>% group_by(mixtype) %>% summarize(n(), n_distinct(unique_tree_id))
 
-
+mixtures.all %>% group_by(mixtype, stand, )
 ```
 
 ```{r gratia fitted values version}
@@ -262,11 +286,11 @@ fitted_samples(laoc.gam, newdata = vd)
 library(ggpubr)
 
 
-# asp_sin <- rep(sin(315*(pi/180)), 25)
-# asp_cos <- rep(cos(315*(pi/180)), 25)
-# bal.pl.ratio <- rep(0.6622384, 25)
-# ba.pl <- rep(40.83743, 25)
-# cr <- rep(0.5, 25)
+asp_sin <- rep(sin(315*(pi/180)), 25)
+asp_cos <- rep(cos(315*(pi/180)), 25)
+bal.pl.ratio <- rep(0.6622384, 25)
+ba.pl <- rep(40.83743, 25)
+cr <- rep(0.5, 25)
 # 
 # unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
 #   #diameter function
@@ -316,6 +340,7 @@ diam_fun.a <- function(asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5){
   thing <- rbind(a, b, c, d)
   return(thing)
 }
+
 
 
 ilink <- function(prediction){
@@ -380,8 +405,8 @@ summary(test.diamfuna$bai)
 summary(test.diamfun$se)
 summary(test.diamfuna$se)
 
-ggplot(abcde, aes(x = whichmix, y = se)) + geom_point()
-summary(abcde$bai)
+# ggplot(abcde, aes(x = whichmix, y = se)) + geom_point()
+# summary(abcde$bai)
 
 plotting_fun <- function(all.data, ylims = c(0, 4), y.brks = seq(0,4,.25)){
   p1 <- ggplot(all.data) + geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
@@ -427,12 +452,13 @@ plotting_fun.pairs(test.diamfuna)
 
 
 unique(test.diamfun$whichmix)
-ggplot(subset(test.diamfun, whichmix %in% c('laoc', 'psme')), 
-               aes(x = DIAMETER, y = bai, color = whichmix)) +
-    geom_point(alpha = 0.2) + 
-    geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
-    geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
-    scale_y_continuous(breaks = seq(0,4,.25), limits = c(0, 4))
+# ggplot(subset(test.diamfun, whichmix %in% c('laoc', 'psme')), 
+#                aes(x = DIAMETER, y = bai, color = whichmix)) +
+#     geom_point(alpha = 0.2) + 
+#     geom_line(aes(x = DIAMETER, y = bai, color = whichmix)) +
+#     geom_ribbon(aes(x = DIAMETER, ymin = bai-se, ymax = bai+se, fill = whichmix), alpha = 0.2) +
+#     scale_y_continuous(breaks = seq(0,4,.25), limits = c(0, 4))
+
 ```
 
 ```{r}
@@ -454,10 +480,10 @@ ggplot(subset(test.diamfun, whichmix %in% c('laoc', 'psme')),
 # asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5
 
  ######
-# psmegam1 <- gam(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
-#                       s(asp_sin, asp_cos, k = 20) + s(unique_tree_id, bs = 're'),
-#                     family = 'Gamma'(link = log),
-#                     data = laoc_psme, method = 'ML')
+psmegam1 <- gam(bai~ s(DIAMETER) + s(cr, k = 8) + s(bal.pl.ratio) + s(ba.pl)+
+                      s(asp_sin, asp_cos, k = 20) + s(unique_tree_id, bs = 're'),
+                    family = 'Gamma'(link = log),
+                    data = laoc_psme, method = 'ML')
 # laoc_psme$uniq
 # 
 
@@ -613,10 +639,12 @@ ggplot(subset(test.diamfun, whichmix %in% c('laoc', 'psme')),
 
 
 ```{r plots}
-only.dbh.varies <- diam_fun()
+
+only.dbh.varies <- diam_fun.a()
 plotting_fun(only.dbh.varies) + labs(x = 'DBH', y = 'BAI')
 only.dbh.varies
 
+# ba#####
 
 ba.values <- c(50, 100, 150, 200)
 for(i in ba.values){
@@ -636,7 +664,25 @@ pairs.ba.100
 pairs.ba.150
 pairs.ba.200
 
+ba.values <- c(50, 100, 150, 200)
+for(i in ba.values){
+  a <- diam_fun.a(ba = i)
+  nam <- paste('ba.',i,sep = "")
+  pl <- plotting_fun(a, ylims = c(0, 2.5), y.brks = seq(0, 2.5, 0.25)) + labs(title = nam, x = 'DBH', y = 'BAI')
+  assign(nam, pl)
+  nam.pairs <- paste('pairs.ba.', i, sep="")
+  pl.pairs <- plotting_fun.pairs(a, ylims = c(0, 2.5), y.brks = seq(0, 2.5, 0.25)) + labs(title = nam, x = 'DBH', y = 'BAI')
+  assign(nam.pairs, pl.pairs)
+}
+ggarrange(ba.50, ba.100, ba.150, ba.200, 
+          nrow = 2, ncol = 2, 
+          common.legend = T, legend = 'bottom')
+pairs.ba.50
+pairs.ba.100
+pairs.ba.150
+pairs.ba.200
 
+#bal ######
 bal.values <- seq(0,1,0.2)
 for(i in bal.values){
   a <- diam_fun(bal = i)

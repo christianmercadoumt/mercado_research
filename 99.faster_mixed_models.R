@@ -99,6 +99,11 @@ re.tree.p2a <- gamm(bai~ s(DIAMETER),
                     random=list(unique_tree_id=~1),
                   family = 'Gamma'(link = log),
                   data = bai.spmx.ids, method = 'ML')
+gamm(bai~ s(DIAMETER),
+     random=list(unique_tree_id=~1),
+     family = 'Gamma'(link = log),
+     data = bai.spmx.ids, method = 'ML')
+
 save(re.tree.p2a,file=file.path(getwd(),"data","re.tree.p2a.Rdata"))
 sum(residuals(re.tree.p2a$gam)^2)
 AIC(re.tree.p2a$lme)

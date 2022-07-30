@@ -2,6 +2,7 @@ library(xtable)
 library(tidyverse)
 source('12.gam_fns.R')
 
+cm.sq <- 2.54^2
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 
@@ -229,6 +230,7 @@ tb1 %>% filter()
 
 # RMSE, dev, edf for ccf, purity, shade tol. ####
 
+library(kableExtra)
 basemodel <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds') # change to 'data/model_objects.1/re.tree.1ba_7.14.rds'
 ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') #shade tolerance is in here when it shouldnt be
 purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
@@ -279,6 +281,12 @@ rmse_values <- c(my.rmse.3(basemodel, test.data)*2.54^2,
                  my.rmse.3(shade.intol, test.data)*2.54^2, 
                  my.rmse.3(purity, test.data)*2.54^2)
 
+rmse_values.df <- c(my.rmse.2(basemodel)[[2]],
+                  my.rmse.2(ccf.mod)[[2]],
+                  my.rmse.2(shade.intol)[[2]],
+                  my.rmse.2(purity)[[2]])*cm.sq
+
+
 a <- summary(basemodel)
 b <- summary(ccf.mod)
 c <- summary(purity)
@@ -288,5 +296,9 @@ dev.expl <- c(a$dev.expl, b$dev.expl, c$dev.expl, d$dev.expl)*100
 r.sqr <- c(a$r.sq, b$r.sq, c$r.sq, d$r.sq)
 
 model <- c('Base', 'CCF', 'Purity', 'Shade intol.')
+options(pillar.sigfig = 4)
+(mod.vals.tbl <- tibble(model, rmse_values, rmse_values.df, dev.expl, r.sqr))
 
-(mod.vals.tbl <- tibble(model, rmse_values, dev.expl, r.sqr))
+mod.vals.tbl %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
