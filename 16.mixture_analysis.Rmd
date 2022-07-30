@@ -144,12 +144,76 @@ o.mixtures.all <- mixtures.all %>%
   mutate(mixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
 
-try(mix.diff.gam <- gam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + s(cr, k = 9) + s(cr, by = omixtype, k = 9) + s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) + s(ba.pl) + s(ba.pl, by = omixtype) +
-                      s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) + s(unique_tree_id, bs = 're'),
-                    family = 'Gamma'(link = log), data = o.mixtures.all))
-try(saveRDS('C:/Users/cm165878/Box/research_/mix.diff.gam.rds'))
-try(saveRDS('data/model_objects.1/mix.diff.gam.rds'))
+try(mix.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) + 
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) + 
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(unique_tree_id, bs = 're'),
+                        family = 'Gamma'(link = log), data = o.mixtures.all))
+try(saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam.rds'))
+# try(saveRDS('C:/Users/cm165878/Box/research_/mix.diff.gam.rds'))
+try(diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+                          s(cr, k = 9) + 
+                          s(bal.pl.ratio) + 
+                          s(ba.pl) +
+                          s(asp_sin, asp_cos, k = 20) +
+                          s(unique_tree_id, bs = 're'), method = 'fREML',
+                        family = 'Gamma'(link = log), data = o.mixtures.all))
+try(diam.nore<- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+                          s(cr, k = 9) + 
+                          s(bal.pl.ratio) + 
+                          s(ba.pl) +
+                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+                        family = 'Gamma'(link = log), data = o.mixtures.all))
+plot(diam.nore, ylim = c(-2, 2), seWithMean = T)
+summary(diam.nore)
 
+cr.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+                          s(cr, k = 9) + s(cr, k = 9, by = omixtype) + 
+                          s(bal.pl.ratio) + 
+                          s(ba.pl) +
+                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+                        family = 'Gamma'(link = log), data = o.mixtures.all)
+plot(cr.nore, ylim = c(-2, 2))
+summary(cr.nore)
+
+bal.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+                          s(cr, k = 9) + 
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                          s(ba.pl) +
+                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+                        family = 'Gamma'(link = log), data = o.mixtures.all)
+plot(bal.nore, ylim = c(-2, 2))
+summary(bal.nore)
+
+ba.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+                          s(cr, k = 9) + 
+                          s(bal.pl.ratio) + 
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+                        family = 'Gamma'(link = log), data = o.mixtures.all)
+plot(ba.nore, ylim = c(-2, 2))
+summary(ba.nore)
+
+asp.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+                          s(cr, k = 9) + 
+                          s(bal.pl.ratio) + 
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, k = 20, by = omixtype), 
+                method = 'fREML',
+                family = 'Gamma'(link = log), data = o.mixtures.all)
+plot(asp.nore, scheme = 1)
+summary(asp.nore)
+
+plot(diam.diff.gam)
+summary(diam.diff.gam)
+
+summary(mix.diff.gam)
+
+summary(o.mixtures.all$omixtype)
+
+plot(mix.diff.gam, shade = T, scale = 0, seWithMean = T)
 ```
 
 
