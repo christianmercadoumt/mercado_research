@@ -144,14 +144,15 @@ o.mixtures.all <- mixtures.all %>%
   mutate(mixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
 
-try(mix.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
-                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) + 
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) + 
+try(mix.diff.gam.m1 <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype, m=1) + 
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9, m=1) + 
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype, m=1) + 
                           s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20,m=1) +
                           s(unique_tree_id, bs = 're'),
-                        family = 'Gamma'(link = log), data = o.mixtures.all))
-try(saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam.rds'))
+                        family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+try(saveRDS(mix.diff.gam.m1, 'C:/Users/cm165878/Box/research_/mix.diff.gam.m1.rds'))
+try(saveRDS(mix.diff.gam.m1, 'data/model_objects.1/mix.diff.gam.m1.rds'))
 # try(saveRDS('C:/Users/cm165878/Box/research_/mix.diff.gam.rds'))
 try(diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
                           s(cr, k = 9) + 
@@ -214,6 +215,10 @@ summary(mix.diff.gam)
 summary(o.mixtures.all$omixtype)
 
 plot(mix.diff.gam, shade = T, scale = 0, seWithMean = T)
+
+saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam729_lab.rds')
+
+gam.check(mix.diff.gam)
 ```
 
 

@@ -159,4 +159,41 @@ ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
 
 ```
 
+```{r}
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+unique(mixtures.all$mixtype)
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, unique_tree_id) %>% 
+  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+
+ggplot(o.mixtures.all, aes(x = ba.pl, color = omixtype, fill = omixtype)) + geom_histogram(position = 'identity', alpha = 0.2)
+ggplot(o.mixtures.all, aes(x = ba.pl, color = omixtype, fill = omixtype, after_stat(count/max(count)))) + geom_density(position = 'identity', alpha = 0.2)
+
+ggplot(o.mixtures.all, aes(x = DIAMETER, color = omixtype, fill = omixtype)) + geom_histogram(position = 'identity', alpha = 0.2)
+
+n_distinct(o.mixtures.all$asp_sin)
+unique(o.mixtures.all$PLOT)
+comp <- o.mixtures.all %>% group_by(mixtype, asp_sin, asp_cos) %>% summarise(n_distinct(stand), n())
+
+circ <- seq(1,360,1)
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE')
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135)
+ns.df <- tibble(nsew, nsew.v)
+ns.df <- ns.df %>% mutate(sin.t = sin(nsew.v*pi/180), cos.t = cos(nsew.v*pi/180))
+library(ggforce)
+ggplot(comp, aes(x = asp_sin, y = asp_cos)) + 
+  geom_hline(yintercept = 0) + 
+  geom_vline(xintercept = 0) + 
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) +
+  geom_point(alpha = 0.6, size = 4) + geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) +
+  facet_wrap(~mixtype) +
+  theme(axis.ticks = element_blank(), axis.text = element_blank(), axis.title = element_blank(), axis.line = element_blank())
+  
+```
+
+
 

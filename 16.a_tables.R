@@ -302,3 +302,17 @@ options(pillar.sigfig = 4)
 mod.vals.tbl %>% 
   kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
   kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
+
+#CCF params####
+
+ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
+
+ccf_coef <- ccf_coef %>% select(SPECIES_SYMBOL, r1, r2, r3, r4, r5) %>% rename(SPECIES_SYMBOL = 'Species code')
+
+ccf_coef %>% 
+  kable(format = 'latex', booktabs = T) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
+
+pgpdata <- read_csv('data/pgp_data_all.csv')
+
+unique(pgpdata$SPECIES_SYMBOL)

@@ -66,42 +66,56 @@ The abstract.
 Western larch (\emph{Larix occidentalis} Nutt.) is an important tree species
 in the inland northwest region of the USA because of its contribution to
 ecological, economic, and cultural values across the region. \emph{L. occidentalis}
-is endemic and nearly exclusive to the upper Columbia river watershed throughout
+is endemic and nearly exclusive to the upper Columbia river watershed within 
 Montana, Idaho, Washington, Oregon, and southern British Columbia, and is
 well-adapted to the historic climate of the region \citep{Knudsen1968,Schmidt1976,Schmidt1995}.
-Additionally, its wood possesses desirable qualities such as high specific gravity,
-straight grains, and tight knots \citep{KeeganIII1995}, and it is the most productive of
-the three North American larch species \citep{Rehfeldt2010}, adding a unique and
-localized product value in the region. Further, western larch and its associated
+Additionally, its wood is characterized with desirable lumber qualities 
+such as high specific gravity, straight grains, and tight knots 
+\citep{KeeganIII1995}. It is the most productive of
+the three North American larch species \citep{Rehfeldt2010} and its lumber is often 
+commercially available in a mix with douglas-fir lumber, adding a unique and
+localized product value. Further, western larch and its associated
 forests provide important habitat to native birds, bears, and ungulates 
-\citep{McClelland1999,Schmidt1976}. In a setting where fire is historically and
-currently prevalent, western larch is the most fire resistant of the Northern
-Rocky Mountain conifers due to its thick bark and uniquely deciduous needles
-\citep{Schmidt1976}. \emph{Larix} species also provide unique aesthetic characteristics
+\citep{McClelland1999,Schmidt1976}. In the US northern rocky mountains,
+where fire is historically and currently prevalent, western larch is both uniquely 
+fire resistant and a prolific pioneer species on sites following fire \citep{Schmidt1981}
+due to its thick bark, deciduous needles, well-dispersed seeds, and germination 
+preference for bare-mineral soil \citep{Schmidt1976,Crotteau2019}. 
+\emph{Larix} species also provide unique aesthetic characteristics
 throughout the year, coloring hillsides shades of green,
 yellow, and brown, depending on the season, adding a colorful representation of
-seasonality. However, projected climate scenarios are likely to impact the
-biophysical processes that allow larch to fill its niche within this region \citep{Rehfeldt2010},
-threatening these unique values. 
+seasonality. 
+
+% However, projected future climate scenarios are likely to impact the
+% bioclimatic processes, like precipitation patterns and fire-return intervals, 
+% which currently allow larch to fill its niche within this region \citep{Rehfeldt2010}. 
+% Adaptive management strategies may ameliorate how these impacts translate to 
+% changes in biophysical processes, like evapotranspiration, for instance, that 
+% affect tree and forest dynamics \citep{Crotteau2019}. These types of strategies 
+% require long-term monitoring to evaluate their efficacy, and 
+% threatening these unique values. 
 
 
 % Western larch naturally grows across a compositional gradient of mixed-species
 % forests \citep{Schmidt1988} where interactions among species attributes could impact
 % growth and development at individual tree and stand levels.
 
-Western larch naturally grows across a gradient in of species-mixtures 
-in mixed-species forests \citep{Schmidt1988}. It is sometimes managed 
-in even-aged, homogeneous plantations, but more typically is managed in mixed-conifer settings
-where interactions among species attributes that impact
-growth and development at tree and stand levels may occur.
-Western larch is classified as very intolerant of shade and one of the fastest-growing within
-its communities \citep{Baker1949,Schmidt1988}. It is found in communities with:
+Western larch naturally grows across a gradient of species-mixtures 
+in mixed-species forests \citep{Schmidt1988}. It is found in communities with:
 Douglas-fir (\emph{Pseudotsuga menziesii}(Mirb.) Franco var. \emph{glauca}), 
-lodgepole pine (\emph{Pinus contorta}(Dougl.)), Engelmann spruce (Picea engellmanii),
+lodgepole pine (\emph{Pinus contorta}(Dougl.)), Engelmann spruce (\emph{Picea engellmanii}),
 subalpine fir (\emph{Abies lasiocarpa}), ponderosa pine (\emph{Pinus ponderosa}),
 western hemlock (\emph{Tsuga heterophylla}), mountain hemlock (\emph{Tsuga mertensiana}),
 and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1981a,Schmidt1988}. 
-
+Western larch is classified as very intolerant of shade and one of the fastest-growing within
+its communities \citep{Baker1949,Schmidt1988}. 
+Larch's prolific regeneration and rapid juvenile growth allows it to 
+outcompete other trees, which can lead to high stand density \citep{Schmidt1998}.  
+Thus, it responds well to density management early in stand development, 
+which can have lasting impacts on tree and stand growth \citep{Schaedel2017a}.
+It is sometimes managed in even-aged, homogeneous plantations, but more 
+typically is managed in mixed-conifer settings where interactions among species 
+at tree and stand levels may occur. 
 
 % Since stand density closely relates to tree growth \citep{Reineke1933}, 
 % the effects of species-mixing on density can translate 
@@ -184,7 +198,7 @@ In particular, species shade tolerance relates to the physiological and
 morphological characteristics which drive growth \citep{Reich1998}, 
 and thus relates to inter-tree competitive dynamics \citep{Canham2006}.
 Additionally, productivity in forests can be enhanced by mixing shade tolerant and 
-intolerant species \citep{Zhang2012,Williams2017}, where different species' 
+intolerant species \citep{Zhang2012,Williams2017} where different species' 
 light requirement niches (or shade tolerances) are complementary \citep{Thurm2016}. 
 Furthermore, quantifying community competition for light can sufficiently 
 capture the effects of biodiversity on productivity \citep{Morin2011}.
@@ -199,8 +213,10 @@ For stands in the inland northwest, where relatively low intensity
 management occurs over a broad area and across tree, stand, and site conditions, 
 managers and researchers use the forest vegetation simulator 
 (FVS;\cite{Dixon2020} to estimate future stand dynamics. 
-FVS applies a distance-independent individual tree growth model \citep(Stage1973,Wykoff1990) 
-to measured tree, density, competition, and site variables to project growth. 
+FVS is a distance-independent individual tree growth model 
+\citep(Stage1973,Wykoff1990) that does not require individual tree location 
+to measure competition, and projects tree growth using tree size, stand density, 
+competition, and site variables. 
 Its formulation is paralelled by growth models in other regions and countries, 
 and studies have shown effects of species-mixing using these types of models. 
 One european study showed that when incorporated into an indivudal 
@@ -216,7 +232,7 @@ those of Z\"{o}hrer (\citeyear{Zohrer1969}) where incremental growth was increas
 in mixtures between shade-tolerant \emph{Picea abies} and shade-intolerant
 \emph{Larix decidua}.
 
-Given that individual tree growth models can be improved 
+Since individual tree growth models can be improved 
 by accounting for species-mixing in addition to other variables,
 and since there is evidence of this in phylogenetically similar European larch,
 then species-mixing effects may be pertinent to
@@ -229,15 +245,27 @@ given other variables known to impact its growth and
 (ii) how to effectively characterize species-mixing effects 
 within the context of distance-independent, individual-tree 
 growth modeling in the inland northwest. 
-The objectives of the study then are to identify a 
-distance-independent individual tree growth model using a data set 
-which holds data for varying conditions and mixtures, identify different 
-types of mixtures that western larch grows in where its growth may be impacted, 
-then determine if western larch growth varies depending 
-on mixture type after accounting for other factors, and finally
-identify the relative importance of species-mixing in estimating growth, 
-while comparing different measures of species-mixing to determine if 
-one is better at capturing an effect than others. 
+
+% Given that density is modified by species-mixing, that larch growth 
+% is sensitive to density, and larch's intolerance to shade, 
+
+The objectives of the present study then were: 
+(i) to identify a 
+distance-independent individual tree growth model using long-term forest 
+inventory data, 
+(ii) identify different types of mixtures that western 
+larch grows in where its growth may be impacted, 
+(iii) to determine if western larch growth varies depending 
+on mixture type after accounting for other factors, 
+(iv) and to compare generalizable species-mixing measures and identify 
+if one specific measure improves growth estimation and captures a 
+species-mixing effect more than others. 
+I expected that larch growth would be positively impacted by 
+species-mixing in mixtures with more shade-tolerant species, and 
+negatively impacted when mixed with shade-intolerant species. 
+Additionally, I expected that species-mixing effects would best be captured by 
+a measure that accounts for species shade tolerance followed by a measure of 
+stand species purity and a species-informed measure of crown density. 
 
 % questions
 % \bf{How does community composition (species-mixing) influence the growth of western larch?} 
@@ -611,7 +639,8 @@ Root mean squared error (RMSE; \ref{eq:rmse}) was
 calculated to assess model accuracy, where when comparing models, 
 a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
-freedom to provide an unbiased estimate. Explained deviance (CITE??) was also 
+freedom to provide an unbiased estimate. The proportion of null deviance 
+explained by the model, or deviance explained (\cite{wood2006generalized}) was also 
 considered for ensuring acceptable model fit, %Do i even say this?
 but was not used as strict selection criteria because
 it changed in accordance with RMSE. %Do i even say this?
@@ -626,47 +655,79 @@ RMSE = \sqrt{\frac{\sum (\hat{y} - y)^2}{n_{df}}}
 % - Once a model exists, we can use it on subsets of the data set to 
 % determine types of species-mixing effects and their effects on BAI
 
-After establishing a parsimonious base model structure, 
+In order to test the differences of larch growth between different mixtures, 
 subsets of the PGP data for different types of species-mixtures were determined 
-and fit using the same model formulation. Using each resulting model, 
-growth was predicted from a data set holding every variable except DBH constant 
-to isolate the effects of tree size on growth across mixtures. Resulting curves respective of 
-species-mix type were then plotted and visually examined. Additionally, 
-the DBH-BAI relationship was evaluated at different 
-levels of each other variable to examine how the size-growth relationship 
-is modified across densities, competitive symmetries, crown ratios, and aspects.
+based on species representation quantified by proportions of plot basal area. 
+% Mixture-types were identified by evaluating
+% proportions of plot basal area occupied by larch and other species it was mixed with.
+To qualify as a specific mixture-type, a minimum of 20\% total plot 
+basal area had to be in western larch trees and a minimum of 20\% plot basal 
+area had to be in the other species. This was to ensure that there was a minimal 
+representation by both species in a mix. To ensure that either species was not 
+over-represented in a plot, neither larch nor the other species 
+could exceed 65\% plot BA. Both species combined basal area had 
+to occupy at least 70\% of total plot BA. This ensured that a range of 
+each mixture-type was captured while prohibiting over-representation of 
+either species within the mixture. 
+A pure larch condition was defined by selecting plots where basal area was composed of 
+at least 70\% western larch to provide reference conditions to compare each 
+species-mixture to. 
+
+The resulting data were pooled together, where each species mixture condition 
+was identified and assigned to an identifying variable. These data were then used 
+to fit an additive model to the base model formulation, 
+however, each mixture was estimated with a unique intercept, and each 
+smooth term was evaluated at each type of mixture, resulting in a model 
+containing smooths for each species-mixture. Each mixture was evaluated 
+against the pure larch condition, where an associated hypothesis test 
+was conducted to identify evidence for a difference between each mixture 
+and the pure larch condition for each smooth. 
+
+-- FORMULA -- 
+
+
+
+% After identifying these conditions in the PGP data 
+% 
+% Since the data was subset in favor 
+% of specific scenarios, it was important to consider the size of subsets 
+% before fitting models with them to ensure sample size was large enough. 
+% Ultimately, mixtures chosen were composed of 
+% larch with lodgepole pine, douglas-fir, and Engallmann spruce, spanning 
+% from shade intolerant to shade-tolerant. 
+
+
+
+
+% To identify differences between 
+% 
+% 
+% Using each resulting model, 
+% growth was predicted from a data set holding every variable except DBH constant 
+% to isolate the effects of tree size on growth across mixtures. Resulting curves respective of 
+% species-mix type were then plotted and visually examined. 
+% 
+% Additionally, 
+% the DBH-BAI relationship was evaluated at different 
+% levels of each other variable to examine how the size-growth relationship 
+% is modified across densities, competitive symmetries, crown ratios, and aspects.
 
 % It was of interest to examine these relationships of larch growth in mixtures 
 % with species that span the shade-tolerance spectrum, including stands  
 % that are predominantly composed of larch as well as stands where larch was mixed 
 % with a different species. 
-Mixture-types were identified by  
-proportions of plot basal area occupied by larch and species it was mixed with. 
-For instance, to qualify as a specific mixture-type, a minimum of 20\% total plot 
-basal area had to be in western larch trees and a minimum of 20\% plot basal 
-area in the other species, where neither larch nor the other species percent 
-BA could exceed 65\% in a plot, and both species combined basal area had 
-to be at least 70\% of total plot BA. This ensured that a range of 
-each mixture-type was captured while prohibiting over-representation of 
-either species within the mixture. Additionally, pure larch  
-conditions were identified by selecting plots where basal area was composed of 
-at least 90\% western larch. Since the data was subset in favor 
-of specific scenarios, it was important to consider the size of subsets 
-before fitting models with them to ensure sample size was large enough. 
-Ultimately, mixtures chosen were composed of 
-larch with lodgepole pine, douglas-fir, and Engallmann spruce, spanning 
-from shade intolerant to shade-tolerant. 
+
 
 % Figure (XXX) shows the distribution 
 % of each mixture type across to other species identified. 
 
-A hypothesis test was conducted to identify differences between predicted values 
-of BAI across the range of DBH. 
-There is a level of uncertainty associated 
-with smoothing parameter estimation in the mgcv package 
-which is not accounted for . 95\% confidence intervals for each predicted 
-value were calculated based on a simulation of the posterior distribution at 
-each value of DBH. This ensures that the uncertainty 
+% A hypothesis test was conducted to identify differences between predicted values 
+% of BAI across the range of DBH. 
+% There is a level of uncertainty associated 
+% with smoothing parameter estimation in the mgcv package 
+% which is not accounted for . 95\% confidence intervals for each predicted 
+% value were calculated based on a simulation of the posterior distribution at 
+% each value of DBH. This ensures that the uncertainty 
 
 %may be able to get away with adding unconditional = T to the predict function to generate intervals that account for the fact that smoothing parameters were estiamted. 
 %additionally, I can add sewithmean=T to the plot command, save the plot object, and then inspect the object and see that its a list with one comoponentper smooth. 
@@ -740,14 +801,18 @@ is based on tree crown allometry \citep{Krajicek1961}. In this measure,
 each species has an identified maximum crown width in open-grown conditions for 
 a given diameter. These values are expressed as a percentage of 
 area that could be occupied by open grown tree crowns, and summed within 
-a stand to express overall competition for crown space. Theoretically, 
-different tree species of a given diameter with high maximum crown widths mixed together 
-would drive the CCF value well over 100\% representing high competition.  
-In contrary, a mixture of species of a given size composed of large and 
+a stand to express overall competition for crown space. That is, 100\% stand CCF 
+means that in open-grown conditions that there is absolutely no overlap among 
+crowns and all tree crowns in a stand would be close 
+enough to barely touch. Theoretically, 
+trees of a given diameter with high maximum crown widths mixed together 
+would drive the CCF value well over 100\%, representing high competition.  
+In contrary, a stratification of trees of different sizes composed of large and 
 small crown widths could increase utilization of crown space, 
-reducing competition. This measure does not explicitly  
-represent different species proportions, so interpreting species-mixing 
-effects from it can be challenging. 
+reducing competition. CCF weighs species identity by species-specific 
+diameter-crown allometry -based parameters. This study used the species 
+parameters used by the FVS Inland Empire regional variant (\ref{tb:ccfvals};\cite{Keyser2008}).
+The CCF equation is shown in equation (\ref{eq:ccf}):
 
 \begin{equation}
 \label{eq:ccf}
@@ -759,21 +824,54 @@ effects from it can be challenging.
 \text{if}\ 0.1" < DBH < 10" \end{cases}
 \end{equation}
 
-In \ref{eq:ccf}, $CCF_{jt}$ is plot $j$ crown competition factor calculated at 
+where $CCF_{jt}$ is plot $j$ crown competition factor calculated at 
 a given measurement $t$ which is the sum of crown competition factor values at 
 $CCF{it}$ across trees $i$ within the plot $j$. $r_{n}$ coefficients represent parameters 
 provided for each species.
 
+\begin{table}[!h]
+\label{tb:ccfvals}
+\centering
+\begin{tabular}{llrrrrr}
+\toprule
+spcode & SPECIES\_SYMBOL & r1 & r2 & r3 & r4 & r5\\
+\midrule
+\cellcolor{gray!6}{RC} & \cellcolor{gray!6}{THPL} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+WH & TSHE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{ES} & \cellcolor{gray!6}{PIEN} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.01730} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.007875} & \cellcolor{gray!6}{1.7360}\\
+AF & ABLA & 0.03000 & 0.02160 & 0.00405 & 0.011402 & 1.7560\\
+\cellcolor{gray!6}{GF} & \cellcolor{gray!6}{ABGR} & \cellcolor{gray!6}{0.04000} & \cellcolor{gray!6}{0.02700} & \cellcolor{gray!6}{0.00405} & \cellcolor{gray!6}{0.015248} & \cellcolor{gray!6}{1.7333}\\
+\addlinespace
+WP & PIMO3 & 0.03000 & 0.01670 & 0.00230 & 0.009884 & 1.6667\\
+\cellcolor{gray!6}{DF} & \cellcolor{gray!6}{PSME} & \cellcolor{gray!6}{0.11000} & \cellcolor{gray!6}{0.03330} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.017299} & \cellcolor{gray!6}{1.5571}\\
+PP & PIPO & 0.03000 & 0.01800 & 0.00281 & 0.007813 & 1.7680\\
+\cellcolor{gray!6}{WL} & \cellcolor{gray!6}{LAOC} & \cellcolor{gray!6}{0.02000} & \cellcolor{gray!6}{0.01480} & \cellcolor{gray!6}{0.00338} & \cellcolor{gray!6}{0.007244} & \cellcolor{gray!6}{1.8182}\\
+LP & PICO & 0.01925 & 0.01676 & 0.00365 & 0.009187 & 1.7600\\
+\addlinespace
+\cellcolor{gray!6}{AS} & \cellcolor{gray!6}{POTR5} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+CO & POPUL & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{PB} & \cellcolor{gray!6}{BEPA} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+MH & TSME & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{RM} & \cellcolor{gray!6}{JUSC2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
+\addlinespace
+WB & PIAL & 0.02000 & 0.01480 & 0.00338 & 0.007244 & 1.8182\\
+\cellcolor{gray!6}{PY} & \cellcolor{gray!6}{TABR2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
+OS & 2TE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 The proportion of basal area occupied by larch is a measure of species  
 purity within a stand, and is simply calculated as a ratio of plot basal 
-area occupied by western larch to plot basal area occupied by other species.
+area occupied by western larch to plot basal area occupied by other species 
+and is displayed in equation \ref{eq:purity} below:
 
 \begin{equation}
 \label{eq:purity}
 L_{jt} = \frac{\sum_{i}{BA_{ijt}\ I_{ijt}}}{\sum_{i}{BA_{ijt}}}\ \ \ I_{ijt} = \begin{cases} 1,\ \text{if}\ i\ \text{is western larch}\\0,\ \text{otherwise}\end{cases}
 \end{equation}
 
-In \ref{eq:purity} $L_{jt}$ denotes the ratio, $BA_{ijt}$ is the of basal 
+where $L_{jt}$ denotes the ratio, $BA_{ijt}$ is the of basal 
 area of a tree $i$, $I_{ijt}$ is a binary operator which indicates whether a 
 tree $i$ is western larch ($I_{ijt} = 1$), or otherwise ($I_{ijt} = 0$)
 
@@ -782,9 +880,21 @@ The third species-informed measure makes use of a shade-tolerance index
 ranging between 0 and 1, 0 being very shade-tolerant, and 1 being very 
 shade-intolerant. Since this study focused on shade-intolerant western larch, 
 these values were inverted so that they could be easily compared with the 
-purity metric (\ref{tab:shade}). Shade tolerance values were multiplied by individual tree 
+purity metric. The resulting values are shown in table \ref{tab:shade}). 
+Shade tolerance values were multiplied by individual tree 
 basal area values, and then summed, effectively describing community 
-shade-intolerance through a proportion of basal area. 
+shade-intolerance through a proportion of basal area shown in 
+equation \ref{eq:shade}: 
+
+\begin{equation}
+\label{eq:shade}
+T_{jt} = \frac{\sum_{i}{\rho_{ijt}\ BA_{ijt}}}{\sum_{ijt}{BA_{ijt}}}
+\end{equation}
+
+where \ref{eq:shade} $T_{jt}$ represents plot shade intolerance at a given measurement, 
+$\rho_{ijt}$ represents the species specific shade-tolerance ranking of 
+tree $i$ \citep{Lienard2015}.
+
 
 \begin{table}
 \label{tab:shade}
@@ -809,29 +919,21 @@ Genus & Species & Shade intolerance\\
 \end{tabular}
 \end{table}
 
-
-
-\begin{equation}
-\label{eq:shade}
-T_{jt} = \frac{\sum_{i}{\rho_{ijt}\ BA_{ijt}}}{\sum_{ijt}{BA_{ijt}}}
-\end{equation}
-
-In \ref{eq:shade} $T_{jt}$ represents plot shade intolerance at a given measurement, 
-$\rho_{ijt}$ represents the species specific shade-tolerance ranking of 
-tree $i$ \citep{Lienard2015}.
 % - Using them in a model
 % - comparing models based on RMSE, quantifying accuracy improvements by each
 
-To evaluate and compare these measures they were added as predictors 
+To evaluate and compare these measures they were added as additional smooths 
 to the identified base model formulation, each in its own respective model, 
 and fit with the same data. Models were then compared on the basis of 
-accuracy (RMSE) and fit (explained deviance; \citep{wood2006generalized}), quantifying 
-each predictor's relative improvement to model performance. 
+accuracy (RMSE) and fit (deviance explained; \citep{wood2006generalized}), quantifying 
+each predictor's relative improvement to model performance. RMSE values were 
+calculated using data that were withheld from model fitting to provide an independent 
+estimation of model accuracy. Deviance explained values were extracted from 
+model summary outputs. 
+
 % To calculate 
 % RMSE, BAI was predicted by each model from the withheld portion data set, 
 % and model prediction errors were calculated. 
-
-
 
 
 \section{Results}
@@ -848,8 +950,9 @@ The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
 The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
-Random effects were accounted for using a spline basis \citep{Wood2017}, and thus 
-had an associated degrees of freedom of ~1338. Model residual 
+Random effects were accounted for using a spline basis 
+\citep{wood2006generalized}, and thus had an associated degrees of 
+freedom, which was ~1338. Model residual 
 degrees of freedom was ~4401.
 
 Tree DBH and basal area were highly correlated (0.938) and were 
@@ -915,6 +1018,8 @@ more than any other variable in the model.
 
 
 
+
+
 \subsection{Capturing and comparing species-mixing measures}
 
 -Plot BA and CCF were highly correlated with one 
@@ -955,6 +1060,8 @@ forest ecological research.
 - using generalized additive models for each task in this study presented 
 challenges. One such challenge was the time that it took to fit models 
 with random effects. 
+- Difficult to interpret, can appear much simpler 
+- can overfit relationships
 - One benefit was the realized 
 
 - These results are more or less concurrent with previous studies on the matter.
