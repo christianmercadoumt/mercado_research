@@ -160,6 +160,8 @@ ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
 ```
 
 ```{r}
+
+
 library(ggforce)
 #add names to mixtures
 mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
