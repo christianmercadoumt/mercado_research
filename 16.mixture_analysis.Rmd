@@ -111,6 +111,18 @@ individual.obs <- lapply(mixtures, function(x)
 mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
 
 mixtures.all <- bind_rows(mix.w.names)
+
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x)) # add names to different mixes in the data
+
+mixtures.all <- bind_rows(mix.w.names) #list to tibble
+
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+         bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
+         unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
 # (dbh.plots <- lapply(mixtures, function(m)
 #   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
 # (dens.plots <- lapply(mixtures, function(m)
@@ -132,93 +144,119 @@ mixtures.all <- bind_rows(mix.w.names)
 # ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
 ```
 
-```{r}
+```{r read in models}
 #fit gam with difference smooths
-mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
 
-mixtures.all <- bind_rows(mix.w.names)
-unique(mixtures.all$mixtype)
-o.mixtures.all <- mixtures.all %>% 
-  select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, unique_tree_id) %>% 
-  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
-  mutate(mixtype = as.factor(mixtype)) %>% 
-  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+mix.diff.gam.m1 <- readRDS('data/model_objects.1/mix.diff.gam.m1.rds')
+mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.gam.rds')
 
-try(mix.diff.gam.m1 <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype, m=1) + 
-                          s(cr, k = 9) + s(cr, by = omixtype, k = 9, m=1) + 
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype, m=1) + 
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20,m=1) +
-                          s(unique_tree_id, bs = 're'),
-                        family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
-try(saveRDS(mix.diff.gam.m1, 'C:/Users/cm165878/Box/research_/mix.diff.gam.m1.rds'))
-try(saveRDS(mix.diff.gam.m1, 'data/model_objects.1/mix.diff.gam.m1.rds'))
-# try(saveRDS('C:/Users/cm165878/Box/research_/mix.diff.gam.rds'))
-try(diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
-                          s(cr, k = 9) + 
-                          s(bal.pl.ratio) + 
-                          s(ba.pl) +
-                          s(asp_sin, asp_cos, k = 20) +
-                          s(unique_tree_id, bs = 're'), method = 'fREML',
-                        family = 'Gamma'(link = log), data = o.mixtures.all))
-try(diam.nore<- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
-                          s(cr, k = 9) + 
-                          s(bal.pl.ratio) + 
-                          s(ba.pl) +
-                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
-                        family = 'Gamma'(link = log), data = o.mixtures.all))
-plot(diam.nore, ylim = c(-2, 2), seWithMean = T)
-summary(diam.nore)
 
-cr.nore <- bam(bai~ mixtype + s(DIAMETER) + 
-                          s(cr, k = 9) + s(cr, k = 9, by = omixtype) + 
-                          s(bal.pl.ratio) + 
-                          s(ba.pl) +
-                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
-                        family = 'Gamma'(link = log), data = o.mixtures.all)
-plot(cr.nore, ylim = c(-2, 2))
-summary(cr.nore)
+#summary and model check
+job::job(import = c(mix.diff.gam), 
+         {library(mgcv) 
+           sum.mixdiff = summary.gam(mix.diff.gam)
+           check.mdg = gam.check(mix.diff.gam)})
 
-bal.nore <- bam(bai~ mixtype + s(DIAMETER) + 
-                          s(cr, k = 9) + 
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-                          s(ba.pl) +
-                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
-                        family = 'Gamma'(link = log), data = o.mixtures.all)
-plot(bal.nore, ylim = c(-2, 2))
-summary(bal.nore)
+job::job(import = c(mix.diff.gam.m1),
+         {library(mgcv)
+           sum.mixdiff.m1 = summary(mix.diff.gam.m1)
+           check.mdg.m1 = gam.check(mix.diff.gam.m1)})
 
-ba.nore <- bam(bai~ mixtype + s(DIAMETER) + 
-                          s(cr, k = 9) + 
-                          s(bal.pl.ratio) + 
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) , method = 'fREML',
-                        family = 'Gamma'(link = log), data = o.mixtures.all)
-plot(ba.nore, ylim = c(-2, 2))
-summary(ba.nore)
+```
 
-asp.nore <- bam(bai~ mixtype + s(DIAMETER) + 
-                          s(cr, k = 9) + 
-                          s(bal.pl.ratio) + 
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, k = 20, by = omixtype), 
-                method = 'fREML',
-                family = 'Gamma'(link = log), data = o.mixtures.all)
-plot(asp.nore, scheme = 1)
-summary(asp.nore)
+```{r fitting the diff models}
+#fitting models#####
+# The purpose of m=1 is to reduce collinearity between the smooth differences and the reference smooth
+# mix.diff.gam.m1
+#       bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype, m=1) + 
+#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9, m=1) + 
+#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype, m=1) + 
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20,m=1) +
+#                           s(unique_tree_id, bs = 're'),
+#                         family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+# try(saveRDS(mix.diff.gam.m1, 'C:/Users/cm165878/Box/research_/mix.diff.gam.m1.rds'))
+# try(saveRDS(mix.diff.gam.m1, 'data/model_objects.1/mix.diff.gam.m1.rds'))
 
-plot(diam.diff.gam)
-summary(diam.diff.gam)
+# this one is without the m=1
+## m=1 tells it to penalize the 1st derivative instead of the usual 2nd.
+## contrains the null space
+# mix.diff.gam <- 
+# bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9) + 
+#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) + 
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+#                           s(unique_tree_id, bs = 're'),
+#                         family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
 
-summary(mix.diff.gam)
 
-summary(o.mixtures.all$omixtype)
+# These were mostly exploratory for each variable#####
 
-plot(mix.diff.gam, shade = T, scale = 0, seWithMean = T)
+# this one only evaluates diameter smooth differences
+# try(diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+#                           s(cr, k = 9) + 
+#                           s(bal.pl.ratio) + 
+#                           s(ba.pl) +
+#                           s(asp_sin, asp_cos, k = 20) +
+#                           s(unique_tree_id, bs = 're'), method = 'fREML',
+#                         family = 'Gamma'(link = log), data = o.mixtures.all))
+#this one only looks at diameter, but without REs
+# try(diam.nore<- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+#                           s(cr, k = 9) + 
+#                           s(bal.pl.ratio) + 
+#                           s(ba.pl) +
+#                           s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+#                         family = 'Gamma'(link = log), data = o.mixtures.all))
+# plot(diam.nore, ylim = c(-2, 2), seWithMean = T)
+# summary(diam.nore)
 
-saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam729_lab.rds')
+# this one does CR
+# cr.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+#                           s(cr, k = 9) + s(cr, k = 9, by = omixtype) + 
+#                           s(bal.pl.ratio) + 
+#                           s(ba.pl) +
+#                           s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+#                         family = 'Gamma'(link = log), data = o.mixtures.all)
+# plot(cr.nore, ylim = c(-2, 2))
+# summary(cr.nore)
+# 
+#this one does bal
+# bal.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+#                           s(cr, k = 9) + 
+#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+#                           s(ba.pl) +
+#                           s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+#                         family = 'Gamma'(link = log), data = o.mixtures.all)
+# plot(bal.nore, ylim = c(-2, 2))
+# summary(bal.nore)
+# 
+# this one does ba
+# ba.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+#                           s(cr, k = 9) + 
+#                           s(bal.pl.ratio) + 
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) , method = 'fREML',
+#                         family = 'Gamma'(link = log), data = o.mixtures.all)
+# plot(ba.nore, ylim = c(-2, 2))
+# summary(ba.nore)
+# 
+# this one does aspect
+# asp.nore <- bam(bai~ mixtype + s(DIAMETER) + 
+#                           s(cr, k = 9) + 
+#                           s(bal.pl.ratio) + 
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, k = 20, by = omixtype), 
+#                 method = 'fREML',
+#                 family = 'Gamma'(link = log), data = o.mixtures.all)
+# plot(asp.nore, scheme = 1)
+# summary(asp.nore)
+# 
+# 
+# plot(mix.diff.gam, shade = T, scale = 0, seWithMean = T)
+# 
+# saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam729_lab.rds')
 
-gam.check(mix.diff.gam)
 ```
 
 
@@ -335,17 +373,18 @@ mixtures.all %>% group_by(mixtype, stand, )
 ```
 
 ```{r gratia fitted values version}
+## this may not be necessary
 #posterior dist. sim
-asp_sin <- rep(sin(315*(pi/180)), 25)
-asp_cos <- rep(cos(315*(pi/180)), 25)
-bal.pl.ratio <- rep(0.6622384, 25)
-ba.pl <- rep(40.83743, 25)
-cr <- rep(0.5, 25)
-unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
-DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
-
-vd <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
-fitted_samples(laoc.gam, newdata = vd)
+# asp_sin <- rep(sin(315*(pi/180)), 25)
+# asp_cos <- rep(cos(315*(pi/180)), 25)
+# bal.pl.ratio <- rep(0.6622384, 25)
+# ba.pl <- rep(40.83743, 25)
+# cr <- rep(0.5, 25)
+# unique_tree_id <- rep(sample(laoc.gam$model$unique_tree_id, 1), 25)
+# DIAMETER <- (seq(l.u.laoc[1], l.u.laoc[2], length = 25))
+# 
+# vd <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id)
+# fitted_samples(laoc.gam, newdata = vd)
 
 ```
 

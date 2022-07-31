@@ -316,3 +316,67 @@ ccf_coef %>%
 pgpdata <- read_csv('data/pgp_data_all.csv')
 
 unique(pgpdata$SPECIES_SYMBOL)
+
+#mixture data summary#####
+
+#function defining mixtures
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                           (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                           (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                           (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                           (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                           (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                           percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                           (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+    mutate(other.pct = percent_LAOC)
+  return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+}
+
+#actually define mixtures
+(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+
+#add names to mixtures
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+#combine data in list
+mixtures.all <- bind_rows(mix.w.names)
+#create factor
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, 
+         cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, 
+         mixtype, unique_tree_id) %>% 
+  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+
+atable <- o.mixtures.all %>% group_by(omixtype) %>% 
+  summarize(
+    across(bai:ba.pl, 
+           list(min = min, 
+                max = max, 
+                sd = sd, 
+                mean = mean, 
+                num.obs = length), 
+           .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id))
+
+atable1 <- data.frame(t(as.data.frame(atable[-1])))
+colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
+atable2 <- atable1 %>% rownames_to_column()
+(sum.table <- atable2 %>% rename(stat = rowname))
