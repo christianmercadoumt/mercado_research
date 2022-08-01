@@ -120,9 +120,9 @@ o.mixtures.all <- mixtures.all %>%
   select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
          bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
          unique_tree_id, NF, cluster) %>% 
-  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
   mutate(mixtype = as.factor(mixtype)) %>% 
-  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
 # (dbh.plots <- lapply(mixtures, function(m)
 #   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
 # (dens.plots <- lapply(mixtures, function(m)
@@ -147,40 +147,40 @@ o.mixtures.all <- mixtures.all %>%
 ```{r read in models}
 #fit gam with difference smooths
 library(tidymv)
-mix.diff.gam.m1 <- readRDS('data/model_objects.1/mix.diff.gam.m1.rds')
-mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.gam.rds')
-levels(mix.diff.gam$model$omixtype)
+# mix.diff.gam.m1 <- readRDS('data/model_objects.1/mix.diff.gam.m1.rds')
+# mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.gam.rds')
+# levels(mix.diff.gam$model$omixtype)
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
 
-plot_difference(mix.diff.gam, series = DIAMETER, difference = list(omixtype = c('laoc', 'pico')))
-plot_difference(mix.diff.gam, series = DIAMETER, difference = list(omixtype = c('laoc', 'psme')))
-plot_difference(mix.diff.gam, series = cr, difference = list(omixtype = c('laoc', 'psme')))
-plot_difference(mix.diff.gam, series = cr, difference = list(omixtype = c('laoc', 'pico')))
-plot_smooths(mix.diff.gam, series = DIAMETER, comparison = omixtype)
+plot_difference(mix.diff.nopien, series = DIAMETER, difference = list(omixtype = c('laoc', 'pico')))
+plot_difference(mix.diff.nopien, series = DIAMETER, difference = list(omixtype = c('laoc', 'psme')))
+plot_difference(mix.diff.nopien, series = cr, difference = list(omixtype = c('laoc', 'psme')))
+plot_difference(mix.diff.nopien, series = cr, difference = list(omixtype = c('laoc', 'pico')))
+plot_smooths(mix.diff.nopien, series = DIAMETER, comparison = omixtype)
 
 #summary and model check
-job::job(import = c(mix.diff.gam), 
+job::job(import = c(mix.diff.nopien), 
          {library(mgcv) 
            sum.mixdiff = summary.gam(mix.diff.gam)
            check.mdg = gam.check(mix.diff.gam)
            })
            # conc.mixdiff = concurvity(mix.diff.gam)})
 
-job::job(import = c(mix.diff.gam.m1),
-         {library(mgcv)
-           sum.mixdiff.m1 = summary(mix.diff.gam.m1)
-           check.mdg.m1 = gam.check(mix.diff.gam.m1)
-           })
+# job::job(import = c(mix.diff.gam.m1),
+#          {library(mgcv)
+#            sum.mixdiff.m1 = summary(mix.diff.gam.m1)
+#            check.mdg.m1 = gam.check(mix.diff.gam.m1)
+#            })
 
 #resids for groups
-modfit <- mix.diff.gam.m1$fitted.values
-modres <- mix.diff.gam.m1$residuals
+modfit <- mix.diff.nopien.m1$fitted.values
+modres <- mix.diff.nopien.m1$residuals
 xyplot(modres~modfit|o.mixtures.all$omixtype)
 
 #
 sum.mixdiff
-sum.mixdiff.m1
 
-concurvity(mix.diff.gam, full = F)
+# concurvity(mix.diff.pien, full = F)
 
 diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
                           s(cr, k = 9) +
@@ -191,28 +191,27 @@ diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
                          family = 'Gamma'(link = log), data = o.mixtures.all)
 concurvity(diam.diff.gam, full = F)
 
-sum.mixdiff.m1$
 
-anova(anv.mdif,sum.mixdiff, test = 'Chisq')
-AIC(mix.diff.gam)
-AIC(mix.diff.gam.m1)
+AIC(mix.diff.nopien)
+
 ```
 
 ```{r fitting the diff models}
 o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
 unique(o.mixtures.nopien$omixtype)
-job::job(import = c(o.mixtures.nopien), {
-  library(mgcv)
-  mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
-                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) + 
-                          s(asp_sin, asp_cos, by = omixtype, k = 20) +
-                          s(unique_tree_id, bs = 're'),
-                      family = 'Gamma'(link = log), 
-                      data = o.mixtures.nopien, method = 'fREML')
-})
+# job::job(import = c(o.mixtures.nopien), {
+#   library(mgcv)
+#   mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) + 
+#                           s(asp_sin, asp_cos, by = omixtype, k = 20) +
+#                           s(unique_tree_id, bs = 're'),
+#                       family = 'Gamma'(link = log), 
+#                       data = o.mixtures.nopien, method = 'fREML')
+# })
+# saveRDS(mix.diff.gam.nospr, 'data/model_objects.1/mix.diff.nopien.rds')
 
 #fitting models#####
 # The purpose of m=1 is to reduce collinearity between the smooth differences and the reference smooth
