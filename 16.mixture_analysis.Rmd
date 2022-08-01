@@ -155,13 +155,40 @@ mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.gam.rds')
 job::job(import = c(mix.diff.gam), 
          {library(mgcv) 
            sum.mixdiff = summary.gam(mix.diff.gam)
-           check.mdg = gam.check(mix.diff.gam)})
+           check.mdg = gam.check(mix.diff.gam)
+           conc.mixdiff = concurvity(mix.diff.gam)})
 
 job::job(import = c(mix.diff.gam.m1),
          {library(mgcv)
            sum.mixdiff.m1 = summary(mix.diff.gam.m1)
-           check.mdg.m1 = gam.check(mix.diff.gam.m1)})
+           check.mdg.m1 = gam.check(mix.diff.gam.m1)
+           conc.mixd.m1})
 
+#resids for groups
+modfit <- mix.diff.gam.m1$fitted.values
+modres <- mix.diff.gam.m1$residuals
+xyplot(modres~modfit|o.mixtures.all$omixtype)
+
+#
+sum.mixdiff
+sum.mixdiff.m1
+
+concurvity(mix.diff.gam, full = F)
+
+diam.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) + 
+                          s(cr, k = 9) +
+                          s(bal.pl.ratio) +
+                          s(ba.pl) +
+                          s(asp_sin, asp_cos, k = 20),
+                         method = 'fREML',
+                         family = 'Gamma'(link = log), data = o.mixtures.all)
+concurvity(diam.diff.gam, full = F)
+
+sum.mixdiff.m1$
+
+anova(anv.mdif,sum.mixdiff, test = 'Chisq')
+AIC(mix.diff.gam)
+AIC(mix.diff.gam.m1)
 ```
 
 ```{r fitting the diff models}

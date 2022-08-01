@@ -319,6 +319,7 @@ unique(pgpdata$SPECIES_SYMBOL)
 
 #mixture data summary#####
 
+library(kableExtra)
 #function defining mixtures
 spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
   a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
@@ -355,6 +356,8 @@ spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
 
 #add names to mixtures
 mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+lapply(mix.w.names, function(x){x %>% summarise()})
 #combine data in list
 mixtures.all <- bind_rows(mix.w.names)
 #create factor
@@ -369,14 +372,46 @@ o.mixtures.all <- mixtures.all %>%
 atable <- o.mixtures.all %>% group_by(omixtype) %>% 
   summarize(
     across(bai:ba.pl, 
-           list(min = min, 
-                max = max, 
-                sd = sd, 
-                mean = mean, 
+           list(min = ~ min(.x, na.rm = T), 
+                max = ~ max(.x, na.rm = T), 
+                sd = ~ sd(.x, na.rm = T), 
+                mean = ~ mean(.x, na.rm = T), 
                 num.obs = length), 
            .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id))
 
+
 atable1 <- data.frame(t(as.data.frame(atable[-1])))
-colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
+# colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
 atable2 <- atable1 %>% rownames_to_column()
-(sum.table <- atable2 %>% rename(stat = rowname))
+names(atable2)
+(sum.table <- atable2 %>% rename(stat = rowname, laoc = X1, pico = X2, psme = X3, pien = X4))
+sum.table1 <- tibble(sum.table)
+grped.sum.tb <- sum.table1 %>% mutate(whichstat = 
+                        case_when(grepl('min', stat) ~ 'min',
+                                  grepl('max', stat) ~ 'max',
+                                  grepl('sd', stat) ~ 'sd',
+                                  grepl('mean', stat) ~ 'mean',
+                                  grepl('obs', stat) ~ 'n'),
+                        whichvar = case_when(grepl('bai', stat) ~ 'bai',
+                                             grepl('DIAM', stat) ~ 'dbh',
+                                             grepl('cr', stat) ~ 'cr',
+                                             grepl('bal', stat) ~ 'bal',
+                                             grepl('ba.p', stat) ~ 'ba'))
+
+bai.dat <- grped.sum.tb %>% filter(whichvar == 'bai')
+#larch, pico, psme, pien
+bais <- rbind(
+  bai.dat$whichstat,
+  bai.dat$laoc,
+  bai.dat$pico,
+  bai.dat$psme,
+  bai.dat$pien
+)
+larchbai <- bai.dat %>% select(laoc, whichstat)
+bai.dat$whichstat
+
+grped.sum.tb %>% select(laoc, )
+  
+ # kable(format = 'latex', booktabs = T) %>% 
+  #kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F) %>% 
+  

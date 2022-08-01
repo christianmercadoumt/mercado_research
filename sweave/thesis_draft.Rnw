@@ -516,13 +516,14 @@ cottonwood, and quaking aspen.
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
 
-\subsection{PGP Data}
+\subsection{GAM overviewl}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
 annual growth of western larch, quantified by basal area increment (BAI; \ref{eq:bai}). 
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{weiskittel2011forest}.
+
 \begin{equation}
 \label{eq:bai}
 BAI = \frac{BA_{m+1}-BA_{m}}{(m+1)-m}
@@ -632,8 +633,8 @@ g(E(BAI)) = \beta_0 + f_1(Size) + f_2(Density \& Competition) + f_3(Site)\\
 
 $g()$ represents a link function, $E(BAI)$ represents the expected 
 value of BAI of interest, $\beta_0$ represents 
-an intercept, and $f_i$ represents a non-linear function applied to an 
-independent variable, $x_i$.
+an intercept, and $f_n$ represents a non-linear function applied to  
+a given predictor variable.
 
 Root mean squared error (RMSE; \ref{eq:rmse}) was 
 calculated to assess model accuracy, where when comparing models, 
@@ -649,6 +650,10 @@ it changed in accordance with RMSE. %Do i even say this?
 \label{eq:rmse}
 RMSE = \sqrt{\frac{\sum (\hat{y} - y)^2}{n_{df}}}
 \end{equation}
+
+where $\hat{y}$ is the model prediction, $y$ is the observation, and $n_{df}$ 
+is the model residual degrees of freedom.
+
 
 \subsection{Assessing species-mixing impacts on growth}
 
@@ -673,19 +678,34 @@ A pure larch condition was defined by selecting plots where basal area was compo
 at least 70\% western larch to provide reference conditions to compare each 
 species-mixture to. 
 
-The resulting data were pooled together, where each species mixture condition 
-was identified and assigned to an identifying variable. These data were then used 
-to fit an additive model to the base model formulation, 
-however, each mixture was estimated with a unique intercept, and each 
-smooth term was evaluated at each type of mixture, resulting in a model 
-containing smooths for each species-mixture. Each mixture was evaluated 
-against the pure larch condition, where an associated hypothesis test 
-was conducted to identify evidence for a difference between each mixture 
-and the pure larch condition for each smooth. 
+The mgcv package allows for flexible model fitting regimes where 
+smooth functional relationships between a predictor and the response 
+variable can vary across different groups \citep{Pedersen2019}. 
+Such strategies were employed to assess western larch growth 
+across each identified type of mixture compared to the pure larch 
+stand condition. Thus, an interactive additive model was fit to the identified 
+base model formulation where each mixture was estimated with a unique intercept
+and each smooth term was evaluated for each type of mixture, resulting in a model 
+containing separate smooths for each species-mixture. Each mixture was evaluated 
+against the pure larch condition using an equivalence test 
+to identify evidence for a difference between estimated growth within 
+each mixture and the reference pure larch condition for each fitted smooth. The 
+model from equation \ref{eq:baiform} may be modified as follows:
 
--- FORMULA -- 
+\begin{equation}
+\label{eq:mixes}
+g(E(BAI_{ij})) = \beta_0 + \beta_{1j} + f_{j}(x_{n})\\
+\end{equation}
 
+where $E(BAI_{ij})$ is the value of $BAI$ for tree $i$ growing within 
+a mixture $j$, $\beta_0$ is the model intercept for pure larch conditions, 
+$\beta_{1j}$ represents the difference between $\beta_0$ and the intercept 
+for mixture $j$, $f_{j}$ is a smooth function for model predictor $x_n$ in a 
+mixture. 
 
+%%look at "using generalized additive models to analyze single case designs" paper 2014. maybe has something citable. 
+%% also look at the gavin simpson paper about lakes
+%% zuur might talk about it to
 
 % After identifying these conditions in the PGP data 
 % 
@@ -695,9 +715,6 @@ and the pure larch condition for each smooth.
 % Ultimately, mixtures chosen were composed of 
 % larch with lodgepole pine, douglas-fir, and Engallmann spruce, spanning 
 % from shade intolerant to shade-tolerant. 
-
-
-
 
 % To identify differences between 
 % 
@@ -762,8 +779,6 @@ and the pure larch condition for each smooth.
 % Furthermore, additional variables 
 % were categorized
 
-
-
 % 
 % -how to do this: 
 % -first see the comments on this post from Gavin S. :https://stats.stackexchange.com/questions/470980/continuously-test-where-two-generalized-additive-models-differ
@@ -773,9 +788,6 @@ and the pure larch condition for each smooth.
 % -- define new data with dubbed values of whichever covariate
 % -- predict from that
 % -- pull the se.fit object
-
-
-
 
 %can i use by variable to test for differences in spp mix?
 % To determine 
@@ -1016,16 +1028,27 @@ more than any other variable in the model.
 
 \subsection{Assessing species-mixing impacts on growth}
 
+%Table of mixtures, min, max, mean for each variable in model
+%figure showing dist. for aspect? maybe switch to other variable?
+%state which values are significant and for which term
+%show a table of smooths, edf, significance/pvalue
+%show smooths
+%describe smooths
 
 
 
 
-\subsection{Capturing and comparing species-mixing measures}
+\subsection{Comparing species-mixing measures}
+
+%Show smooths for each measure
+%Table w/ rmseand stuff (is below)
+%Talk about smooths
 
 -Plot BA and CCF were highly correlated with one 
 another, so CCF was included in place of BA in the model formulation. 
 Larch purity and shade intolerance were simply added as an additional 
 predictors in separate models. 
+- 
 
 % -table of RMSE, dev.expl values for each model-
 

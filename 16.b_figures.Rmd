@@ -187,7 +187,7 @@ atable <- o.mixtures.all %>% group_by(omixtype) %>%
            .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id))
 
 atable1 <- data.frame(t(as.data.frame(atable[-1])))
-colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
+# colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
 atable2 <- atable1 %>% rownames_to_column()
 (sum.table <- atable2 %>% rename(stat = rowname))
 
@@ -220,7 +220,7 @@ ggplot(o.mixtures.all, aes(x = bai*2.54^2, color = omixtype, fill = omixtype)) +
   geom_histogram(position = 'identity', alpha = 0.2) +
   labs(y = 'Number of observations', x = 'bai(cmsq/yr)')
 
-# create compasses
+# create compasses - see if i can make point sizes correspond to amount of data at each?
 comp <- o.mixtures.all %>% 
   group_by(mixtype, asp_sin, asp_cos) %>% 
   summarise(n_distinct(stand), n()) # subset data to have one row per aspect
@@ -246,5 +246,20 @@ ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
   
 ```
 
+```{r mixtures partial response}
+par(mfrow = c(2,2))
+plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 1, xlab = 'DBH', ylab = )
+plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 2, )
+plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 3)
+plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 4)
+
+viz.1 <- getViz(mix.diff.gam.m1)
+plot(viz.1)
+
+difference_smooths(mix.diff.gam.m1, smooth = 's(DIAMETER)')
+
+draw(mix.diff.gam.m1)
+draw
+```
 
 
