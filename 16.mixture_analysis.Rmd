@@ -146,23 +146,30 @@ o.mixtures.all <- mixtures.all %>%
 
 ```{r read in models}
 #fit gam with difference smooths
-
+library(tidymv)
 mix.diff.gam.m1 <- readRDS('data/model_objects.1/mix.diff.gam.m1.rds')
 mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.gam.rds')
+levels(mix.diff.gam$model$omixtype)
 
+plot_difference(mix.diff.gam, series = DIAMETER, difference = list(omixtype = c('laoc', 'pico')))
+plot_difference(mix.diff.gam, series = DIAMETER, difference = list(omixtype = c('laoc', 'psme')))
+plot_difference(mix.diff.gam, series = cr, difference = list(omixtype = c('laoc', 'psme')))
+plot_difference(mix.diff.gam, series = cr, difference = list(omixtype = c('laoc', 'pico')))
+plot_smooths(mix.diff.gam, series = DIAMETER, comparison = omixtype)
 
 #summary and model check
 job::job(import = c(mix.diff.gam), 
          {library(mgcv) 
            sum.mixdiff = summary.gam(mix.diff.gam)
            check.mdg = gam.check(mix.diff.gam)
-           conc.mixdiff = concurvity(mix.diff.gam)})
+           })
+           # conc.mixdiff = concurvity(mix.diff.gam)})
 
 job::job(import = c(mix.diff.gam.m1),
          {library(mgcv)
            sum.mixdiff.m1 = summary(mix.diff.gam.m1)
            check.mdg.m1 = gam.check(mix.diff.gam.m1)
-           conc.mixd.m1})
+           })
 
 #resids for groups
 modfit <- mix.diff.gam.m1$fitted.values
@@ -192,6 +199,14 @@ AIC(mix.diff.gam.m1)
 ```
 
 ```{r fitting the diff models}
+o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien')
+mix.diff.gam <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(unique_tree_id, bs = 're'),
+                        family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML')
 #fitting models#####
 # The purpose of m=1 is to reduce collinearity between the smooth differences and the reference smooth
 # mix.diff.gam.m1
