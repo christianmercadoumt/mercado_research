@@ -121,7 +121,7 @@ o.mixtures.all <- mixtures.all %>%
          bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
          unique_tree_id, NF, cluster) %>% 
   filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
-  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
 # (dbh.plots <- lapply(mixtures, function(m)
 #   p <- ggplot(m, aes(x = DIAMETER)) + geom_histogram()))
@@ -198,21 +198,30 @@ AIC(mix.diff.nopien)
 
 ```{r fitting the diff models}
 o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
-unique(o.mixtures.nopien$omixtype)
-# job::job(import = c(o.mixtures.nopien), {
-#   library(mgcv)
-#   mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
-#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
-#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-#                           s(ba.pl) + s(ba.pl, by = omixtype) +
-#                           s(asp_sin, asp_cos, k = 20) + 
-#                           s(asp_sin, asp_cos, by = omixtype, k = 20) +
-#                           s(unique_tree_id, bs = 're'),
-#                       family = 'Gamma'(link = log), 
-#                       data = o.mixtures.nopien, method = 'fREML')
-# })
-# saveRDS(mix.diff.gam.nospr, 'data/model_objects.1/mix.diff.nopien.rds')
+unique(o.mixtures.nopien$mixtype)
+job::job(import = c(o.mixtures.nopien), {
+  library(mgcv)
+  mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) +
+                          s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(unique_tree_id, bs = 're'),
+                      family = 'Gamma'(link = log),
+                      data = o.mixtures.nopien, method = 'fREML')
+  saveRDS(mix.diff.gam.nospr, 'data/model_objects.1/mix.diff.nopien.rds')
+})
 
+
+cr.mod.k9 <- gam(bai~mixtype + s(cr, k = 9) + s(cr, k = 9, by = omixtype), data = o.mixtures.nopien, method = 'REML', family = 'Gamma'(link = log))
+
+cr.mod.k5 <- gam(bai~mixtype + s(cr, k = 5) + s(cr, k = 5, by = omixtype), data = o.mixtures.nopien, method = 'REML', family = 'Gamma'(link = log))
+
+gam.check(cr.mod.k9)
+gam.check(cr.mod.k5)
+
+summary(cr.mod.k9)
 #fitting models#####
 # The purpose of m=1 is to reduce collinearity between the smooth differences and the reference smooth
 # mix.diff.gam.m1
