@@ -368,8 +368,10 @@ o.mixtures.all <- mixtures.all %>%
   filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
   mutate(mixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
 
-atable <- o.mixtures.all %>% group_by(omixtype) %>% 
+
+atable <- o.mixtures.nopien %>% group_by(omixtype) %>% 
   summarize(
     across(bai:ba.pl, 
            list(min = ~ min(.x, na.rm = T), 
@@ -384,7 +386,7 @@ atable1 <- data.frame(t(as.data.frame(atable[-1])))
 # colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
 atable2 <- atable1 %>% rownames_to_column()
 names(atable2)
-(sum.table <- atable2 %>% rename(stat = rowname, laoc = X1, pico = X2, psme = X3, pien = X4))
+(sum.table <- atable2 %>% rename(stat = rowname, laoc = X1, pico = X2, psme = X3))
 sum.table1 <- tibble(sum.table)
 grped.sum.tb <- sum.table1 %>% mutate(whichstat = 
                         case_when(grepl('min', stat) ~ 'min',
@@ -398,20 +400,12 @@ grped.sum.tb <- sum.table1 %>% mutate(whichstat =
                                              grepl('bal', stat) ~ 'bal',
                                              grepl('ba.p', stat) ~ 'ba'))
 
-bai.dat <- grped.sum.tb %>% filter(whichvar == 'bai')
-#larch, pico, psme, pien
-bais <- rbind(
-  bai.dat$whichstat,
-  bai.dat$laoc,
-  bai.dat$pico,
-  bai.dat$psme,
-  bai.dat$pien
-)
-larchbai <- bai.dat %>% select(laoc, whichstat)
-bai.dat$whichstat
 
-grped.sum.tb %>% select(laoc, )
-  
- # kable(format = 'latex', booktabs = T) %>% 
-  #kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F) %>% 
+mix.sum.tb <- grped.sum.tb %>% select(whichvar, whichstat, laoc, pico, psme) %>% 
+  rename(Variable = whichvar, Stat = whichstat, 'Pure larch' = laoc, 'Larch-lodgepole' = pico, 'Larch-Douglas-fir' = psme)
+
+mix.sum.tb %>% 
+  kable(format = 'latex', booktabs = T) %>% 
+  kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = T) %>% 
+  collapse_rows(latex_hline = 'full', valign = 'middle', col_names = T)
   

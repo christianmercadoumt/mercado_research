@@ -159,12 +159,16 @@ ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
 
 ```
 
-```{r}
+```{r mixtures figs}
 
 
 library(ggforce)
+(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+
 #add names to mixtures
 mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+lapply(mix.w.names, function(x){x %>% summarise()})
 #combine data in list
 mixtures.all <- bind_rows(mix.w.names)
 #create factor
@@ -175,21 +179,7 @@ o.mixtures.all <- mixtures.all %>%
   filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
   mutate(mixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
-
-atable <- o.mixtures.all %>% group_by(omixtype) %>% 
-  summarize(
-    across(bai:ba.pl, 
-           list(min = min, 
-                max = max, 
-                sd = sd, 
-                mean = mean, 
-                num.obs = length), 
-           .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id))
-
-atable1 <- data.frame(t(as.data.frame(atable[-1])))
-# colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
-atable2 <- atable1 %>% rownames_to_column()
-(sum.table <- atable2 %>% rename(stat = rowname))
+o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
 
 #what I really want is a table that is grouped by mixtype
 ## and then grouped below into max, min, mean, sd, num.obs
@@ -201,7 +191,7 @@ atable2 <- atable1 %>% rownames_to_column()
 #acres to ha - 2.471052acre = 1ha
 #ft^2/acre -> m^2/ha = 2.471052/10.76392 
 # histogram for each mixture
-ggplot(o.mixtures.all, aes(x = (ba.pl*0.229568),
+ggplot(o.mixtures.nopien, aes(x = (ba.pl*0.229568),
                            color = omixtype, fill = omixtype)) +
   geom_histogram(position = 'identity', alpha = 0.2) +
   labs(y = '# of obs', x = 'Plot basal area (sqm/ha)')
@@ -212,17 +202,20 @@ ggplot(o.mixtures.all, aes(x = (ba.pl*0.229568),
 #   labs(y = 'Proportion of total observations', x = 'Plot basal area (m/ha)')
 
 #histogram for diameter
-ggplot(o.mixtures.all, aes(x = DIAMETER*2.54, color = omixtype, fill = omixtype)) +
+ggplot(o.mixtures.nopien, aes(x = DIAMETER*2.54, color = omixtype, fill = omixtype)) +
   geom_histogram(position = 'identity', alpha = 0.2) +
   labs(y = 'Number of observations', x = 'DBH(cm)')
 
-ggplot(o.mixtures.all, aes(x = bai*2.54^2, color = omixtype, fill = omixtype)) +
+ggplot(o.mixtures.nopien, aes(x = bai*2.54^2, color = omixtype, fill = omixtype)) +
   geom_histogram(position = 'identity', alpha = 0.2) +
   labs(y = 'Number of observations', x = 'bai(cmsq/yr)')
 
 # create compasses - see if i can make point sizes correspond to amount of data at each?
-comp <- o.mixtures.all %>% 
+comp <- o.mixtures.nopien %>% 
   group_by(mixtype, asp_sin, asp_cos) %>% 
+  mutate(mixtype = case_when(mixtype == 'laoc' ~ 'Pure larch',
+                             mixtype == 'pico' ~ 'Larch-lodgepole',
+                             mixtype == 'psme' ~ 'Larch-Douglas-fir')) %>% 
   summarise(n_distinct(stand), n()) # subset data to have one row per aspect
 
 nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
@@ -232,34 +225,103 @@ ns.df <- ns.df %>%
   mutate(sin.t = sin(nsew.v*pi/180), 
          cos.t = cos(nsew.v*pi/180)) #transform
 
-ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+
+
+(comp.psme <- ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
   geom_hline(yintercept = 0) + #horizontal 
   geom_vline(xintercept = 0) + #vertical
-  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
-  geom_point(alpha = 0.6, size = 4) + # points for each aspect
   geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
-  facet_wrap(~mixtype) + # facet by mixture type
+  geom_text(aes(x = -1, y = 1, label = 'C')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) +
+  geom_point(alpha = 0.6, size = 4) +# points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 1) + # facet by mixture type
   theme(axis.ticks = element_blank(), 
         axis.text = element_blank(), 
         axis.title = element_blank(), 
-        axis.line = element_blank()) #remove graphical features
-  
+        axis.line = element_blank(),
+        line = element_blank(),
+        strip.text.x = element_text(size = 12)))
+comp.psme
+ggsave('17.figures_saved/compass_psme.png')
+
+comp.pico <-  ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  geom_text(aes(x = -1, y = 1, label = 'B')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 2) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank())
+comp.pico
+ggsave('17.figures_saved/compass_pico.png')
+
+comp.laoc <-  ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  geom_text(aes(x = -1, y = 1, label = 'A')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 3) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank())
+comp.laoc
+ggsave('17.figures_saved/compass_laoc.png')
+
+grid.arrange(comp.laoc, comp.pico, comp.psme, )
+
+ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap(~mixtype, nrow = 3, ncol = 1) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank())
 ```
 
 ```{r mixtures partial response}
-par(mfrow = c(2,2))
-plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 1, xlab = 'DBH', ylab = )
-plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 2, )
-plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 3)
-plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 4)
+library(tidymv)
 
-viz.1 <- getViz(mix.diff.gam.m1)
-plot(viz.1)
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
 
-difference_smooths(mix.diff.gam.m1, smooth = 's(DIAMETER)')
+summary(mix.diff.nopien)
+mix.diff.nopien
 
+tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'psme')))
+tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'pico')))
+
+plot_smooths(mix.diff.nopien, DIAMETER, comparison = omixtype)
+
+plot.gamViz(mix.diff.nopien)
+# par(mfrow = c(2,2))
+# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 1, xlab = 'DBH', ylab = )
+# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 2, )
+# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 3)
+# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 4)
+
+# viz.1 <- getViz(mix.diff.gam.m1)
+# plot(viz.1)
+
+difference_smooths(mix.diff.nopien, smooth = 's(DIAMETER)')
+
+gam.check(mix.diff.nopien)
 draw(mix.diff.gam.m1)
 draw
+
+
 ```
 
 

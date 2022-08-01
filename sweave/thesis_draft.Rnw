@@ -1029,10 +1029,88 @@ more than any other variable in the model.
 \subsection{Assessing species-mixing impacts on growth}
 
 %Table of mixtures, min, max, mean for each variable in model
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llrrr}
+\toprule
+Variable & Stat & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
+\midrule
+ & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.0078540} & \cellcolor{gray!6}{0.0044392} & \cellcolor{gray!6}{0.0150250}\\
+\cmidrule{2-5}
+ & max & 8.2561055 & 4.6110381 & 5.6155969\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{1.1922186} & \cellcolor{gray!6}{0.8926184} & \cellcolor{gray!6}{0.8492781}\\
+\cmidrule{2-5}
+ & mean & 1.3863251 & 1.1672285 & 0.9379665\\
+\cmidrule{2-5}
+\multirow[c]{-5}*{bai} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
+\cmidrule{1-5}
+\multirow[c]{5}*{dbh} & min & 0.2000000 & 0.3000000 & 0.2000000\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{22.7000000} & \cellcolor{gray!6}{8.9000000} & \cellcolor{gray!6}{15.3000000}\\
+\cmidrule{2-5}
+ & sd & 4.6192626 & 1.6722070 & 2.4535962\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{5.3473490} & \cellcolor{gray!6}{3.6151515} & \cellcolor{gray!6}{4.8973354}\\
+\cmidrule{2-5}
+ & n & 1358.0000000 & 396.0000000 & 638.0000000\\
+\cmidrule{1-5}
+\multirow[c]{5}*{cr} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.0800000} & \cellcolor{gray!6}{0.2000000} & \cellcolor{gray!6}{0.0800000}\\
+\cmidrule{2-5}
+ & max & 0.9300000 & 0.9300000 & 0.9300000\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.2533134} & \cellcolor{gray!6}{0.1803424} & \cellcolor{gray!6}{0.2398042}\\
+\cmidrule{2-5}
+ & mean & 0.6054050 & 0.7795960 & 0.5251097\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
+\cmidrule{1-5}
+\multirow[c]{5}*{bal} & min & 0.0000000 & 0.0000000 & 0.0000000\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{0.9997369} & \cellcolor{gray!6}{0.9981064} & \cellcolor{gray!6}{0.9997904}\\
+\cmidrule{2-5}
+ & sd & 0.3016902 & 0.2664636 & 0.2876608\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.5887705} & \cellcolor{gray!6}{0.6396606} & \cellcolor{gray!6}{0.5843163}\\
+\cmidrule{2-5}
+ & n & 1358.0000000 & 396.0000000 & 638.0000000\\
+\cmidrule{1-5}
+\multirow[c]{5}*{ba} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{1.0002918} & \cellcolor{gray!6}{0.5563237} & \cellcolor{gray!6}{2.8994283}\\
+\cmidrule{2-5}
+ & max & 243.4854337 & 102.1486686 & 301.2394704\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{50.0153542} & \cellcolor{gray!6}{23.4771302} & \cellcolor{gray!6}{69.5882709}\\
+\cmidrule{2-5}
+ & mean & 55.9594915 & 40.1893497 & 94.5666217\\
+\cmidrule{2-5}
+ & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
+\cmidrule{1-5}
+NA & NA & 497.0000000 & 211.0000000 & 320.0000000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 %figure showing dist. for aspect? maybe switch to other variable?
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.75\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.75\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/compass_pico.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.75\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/compass_psme.png}
+\end{subfigure}
+\caption{Distribution of unique aspect values for each mixture-type.}
+\end{figure}
 %state which values are significant and for which term
+
 %show a table of smooths, edf, significance/pvalue
+
 %show smooths
+
 %describe smooths
 
 
