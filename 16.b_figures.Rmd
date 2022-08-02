@@ -306,16 +306,21 @@ tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('lao
 plot_smooths(mix.diff.nopien, DIAMETER, comparison = omixtype)
 
 plot.gamViz(mix.diff.nopien)
-# par(mfrow = c(2,2))
-# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 1, xlab = 'DBH', ylab = )
-# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 2, )
-# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 3)
-# plot.gam(mix.diff.gam.m1, scale = 0, shade = T, seWithMean = T, select = 4)
+par(mfrow = c(2,2))
+plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = c(1), xlab = 'DBH')
+plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 2)
+plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 3)
+plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 4)
 
 # viz.1 <- getViz(mix.diff.gam.m1)
 # plot(viz.1)
 
-difference_smooths(mix.diff.nopien, smooth = 's(DIAMETER)')
+smest.diam <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T) %>% add_confint() %>% 
+  mutate(est = exp(est), se = exp(se), DBH.cm = DIAMETER*2.54, lower_ci = exp(lower_ci), upper_ci = exp(upper_ci))
+
+ggplot(smest.diam, aes(x = DBH.cm, y = est, color = omixtype, ymin = lower_ci, ymax = upper_ci)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) + scale_y_continuous(limits = c(0, 10))
+
 
 gam.check(mix.diff.nopien)
 draw(mix.diff.gam.m1)

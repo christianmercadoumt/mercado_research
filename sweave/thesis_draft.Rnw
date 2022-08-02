@@ -547,34 +547,33 @@ The mgcv package allows for the specification of smooth functions (or smoothers)
 Smoothers are a sum of fitted estimated basis 
 functions that characterize the conditional relationship between the predictor 
 and independent variable. They are penalized by a smoothing parameter, which 
-constrains a smoother's complexity as it grows higher \citep{Pedersen2019}. 
-Mgcv allows for smoothing parameters to be estimated via different methods - 
-the maximum likelihood method was used in this study because it allows for 
-better comparison across models that use different terms and smoothing parameters. 
-Random effects may be coded as smooths in this format, 
-which is essentially equivalent to other mixed-model approaches, however, 
-when fitting large numbers of intercepts (as done in this study) 
-computation can extremely slow \citep{Pedersen2019}. %%%more here?? do I talk about using both methods since the way random effects are handled with the gamm case is kinda weird? (see pedersen 2019 page 34)
-With mgcv, the thin-plate regression smoother (TPRS) type
+constrains smoother as its complexity grows higher \citep{Pedersen2019}. 
+Mgcv allows smoothing parameters to be estimated via likelihood, information 
+theoretical methods, or cross-validation-based methods \citep{wood2006generalized} 
+The maximum likelihood method was used in this study for 
+model selection because it allows for likelihood-based 
+comparison across models with different fixed terms and smoothing parameters. 
+Random effects may also be coded as smooths in this format, 
+which is essentially equivalent to other mixed-model approaches\citep{Pedersen2019}
+% , however, 
+% when fitting large numbers of intercepts (as done in this study) 
+% computation can extremely slow . %%%more here?? do I talk about using both methods since the way random effects are handled with the gamm case is kinda weird? (see pedersen 2019 page 34)
+With mgcv, the thin-plate regression spline (TPRS) type
 is the default due to its simple and effective behavior \citep{Wood2003}
-and is what was used in the present study for all terms including interactions. 
+and is what was used for all terms. 
 % GAMs in mgcv also allow for 
 
 
 The model formulation described here was developed with a training 
 data set which allowed for varying conditions across all variables. 
 Data for 2 measurement plots out of each stand were withheld for 
-the purpose of model validation and quantifying variable effect size.
+the purpose of model cross validation.
 The model formulation resulting from the selection process described below
 was used to evaluate effects of predictors 
 on BAI across the entire data set and was also used to assess 
 growth across different species mixtures, where the model was re-fit 
 with subsets of the training data set, depending on the type of mixture. 
 
-% 
-% -DISTRIBUTION OF BAI HERE-
-% 
-% -Figure showing distribution of bai?-
 
 \subsection{Base model selection}
 
@@ -599,13 +598,13 @@ BAI in previous empirical modeling efforts.
 % crown competition factor (CCF;\cite{Krajicek1961}), remove??
 %-TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
 
-A pair-wise colinearity assessment was 
+A pair-wise collinearity assessment was 
 then performed among each group of variables to avoid including 
 highly correlated variables together in the model. 
 Any pair-wise linear relationship with a correlation of 
-0.65 or higher were not considered together. Although somewhat arbitrary, 
-this threshold was selected because a 0.65 correlation means that 
-variation shared between variables exceeds 40\%. Additionally, variables 
+0.7 or higher were not considered together. Although somewhat arbitrary, 
+this threshold was selected because a 0.7 correlation means that 
+variation shared between variables may exceed 50\%. Additionally, variables 
 known to represent the same processes, even if not highly linearly correlated 
 (such as heatload and aspect, for instance), were not considered together to 
 avoid redundancies and reduce model complexity.
@@ -641,10 +640,9 @@ calculated to assess model accuracy, where when comparing models,
 a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
 freedom to provide an unbiased estimate. The proportion of null deviance 
-explained by the model, or deviance explained (\cite{wood2006generalized}) was also 
+explained by the model (or deviance explained) (\cite{wood2006generalized}) was also 
 considered for ensuring acceptable model fit, %Do i even say this?
-but was not used as strict selection criteria because
-it changed in accordance with RMSE. %Do i even say this?
+but was not used as a primary selection criterion. 
 
 \begin{equation}
 \label{eq:rmse}
@@ -661,10 +659,8 @@ is the model residual degrees of freedom.
 % determine types of species-mixing effects and their effects on BAI
 
 In order to test the differences of larch growth between different mixtures, 
-subsets of the PGP data for different types of species-mixtures were determined 
-based on species representation quantified by proportions of plot basal area. 
-% Mixture-types were identified by evaluating
-% proportions of plot basal area occupied by larch and other species it was mixed with.
+subsets of the PGP data for different species-mixtures were determined 
+based on species proportional share of plot basal area. 
 To qualify as a specific mixture-type, a minimum of 20\% total plot 
 basal area had to be in western larch trees and a minimum of 20\% plot basal 
 area had to be in the other species. This was to ensure that there was a minimal 
@@ -675,22 +671,21 @@ to occupy at least 70\% of total plot BA. This ensured that a range of
 each mixture-type was captured while prohibiting over-representation of 
 either species within the mixture. 
 A pure larch condition was defined by selecting plots where basal area was composed of 
-at least 70\% western larch to provide reference conditions to compare each 
+at least 70\% western larch to provide a reference condition to compare each 
 species-mixture to. 
 
-The mgcv package allows for flexible model fitting regimes where 
-smooth functional relationships between a predictor and the response 
-variable can vary across different groups \citep{Pedersen2019}. 
-Such strategies were employed to assess western larch growth 
-across each identified type of mixture compared to the pure larch 
-stand condition. Thus, an interactive additive model was fit to the identified 
-base model formulation where each mixture was estimated with a unique intercept
+The mgcv package allows for flexible model fitting methods where 
+smooth functions can vary across different groups \citep{Pedersen2019}. 
+A variation of this method was employed to assess western larch growth 
+across each identified type of mixture in contrast to the pure larch 
+stand condition. Thus, this model was fit to the identified 
+base model formula where each mixture was estimated with a unique intercept
 and each smooth term was evaluated for each type of mixture, resulting in a model 
-containing separate smooths for each species-mixture. Each mixture was evaluated 
-against the pure larch condition using an equivalence test 
-to identify evidence for a difference between estimated growth within 
-each mixture and the reference pure larch condition for each fitted smooth. The 
-model from equation \ref{eq:baiform} may be modified as follows:
+containing a reference smooth for each predictor, and a \emph{difference smooth} 
+for species-mixture \citep{wood2006generalized}. These difference smooths were evaluated 
+against the pure larch reference smooth using a hypothesis test 
+to identify evidence that difference is non-zero. 
+The model from equation \ref{eq:baiform} may be modified as follows:
 
 \begin{equation}
 \label{eq:mixes}
@@ -698,10 +693,11 @@ g(E(BAI_{ij})) = \beta_0 + \beta_{1j} + f_{j}(x_{n})\\
 \end{equation}
 
 where $E(BAI_{ij})$ is the value of $BAI$ for tree $i$ growing within 
-a mixture $j$, $\beta_0$ is the model intercept for pure larch conditions, 
+a mixture $j$, $\beta_0$ is the model intercept, representing the mean value
+of $BAI$ for pure larch conditions, 
 $\beta_{1j}$ represents the difference between $\beta_0$ and the intercept 
-for mixture $j$, $f_{j}$ is a smooth function for model predictor $x_n$ in a 
-mixture. 
+for mixture $j$, $f_{j}$ is a smooth function for model predictor 
+$x_n$ in a mixture. 
 
 %%look at "using generalized additive models to analyze single case designs" paper 2014. maybe has something citable. 
 %% also look at the gavin simpson paper about lakes
@@ -1028,6 +1024,10 @@ more than any other variable in the model.
 
 \subsection{Assessing species-mixing impacts on growth}
 
+%% present results from summary output table. 
+%% given those results, here are some figures. 
+
+
 %Table of mixtures, min, max, mean for each variable in model
 
 \begin{table}[H]
@@ -1173,13 +1173,17 @@ with random effects.
 
 \subsection{Assessing species-mixing impacts on growth}
 
-
+- The p-values are not strictly valid
+- We did not explicitly select model degrees of freedom, so that's in our favor
+- fitting the model unpenalized could ameliorate issues, but this may render the test pointless
+- 
 
 \subsection{Comparing species-mixing measures}
 
 - discussion on BA proportion as a measure of species-mixing
 - pros and cons of ccf as a mixture variable
--
+- using ba as a versatile variable to do things? look in mixed species book
+
 
 
 \section{Conclusions}
