@@ -413,6 +413,13 @@ smest.ba <- smooth_estimates(mix.diff.nopien, smooth = 's(ba.pl', partial_match 
            omixtype == 'pico' ~ 'Larch-lodgepole',
            omixtype == 'psme' ~ 'Larch-Douglas-fir'
          )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+smest.asp <- smooth_estimates(mix.diff.nopien, smooth = 'asp', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
 
 sig.diam <- smest.diam %>% filter(omixtype == 'pico')
 sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
@@ -421,7 +428,9 @@ sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
 
 ```
 
-```{r fix issue with pico}
+```{r fix issue with pico, include = F}
+### issue was that when trying to use coord_cartesian to adjust the plotting space, the ribbons were not displayed. 
+### this is a known bug and was fixed by changing the device to AGG
 ### evaluate at limited diameters
 DIAMETER <- rep(seq(0,15,length = 30), 3)
 asp_sin <- rep(sin(315*(pi/180)), 90)
@@ -537,47 +546,76 @@ df.ba <- ggplot(ba.psme,
 
 ## all plots
 
-# mixpl.d <- ggplot(smest.diam, 
-#        aes(x = DIAMETER*2.54, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   facet_wrap(~facets) + 
-#   labs(x = 'DBH (cm)', y='Effect')#+ coord_cartesian(ylim = c(-5,5))
+# mixpl.d <- 
+  ggplot(smest.diam,
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  facet_wrap(~facets) +
+  labs(x = 'DBH (cm)', y='Effect') + coord_cartesian(ylim = c(-5,5))
 # 
-# mixpl.cr <- ggplot(smest.cr, 
-#        aes(x = cr, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   facet_wrap(~facets) + 
-#   labs(x = 'Crown ratio', y='Effect')
+# mixpl.cr <- 
+  ggplot(smest.cr, 
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  facet_wrap(~facets) +
+  labs(x = 'Crown ratio', y='Effect')
 # 
-# mixpl.bal <- ggplot(smest.bal, 
-#        aes(x = bal.pl.ratio, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   facet_wrap(~facets) + 
-#   labs(x = 'BAL', y='Effect') +
-#     theme(strip.text = element_blank())
+# mixpl.bal <- 
+  ggplot(smest.bal, 
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  facet_wrap(~facets) +
+  labs(x = 'BAL', y='Effect') +
+    theme(strip.text = element_blank())
 # 
-# (mixpl.ba <- ggplot(smest.ba, 
-#        aes(x = ba.pl*(2.47/10.764), y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) + #coord_cartesian(ylim = c(-5, 5)) +
-#   facet_wrap(~facets, scales = 'free_y') + 
-#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
-#     theme(strip.text = element_blank()))
+ggplot(smest.ba,
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + coord_cartesian(ylim = c(-5, 5)) +
+  facet_wrap(~facets, scales = 'free_y') +
+  labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
+    theme(strip.text = element_blank())
+    # )
+#aspect diff#####
+#prep
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
+glimits <- c(-0.5,1)*max(abs(smest.asp$est))
+
+#theplot
+ggplot(smest.asp, aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + 
+  coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred') +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'ivory'), 
+        panel.grid = element_line(color = 'lightgrey')) + 
+  facet_wrap(~facets)
+    
 library(ragg)
 png <- function(...) ragg::agg_png(..., res = 300, units = 'in')
 lab1 <- textGrob('Larch-lodgepole')
@@ -600,7 +638,8 @@ gam.check(mix.diff.nopien)
 draw(mix.diff.gam.m1)
 draw
 
-
+plot.gam(mix.diff.nopien, select = 1)
+sum.nopien
 ```
 
 
