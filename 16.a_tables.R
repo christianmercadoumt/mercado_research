@@ -1,6 +1,7 @@
 library(xtable)
 library(tidyverse)
 source('12.gam_fns.R')
+library(kableExtra)
 
 cm.sq <- 2.54^2
 hab_loc_codes <- read_csv('data/habtypes.csv')
@@ -335,7 +336,7 @@ mod.vals.tbl %>%
 
 
 
-# 3.3 mixture data summary#####
+# 3.2 mixture data summary#####
 
 library(kableExtra)
 #function defining mixtures
@@ -437,4 +438,34 @@ mix.sum.tb %>%
   kable(format = 'latex', booktabs = T) %>% 
   kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = T) %>% 
   collapse_rows(latex_hline = 'full', valign = 'middle', col_names = T)
-  
+
+
+#3.2 mixture significance table#####
+
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
+sum.nopien <- summary(mix.diff.nopien)
+
+sm.ptbl.df <- as.data.frame(sum.nopien$s.table)
+
+(sm.ptbl <- as_tibble(sm.ptbl.df, rownames = 'smooths'))
+(sm.ptbl1 <- sm.ptbl %>% mutate(mix = case_when(
+  grepl('pico', smooths) ~ 'pico',
+  grepl('psme', smooths) ~ 'psme',
+  !grepl('psme', smooths) & !grepl('pico', smooths) ~ 'laoc'
+), `p-value` = round(`p-value`, digits = 3)))
+
+sm <- c('DBH', 'Crown ratio', 'BAL ratio', 'BA', 'Aspect', 'Random')
+p.pico <- filter(sm.ptbl, grepl('pico', smooths)) %>% select(`p-value`) %>% rename(p.pico = `p-value`) %>% 
+  mutate(diff.pico = c('strong evidence', 'some evidence', 'strong evidence', 'strong evidence', 'some evidence'))
+p.psme <- filter(sm.ptbl, grepl('psme', smooths)) %>% select(`p-value`) %>% rename(p.psme = `p-value`) %>% 
+  mutate(diff.psme = c('no evidence', 'moderately strong', 'no evidence', 'moderately strong', 'strong evidence'))
+p.laoc <- filter(sm.ptbl, !grepl('psme', smooths) & !grepl('pico', smooths)) %>% 
+  mutate(Smooth = sm) %>% select(Smooth, `p-value`) %>% filter(!Smooth == 'Random') %>% rename(p.laoc = `p-value`)
+
+ptable <- tibble(p.laoc, p.pico, p.psme)
+ptable1 <- ptable %>% select(Smooth, p.laoc, diff.pico, p.pico, diff.psme, p.psme) 
+ptable1 %>% 
+  kable(format = 'latex', booktabs = T) %>% 
+  kable_styling(latex_options = c('striped')) %>% 
+  add_header_above(c(' ' = 1, 'Reference' = 1, 'Larch-lodgepole' = 2, 'Larch-Douglas-fir' = 2))
+

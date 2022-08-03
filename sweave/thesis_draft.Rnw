@@ -1041,7 +1041,29 @@ more than any other variable in the model.
 \subsection{Assessing species-mixing impacts on growth}
 
 %% present results from summary output table. 
+
+\begin{table}
+\centering
+\label{tab:diff}
+\caption{Table indicating the strength of evidence that the difference between the smooths fitted for each mixture-type were different from the reference smooth (for pure larch). P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence.}
+\begin{tabular}{lcrcr}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} 
+Smooth & Difference $\neq 0$ & p-value & Difference $\neq 0$ & p-value\\
+\midrule
+\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{no evidence} & \cellcolor{gray!6}{0.398}\\
+Crown ratio & some evidence & 0.031 & moderately strong & 0.004\\
+\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{no evidence} & \cellcolor{gray!6}{0.122}\\
+BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
+\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{some evidence} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 %% given those results, here are some figures. 
+
+
 
 
 %Table of mixtures, min, max, mean for each variable in model

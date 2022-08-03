@@ -356,7 +356,7 @@ ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
         line = element_blank())
 ```
 
-```{r mixtures partial response}
+```{r mixtures partial response data}
 library(tidymv)
 
 mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
@@ -418,6 +418,48 @@ sig.diam <- smest.diam %>% filter(omixtype == 'pico')
 sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
 sig.bal <- smest.bal %>% filter(omixtype == 'pico')
 sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
+
+
+### evaluate at limited diameters
+DIAMETER <- rep(seq(0,15,length = 30), 3)
+asp_sin <- rep(sin(315*(pi/180)), 90)
+asp_cos <- rep(cos(315*(pi/180)), 90)
+bal.pl.ratio <- rep(0.6622384, 90)
+ba.pl <- rep(40.83743, 90)
+cr <- rep(0.5, 90)
+mixtype <- c(rep('laoc', 30), rep('pico', 30), rep('psme', 30))
+omixtype <- factor(mixtype, levels = c('laoc', 'pico', 'psme'), ordered = T)
+unique_tree_id <- c(rep(1699, 30), rep(14298, 30), rep(4524, 30))
+
+#this filters to an average-ish value of bai for a species to figure out an 
+#average-ish tree to identify unique_tree_id values for each species
+#mix.diff.nopien$model %>% filter(mixtype == 'laoc', bai > (mean(bai)-0.5) & bai < (mean(bai) + 0.5)) 
+#trees used here: psme tree4524 #pico 14298 #laoc1699
+
+
+smest.dat <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, omixtype, mixtype, unique_tree_id)
+
+smthdat <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T, unconditional = T, data = smest.dat) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+ggplot(smthdat, 
+       aes(x = DIAMETER*2.54, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + 
+  facet_wrap(~facets)
+
+
+```
+
+```{r mixture partial response figs}
 
 ggplot(sig.diam, 
        aes(x = DIAMETER*2.54, y = est, 
