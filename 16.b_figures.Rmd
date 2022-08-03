@@ -92,6 +92,70 @@ spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
   }
 
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
+
+```
+
+```{r base model selection figures}
+re.tree.1
+# smest <- smooth_estimates(re.tree.1) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.diam <- smooth_estimates(re.tree.1, smooth = 'DIAM', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.cr <- smooth_estimates(re.tree.1, smooth = 'cr', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.bal <- smooth_estimates(re.tree.1, smooth = 'bal', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.ba <- smooth_estimates(re.tree.1, smooth = 'ba.pl', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.asp <- smooth_estimates(re.tree.1, smooth = 'asp', partial_match = T, dist = .2) %>% add_confint(coverage = 0.9772499)
+# draw(sm.asp)
+
+library(ggforce)
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
+
+glimits <- c(-1,1)*max(abs(sm.asp$est))
+
+
+contour.pl <- ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 50, color = 'peachpuff') +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred') +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), panel.background = element_rect(fill = 'ivory'), panel.grid = element_line(color = 'lightgrey'))
+ 
+
+#fitted smooth functions
+d.pl <- ggplot(sm.diam, aes(x = DIAMETER*2.54, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) + geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'DBH (cm)', y = 'Effect') + coord_cartesian(ylim = c(-2.5, 2.5))
+cr.pl <- ggplot(sm.cr, aes(x = cr, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'Crown ratio', y = 'Effect') +
+  coord_cartesian(ylim = c(-.5,.5))
+bal.pl <- ggplot(sm.bal, aes(x = bal.pl.ratio, y = est, ymin = lower, ymax = upper)) +
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'BAL ratio', y = 'Effect') + 
+  coord_cartesian(ylim = c(-.55, .55))
+basal.pl <- ggplot(sm.ba, aes(x = ba.pl*(2.47/10.764), y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = bquote('BA'~(m^2/ha)), y = 'Effect')
+library(grid)
+grid.pl <- arrangeGrob(d.pl, cr.pl, bal.pl, basal.pl)
+
+ggsave('17.figures_saved/base_smooths.png', grid.pl)
+
+contour.pl
+ggsave('17.figures_saved/base_aspect.png')
+
+# plot.gam(re.tree.1, select = 5)
+# draw(re.tree.1, select = 'asp', partial_match = T)
+
+
+
 ```
 
 
@@ -106,11 +170,11 @@ bai.diam <- full.mix %>%
   group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
   summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
 
-ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+#ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
 
 ```
 
-```{r mixture analysis figs.}
+```{r mixture summary figs.}
 #make data
 (mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
 
@@ -159,7 +223,7 @@ ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
 
 ```
 
-```{r mixtures figs}
+```{r mixtures compass figs}
 
 
 library(ggforce)
@@ -297,30 +361,156 @@ library(tidymv)
 
 mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
 
-summary(mix.diff.nopien)
-mix.diff.nopien
+# summary(mix.diff.nopien)
+# mix.diff.nopien
 
-tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'psme')))
-tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'pico')))
+# tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'psme')))
+# tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'pico')))
 
-plot_smooths(mix.diff.nopien, DIAMETER, comparison = omixtype)
+# plot_smooths(mix.diff.nopien, DIAMETER, comparison = omixtype)
 
-plot.gamViz(mix.diff.nopien)
-par(mfrow = c(2,2))
-plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = c(1), xlab = 'DBH')
-plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 2)
-plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 3)
-plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 4)
+# plot.gamViz(mix.diff.nopien)
+# par(mfrow = c(2,2))
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = c(1), xlab = 'DBH')
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 2)
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 3)
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 4)
 
 # viz.1 <- getViz(mix.diff.gam.m1)
 # plot(viz.1)
 
-smest.diam <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T) %>% add_confint() %>% 
-  mutate(est = exp(est), se = exp(se), DBH.cm = DIAMETER*2.54, lower_ci = exp(lower_ci), upper_ci = exp(upper_ci))
 
-ggplot(smest.diam, aes(x = DBH.cm, y = est, color = omixtype, ymin = lower_ci, ymax = upper_ci)) + 
-  geom_line() + geom_ribbon(alpha = 0.2) + scale_y_continuous(limits = c(0, 10))
 
+smest.diam <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+
+smest.cr <- smooth_estimates(mix.diff.nopien, smooth = 's(cr', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.bal <- smooth_estimates(mix.diff.nopien, smooth ='s(bal', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.ba <- smooth_estimates(mix.diff.nopien, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+sig.diam <- smest.diam %>% filter(omixtype == 'pico')
+sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
+sig.bal <- smest.bal %>% filter(omixtype == 'pico')
+sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
+
+ggplot(sig.diam, 
+       aes(x = DIAMETER*2.54, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + 
+  labs(x = 'DBH (cm)', y = 'Effect', title ='Larch-lodgepole DBH')
+
+ggplot(sig.cr, 
+       aes(x = cr, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  facet_wrap(~facets) + 
+  labs(x = 'Crown ratio', y='Effect')
+
+ggplot(sig.bal, 
+       aes(x = bal.pl.ratio, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'BAL', y='Effect', title = 'Larch-lodgepole BAL')
+
+
+ggplot(sig.ba, 
+       aes(x = ba.pl*(2.47/10.764), y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + #coord_cartesian(ylim = c(-5, 5)) +
+  facet_wrap(~facets, scales = 'free_y') + 
+  labs(x =  bquote('BA'~(m^2/ha)), y='Effect')
+
+
+
+
+## all plots
+
+# mixpl.d <- ggplot(smest.diam, 
+#        aes(x = DIAMETER*2.54, y = est, 
+#            ymin = lower, 
+#            ymax = upper)) + 
+#   geom_line() + 
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) + 
+#   labs(x = 'DBH (cm)', y='Effect')#+ coord_cartesian(ylim = c(-5,5))
+# 
+# mixpl.cr <- ggplot(smest.cr, 
+#        aes(x = cr, y = est, 
+#            ymin = lower, 
+#            ymax = upper)) + 
+#   geom_line() + 
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) + 
+#   labs(x = 'Crown ratio', y='Effect')
+# 
+# mixpl.bal <- ggplot(smest.bal, 
+#        aes(x = bal.pl.ratio, y = est, 
+#            ymin = lower, 
+#            ymax = upper)) + 
+#   geom_line() + 
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) + 
+#   labs(x = 'BAL', y='Effect') +
+#     theme(strip.text = element_blank())
+# 
+# (mixpl.ba <- ggplot(smest.ba, 
+#        aes(x = ba.pl*(2.47/10.764), y = est, 
+#            ymin = lower, 
+#            ymax = upper)) + 
+#   geom_line() + 
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) + #coord_cartesian(ylim = c(-5, 5)) +
+#   facet_wrap(~facets, scales = 'free_y') + 
+#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
+#     theme(strip.text = element_blank()))
+
+diffs.pl <- arrangeGrob(mixpl.d, mixpl.cr, mixpl.bal, mixpl.ba, nrow = 4)
+plot_grid(mixpl.d, mixpl.cr, mixpl.bal, mixpl.ba, nrow = 2)
+plot(diffs.pl)
+ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
+
+summary.gam(mix.diff.nopien)
 
 gam.check(mix.diff.nopien)
 draw(mix.diff.gam.m1)

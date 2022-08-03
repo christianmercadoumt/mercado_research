@@ -13,6 +13,7 @@
 \usepackage{float}
 \usepackage{tabularx}
 \usepackage{multirow}
+\usepackage{hhline}
 
 %%%%%%%%  Page Setup %%%%%%%%%%%%%%%%%%
 \usepackage[margin=1in]{geometry}

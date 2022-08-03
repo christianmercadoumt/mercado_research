@@ -839,32 +839,33 @@ provided for each species.
 
 \begin{table}[!h]
 \label{tb:ccfvals}
+\caption{Crown competition (CCF) parameters used. These values were taken from the documentation for the inland empire variant of FVS \citep{Keyser2008}}
 \centering
 \begin{tabular}{llrrrrr}
 \toprule
-spcode & SPECIES\_SYMBOL & r1 & r2 & r3 & r4 & r5\\
+Species abbr. & r1 & r2 & r3 & r4 & r5\\
 \midrule
-\cellcolor{gray!6}{RC} & \cellcolor{gray!6}{THPL} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
-WH & TSHE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
-\cellcolor{gray!6}{ES} & \cellcolor{gray!6}{PIEN} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.01730} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.007875} & \cellcolor{gray!6}{1.7360}\\
-AF & ABLA & 0.03000 & 0.02160 & 0.00405 & 0.011402 & 1.7560\\
-\cellcolor{gray!6}{GF} & \cellcolor{gray!6}{ABGR} & \cellcolor{gray!6}{0.04000} & \cellcolor{gray!6}{0.02700} & \cellcolor{gray!6}{0.00405} & \cellcolor{gray!6}{0.015248} & \cellcolor{gray!6}{1.7333}\\
+\cellcolor{gray!6}{THPL} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+TSHE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{PIEN} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.01730} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.007875} & \cellcolor{gray!6}{1.7360}\\
+ABLA & 0.03000 & 0.02160 & 0.00405 & 0.011402 & 1.7560\\
+\cellcolor{gray!6}{ABGR} & \cellcolor{gray!6}{0.04000} & \cellcolor{gray!6}{0.02700} & \cellcolor{gray!6}{0.00405} & \cellcolor{gray!6}{0.015248} & \cellcolor{gray!6}{1.7333}\\
 \addlinespace
-WP & PIMO3 & 0.03000 & 0.01670 & 0.00230 & 0.009884 & 1.6667\\
-\cellcolor{gray!6}{DF} & \cellcolor{gray!6}{PSME} & \cellcolor{gray!6}{0.11000} & \cellcolor{gray!6}{0.03330} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.017299} & \cellcolor{gray!6}{1.5571}\\
-PP & PIPO & 0.03000 & 0.01800 & 0.00281 & 0.007813 & 1.7680\\
-\cellcolor{gray!6}{WL} & \cellcolor{gray!6}{LAOC} & \cellcolor{gray!6}{0.02000} & \cellcolor{gray!6}{0.01480} & \cellcolor{gray!6}{0.00338} & \cellcolor{gray!6}{0.007244} & \cellcolor{gray!6}{1.8182}\\
-LP & PICO & 0.01925 & 0.01676 & 0.00365 & 0.009187 & 1.7600\\
+PIMO3 & 0.03000 & 0.01670 & 0.00230 & 0.009884 & 1.6667\\
+\cellcolor{gray!6}{PSME} & \cellcolor{gray!6}{0.11000} & \cellcolor{gray!6}{0.03330} & \cellcolor{gray!6}{0.00259} & \cellcolor{gray!6}{0.017299} & \cellcolor{gray!6}{1.5571}\\
+PIPO & 0.03000 & 0.01800 & 0.00281 & 0.007813 & 1.7680\\
+\cellcolor{gray!6}{LAOC} & \cellcolor{gray!6}{0.02000} & \cellcolor{gray!6}{0.01480} & \cellcolor{gray!6}{0.00338} & \cellcolor{gray!6}{0.007244} & \cellcolor{gray!6}{1.8182}\\
+PICO & 0.01925 & 0.01676 & 0.00365 & 0.009187 & 1.7600\\
 \addlinespace
-\cellcolor{gray!6}{AS} & \cellcolor{gray!6}{POTR5} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
-CO & POPUL & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
-\cellcolor{gray!6}{PB} & \cellcolor{gray!6}{BEPA} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
-MH & TSME & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
-\cellcolor{gray!6}{RM} & \cellcolor{gray!6}{JUSC2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
+\cellcolor{gray!6}{POTR5} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+POPUL & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{BEPA} & \cellcolor{gray!6}{0.03000} & \cellcolor{gray!6}{0.02380} & \cellcolor{gray!6}{0.00490} & \cellcolor{gray!6}{0.008915} & \cellcolor{gray!6}{1.7800}\\
+TSME & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+\cellcolor{gray!6}{JUSC2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
 \addlinespace
-WB & PIAL & 0.02000 & 0.01480 & 0.00338 & 0.007244 & 1.8182\\
-\cellcolor{gray!6}{PY} & \cellcolor{gray!6}{TABR2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
-OS & 2TE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
+PIAL & 0.02000 & 0.01480 & 0.00338 & 0.007244 & 1.8182\\
+\cellcolor{gray!6}{TABR2} & \cellcolor{gray!6}{0.01925} & \cellcolor{gray!6}{0.01676} & \cellcolor{gray!6}{0.00365} & \cellcolor{gray!6}{0.009187} & \cellcolor{gray!6}{1.7600}\\
+2TE & 0.03000 & 0.02150 & 0.00363 & 0.011109 & 1.7250\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -906,7 +907,7 @@ tree $i$ \citep{Lienard2015}.
 
 \begin{table}
 \label{tab:shade}
-\caption{shade intolerance}
+\caption{Shade intolerance values \citep{Lienard2015}}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
 \toprule
@@ -953,7 +954,7 @@ DBH, crown ratio (CR), basal area larger than the subject (BAL; expressed as a r
 plot basal area (BA), aspect, and a tree-level random effect. 
 The model was fit with a gamma distribution family because it allows for 
 increasing dispersion in the response variable. A log-link function was chosen 
-to ensure that predictions of growth were positive and trunkated at zero.
+to ensure that predictions of growth were positive and non-zero.
 The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
 The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used 
@@ -978,7 +979,7 @@ Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to
 Topographic variables (slope, aspect, elevation) were evaluated as 
 potential predictors separately from site index and heatload. Since aspect
 is a circular measure, both sin (easting) and cosine (northing) 
-transformations were applied as in previous works (CITE). Aspect was best 
+transformations were applied as in previous works (CITE:stage). Aspect was best 
 accounted for as an interaction term in the form of an isotropic smooth \citep{Wood2017}. 
 Slope and elevation contributed little to prediction accuracy 
 when included with aspect and were associated with concurvity values 
@@ -991,28 +992,43 @@ deviance explained, followed by size. However, considering
 variables individually, DBH explained more deviance and reduced RMSE 
 more than any other variable in the model. 
 
+\begin{figure}
+\label{fig:basesmooths}
+\caption{}
+\centering
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
+\end{subfigure}
+\begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/base_aspect.png}
+\end{subfigure}
+\caption{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
+\end{figure}
+
 % -- model fitting rmse table -- 
 
 \begin{table}[!h]
+\label{tab:rmse}
+\caption{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc.}
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
-\hspace{1em}Smooth & EDF & Explained deviance & RMSE ($cm^2/yr.$)\\
+\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($cm^2/yr.$)\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{4}{l}{\textbf{Size}}\\
-\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{30.82} & \cellcolor{gray!6}{5.64312}\\
+\multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
+\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
 \addlinespace[0.3em]
-\multicolumn{4}{l}{\textbf{Competition \& density}}\\
-\hspace{1em}Crown ratio & 2 & 62.87 & 4.30911\\
-\hspace{1em}\cellcolor{gray!6}{BAL} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
-\hspace{1em}BA & 9 &  & \\
+\multicolumn{2}{l}{\textbf{Competition \& density}} & 62.87 & 4.31 \\
+\hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{1em}BAL & 8 & & \\
+\hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
 \addlinespace[0.3em]
-\multicolumn{4}{l}{\textbf{Site}}\\
-\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6}{67.39} & \cellcolor{gray!6}{4.01197}\\
+\multicolumn{2}{l}{\textbf{Site}} & 67.39 & 4.01197\\
+\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
 \addlinespace[0.3em]
-\textbf{\cellcolor{gray!6}{Base model}} & \textbf{\cellcolor{gray!6}{1389}} & \textbf{\cellcolor{gray!6}{84.91}} & \textbf{\cellcolor{gray!6}{3.32142}}\\
-\hspace{1em}Random intercept & 1337 &  & \\
+\textbf{Base model} & 1389 & 84.91 & 3.32142 \\
+\hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1031,68 +1047,64 @@ more than any other variable in the model.
 %Table of mixtures, min, max, mean for each variable in model
 
 \begin{table}[H]
+\label{tab:mixsummary}
+\caption{Summary table for different species-mixture data subsets.}
 \centering
 \begin{tabular}{llrrr}
 \toprule
-Variable & Stat & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
+Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \midrule
- & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.0078540} & \cellcolor{gray!6}{0.0044392} & \cellcolor{gray!6}{0.0150250}\\
-\cmidrule{2-5}
- & max & 8.2561055 & 4.6110381 & 5.6155969\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{1.1922186} & \cellcolor{gray!6}{0.8926184} & \cellcolor{gray!6}{0.8492781}\\
-\cmidrule{2-5}
- & mean & 1.3863251 & 1.1672285 & 0.9379665\\
-\cmidrule{2-5}
-\multirow[c]{-5}*{bai} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
-\cmidrule{1-5}
-\multirow[c]{5}*{dbh} & min & 0.2000000 & 0.3000000 & 0.2000000\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{22.7000000} & \cellcolor{gray!6}{8.9000000} & \cellcolor{gray!6}{15.3000000}\\
-\cmidrule{2-5}
- & sd & 4.6192626 & 1.6722070 & 2.4535962\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{5.3473490} & \cellcolor{gray!6}{3.6151515} & \cellcolor{gray!6}{4.8973354}\\
-\cmidrule{2-5}
- & n & 1358.0000000 & 396.0000000 & 638.0000000\\
-\cmidrule{1-5}
-\multirow[c]{5}*{cr} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.0800000} & \cellcolor{gray!6}{0.2000000} & \cellcolor{gray!6}{0.0800000}\\
-\cmidrule{2-5}
- & max & 0.9300000 & 0.9300000 & 0.9300000\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.2533134} & \cellcolor{gray!6}{0.1803424} & \cellcolor{gray!6}{0.2398042}\\
-\cmidrule{2-5}
- & mean & 0.6054050 & 0.7795960 & 0.5251097\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
-\cmidrule{1-5}
-\multirow[c]{5}*{bal} & min & 0.0000000 & 0.0000000 & 0.0000000\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{0.9997369} & \cellcolor{gray!6}{0.9981064} & \cellcolor{gray!6}{0.9997904}\\
-\cmidrule{2-5}
- & sd & 0.3016902 & 0.2664636 & 0.2876608\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.5887705} & \cellcolor{gray!6}{0.6396606} & \cellcolor{gray!6}{0.5843163}\\
-\cmidrule{2-5}
- & n & 1358.0000000 & 396.0000000 & 638.0000000\\
-\cmidrule{1-5}
-\multirow[c]{5}*{ba} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{1.0002918} & \cellcolor{gray!6}{0.5563237} & \cellcolor{gray!6}{2.8994283}\\
-\cmidrule{2-5}
- & max & 243.4854337 & 102.1486686 & 301.2394704\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{50.0153542} & \cellcolor{gray!6}{23.4771302} & \cellcolor{gray!6}{69.5882709}\\
-\cmidrule{2-5}
- & mean & 55.9594915 & 40.1893497 & 94.5666217\\
-\cmidrule{2-5}
- & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{1358.0000000} & \cellcolor{gray!6}{396.0000000} & \cellcolor{gray!6}{638.0000000}\\
-\cmidrule{1-5}
-NA & NA & 497.0000000 & 211.0000000 & 320.0000000\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}}& \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.05} & \cellcolor{gray!6}{0.03} & \cellcolor{gray!6}{0.10}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 53.3 & 29.7 & 36.2\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($cm^2$)}} & mean & 8.94 & 7.53 & 6.05\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{57.7} & \cellcolor{gray!6}{22.6} & \cellcolor{gray!6}{38.9}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 11.7 & 4.3 & 6.2\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} DBH($cm$)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{13.6} & \cellcolor{gray!6}{9.2} & \cellcolor{gray!6}{12.4}\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 0.93 & 0.93 & 0.93\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.25} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} Crown ratio}} & mean & 0.61 & 0.78 & 0.53\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.00 & 0.00 & 0.00\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 0.30 & 0.27 & 0.29\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAL (ratio)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.59} & \multicolumn{1}{c|}{\cellcolor{gray!6}}{0.64} & \cellcolor{gray!6}{0.58}\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.23} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.67}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 55.9 & 23.4 & 69.1\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{11.5} & \cellcolor{gray!6}{5.4} & \cellcolor{gray!6}{16.0}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BA($ft^2/ha$)}} & mean & 12.8 & 9.2 & 21.7\\
+\hhline{-|----}
+\multicolumn{2}{c}{\cellcolor{gray!6}{Observations}} & \cellcolor{gray!6}{1358} & \cellcolor{gray!6}{396} & \cellcolor{gray!6}{638}\\
+\hhline{~|}
+\multicolumn{2}{c}{Unique trees} & 497 & 211 & 320\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 %figure showing dist. for aspect? maybe switch to other variable?
 \begin{figure}
+\label{fig:asp}
+\caption{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
 \centering
 \begin{subfigure}[b]{0.75\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
@@ -1110,6 +1122,13 @@ NA & NA & 497.0000000 & 211.0000000 & 320.0000000\\
 %show a table of smooths, edf, significance/pvalue
 
 %show smooths
+\begin{figure}
+\label{fig:diffsmooths}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
+\caption{Smoothed effects for pure larch stands fitted to the smooth differences model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
+\end{figure}
+
 
 %describe smooths
 
@@ -1131,6 +1150,8 @@ predictors in separate models.
 % -table of RMSE, dev.expl values for each model-
 
 \begin{table}[!h]
+\label{tab:mixvarsrmse}
+\caption{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
 \centering
 \begin{tabular}{lrrrr}
 \toprule
@@ -1164,6 +1185,8 @@ with random effects.
 - Difficult to interpret, can appear much simpler 
 - can overfit relationships
 - One benefit was the realized 
+- The p-values reported for smooth term significance are uncertain because 
+ there is uncertainty in both model selection as well as in smoothing parameter estimation
 
 - These results are more or less concurrent with previous studies on the matter.
  -- perhaps important to highlight the fact it was different from others

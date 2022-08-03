@@ -44,7 +44,9 @@ bai.spmx.ids <- bai.spmx %>%
          unique.tree.f = as.factor(unique_tree_id)) %>% 
   filter(unique_tree_id != 15431)
 
-#Table of # of plots, # of trees, # of observations, other conditions ####
+# 2.0 Methods#####
+
+#2.1 Table of # of plots, # of trees, # of observations, other conditions ####
 
 num.pl <- bai.spmx.ids %>% group_by(stand) %>% 
   summarize(number.plots = n_distinct(PLOT), 
@@ -75,7 +77,7 @@ sitevars <- c('Slope', 'Aspect', 'Elevation', 'Mean site index (SI)', 'Heatload'
 
 
 
-#table of shade intolerance values ####
+# 2.5 table of shade intolerance values #####
 shade <- read_csv('shadetolerance.small.csv')
 shade <- shade %>% mutate(id = c(1:nrow(shade)))
 
@@ -103,9 +105,36 @@ shadetoltbl <- shade %>%
   kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F) %>%
   column_spec(c(1,2), italic = TRUE)
 
+# 2.5 CCF params####
+
+ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
+
+ccf_coef <- ccf_coef %>% select(SPECIES_SYMBOL, r1, r2, r3, r4, r5) %>% rename(SPECIES_SYMBOL = 'Species code')
+
+ccf_coef %>% 
+  kable(format = 'latex', booktabs = T) %>% 
+  kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
+
+pgpdata <- read_csv('data/pgp_data_all.csv')
+
+unique(pgpdata$SPECIES_SYMBOL)
 
 
-# Table of RMSE and Dev. expl. values through model selection process #### 
+#Results####
+
+#3.1 Variable significance####
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
+job::job(import = c(re.tree.1),
+         {
+           library(mgcv)
+           re.t1.sum <- summary.gam(re.tree.1)
+           })
+re.t1.sum.frq <- summary.gam(re.tree.1, freq = T)
+re.t1.sum
+
+#page 195 of wood2006 book talks about p-values
+
+# 3.1 Table of RMSE and Dev. expl. values through model selection process #### 
 
 #need to rework so that it shows RMSEs for each step leading up to base model
 
@@ -116,6 +145,7 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 # nosize.base <- readRDS('data/model_objects.1/nosize.base.RDS')
 # nocomp.base <- readRDS('data/model_objects.1/nocomp.base.RDS')
 # nosite.base <- readRDS('data/model_objects.1/nosite.base.RDS')
+set.seed(284)
 size <- gam(bai~s(DIAMETER), family = 'Gamma'(link = log), 
             data = bai.spmx.ids, method = 'ML') 
 compd <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) + 
@@ -124,15 +154,15 @@ compd <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) +
 site <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) + 
               s(ba.pl) + s(asp_cos, asp_sin), 
             family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
-
+site.sum <- summary.gam(site)
 a <- summary(re.tree.1)
 # b <- readRDS('data/model_objects.1/summary_spmx.re.gam.lf.rds')
 # c <- readRDS('data/model_objects.1/summary_spmx.re.gam.st.rds')
 
 no.re.model <- readRDS('data/model_objects.1/site5a.2.rds')
-
-
-
+nore.sum <- summary.gam(no.re.model)
+summary.gam(no.re.model, freq = T)
+  
 dev.expl <- function(model){(model$null.deviance-model$deviance)/model$null.deviance}
 
 re.edf <- edf(re.tree.1)
@@ -228,7 +258,7 @@ tb1 %>% filter()
 # 
 
 
-# RMSE, dev, edf for ccf, purity, shade tol. ####
+# 3.3 RMSE, dev, edf for ccf, purity, shade tol. ####
 
 library(kableExtra)
 basemodel <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds') # change to 'data/model_objects.1/re.tree.1ba_7.14.rds'
@@ -303,21 +333,9 @@ mod.vals.tbl %>%
   kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
   kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
 
-#CCF params####
 
-ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
 
-ccf_coef <- ccf_coef %>% select(SPECIES_SYMBOL, r1, r2, r3, r4, r5) %>% rename(SPECIES_SYMBOL = 'Species code')
-
-ccf_coef %>% 
-  kable(format = 'latex', booktabs = T) %>% 
-  kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
-
-pgpdata <- read_csv('data/pgp_data_all.csv')
-
-unique(pgpdata$SPECIES_SYMBOL)
-
-#mixture data summary#####
+# 3.3 mixture data summary#####
 
 library(kableExtra)
 #function defining mixtures
@@ -379,7 +397,7 @@ atable <- o.mixtures.nopien %>% group_by(omixtype) %>%
                 sd = ~ sd(.x, na.rm = T), 
                 mean = ~ mean(.x, na.rm = T), 
                 num.obs = length), 
-           .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id))
+           .names = "{.col}.{.fn}"), num.indivduals = n_distinct(unique_tree_id, na.rm = T))
 
 
 atable1 <- data.frame(t(as.data.frame(atable[-1])))
@@ -403,6 +421,17 @@ grped.sum.tb <- sum.table1 %>% mutate(whichstat =
 
 mix.sum.tb <- grped.sum.tb %>% select(whichvar, whichstat, laoc, pico, psme) %>% 
   rename(Variable = whichvar, Stat = whichstat, 'Pure larch' = laoc, 'Larch-lodgepole' = pico, 'Larch-Douglas-fir' = psme)
+
+mix.sum.tb %>% 
+  filter(Variable == 'dbh', Stat %in% c('min', 'max', 'sd', 'mean')) %>% 
+  mutate(across(`Pure larch`:`Larch-Douglas-fir`, ~ .x*2.54)) #convert dbh to cm
+
+mix.sum.tb %>% 
+  filter(Variable == 'ba', Stat %in% c('min', 'max', 'sd', 'mean')) %>% 
+  mutate(across(`Pure larch`:`Larch-Douglas-fir`, ~ .x*(2.47/10.764))) #convert ba to m^2/ha
+
+
+
 
 mix.sum.tb %>% 
   kable(format = 'latex', booktabs = T) %>% 
