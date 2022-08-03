@@ -419,7 +419,9 @@ sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
 sig.bal <- smest.bal %>% filter(omixtype == 'pico')
 sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
 
+```
 
+```{r fix issue with pico}
 ### evaluate at limited diameters
 DIAMETER <- rep(seq(0,15,length = 30), 3)
 asp_sin <- rep(sin(315*(pi/180)), 90)
@@ -447,60 +449,90 @@ smthdat <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_mat
            omixtype == 'psme' ~ 'Larch-Douglas-fir'
          )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
 
-ggplot(smthdat, 
+picogg <- smthdat %>% filter(omixtype=='pico')
+
+pico.diff <- ggplot(picogg, 
        aes(x = DIAMETER*2.54, y = est, 
            ymin = lower, 
            ymax = upper)) + 
   geom_line() + 
   geom_hline(yintercept = 0, linetype = 'dashed') +
   geom_ribbon(alpha = 0.2) + 
-  facet_wrap(~facets)
+  labs(x = 'DBH(cm)', y = 'Effect')
+
+
+#+ 
+ # facet_wrap(~facets)
 
 
 ```
 
 ```{r mixture partial response figs}
-
-ggplot(sig.diam, 
+## diameter
+#lodgepole
+lp.diam <- ggplot(sig.diam, 
        aes(x = DIAMETER*2.54, y = est, 
            ymin = lower, 
            ymax = upper)) + 
   geom_line() + 
   geom_hline(yintercept = 0, linetype = 'dashed') +
   geom_ribbon(alpha = 0.2) + 
-  labs(x = 'DBH (cm)', y = 'Effect', title ='Larch-lodgepole DBH')
+  labs(x = 'DBH (cm)', y = 'Effect')
 
-ggplot(sig.cr, 
+##crown ratio
+cr.pico <- sig.cr %>% filter(omixtype=='pico')
+cr.psme <- sig.cr %>% filter(omixtype=='psme')
+#lodgepole
+lp.cr <- ggplot(cr.pico, 
        aes(x = cr, y = est, 
            ymin = lower, 
            ymax = upper)) + 
   geom_line() + 
   geom_hline(yintercept = 0, linetype = 'dashed') +
   geom_ribbon(alpha = 0.2) +
-  facet_wrap(~facets) + 
+  labs(x = 'Crown ratio', y='Effect')
+#dougfir
+df.cr <- ggplot(cr.psme, 
+       aes(x = cr, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
   labs(x = 'Crown ratio', y='Effect')
 
-ggplot(sig.bal, 
+#bal lodgepole
+
+lp.bal <- ggplot(sig.bal, 
        aes(x = bal.pl.ratio, y = est, 
            ymin = lower, 
            ymax = upper)) + 
   geom_line() + 
   geom_hline(yintercept = 0, linetype = 'dashed') +
   geom_ribbon(alpha = 0.2) +
-  labs(x = 'BAL', y='Effect', title = 'Larch-lodgepole BAL')
+  labs(x = 'BAL', y='Effect')
 
+#basal area
+ba.pico <- sig.ba %>% filter(omixtype=='pico')
+ba.psme <- sig.ba %>% filter(omixtype=='psme')
 
-ggplot(sig.ba, 
+lp.ba <- ggplot(ba.pico, 
+       aes(x = ba.pl*(2.47/10.764), y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + coord_cartesian(ylim = c(-10, 5), xlim = c(0,40)) +
+  labs(x =  bquote('BA'~(m^2/ha)), y='Effect')
+
+df.ba <- ggplot(ba.psme, 
        aes(x = ba.pl*(2.47/10.764), y = est, 
            ymin = lower, 
            ymax = upper)) + 
   geom_line() + 
   geom_hline(yintercept = 0, linetype = 'dashed') +
   geom_ribbon(alpha = 0.2) + #coord_cartesian(ylim = c(-5, 5)) +
-  facet_wrap(~facets, scales = 'free_y') + 
   labs(x =  bquote('BA'~(m^2/ha)), y='Effect')
-
-
 
 
 ## all plots
@@ -546,7 +578,17 @@ ggplot(sig.ba,
 #   facet_wrap(~facets, scales = 'free_y') + 
 #   labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
 #     theme(strip.text = element_blank()))
+library(ragg)
+png <- function(...) ragg::agg_png(..., res = 300, units = 'in')
+lab1 <- textGrob('Larch-lodgepole')
+lab2 <- textGrob('Larch-Douglas-fir')
+agrid <- arrangeGrob(lab1, lab2, lp.diam, lp.cr, df.cr, lp.bal, lp.ba, df.ba, layout_matrix = rbind(c(1,2), c(3,NA), c(4,5), c(6,NA), c(7,8)))
 
+lp.cr
+ggsave('17.figures_saved/mix_diff_smooths.png', agrid, device = png)
+       
+       
+       
 diffs.pl <- arrangeGrob(mixpl.d, mixpl.cr, mixpl.bal, mixpl.ba, nrow = 4)
 plot_grid(mixpl.d, mixpl.cr, mixpl.bal, mixpl.ba, nrow = 2)
 plot(diffs.pl)

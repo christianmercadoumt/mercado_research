@@ -1063,7 +1063,12 @@ BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
 
 %% given those results, here are some figures. 
 
-
+\begin{figure}
+\label{fig:diffsmooths}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/mix_diff_smooths.png}
+\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures. Smooths plotted are for only those where that are evidently different, as shown in table 1.4.}
+\end{figure}
 
 
 %Table of mixtures, min, max, mean for each variable in model
@@ -1144,14 +1149,9 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 %show a table of smooths, edf, significance/pvalue
 
 %show smooths
-\begin{figure}
-\label{fig:diffsmooths}
-\centering
-\includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
-\caption{Smoothed effects for pure larch stands fitted to the smooth differences model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
-\end{figure}
 
 
+% The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.
 %describe smooths
 
 
