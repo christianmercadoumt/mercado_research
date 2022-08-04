@@ -1352,7 +1352,7 @@ it was deemed more practical to compare non-species informed BA to CCF
 Point: The difference between larch growth in the lodgepole-mixed and 
 pure larch conditions is suggestive that interspecific competitive dynamics 
 between western larch and lodgepole pine are different from intra-specific 
-dynamics. 
+dynamics for pure larch stands. 
 
  -- This is shown by an amplified negative growth effect for small diameter  
  larch and similarly increased positive effect for larger diameter larch 
@@ -1373,12 +1373,53 @@ dynamics.
   
   
  -- Discuss theory behind why this might happen
- --- competition for light
- --- below-ground competition
+ --- competition for light/above ground comp (usually posited for inter-specific comp.)
+ --- below-ground competition (usually posited for intra-specific comp.)
  --- 
  
+ Caveat:
+ -- Difficult to draw conclusions due to 
+ -A. uncertainty in estimation (although p-values aren't too bad)
+ -B. Because the variations in one covariate could relate to 
+ the variations in a different covariate (despite the collinearity assessment)
+  - thus these types of analyses require careful consideration of 
+  i. choice of covariates in model and the processes they account for
+  ii. model selection. 
+  
 
-Point: CCF, Purity, shade intol. 
+ 
+
+-- CCF, Purity, shade intol. --
+
+Point: CCF is already widely used in regional growth models, but implementing other measures 
+could improve model performance in its place. 
+
+ -- In this study, a model with purity of stand (the ratio of a given species) 
+ out-predicted and out-fit models with alternative measures.  
+ --- This more or less is in alignment with the findings of:
+  --- Weiskittel2009 - stand composition can influence max. size-density relationship
+  --- Huber2014 - different stocking potentials of species in mixtures 
+  (for a given site) should be taken into consideration prior to comparing growth
+  ---- and: mixture effects depend on site conditions
+  --- Perhaps the base model selection methods implemented here did not 
+  adequately take into consideration the effects of site on tree growth?
+  --- 
+  
+ -- The results here indicate that shade tolerance was also useful in estimating 
+ larch growth, however, its fitted relationship with growth was highly variable 
+ and had minimal confidence in predictions
+ 
+ --- Both these studies said shade tol. dissimilarity is useful: Chen2016 and Searle2020
+ ---- They found that shade tolerance dissimilarity reduced competition
+ ---- also found that smaller trees benefited more than larger trees from 
+ increased diversity. 
+ 
+ --- The findings of this study were inconclusive to make such determinations. 
+ % Speculating on the fitted curve may be similarly suggestive that 
+ %dissimilarity is beneficial to growth, but hard to say. 
+ 
+ 
+
 
 
 % - The p-values are not strictly valid (Wood 2006)
@@ -1404,18 +1445,18 @@ Point: CCF, Purity, shade intol.
 % 
 % -Contreres said BAL is good for all trees in the study
  
-
-\subsection{Comparing species-mixing measures}
-
-- discussion on BA proportion as a measure of species-mixing
-- pros and cons of ccf as a mixture variable
-- using ba as a versatile variable to do things? look in mixed species book
+% 
+% \subsection{Comparing species-mixing measures}
+% 
+% - discussion on BA proportion as a measure of species-mixing
+% - pros and cons of ccf as a mixture variable
+% - using ba as a versatile variable to do things? look in mixed species book
 
 
 
 \section{Conclusions}
 
-
+TBD
 
 
 % \captionof{equation}{Root mean squared error (RMSE) equation, where \hat{y} 
