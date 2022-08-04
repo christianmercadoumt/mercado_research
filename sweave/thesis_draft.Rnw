@@ -1269,6 +1269,71 @@ Shade intol. & 4.627 & 85.02 & 0.77946\\
 
 \subsection{GAMs and model selection}
 
+---- A blurb about GAMs, their usage, the pros, the cons. 
+- The use of generalized additive models is becoming more prevalent in 
+ecological research to capture non-linear patterns that exist in 
+ecosystems.
+ -- but it is not a panacea 
+ -- Discuss bias-variance tradeoffs
+ -- complexity-computation time tradeoffs
+ -- difficulty with p-values and interpretability
+ 
+---- Now contextualize with the results reported above
+
+-Point: The tradeoffs discussed above were encountered at each step 
+of the process. 
+
+ -- The inclusion of indiviual tree RE's instead of capturing variation 
+ at every stand level. 
+ % Residual dependence structure  (provide figure with boxplots of normalized residuals across sites?)
+ 
+ -- The base model formulation used a global smoother for each term 
+ -- The random effect produced intercepts for each individual tree, each
+ sharing one general smoother. 
+ -- this limits variance and produces tree and site-specific biases which
+ can result in overfitting if smooths are not constrained by penalties. 
+ -- shrinkage penalty approach was used here. No apparent patterns missed 
+ in residuals. (plot?)
+ 
+ -- - Setting up smooths for each individual tree would not only 
+ up complexity, but also increase comptuation time. It also wouldn't work 
+ because each tree only has a few observations. 
+ 
+ -- Further, bias may be created for fitting smooths for each site. 
+ --- However, upping complexity for the sake of allowing for 
+ stand-specific variability to occur may not have been particularly 
+ useful since there is a model term that accounts for variation in site. 
+ --- BUT - allowing site-growth relationships to vary by stand could 
+ be useful.
+
+ 
+ -- When comparing growth response across mixtures, we allowed for 
+ group-specific smooths to be evaluated (rather, smooth differences), reducing bias in estimation, 
+ but increasing variance for each group-level. this is appropriate, 
+ given that comparing across groups was the goal. this, however can 
+ lead to higher computational demand to fit the model, especially as 
+ the amount of observations increase. 
+ 
+ -- Since these models were fit with their generalization in mind, 
+ comparing species-informed measures, all fit with global smooth terms, 
+ was appropriate in order to be able to determine if such a measure 
+ could be of use in future growth modelling efforts. 
+
+- The p-values reported for smooth term significance are uncertain because 
+ there is uncertainty in both model selection as well as in smoothing parameter 
+ estimation
+ -Zuur suggests that anything below 0.001 is still 'significant', 
+ and anything greater than 0.01 should be handled with caution. 
+
+---- model selection ----- 
+
+-The model formula specified here is more or less in concurence with others efforts. 
+
+- Vospernik 2020 found that only including BAL as a competition measure 
+was sufficient in capturing competitive effects. That option was 
+excluded here because it was thought important to consider tree-level 
+competitive effects in addition to community effects. 
+
 - Intially ccf was considered as a competition and density measure, 
 and CCF was selected in a model formulation with slope as well, however 
 the benefit to RMSE that this formula provided was marginal compared 
@@ -1276,41 +1341,68 @@ to the formula that included BA. Further, to accommodate analyses which
 recognized CCF as a species composition informed measure, 
 it was deemed more practical to compare non-species informed BA to CCF
 
-- The use of generalized additive models is becoming more prevalent in 
-forest ecological research. 
-- using generalized additive models for each task in this study presented 
-challenges. One such challenge was the time that it took to fit models 
-with random effects. 
-- Difficult to interpret, can appear much simpler 
-- can overfit relationships
-- One benefit was the realized 
-- The p-values reported for smooth term significance are uncertain because 
- there is uncertainty in both model selection as well as in smoothing parameter estimation
-
-- These results are more or less concurrent with previous studies on the matter.
- -- perhaps important to highlight the fact it was different from others
-  -- contrast with other bai models
-  -- gam fitted bai models in particular?
+% - These results are more or less concurrent with previous studies on the matter.
+%  -- perhaps important to highlight the fact it was different from others
+%   -- contrast with other bai models
+%   -- gam fitted bai models in particular?
 
 
 \subsection{Assessing species-mixing impacts on growth}
 
-- The p-values are not strictly valid (Wood 2006)
-- We did not explicitly select model degrees of freedom, so that's in our favor
-- fitting the model unpenalized could ameliorate issues, but this may render 
-the test pointless because we're trying to describe ecological dynamics
- -- sorta like in the case of 
-- 
--- BAL EFFECTS ARE IN OPPOSITION TO THE REFERENCE CURVE
- -- this is very interesting. The difference may outweight the curve and in 
- wl-lp conditions, the effect may be inverted. Find out if anyone else has observed this type of effect.
+Point: The difference between larch growth in the lodgepole-mixed and 
+pure larch conditions is suggestive that interspecific competitive dynamics 
+between western larch and lodgepole pine are different from intra-specific 
+dynamics. 
+
+ -- This is shown by an amplified negative growth effect for small diameter  
+ larch and similarly increased positive effect for larger diameter larch 
+ when mixed with lodgepole pine.
+ -- These diameter-related effects are similar/different to:
+  -- x 
+  -- y 
+  -- z
+
+ -- Also, larch-mixed with lodgepole had far less growth when the larch were 
+ larger than neighboring lodgepole pine, and higher rates of growth when the 
+ lodgepole pine were larger. %look at where the predictions are coming from 
+ -- this is similar/different to:
+  -- riofrio, other papers. 
+  -- likely depends on basal area
+  -- and/or diam.
+  -- investigate other vars changing..
+  
+  
+ -- Discuss theory behind why this might happen
+ --- competition for light
+ --- below-ground competition
+ --- 
  
--- Discuss the discrepancy between the rate at which the negative ba-provoked 
-growth difference becomes more negative, comparing douglas fir and lodgepole mixed larch
--- discuss the limitations of this approach, as it does not offer pairwise comparisons 
-amoung all conditions. 
+
+Point: CCF, Purity, shade intol. 
 
 
+% - The p-values are not strictly valid (Wood 2006)
+% - We did not explicitly select model degrees of freedom, so that's in our favor
+% - fitting the model unpenalized could ameliorate issues, but this may render 
+% the test pointless because we're trying to describe ecological dynamics
+%  -- sorta like in the case of 
+ 
+ 
+
+ 
+%  
+% -- Discuss the discrepancy between the rate at which the negative ba-provoked 
+% growth difference becomes more negative, comparing douglas fir and lodgepole mixed larch
+% -- discuss the limitations of this approach, as it does not offer pairwise comparisons 
+% among all conditions. 
+
+% -Acquah2020 discusses competition modification by species mixing
+%   -- points
+%   --- Higher intra*specific comp. for smaller douglas fir
+%   --- no general pattern in larger trees. 
+%   --- main driver limiting growth in the stands is aboveground competition for light
+% 
+% -Contreres said BAL is good for all trees in the study
  
 
 \subsection{Comparing species-mixing measures}
