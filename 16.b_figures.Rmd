@@ -642,4 +642,86 @@ plot.gam(mix.diff.nopien, select = 1)
 sum.nopien
 ```
 
+```{r 3.3 partial response}
+
+# basemodel <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds') 
+ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') 
+purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
+shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
+
+smest.ba11 <- smooth_estimates(basemodel, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+
+
+smest.ccf <- smooth_estimates(ccf.mod, smooth = 's(ccf', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+smest.purity <- smooth_estimates(purity, smooth = 's(percent_LAOC', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+smest.shade <- smooth_estimates(shade.intol, smooth = 's(shade.to', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+ccf.smth <- ggplot(smest.ccf, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect')
+
+purty.smth <- ggplot(smest.purity, 
+       aes(x = percent_LAOC, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Purity', y='Effect')
+
+shade.smth <- ggplot(smest.shade, 
+       aes(x = shade.tol.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Shade intolerance', y='Effect')
+
+ccf.pr.sh <- arrangeGrob(ccf.smth, purty.smth, shade.smth)
+ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh, device = png)
+
+```
+
+```{r 3.3 diagnostic plots}
+
+gam.check(ccf.mod)
+
+appraise(ccf.mod, point_alpha = 0.2)
+appraise(purity, point_alpha = 0.2)
+appraise(shade.intol, point_alpha = 0.2)
+
+```
+
+
+```{r}
+ggplot(smest.ba11, 
+       aes(x = ba.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'ba', y='Effect')
+
+ggplot(smest.ccf, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect')
+```
+
 

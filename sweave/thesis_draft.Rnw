@@ -519,7 +519,7 @@ cottonwood, and quaking aspen.
 \subsection{GAM overviewl}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
-annual growth of western larch, quantified by basal area increment (BAI; \ref{eq:bai}). 
+annual growth of western larch, quantified by basal area increment (BAI; Equation \ref{eq:bai}). 
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{weiskittel2011forest}.
@@ -623,7 +623,7 @@ Then, with the selected size variable present in the model,
 competition and density variables were evaluated and selected 
 based on maximizing model accuracy and reducing overlap between variables. 
 The same process was used for site variables thereafter, 
-finalizing the base model formulation (\ref{eq:baiform}). 
+finalizing the base model formulation (Eq. \ref{eq:baiform}). 
 
 \begin{equation}
 \label{eq:baiform}
@@ -635,7 +635,7 @@ value of BAI of interest, $\beta_0$ represents
 an intercept, and $f_n$ represents a non-linear function applied to  
 a given predictor variable.
 
-Root mean squared error (RMSE; \ref{eq:rmse}) was 
+Root mean squared error (RMSE; Eq. \ref{eq:rmse}) was 
 calculated to assess model accuracy, where when comparing models, 
 a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
@@ -819,7 +819,7 @@ In contrary, a stratification of trees of different sizes composed of large and
 small crown widths could increase utilization of crown space, 
 reducing competition. CCF weighs species identity by species-specific 
 diameter-crown allometry -based parameters. This study used the species 
-parameters used by the FVS Inland Empire regional variant (\ref{tb:ccfvals};\cite{Keyser2008}).
+parameters used by the FVS Inland Empire regional variant (Table \ref{tb:ccfvals};\cite{Keyser2008}).
 The CCF equation is shown in equation (\ref{eq:ccf}):
 
 \begin{equation}
@@ -900,7 +900,7 @@ equation \ref{eq:shade}:
 T_{jt} = \frac{\sum_{i}{\rho_{ijt}\ BA_{ijt}}}{\sum_{ijt}{BA_{ijt}}}
 \end{equation}
 
-where \ref{eq:shade} $T_{jt}$ represents plot shade intolerance at a given measurement, 
+where $T_{jt}$ represents plot shade intolerance at a given measurement, 
 $\rho_{ijt}$ represents the species specific shade-tolerance ranking of 
 tree $i$ \citep{Lienard2015}.
 
@@ -931,9 +931,9 @@ Genus & Species & Shade intolerance\\
 % - Using them in a model
 % - comparing models based on RMSE, quantifying accuracy improvements by each
 
-To evaluate and compare these measures they were added as additional smooths 
+To evaluate and compare these measures, each was added as an additional smooth 
 to the identified base model formulation, each in its own respective model, 
-and fit with the same data. Models were then compared on the basis of 
+and then fit with the same data. Models were then compared on the basis of 
 accuracy (RMSE) and fit (deviance explained; \citep{wood2006generalized}), quantifying 
 each predictor's relative improvement to model performance. RMSE values were 
 calculated using data that were withheld from model fitting to provide an independent 
@@ -979,7 +979,7 @@ Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to
 Topographic variables (slope, aspect, elevation) were evaluated as 
 potential predictors separately from site index and heatload. Since aspect
 is a circular measure, both sin (easting) and cosine (northing) 
-transformations were applied as in previous works (CITE:stage). Aspect was best 
+transformations were applied as in previous works (\citep{Stage1976}). Aspect was best 
 accounted for as an interaction term in the form of an isotropic smooth \citep{Wood2017}. 
 Slope and elevation contributed little to prediction accuracy 
 when included with aspect and were associated with concurvity values 
@@ -1009,7 +1009,7 @@ more than any other variable in the model.
 
 \begin{table}[!h]
 \label{tab:rmse}
-\caption{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc.}
+\caption{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
@@ -1041,9 +1041,16 @@ more than any other variable in the model.
 \subsection{Assessing species-mixing impacts on growth}
 
 % modeling mixtures
+%% maybe i should constrain plotted curves to only pure larch that lie between west and north?
 The model fitted for western larch growth compared across mixtures 
 was informed by a variety of conditions as displayed in table 
-\ref{tab:mixsummary}. The reference curve captured variability in each 
+(Table \ref{tab:mixsummary}). Species compositions can vary with 
+variations in aspect due to species preference to different niches, so it was 
+important to consider where data was modeled from. 
+Pure larch stands evaluated sat on northerly aspects spanning from west to east
+(Fig. \ref{fig:asp}), and both mixtures evaluated showed some preference towards northwest 
+facing slopes, but ultimately data spanned a similar range to the pure conditions. 
+The reference curve captured variability in each 
 predictor with high certainty. Crown ratio was penalized to a linear effect, 
 but still held a non-zero effect. The reference smooths fit for each term closely 
 resembled those of the base model, and thus are not displayed. 
@@ -1055,7 +1062,7 @@ resembled those of the base model, and thus are not displayed.
 There was strong evidence indicating a departure of growth response from pure conditions
 as tree size (DBH), symmetry of competition (BAL), and stand density (BA) varied
 when mixed with lodgepole pine, and modest  
-evidence for such in crown ratio and aspect (table \ref{tab:diff}). 
+evidence for such in crown ratio and aspect (Table \ref{tab:diff}). 
 In these mixtures, growth was even less in smaller western larch trees, 
 but became even greater when larch diameters exceeded ~12cm, compared to pure stands. 
 A similarly-shaped difference effect is displayed as western larch takes up more growing space 
@@ -1076,13 +1083,16 @@ likely due to a lack of high-density data for this mixture.
 For larch-Douglas-fir mixtures, growth deviated from the pure stands 
 as crown ratio, stand density, and aspect varied, but little to no variation was 
 observed in response to different levels of tree size or symmetry of competition. 
-The growth difference in response to crown ratio was slightly elevated 
-for larch-Douglas-fir mixtures for mid-range values of CR, but the slight change 
-likely doesn't have any important interpretation due to the small impact. 
+The growth difference in response to crown ratio were slightly elevated 
+for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. \ref{fig:diffsmooths}), 
+but the slight change likely doesn't have any important interpretation due to 
+the small impact. Similar to the lodgepole pine mixtures, basal area impacts on 
+growth in douglas-fir mixed larch were were intensified at higher densities. 
+This impact, however, was comparatively smaller than that of the lodgepole pine 
+mixtures; the rate of this magnifying effect may require further investigation 
+using methodologies appropriate for such comparisons. 
 
 
-
-Growth was not  as responsive in larch-Douglas-fir mixtures,
 
 %Table of mixtures, min, max, mean for each variable in model
 
@@ -1186,27 +1196,51 @@ BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
 \label{fig:diffsmooths}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/mix_diff_smooths.png}
-\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures. Smooths plotted are for only those where that are evidently different, as shown in table 1.4.}
+\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures. Smooths plotted are for only those where they are evidently different, as shown in table 1.4.}
 \end{figure}
-
-
-
-%describe smooths
-
-
 
 
 \subsection{Comparing species-mixing measures}
 
-%Show smooths for each measure
-%Table w/ rmseand stuff (is below)
-%Talk about smooths
+%
+Models were specified for each species-informed measure. 
+Both shade intolerance and purity were fit as additional 
+predictors in respective models. CCF and basal area 
+were found to be highly correlated with one-another, so ccf was included 
+in its respective model in place of BA, as to avoid issues of collinearty 
+among predictors. 
 
--Plot BA and CCF were highly correlated with one 
-another, so CCF was included in place of BA in the model formulation. 
-Larch purity and shade intolerance were simply added as an additional 
-predictors in separate models. 
-- 
+%Table w/ rmseand stuff (is below)
+Model accuracy was best improved by the addition of stand purity, followed by 
+plot shade intolerance and plot crown competition factor (Table \ref{tab:mixvarsrmse}). 
+Every term in each respective model was backed by a p-value < 0.001, indicating 
+that each was non-zero, provided that smoothing parameter estimation and model 
+selection were moderately error-free. Changes in RMSE were modest, all of which 
+were at the sub-square centimeter per year -level. Model fit increased in concert with 
+improvements to accuracy except for with CCF, which 
+showed a small decrease in deviance explained (Table \ref{tab:mixvarsrmse}) and 
+$R^2$.
+
+CCF displayed the largest effect on tree growth, followed by purity and 
+shade intolerance (Fig.\ref{fig:ccf_pur_shd}). However, since CCF is a measure of stand 
+density, it appears very similar to the basal area smooth in the base model. 
+Both purity and shade intolerance were characterized by postive effects on 
+growth for lower values, and slightly negative effects on growth for positive 
+values. Shade intolerance effects appear highly uncertain compared to those of 
+purity and CCF, and non-zero effects are hard to identify with this model. 
+Smooths for purity and shade intolerance were generously fit with numerous 
+basis functions, or perhaps minimal penalization, which contributes to their wiggliness 
+and uncertainties. As a result, shade intolerance effects 
+
+%Show smooths for each measure
+
+\begin{figure}
+\label{fig:ccf_pur_shd}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/ccf_pur_shd.png}
+\caption{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
+\end{figure}
+
 
 % -table of RMSE, dev.expl values for each model-
 
@@ -1214,22 +1248,26 @@ predictors in separate models.
 \label{tab:mixvarsrmse}
 \caption{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
 \centering
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrr}
 \toprule
-model & rmse\_values & rmse\_values.df & dev.expl & r.sqr\\
+Model & RMSE ($cm^2/yr.$) & Deviance explained (\%) & $R^2$\\
 \midrule
-\cellcolor{gray!6}{Base} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{3.32} & \cellcolor{gray!6}{84.91255} & \cellcolor{gray!6}{0.8}\\
-CCF & 5 & 3.34 & 84.41606 & 0.8\\
-\cellcolor{gray!6}{Purity} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{3.32} & \cellcolor{gray!6}{85.06852} & \cellcolor{gray!6}{0.8}\\
-Shade intol. & 5 & 3.32 & 85.01691 & 0.8\\
+\cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} & \cellcolor{gray!6}{0.77886}\\
+CCF & 4.801 & 84.42 & 0.77597\\
+\cellcolor{gray!6}{Purity} & \cellcolor{gray!6}{4.595} & \cellcolor{gray!6}{85.07} & \cellcolor{gray!6}{0.77942}\\
+Shade intol. & 4.627 & 85.02 & 0.77946\\
 \bottomrule
 \end{tabular}
 \end{table}
 
+%bullet point list of results
+ - competition and density metrics contributed the most in deviance explained, followed by size.
+ -- DBH was the best individual predictor
+ -
 
 \section{Discussion}
 
-\subsection{BAI model selection}
+\subsection{GAMs and model selection}
 
 - Intially ccf was considered as a competition and density measure, 
 and CCF was selected in a model formulation with slope as well, however 
@@ -1257,13 +1295,22 @@ with random effects.
 
 \subsection{Assessing species-mixing impacts on growth}
 
-- The p-values are not strictly valid
+- The p-values are not strictly valid (Wood 2006)
 - We did not explicitly select model degrees of freedom, so that's in our favor
-- fitting the model unpenalized could ameliorate issues, but this may render the test pointless
+- fitting the model unpenalized could ameliorate issues, but this may render 
+the test pointless because we're trying to describe ecological dynamics
+ -- sorta like in the case of 
 - 
 -- BAL EFFECTS ARE IN OPPOSITION TO THE REFERENCE CURVE
  -- this is very interesting. The difference may outweight the curve and in 
  wl-lp conditions, the effect may be inverted. Find out if anyone else has observed this type of effect.
+ 
+-- Discuss the discrepancy between the rate at which the negative ba-provoked 
+growth difference becomes more negative, comparing douglas fir and lodgepole mixed larch
+-- discuss the limitations of this approach, as it does not offer pairwise comparisons 
+amoung all conditions. 
+
+
  
 
 \subsection{Comparing species-mixing measures}

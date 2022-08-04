@@ -324,14 +324,18 @@ c <- summary(purity)
 d <- summary(shade.intol)
 dev.expl <- c(a$dev.expl, b$dev.expl, c$dev.expl, d$dev.expl)*100
 
+b
+c
+d
+
 r.sqr <- c(a$r.sq, b$r.sq, c$r.sq, d$r.sq)
 
 model <- c('Base', 'CCF', 'Purity', 'Shade intol.')
 options(pillar.sigfig = 4)
-(mod.vals.tbl <- tibble(model, rmse_values, rmse_values.df, dev.expl, r.sqr))
+(mod.vals.tbl <- tibble(model, rmse_values, dev.expl, r.sqr))
 
 mod.vals.tbl %>% 
-  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 3, 2, 5)) %>% 
   kable_styling(latex_options = c('striped', 'hold_position'), full_width = F)
 
 
