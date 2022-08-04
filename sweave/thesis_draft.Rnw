@@ -907,7 +907,7 @@ tree $i$ \citep{Lienard2015}.
 
 \begin{table}
 \label{tab:shade}
-\caption{Shade intolerance values \citep{Lienard2015}}
+\caption{Shade intolerance values, which are the inverse of shade tolerance values provided by Lienard (\citeyear{Lienard2015})}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
 \toprule
