@@ -791,29 +791,92 @@ ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh, device = png)
 ```
 
 ```{r 3.3 partial response but vary BA-diam}
-bal.function <- function(model, bal = c(0.2, 0.5, 0.75), whatsmooth = 'BAL', xval = DIAMETER, xlab = 'BAL ratio'){
-  require(mgcv)
-  require(gratia)
-  pl.list <- list()
-  for(i in 1:length(bal)){
-    nam <- paste(xlab,bal[i],sep = ".")
-    a <- smooth_data(model, 4, n = 10000, include_all = T) %>%
-       mutate(bal.pl.ratio = 0.2)
-    b <- smooth_estimates(model, smooth = whatsmooth, 
-                           partial_match = T, unconditional = T) %>% 
-       mutate(upper = est+(2*se), lower = est-(2*se))
-    
-    pl.list[[i]] <- ggplot(b, aes(x = xval, y = est, 
+
+# bal.function <- function(mod, xlab = 'BAL ratio'){
+#   require(mgcv)
+#   require(gratia)
+# 
+#   bal.pl.ratio = c(0.2, 0.5, 0.75)
+#   bal.lst <- 
+#     
+#     
+#     
+#   for(i in bal.pl.ratio){
+#     d1 <- smooth_data(mod, 1, n = 100, include_all = T) %>%
+#       mutate(bal.pl.ratio = 0.2)
+#     d1a <- smooth_estimates(mod, smooth = 's(bal.pl.ratio', 
+#                             partial_match = T, unconditional = T) %>% 
+#       mutate(upper = est+(2*se), lower = est-(2*se), data = a1)
+#     
+#   }
+#     
+#     pl.d <- ggplot(d1a, aes(x = bal.pl.ratio, y = est, 
+#                 ymin = lower, ymax = upper)) + 
+#        geom_line() +
+#        geom_hline(yintercept = 0, linetype = 'dashed') +
+#        geom_ribbon(alpha = 0.2) +
+#        labs(x = xlab, y='Effect')
+#  
+#     ba.pl <- c(25, 50, 75, 100, 125)
+#     
+#     b1 <- smooth_data(mod, 1, n = 100, include_all = T) %>%
+#        mutate(bal.pl.ratio = 0.2)
+#     b1a <- 
+# }
+
+
+a <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .2)
+a1 <- smooth_estimates(purity, data = a, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.2)
+aa <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .6)
+aa1 <- smooth_estimates(purity, data = aa, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.6)
+aaa <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .8)
+aaa1 <- smooth_estimates(purity, data = aaa, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.8)
+
+aaaa <- bind_rows(a1, aa1, aaa1)
+
+ggplot(aaaa, aes(x = percent_LAOC, y = est, ymin = lower, 
+               ymax = upper, color = as.factor(bal.pl.ratio))) + geom_line() +
+  geom_ribbon(alpha = 0.2)
+
+
+# 
+# plot.smth <- function(smth.dat.fn,varname){
+#   names(smth.dat.fn)[4]
+#   ggplot(smth.dat.fn, aes(x = bal.pl.ratio, y = est, 
+#                 ymin = lower, ymax = upper)) + 
+#        geom_line() +
+#        geom_hline(yintercept = 0, linetype = 'dashed') +
+#        geom_ribbon(alpha = 0.2) +
+#        labs(x = xlab, y='Effect')
+# }
+
+abc <- smthdatfn(ccf.mod, varname)
+  ggplot(a1, aes(x = bal.pl.ratio, y = est, 
                 ymin = lower, ymax = upper)) + 
        geom_line() +
        geom_hline(yintercept = 0, linetype = 'dashed') +
        geom_ribbon(alpha = 0.2) +
        labs(x = xlab, y='Effect')
-    
-     }
- return(pl.list)
-}
-bal.function(ccf.mod)
+
+smthdatfn(ccf.mod, 2, smooth.term = 's(cr')
+# bal.function(ccf.mod)
+
+smooth_data(ccf.mod, 'bal.pl.ratio', include_all = T)
+
+
+
 
 aaa <- smooth_data(ccf.mod, 4, n = 100, include_all = T) %>%
     mutate(bal.pl.ratio = 0.2)
@@ -822,7 +885,7 @@ smooth_estimates(ccf.mod, data = aaa, )
 
 
 ```{r}
-diam.varies <- 
+
 ```
 
 

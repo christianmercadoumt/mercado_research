@@ -214,13 +214,13 @@ management occurs over a broad area and across tree, stand, and site conditions,
 managers and researchers use the forest vegetation simulator 
 (FVS; \cite{Dixon2020} to estimate future stand dynamics. 
 FVS is a distance-independent individual tree growth model 
-\citep(Stage1973a,Wykoff1990) that does not require individual tree location 
+\cite{Stage1973},\cite{Wykoff1990} that does not require individual tree location 
 to measure competition, and projects tree growth using tree size, stand density, 
 competition, and site variables. 
-Its formulation is paralelled by growth models in other regions and countries, 
+Its formulation is paralleled by growth models in other regions and countries, 
 and studies have shown effects of species-mixing using these types of models. 
-One european study showed that when incorporated into an indivudal 
-tree growth model, and after accounting for tree, stand, and site condtions, 
+One European study showed that when incorporated into an individual 
+tree growth model, and after accounting for tree, stand, and site conditions, 
 species-mixing effects effectively improved predictions \citep{Riofrio2019}. 
 Vospernik (\citeyear{Vospernik2021}) found that individual tree basal area increment %\citep{Vospernik2021}
 was significantly modified in mixtures after accounting for other factors. 
@@ -596,7 +596,7 @@ basal area larger than the
 subject tree (BAL; expressed as a ratio of plot basal area), 
 plot quadratic mean diameter (QMD), ratio of tree DBH to QMD ($D_q$), and trees per acre (tpa).
 Site variables initially considered were: slope, aspect, elevation, 
-mean site index (CITE), and heatload \citep{Theobald2015}. 
+mean site index, and heatload \citep{Theobald2015}. 
 These initial explanatory variables were identified based on availability 
 in the PGP data set, whether they could be calculated from the 
 available data, and if they have been used in predicting 
@@ -913,8 +913,8 @@ tree $i$ \citep{Lienard2015}.
 
 
 \begin{table}
-\label{tab:shade}
 \caption{Shade intolerance values, which are the inverse of shade tolerance values provided by Lienard (\citeyear{Lienard2015})}
+\label{tab:shade}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
 \toprule
@@ -986,8 +986,9 @@ Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to
 Topographic variables (slope, aspect, elevation) were evaluated as 
 potential predictors separately from site index and heatload. Since aspect
 is a circular measure, both sin (easting) and cosine (northing) 
-transformations were applied as in previous works (\citep{Stage1976}). Aspect was best 
-accounted for as an interaction term in the form of an isotropic smooth \citep{Wood2017}. 
+transformations were applied as in previous works \citep{Stage1976}. Aspect was best 
+accounted for as an interaction term in the form of an isotropic smooth, a 
+reduced rank version of thin-plate splines \citep{wood2006generalized}. 
 Slope and elevation contributed little to prediction accuracy 
 when included with aspect and were associated with concurvity values 
 beyond the established threshold. Thus, building on the model and 
