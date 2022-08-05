@@ -825,30 +825,33 @@ ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh, device = png)
 # }
 
 
-a <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .2)
+a <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 10)
 a1 <- smooth_estimates(purity, data = a, 
                        smooth = 's(percent_L', 
                        partial_match = T, 
                        unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.2)
-aa <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .6)
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.2)
+aa <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 60)
 aa1 <- smooth_estimates(purity, data = aa, 
                        smooth = 's(percent_L', 
                        partial_match = T, 
                        unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.6)
-aaa <- smooth_data(purity, 5, n = 100, include_all = T) %>% mutate(bal.pl.ratio = .8)
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.6)
+aaa <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 110)
 aaa1 <- smooth_estimates(purity, data = aaa, 
                        smooth = 's(percent_L', 
                        partial_match = T, 
                        unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se), bal.pl.ratio = 0.8)
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.8)
 
 aaaa <- bind_rows(a1, aa1, aaa1)
 
 ggplot(aaaa, aes(x = percent_LAOC, y = est, ymin = lower, 
-               ymax = upper, color = as.factor(bal.pl.ratio))) + geom_line() +
-  geom_ribbon(alpha = 0.2)
+               ymax = upper)) + geom_line() +
+  geom_ribbon(alpha = 0.2) + facet_wrap(~as.factor(ba.pl))
+
+
+
 
 
 # 
@@ -884,7 +887,159 @@ smooth_estimates(ccf.mod, data = aaa, )
 ```
 
 
-```{r}
+```{r FUNCTION for creating prediction plots}
+#taking into account smoothness estimation#####
+
+#this function creates predictions for each type of model that was fit in these analyses
+# for ccf - shade- purity analysis: Creates data set that is predicted based on the given values of each parameter.
+# - diameter is set to the mean value. Must be repeated for each model
+
+# For the mixture analysis, it creates a data set 300 rows long, 100 rows per level of the factor
+# it samples a random unique tree, but the tree just gets excluded anyways, so it doesnt matter
+
+
+ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, diam = 4.5){
+  asp_sin <- rep(sin(asp*(pi/180)), 100)
+  asp_cos <- rep(cos(asp*(pi/180)), 100)
+  
+  if('bal.pl.ratio' %in% names(mod$model) & 'ba.pl' %in% names(mod$model)) {
+    bal.pl.ratio <- bal
+    ba.pl <- ba
+  } else if('bal.pl.ratio' %in% names(mod$model) & !('ba.pl' %in% names(mod$model))) {
+    bal.pl.ratio <- bal
+  } else {
+    bal.pl.ratio <- bal
+    ba.pl <- ba
+  }
+  
+  
+  if('unique_tree_id' %in% names(mod$model)){
+    trees <- as.numeric(mod$model$unique_tree_id)
+    atree <- sample(trees,1)
+    unique_tree_id <- rep(atree, 100)
+    unique.tree.f <- unique_tree_id
+  } else if('unique.tree.f' %in% names(mod$model)){
+    trees <- as.numeric(mod$model$unique.tree.f)
+    atree <- sample(trees, 1)
+    unique.tree.f <- rep(atree,100)
+    unique_tree_id <- unique.tree.f
+  } 
+  
+  # unique_tree_id <- rep(1245, 100)
+  # unique.tree.f <- unique_tree_id
+    
+  cr <- rep(cr, 100)
+  
+  if(diam != 4.5) {
+    DIAMETER <- seq(min(mod$model$DIAMETER), max(mod$model$DIAMETER), length = 100)
+  } else {
+    DIAMETER <- rep(mean(mod$model$DIAMETER), 100)
+  }
+  
+  
+
+  
+  if('percent_LAOC' %in% names(mod$model)) {
+    percent_LAOC <- seq(min(mod$model$percent_LAOC), max(mod$model$percent_LAOC), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f, percent_LAOC)
+  } else if('shade.tol.pl' %in% names(mod$model)) {
+    shade.tol.pl <- seq(min(mod$model$shade.tol.pl), max(shade.intol$model$shade.tol.pl), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f, shade.tol.pl)
+  } else if('ccf.pl' %in% names(mod$model)) {
+    ccf.pl <- seq(min(mod$model$ccf.pl), max(mod$model$ccf.pl), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, asp_sin, asp_cos, unique_tree_id, unique.tree.f, ccf.pl)
+  }
+  
+  if('omixtype' %in% names(mod$model)){
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+    mixtype <- c(rep('laoc', 100), rep('pico', 100), rep('psme', 100))
+    # mixtype <- as.factor(mixtype)
+    omixtype <- factor(mixtype, levels = c('laoc', 'pico', 'psme'), ordered = T)
+    var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% mutate(omixtype = omixtype, mixtype = mixtype)
+    # var.diam.a <- bind_cols(var.diam.a, mixtype, omixtype)
+  }
+  
+  bai.diam.a <- predict(mod, newdata = var.diam.a, type = 'link', se.fit = T, exclude = ifelse('unique_tree_id' %in% names(var.diam.a), 's(unique_tree_id)', 's(unique.tree.f)'))
+  # bai.diam.a <- ilink(bai.diam.a)
+  a <- tibble(bai=bai.diam.a[[1]], se = bai.diam.a[[2]], var.diam.a)
+  
+  thing <- rbind(a)
+  return(thing)
+}
+
+```
+
+```{r comparing ccf, shade, etc over levels of BA and BAL}
+
+
+a <- ba_fun(purity, ba = 10)
+b <- ba_fun(purity, ba = 50)
+c <- ba_fun(purity, ba = 90)
+d <- ba_fun(purity, ba = 130)
+pur.dat <- rbind(a, b, c, d)
+
+ba_fun(mix.diff.nopien, ba = 10)
+
+purty.pl <- ggplot(pur.dat, aes(x = percent_LAOC, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = bai-(2*se), 
+                  ymax = bai+(2*se)), alpha = 0.2) +
+  labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area')
+
+a <- ba_fun(shade.intol, ba = 10)
+b <- ba_fun(shade.intol, ba = 50)
+c <- ba_fun(shade.intol, ba = 90)
+d <- ba_fun(shade.intol, ba = 130)
+
+shd.dat <- bind_rows(a,b,c,d)
+
+shd.pl <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = bai-(2*se), 
+                  ymax = bai+(2*se)), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area')
+
+#ccf does have ba in the model
+# a <- ba_fun(ccf.mod, bal = 10)
+# b <- ba_fun(ccf.mod, bal = 50)
+# c <- ba_fun(ccf.mod, bal = 90)
+# d <- ba_fun(ccf.mod, bal = 130)
+# 
+# ccf.dat <- bind_rows(a,b,c,d)
+# 
+# ccf.pl <- ggplot(ccf.dat, aes(x = ccf.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+#   geom_line() + 
+#   geom_ribbon(aes(ymin = bai-(2*se), 
+#                   ymax = bai+(2*se)), alpha = 0.2)
+
+# ccf.pl + 
+purty.pl + shd.pl
+
+ba_fun(ccf.mod, ba = 10)
+```
+
+```{r comparing mixtures with different levels of BA}
+
+#set diameter to any value that is not 4.5
+
+a <- ba_fun(mix.diff.nopien, ba = 10, diam = 6)
+b <- ba_fun(mix.diff.nopien, ba = 50, diam = 6)
+c <- ba_fun(mix.diff.nopien, ba = 90, diam = 6)
+d <- ba_fun(mix.diff.nopien, ba = 130, diam = 6)
+
+mixplts <- rbind(a,b,c,d)
+
+ggplot(subset(mixplts, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA') + coord_cartesian(ylim = c(-3,3))
+
+ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ coord_cartesian(ylim = c(-3,3))
 
 ```
 
