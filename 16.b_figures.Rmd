@@ -96,7 +96,7 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 
 ```
 
-```{r base model selection figures}
+```{r 3.1 base model selection figures}
 re.tree.1
 # smest <- smooth_estimates(re.tree.1) %>% mutate(upper = est+(2*se), lower = est-(2*se))
 sm.diam <- smooth_estimates(re.tree.1, smooth = 'DIAM', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
@@ -174,7 +174,7 @@ bai.diam <- full.mix %>%
 
 ```
 
-```{r mixture summary figs.}
+```{r mixture summary non-analysis figs.}
 #make data
 (mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
 
@@ -790,6 +790,42 @@ ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh, device = png)
 
 ```
 
+```{r 3.3 partial response but vary BA-diam}
+bal.function <- function(model, bal = c(0.2, 0.5, 0.75), whatsmooth = 'BAL', xval = DIAMETER, xlab = 'BAL ratio'){
+  require(mgcv)
+  require(gratia)
+  pl.list <- list()
+  for(i in 1:length(bal)){
+    nam <- paste(xlab,bal[i],sep = ".")
+    a <- smooth_data(model, 4, n = 10000, include_all = T) %>%
+       mutate(bal.pl.ratio = 0.2)
+    b <- smooth_estimates(model, smooth = whatsmooth, 
+                           partial_match = T, unconditional = T) %>% 
+       mutate(upper = est+(2*se), lower = est-(2*se))
+    
+    pl.list[[i]] <- ggplot(b, aes(x = xval, y = est, 
+                ymin = lower, ymax = upper)) + 
+       geom_line() +
+       geom_hline(yintercept = 0, linetype = 'dashed') +
+       geom_ribbon(alpha = 0.2) +
+       labs(x = xlab, y='Effect')
+    
+     }
+ return(pl.list)
+}
+bal.function(ccf.mod)
+
+aaa <- smooth_data(ccf.mod, 4, n = 100, include_all = T) %>%
+    mutate(bal.pl.ratio = 0.2)
+smooth_estimates(ccf.mod, data = aaa, )
+```
+
+
+```{r}
+diam.varies <- 
+```
+
+
 ```{r 3.3 diagnostic plots}
 
 gam.check(ccf.mod)
@@ -833,4 +869,6 @@ a <- plot.gam(mix.diff.nopien, scale = 0, select = 8)
 smooth.construct(mix.diff.nopien)
 draw(mix.diff.nopien, residuals = F, rug = F, select = 's(bal.pl', partial_match = T)
 ```
+
+
 

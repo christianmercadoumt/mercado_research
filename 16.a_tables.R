@@ -54,8 +54,10 @@ num.pl <- bai.spmx.ids %>% group_by(stand) %>%
             number.trees = n_distinct(unique_tree_id), 
             number.obs = n(), 
             n.meas = 1+n_distinct(MEASUREMENT_NO))
-
-xtable(num.pl)
+totals <- c(sum(num.pl$number.plots), sum(num.pl$number.trees), sum(num.pl$number.obs))
+num.pl %>% 
+  kable(format = 'latex', booktabs = T) %>% #caption = 'Shade tolerance for western conifers (ref:caption2)',
+  kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F)
 
 bai.spmx.ids %>% filter(stand == 1401) %>% summarize(unique(PLOT))
 # Table of all variables considered, by group, and how they were calculated (?)####

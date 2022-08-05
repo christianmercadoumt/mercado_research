@@ -34,7 +34,7 @@ Thanks.
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-The abstract.
+TBD
 
 \tableofcontents
 
@@ -73,7 +73,7 @@ Additionally, its wood is characterized with desirable lumber qualities
 such as high specific gravity, straight grains, and tight knots 
 \citep{KeeganIII1995}. It is the most productive of
 the three North American larch species \citep{Rehfeldt2010} and its lumber is often 
-commercially available in a mix with douglas-fir lumber, adding a unique and
+commercially available in a mix with Douglas-fir lumber, adding a unique and
 localized product value. Further, western larch and its associated
 forests provide important habitat to native birds, bears, and ungulates 
 \citep{McClelland1999,Schmidt1976}. In the US northern rocky mountains,
@@ -110,7 +110,7 @@ and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1981a,Schmidt1988}.
 Western larch is classified as very intolerant of shade and one of the fastest-growing within
 its communities \citep{Baker1949,Schmidt1988}. 
 Larch's prolific regeneration and rapid juvenile growth allows it to 
-outcompete other trees, which can lead to high stand density \citep{Schmidt1998}.  
+out-compete other trees, which can lead to high stand density \citep{Schmidt1998}.  
 Thus, it responds well to density management early in stand development, 
 which can have lasting impacts on tree and stand growth \citep{Schaedel2017a}.
 It is sometimes managed in even-aged, homogeneous plantations, but more 
@@ -212,9 +212,9 @@ but also provides evidence for its theoretical foundation.
 For stands in the inland northwest, where relatively low intensity 
 management occurs over a broad area and across tree, stand, and site conditions, 
 managers and researchers use the forest vegetation simulator 
-(FVS;\cite{Dixon2020} to estimate future stand dynamics. 
+(FVS; \cite{Dixon2020} to estimate future stand dynamics. 
 FVS is a distance-independent individual tree growth model 
-\citep(Stage1973,Wykoff1990) that does not require individual tree location 
+\citep(Stage1973a,Wykoff1990) that does not require individual tree location 
 to measure competition, and projects tree growth using tree size, stand density, 
 competition, and site variables. 
 Its formulation is paralelled by growth models in other regions and countries, 
@@ -234,7 +234,7 @@ in mixtures between shade-tolerant \emph{Picea abies} and shade-intolerant
 
 Since individual tree growth models can be improved 
 by accounting for species-mixing in addition to other variables,
-and since there is evidence of this in phylogenetically similar European larch,
+and since there is evidence of this in photogenically similar European larch,
 then species-mixing effects may be pertinent to
 characterizing western larch growth since western 
 larch is a shade-intolerant, fast growing species that mixes with 
@@ -476,7 +476,7 @@ accessible stands with at least 3 previously recorded measurements on
 the Lolo National Forest. During the summer of 2021, PGP stands on the
 Lolo and Kootenai National Forests that were previously measured at least
 3 times and that were composed of >50\% overstory western larch (determined
-by most recent measurement) were targeted for remeasurement. Stands across 
+by most recent measurement) were targeted for re-measurement. Stands across 
 the remeasured PGPs were spread between $46^{\circ}$ N and $49^{\circ}$ N, and 
 between 800 and 1700 $m$ above sea level. Stands were primarily on north-facing aspects. 
 % Soil conditions were variable from site-to-site, but most were a silty-loam texture.
@@ -485,31 +485,38 @@ forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, g
 subalpine fir, western hemlock, mountain hemlock, western red cedar,
 cottonwood, and quaking aspen. 
 
-\begin{table}[ht]
+\begin{table}[H]
+\caption{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
+\label{tab:sumtab}
 \centering
-\begin{tabular}{rlrrrr}
-  \hline
- & stand & number.plots & number.trees & number.obs & n.meas \\ 
-  \hline
-1 & 1401 &  10 &  53 & 150 & 4.00 \\ 
-  2 & 1402 &  10 & 188 & 631 & 5.00 \\ 
-  3 & 1403 &  10 & 113 & 313 & 5.00 \\ 
-  4 & 1404 &  10 & 146 & 465 & 5.00 \\ 
-  5 & 1405 &  10 & 188 & 676 & 5.00 \\ 
-  6 & 1406 &  10 &  99 & 304 & 5.00 \\ 
-  7 & 1407 &  19 &  74 & 108 & 4.00 \\ 
-  8 & 1408 &  10 &  77 & 212 & 4.00 \\ 
-  9 & 1609 &   9 &  37 & 139 & 5.00 \\ 
-  10 & 1610 &  10 & 129 & 416 & 5.00 \\ 
-  11 & 1611 &  10 &  77 & 222 & 5.00 \\ 
-  12 & 1612 &  10 & 211 & 548 & 4.00 \\ 
-  13 & 1614 &   9 &  49 & 181 & 5.00 \\ 
-  14 & 1615 &  10 & 133 & 379 & 4.00 \\ 
-  15 & 1616 &  10 & 106 & 291 & 4.00 \\ 
-  16 & 1617 &  10 & 131 & 355 & 4.00 \\ 
-  17 & 1618 &   9 &  30 &  66 & 4.00 \\ 
-  18 & 1619 &  10 & 134 & 338 & 4.00 \\ 
-   \hline
+\begin{tabular}{lrrrr}
+\toprule
+Stand & Plots & Unique trees & Observations & Measurements\\
+\midrule
+\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150} & \cellcolor{gray!6}{4}\\
+1402 & 10 & 188 & 631 & 5\\
+\cellcolor{gray!6}{1403} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{113} & \cellcolor{gray!6}{313} & \cellcolor{gray!6}{5}\\
+1404 & 10 & 146 & 465 & 5\\
+\cellcolor{gray!6}{1405} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{188} & \cellcolor{gray!6}{676} & \cellcolor{gray!6}{5}\\
+\addlinespace
+1406 & 10 & 99 & 304 & 5\\
+\cellcolor{gray!6}{1407} & \cellcolor{gray!6}{19} & \cellcolor{gray!6}{74} & \cellcolor{gray!6}{108} & \cellcolor{gray!6}{4}\\
+1408 & 10 & 77 & 212 & 4\\
+\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5}\\
+1610 & 10 & 129 & 416 & 5\\
+\addlinespace
+\cellcolor{gray!6}{1611} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{77} & \cellcolor{gray!6}{222} & \cellcolor{gray!6}{5}\\
+1612 & 10 & 211 & 548 & 4\\
+\cellcolor{gray!6}{1614} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{49} & \cellcolor{gray!6}{181} & \cellcolor{gray!6}{5}\\
+1615 & 10 & 133 & 379 & 4\\
+\cellcolor{gray!6}{1616} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{106} & \cellcolor{gray!6}{291} & \cellcolor{gray!6}{4}\\
+\addlinespace
+1617 & 10 & 131 & 355 & 4\\
+\cellcolor{gray!6}{1618} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{66} & \cellcolor{gray!6}{4}\\
+1619 & 10 & 134 & 338 & 4\\
+\midrule
+\cellcolor{gray!6}{Totals} & \cellcolor{gray!6}{186} & \cellcolor{gray!6}{1975} & \cellcolor{gray!6}{5794} & \cellcolor{gray!6}{ }\\
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -519,7 +526,7 @@ cottonwood, and quaking aspen.
 \subsection{GAM overviewl}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
-annual growth of western larch, quantified by basal area increment (BAI; Equation \ref{eq:bai}). 
+annual growth of western larch, quantified by basal area increment (BAI; Equation ~\ref{eq:bai}). 
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{weiskittel2011forest}.
@@ -623,7 +630,7 @@ Then, with the selected size variable present in the model,
 competition and density variables were evaluated and selected 
 based on maximizing model accuracy and reducing overlap between variables. 
 The same process was used for site variables thereafter, 
-finalizing the base model formulation (Eq. \ref{eq:baiform}). 
+finalizing the base model formulation (Eq. ~\ref{eq:baiform}). 
 
 \begin{equation}
 \label{eq:baiform}
@@ -635,7 +642,7 @@ value of BAI of interest, $\beta_0$ represents
 an intercept, and $f_n$ represents a non-linear function applied to  
 a given predictor variable.
 
-Root mean squared error (RMSE; Eq. \ref{eq:rmse}) was 
+Root mean squared error (RMSE; Eq. ~\ref{eq:rmse}) was 
 calculated to assess model accuracy, where when comparing models, 
 a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
@@ -685,7 +692,7 @@ containing a reference smooth for each predictor, and a \emph{difference smooth}
 for species-mixture \citep{wood2006generalized}. These difference smooths were evaluated 
 against the pure larch reference smooth using a hypothesis test 
 to identify evidence that difference is non-zero. 
-The model from equation \ref{eq:baiform} may be modified as follows:
+The model from equation ~\ref{eq:baiform} may be modified as follows:
 
 \begin{equation}
 \label{eq:mixes}
@@ -819,8 +826,8 @@ In contrary, a stratification of trees of different sizes composed of large and
 small crown widths could increase utilization of crown space, 
 reducing competition. CCF weighs species identity by species-specific 
 diameter-crown allometry -based parameters. This study used the species 
-parameters used by the FVS Inland Empire regional variant (Table \ref{tb:ccfvals};\cite{Keyser2008}).
-The CCF equation is shown in equation (\ref{eq:ccf}):
+parameters used by the FVS Inland Empire regional variant (Table ~\ref{tb:ccfvals}; \cite{Keyser2008}).
+The CCF equation is shown in equation (~\ref{eq:ccf}):
 
 \begin{equation}
 \label{eq:ccf}
@@ -838,9 +845,9 @@ $CCF{it}$ across trees $i$ within the plot $j$. $r_{n}$ coefficients represent p
 provided for each species.
 
 \begin{table}[!h]
-\label{tb:ccfvals}
-\caption{Crown competition (CCF) parameters used. These values were taken from the documentation for the inland empire variant of FVS \citep{Keyser2008}}
 \centering
+\caption{Crown competition (CCF) parameters used. These values were taken from the documentation for the inland empire variant of FVS \citep{Keyser2008}}
+\label{tb:ccfvals}
 \begin{tabular}{llrrrrr}
 \toprule
 Species abbr. & r1 & r2 & r3 & r4 & r5\\
@@ -873,7 +880,7 @@ PIAL & 0.02000 & 0.01480 & 0.00338 & 0.007244 & 1.8182\\
 The proportion of basal area occupied by larch is a measure of species  
 purity within a stand, and is simply calculated as a ratio of plot basal 
 area occupied by western larch to plot basal area occupied by other species 
-and is displayed in equation \ref{eq:purity} below:
+and is displayed in equation ~\ref{eq:purity} below:
 
 \begin{equation}
 \label{eq:purity}
@@ -889,11 +896,11 @@ The third species-informed measure makes use of a shade-tolerance index
 ranging between 0 and 1, 0 being very shade-tolerant, and 1 being very 
 shade-intolerant. Since this study focused on shade-intolerant western larch, 
 these values were inverted so that they could be easily compared with the 
-purity metric. The resulting values are shown in table \ref{tab:shade}). 
+purity metric. The resulting values are shown in table ~\ref{tab:shade}). 
 Shade tolerance values were multiplied by individual tree 
 basal area values, and then summed, effectively describing community 
 shade-intolerance through a proportion of basal area shown in 
-equation \ref{eq:shade}: 
+equation ~\ref{eq:shade}: 
 
 \begin{equation}
 \label{eq:shade}
@@ -993,8 +1000,8 @@ variables individually, DBH explained more deviance and reduced RMSE
 more than any other variable in the model. 
 
 \begin{figure}
-\label{fig:basesmooths}
 \caption{}
+\label{fig:basesmooths}
 \centering
 \begin{subfigure}[b]{0.7\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
@@ -1008,8 +1015,8 @@ more than any other variable in the model.
 % -- model fitting rmse table -- 
 
 \begin{table}[!h]
-\label{tab:rmse}
 \caption{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+\label{tab:rmse}
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
@@ -1044,11 +1051,11 @@ more than any other variable in the model.
 %% maybe i should constrain plotted curves to only pure larch that lie between west and north?
 The model fitted for western larch growth compared across mixtures 
 was informed by a variety of conditions as displayed in table 
-(Table \ref{tab:mixsummary}). Species compositions can vary with 
+(Table ~\ref{tab:mixsummary}). Species compositions can vary with 
 variations in aspect due to species preference to different niches, so it was 
 important to consider where data was modeled from. 
 Pure larch stands evaluated sat on northerly aspects spanning from west to east
-(Fig. \ref{fig:asp}), and both mixtures evaluated showed some preference towards northwest 
+(Fig. ~\ref{fig:asp}), and both mixtures evaluated showed some preference towards northwest 
 facing slopes, but ultimately data spanned a similar range to the pure conditions. 
 The reference curve captured variability in each 
 predictor with high certainty. Crown ratio was penalized to a linear effect, 
@@ -1062,13 +1069,13 @@ resembled those of the base model, and thus are not displayed.
 There was strong evidence indicating a departure of growth response from pure conditions
 as tree size (DBH), symmetry of competition (BAL), and stand density (BA) varied
 when mixed with lodgepole pine, and modest  
-evidence for such in crown ratio and aspect (Table \ref{tab:diff}). 
+evidence for such in crown ratio and aspect (Table ~\ref{tab:diff}). 
 In these mixtures, growth was even less in smaller western larch trees, 
 but became even greater when larch diameters exceeded ~12cm, compared to pure stands. 
 A similarly-shaped difference effect is displayed as western larch takes up more growing space 
 in its community to taking up less space than lodgepole pine 
 (as BAL increases from zero). The difference curve for BAL 
-(Fig. \ref{fig:diffsmooths}), practically 
+(Fig. ~\ref{fig:diffsmooths}), practically 
 outweighs the reference curve respective of the line of 0 difference,
 indicating that asymmetric competition that is in favor of larch may negatively 
 impact it's growth and in favor of lodgepole pine may drive an increase in growth, 
@@ -1084,10 +1091,10 @@ For larch-Douglas-fir mixtures, growth deviated from the pure stands
 as crown ratio, stand density, and aspect varied, but little to no variation was 
 observed in response to different levels of tree size or symmetry of competition. 
 The growth difference in response to crown ratio were slightly elevated 
-for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. \ref{fig:diffsmooths}), 
+for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. ~\ref{fig:diffsmooths}), 
 but the slight change likely doesn't have any important interpretation due to 
 the small impact. Similar to the lodgepole pine mixtures, basal area impacts on 
-growth in douglas-fir mixed larch were were intensified at higher densities. 
+growth in Douglas-fir mixed larch were were intensified at higher densities. 
 This impact, however, was comparatively smaller than that of the lodgepole pine 
 mixtures; the rate of this magnifying effect may require further investigation 
 using methodologies appropriate for such comparisons. 
@@ -1097,8 +1104,8 @@ using methodologies appropriate for such comparisons.
 %Table of mixtures, min, max, mean for each variable in model
 
 \begin{table}[H]
-\label{tab:mixsummary}
 \caption{Summary table for different species-mixture data subsets.}
+\label{tab:mixsummary}
 \centering
 \begin{tabular}{llrrr}
 \toprule
@@ -1153,8 +1160,8 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 
 %figure showing dist. for aspect? maybe switch to other variable?
 \begin{figure}
-\label{fig:asp}
 \caption{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+\label{fig:asp}
 \centering
 \begin{subfigure}[b]{0.75\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
@@ -1173,8 +1180,8 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 % table of significances
 \begin{table}
 \centering
-\label{tab:diff}
 \caption{Table indicating the strength of evidence that the difference between the smooths fitted for each mixture-type were different from the reference smooth (for pure larch). P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence.}
+\label{tab:diff}
 \begin{tabular}{lcrcr}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
@@ -1193,10 +1200,10 @@ BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
 %% given those results, here are some partial response curves 
 %show smooths
 \begin{figure}
-\label{fig:diffsmooths}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/mix_diff_smooths.png}
 \caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
+\label{fig:diffsmooths}
 \end{figure}
 
 
@@ -1212,17 +1219,17 @@ among predictors.
 
 %Table w/ rmseand stuff (is below)
 Model accuracy was best improved by the addition of stand purity, followed by 
-plot shade intolerance and plot crown competition factor (Table \ref{tab:mixvarsrmse}). 
+plot shade intolerance and plot crown competition factor (Table ~\ref{tab:mixvarsrmse}). 
 Every term in each respective model was backed by a p-value < 0.001, indicating 
 that each was non-zero, provided that smoothing parameter estimation and model 
 selection were moderately error-free. Changes in RMSE were modest, all of which 
 were at the sub-square centimeter per year -level. Model fit increased in concert with 
 improvements to accuracy except for with CCF, which 
-showed a small decrease in deviance explained (Table \ref{tab:mixvarsrmse}) and 
+showed a small decrease in deviance explained (Table ~\ref{tab:mixvarsrmse}) and 
 $R^2$.
 
 CCF displayed the largest effect on tree growth, followed by purity and 
-shade intolerance (Fig.\ref{fig:ccf_pur_shd}). However, since CCF is a measure of stand 
+shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, since CCF is a measure of stand 
 density, it appears very similar to the basal area smooth in the base model. 
 Both purity and shade intolerance were characterized by postive effects on 
 growth for lower values, and slightly negative effects on growth for positive 
@@ -1235,18 +1242,18 @@ and uncertainties. As a result, shade intolerance effects
 %Show smooths for each measure
 
 \begin{figure}
-\label{fig:ccf_pur_shd}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/ccf_pur_shd.png}
 \caption{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
+\label{fig:ccf_pur_shd}
 \end{figure}
 
 
 % -table of RMSE, dev.expl values for each model-
 
 \begin{table}[!h]
-\label{tab:mixvarsrmse}
 \caption{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
+\label{tab:mixvarsrmse}
 \centering
 \begin{tabular}{lrrr}
 \toprule
@@ -1261,50 +1268,58 @@ Shade intol. & 4.627 & 85.02 & 0.77946\\
 \end{table}
 
 %bullet point list of results
- - competition and density metrics contributed the most in deviance explained, followed by size.
- -- DBH was the best individual predictor
- -
+ % - competition and density metrics contributed the most in deviance explained, followed by size.
+ % -- DBH was the best individual predictor
+ % -
 
 \section{Discussion}
 
 \subsection{GAMs and model selection}
 
----- A blurb about GAMs, their usage, the pros, the cons. 
+--- A blurb about GAMs, their usage, the pros, the cons. 
 - The use of generalized additive models is becoming more prevalent in 
 ecological research to capture non-linear patterns that exist in 
 ecosystems.
+
  -- but it is not a panacea 
- -- Discuss bias-variance tradeoffs
+ 
+ -- Discuss bias-variance tradeoffs in GAMs
+ 
  -- complexity-computation time tradeoffs
+ 
  -- difficulty with p-values and interpretability
  
----- Now contextualize with the results reported above
+--- Now contextualize with the results reported above 
 
--Point: The tradeoffs discussed above were encountered at each step 
-of the process. 
+--- 1. Point: The tradeoffs discussed above were encountered/considered
 
- -- The inclusion of indiviual tree RE's instead of capturing variation 
+ -- The inclusion of individual tree REs instead of capturing variation 
  at every stand level. 
  % Residual dependence structure  (provide figure with boxplots of normalized residuals across sites?)
  
  -- The base model formulation used a global smoother for each term 
+ 
  -- The random effect produced intercepts for each individual tree, each
  sharing one general smoother. 
- -- this limits variance and produces tree and site-specific biases which
- can result in overfitting if smooths are not constrained by penalties. 
- -- shrinkage penalty approach was used here. No apparent patterns missed 
- in residuals. (plot?)
  
- -- - Setting up smooths for each individual tree would not only 
- up complexity, but also increase comptuation time. It also wouldn't work 
+ -- this limits variance and produces tree and site-specific biases which
+ can result in overfitting if smooths are not constrained by penalties.
+ 
+ % -- shrinkage penalty approach was used here. No apparent patterns missed 
+ % in residuals. (plot?)
+ 
+ -- - Fitting smooths for each individual tree would not only 
+ up complexity and computation time. It also wouldn't work 
  because each tree only has a few observations. 
  
- -- Further, bias may be created for fitting smooths for each site. 
- --- However, upping complexity for the sake of allowing for 
- stand-specific variability to occur may not have been particularly 
- useful since there is a model term that accounts for variation in site. 
+ % -- Further, bias may be created for fitting smooths for each site.
+ 
+ % --- However, upping complexity for the sake of allowing for 
+ % stand-specific variability to occur may not have been particularly 
+ % useful since there is a model term that accounts for variation in site. ? 
+ 
  --- BUT - allowing site-growth relationships to vary by stand could 
- be useful.
+ be useful. 
 
  
  -- When comparing growth response across mixtures, we allowed for 
@@ -1619,14 +1634,14 @@ TBD
 % species-mixing impacts the growth of western larch (if an effect is observed).
 % \end{enumerate}
 % 
-% As shown in Fig.~\ref{fig:junk}, there are many references to consider.
+% As shown in Fig.~~\ref{fig:junk}, there are many references to consider.
 % \begin{figure}\centering
 % %\includegraphics[width=\textwidth]{../extab_refs.JPG}
 % \includegraphics[width=2in]{../extab_refs.JPG}
 % \caption{This is a figure.}\label{fig:junk}
 % \end{figure}
 % 
-% Next I have a table, called Table \ref{tab:fake}.
+% Next I have a table, called Table ~\ref{tab:fake}.
 % \begin{table}\centering
 % \caption{This is my table.}\label{tab:fake}
 % \begin{tabular}{cc}
