@@ -1196,7 +1196,7 @@ BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
 \label{fig:diffsmooths}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/mix_diff_smooths.png}
-\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures. Smooths plotted are for only those where they are evidently different, as shown in table 1.4.}
+\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
 \end{figure}
 
 
