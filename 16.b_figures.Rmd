@@ -1086,6 +1086,9 @@ a <- plot.gam(mix.diff.nopien, scale = 0, select = 8)
 
 smooth.construct(mix.diff.nopien)
 draw(mix.diff.nopien, residuals = F, rug = F, select = 's(bal.pl', partial_match = T)
+
+
+summary(mix.diff.nopien)
 ```
 
 

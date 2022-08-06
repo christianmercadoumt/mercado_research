@@ -47,8 +47,8 @@ TBD
 %%%% BODY
 \mainmatter
 \setlength{\baselineskip}{22pt} % begin double spacing
-\chapter{}
-\section{Introduction}
+\chapter{Introduction}
+% \section{}
 
 
 
@@ -433,8 +433,8 @@ stand species purity and a species-informed measure of crown density.
 % (ii) identify, quantify, and compare different species-composition informed metrics within an empirical modelling framework
 % the effectiveness of different measures of species-mixing
 
-\section{Methods}
-\subsection{Tree growth data}
+\chapter{Methods}
+\section{Tree growth data}
 
 The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
 tree forest growth model that is widely used in the western United States 
@@ -486,7 +486,7 @@ subalpine fir, western hemlock, mountain hemlock, western red cedar,
 cottonwood, and quaking aspen. 
 
 \begin{table}[H]
-\caption{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
+\caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
 \label{tab:sumtab}
 \centering
 \begin{tabular}{lrrrr}
@@ -523,7 +523,7 @@ Stand & Plots & Unique trees & Observations & Measurements\\
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
 
-\subsection{GAM overviewl}
+\section{GAM overviewl}
 
 Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
 annual growth of western larch, quantified by basal area increment (BAI; Equation ~\ref{eq:bai}). 
@@ -582,7 +582,7 @@ growth across different species mixtures, where the model was re-fit
 with subsets of the training data set, depending on the type of mixture. 
 
 
-\subsection{Base model selection}
+\section{Base model selection}
 
 Variable selection followed the logic of Wykoff (\citeyear{Wykoff1990}), 
 Monserud \& Sterba (\citeyear{Monserud1996}), and 
@@ -660,7 +660,7 @@ where $\hat{y}$ is the model prediction, $y$ is the observation, and $n_{df}$
 is the model residual degrees of freedom.
 
 
-\subsection{Assessing species-mixing impacts on growth}
+\section{Assessing species-mixing impacts on growth}
 
 % - Once a model exists, we can use it on subsets of the data set to 
 % determine types of species-mixing effects and their effects on BAI
@@ -805,7 +805,7 @@ $x_n$ in a mixture.
 % --- do i compare pointwise, based on the confidence interval?
 
 
-\subsection{Capturing and comparing species-mixing measures}
+\section{Capturing and comparing species-mixing measures}
 
 Three different species-informed measures were identified for comparison: 
 crown competition factor, proportion of basal area occupied by larch, and 
@@ -846,7 +846,7 @@ provided for each species.
 
 \begin{table}[!h]
 \centering
-\caption{Crown competition (CCF) parameters used. These values were taken from the documentation for the inland empire variant of FVS \citep{Keyser2008}}
+\caption[CCF parameters]{Crown competition (CCF) parameters used. These values were taken from the documentation for the inland empire variant of FVS \citep{Keyser2008}}
 \label{tb:ccfvals}
 \begin{tabular}{llrrrrr}
 \toprule
@@ -913,7 +913,7 @@ tree $i$ \citep{Lienard2015}.
 
 
 \begin{table}
-\caption{Shade intolerance values, which are the inverse of shade tolerance values provided by Lienard (\citeyear{Lienard2015})}
+\caption[Shade intolerance values]{Shade intolerance values, which are the inverse of shade tolerance values provided by Lienard (\citeyear{Lienard2015})}
 \label{tab:shade}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
@@ -952,9 +952,35 @@ model summary outputs.
 % and model prediction errors were calculated. 
 
 
-\section{Results}
+\chapter{Results}
 
-\subsection{BAI model}
+\section{BAI model}
+
+\begin{table}[!h]
+\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+\label{tab:rmse}
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+\toprule
+\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($cm^2/yr.$)\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
+\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Competition \& density}} & 62.87 & 4.31 \\
+\hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{1em}BAL & 8 & & \\
+\hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Site}} & 67.39 & 4.01197\\
+\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\textbf{Base model} & 1389 & 84.91 & 3.32142 \\
+\hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 A basal area increment model was specified with the following predictors: 
 DBH, crown ratio (CR), basal area larger than the subject (BAL; expressed as a ratio), 
@@ -969,7 +995,8 @@ The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used
 Random effects were accounted for using a spline basis 
 \citep{wood2006generalized}, and thus had an associated degrees of 
 freedom, which was ~1338. Model residual 
-degrees of freedom was ~4401.
+degrees of freedom was ~4401. Model statistics are reported in Table 
+\ref{tab:rmse}.
 
 Tree DBH and basal area were highly correlated (0.938) and were 
 evaluated in separate models. DBH as a predictor yielded higher 
@@ -1000,9 +1027,21 @@ deviance explained, followed by size. However, considering
 variables individually, DBH explained more deviance and reduced RMSE 
 more than any other variable in the model. 
 
+Partial response curves are shown in Figure \ref{fig:basesmooths}. DBH had an 
+overall increasing effect on BAI, eventually tapering at values larger 
+than 30cm. Crown ratio was penalized to a near-linear increasing effect that 
+was relatively small overall, going from negative to positive at values near 
+0.7. BAL showed a modest positive effect which decreased to a slightly 
+larger negative effect as western larch became less dominant in a plot. 
+Basal area (BA) was represented by an overall decreasing effect, where densities greater 
+than 10 $m^2/ha$ were associated with an increasingly negative effect on growth, 
+that tapered off and became less certain at values exceeding 40 $m^2/ha$. As 
+aspect varied, the partial effect on growth varied, where positive effects 
+were associated with N-NW, N-NE, and NE aspects. NW and SE aspects were associated 
+with some negative growth. Data was not sufficient for esimating aspect effects 
+for south-facing aspects. 
+
 \begin{figure}
-\caption{}
-\label{fig:basesmooths}
 \centering
 \begin{subfigure}[b]{0.7\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
@@ -1010,43 +1049,20 @@ more than any other variable in the model.
 \begin{subfigure}[b]{0.7\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/base_aspect.png}
 \end{subfigure}
-\caption{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
+\caption[Base model smooths]{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
+\label{fig:basesmooths}
 \end{figure}
 
 % -- model fitting rmse table -- 
 
-\begin{table}[!h]
-\caption{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
-\label{tab:rmse}
-\centering
-\begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
-\toprule
-\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($cm^2/yr.$)\\
-\midrule
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
-\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Competition \& density}} & 62.87 & 4.31 \\
-\hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
-\hspace{1em}BAL & 8 & & \\
-\hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Site}} & 67.39 & 4.01197\\
-\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\textbf{Base model} & 1389 & 84.91 & 3.32142 \\
-\hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\bottomrule
-\end{tabular}
-\end{table}
+
 
 % Furthermore, aspect effects were evaluated in the model separately as easting, 
 % northing, as a joint interaction term, and as a decomposed tensor 
 % product interaction term (CITE - wood?).
 % to ensure that multi-level competitive effects were captured
 
-\subsection{Assessing species-mixing impacts on growth}
+\section{Assessing species-mixing impacts on growth}
 
 % modeling mixtures
 %% maybe i should constrain plotted curves to only pure larch that lie between west and north?
@@ -1064,7 +1080,7 @@ but still held a non-zero effect. The reference smooths fit for each term closel
 resembled those of the base model, and thus are not displayed. 
 
 %% present results from summary output table. 
-\subsubsection{Western larch-lodgepole pine mixtures}
+\subsection{Western larch-lodgepole pine mixtures}
 % Western larch growth varied in mixture type compared to homogeneous conditions 
 % in response to each variable. 
 There was strong evidence indicating a departure of growth response from pure conditions
@@ -1086,7 +1102,7 @@ intensified at very low densities and higher densities, respectively,
 although the uncertainty becomes somewhat unmanageable at higher densities, 
 likely due to a lack of high-density data for this mixture. 
 
-\subsubsection{Western larch-Douglas-fir mixtures}
+\subsection{Western larch-Douglas-fir mixtures}
 
 For larch-Douglas-fir mixtures, growth deviated from the pure stands 
 as crown ratio, stand density, and aspect varied, but little to no variation was 
@@ -1105,7 +1121,7 @@ using methodologies appropriate for such comparisons.
 %Table of mixtures, min, max, mean for each variable in model
 
 \begin{table}[H]
-\caption{Summary table for different species-mixture data subsets.}
+\caption[Mixtures data summary]{Summary table for different species-mixture data subsets.}
 \label{tab:mixsummary}
 \centering
 \begin{tabular}{llrrr}
@@ -1161,8 +1177,6 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 
 %figure showing dist. for aspect? maybe switch to other variable?
 \begin{figure}
-\caption{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
-\label{fig:asp}
 \centering
 \begin{subfigure}[b]{0.75\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
@@ -1173,7 +1187,8 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \begin{subfigure}[b]{0.75\textwidth}
 \includegraphics[width=\textwidth]{../17.figures_saved/compass_psme.png}
 \end{subfigure}
-\caption{Distribution of unique aspect values for each mixture-type.}
+\caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+\label{fig:asp}
 \end{figure}
 
 %state which values are significant and for which term
@@ -1181,19 +1196,25 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 % table of significances
 \begin{table}
 \centering
-\caption{Table indicating the strength of evidence that the difference between the smooths fitted for each mixture-type were different from the reference smooth (for pure larch). P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence.}
+\caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
 \label{tab:diff}
 \begin{tabular}{lcrcr}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} 
-Smooth & Difference $\neq 0$ & p-value & Difference $\neq 0$ & p-value\\
+Smooth & EDF & p-value & EDF & p-value\\
 \midrule
-\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{no evidence} & \cellcolor{gray!6}{0.398}\\
-Crown ratio & some evidence & 0.031 & moderately strong & 0.004\\
-\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{no evidence} & \cellcolor{gray!6}{0.122}\\
-BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
-\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{some evidence} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{strong evidence} & \cellcolor{gray!6}{$< 0.001$}\\
+\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{2.75} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.14} & \cellcolor{gray!6}{0.398}\\
+Crown ratio & 2.78 & 0.031 & 3.74 & 0.004\\
+\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.11} & \cellcolor{gray!6}{0.122}\\
+BA & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
+\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{6.61} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{10.7} & \cellcolor{gray!6}{$< 0.001$}\\
+\bottomrule
+\multicolumn{1}{l}{Intercept} & \multicolumn{2}{c}{Estimate} & \multicolumn{2}{c}{p-value}  \\
+\midrule
+\multicolumn{1}{l}{\cellcolor{gray!6}{Reference}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.0452}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.018$}} \\
+\multicolumn{1}{l}{Larch-lodgepole} & \multicolumn{2}{c}{-0.256} & \multicolumn{2}{c}{0.694} \\
+\multicolumn{1}{l}{\cellcolor{gray!6}{Larch-Douglas-fir}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.138}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.778$}} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1203,12 +1224,12 @@ BA & strong evidence & $< 0.001$ & moderately strong & 0.001\\ %0.0012
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/mix_diff_smooths.png}
-\caption{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
+\caption[Difference smooths]{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
 \label{fig:diffsmooths}
 \end{figure}
 
 
-\subsection{Comparing species-mixing measures}
+\section{Comparing species-mixing measures}
 
 %
 Models were specified for each species-informed measure. 
@@ -1245,7 +1266,7 @@ and uncertainties. As a result, shade intolerance effects
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/ccf_pur_shd.png}
-\caption{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
+\caption[CCF, purity, shade intolerance smooths]{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
 \label{fig:ccf_pur_shd}
 \end{figure}
 
@@ -1253,7 +1274,7 @@ and uncertainties. As a result, shade intolerance effects
 % -table of RMSE, dev.expl values for each model-
 
 \begin{table}[!h]
-\caption{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
+\caption[CCF, purity, shade intolerance table]{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
 \label{tab:mixvarsrmse}
 \centering
 \begin{tabular}{lrrr}
@@ -1273,14 +1294,26 @@ Shade intol. & 4.627 & 85.02 & 0.77946\\
  % -- DBH was the best individual predictor
  % -
 
-\section{Discussion}
+\chapter{Discussion}
 
-\subsection{GAMs and model selection}
+\section{GAMs and model selection}
 
 --- A blurb about GAMs, their usage, the pros, the cons. 
 - The use of generalized additive models is becoming more prevalent in 
 ecological research to capture non-linear patterns that exist in 
 ecosystems.
+
+ -- Since the models fit here estimate BAI conditional on a gamma 
+ distribution with a log-link function, the model terms together may be considered 
+ to have a multiplicative effect, allowing for interpretation 
+ of terms as interactive with one another. 
+ 
+ \[g(E(BAI)) \~ \Gamma(\mu,\alpha)\]
+ 
+ --- Therefore, a one-unit change in a value of diameter will have a multiplicative 
+ effect on the response. 
+ 
+ --- This provides the flexibility to remark on 
 
  -- but it is not a panacea 
  
@@ -1363,7 +1396,7 @@ it was deemed more practical to compare non-species informed BA to CCF
 %   -- gam fitted bai models in particular?
 
 
-\subsection{Assessing species-mixing impacts on growth}
+\section{Assessing species-mixing impacts on growth}
 
 Point: The difference between larch growth in the lodgepole-mixed and 
 pure larch conditions is suggestive that interspecific competitive dynamics 
@@ -1402,7 +1435,45 @@ dynamics for pure larch stands.
   i. choice of covariates in model and the processes they account for
   ii. model selection. 
   
-
+ -- Its been suggested that defining different mixtures with proportion of 
+ basal area alone can lead to inaccurate estimations of individual tree growth
+ since mixture effects depend on site conditions \citep{Huber2014}. 
+ Here, mixing was defined by either weighted or unweighted proportions of 
+ basal area. Although different mixture types were not weighted specifically 
+ by site conditions or stocking potentials as the literature suggests, 
+ site conditions were considered in the model as a separate term, aspect. 
+ Furthermore, since the model was specified with a log link function, 
+ changes in one predictor have a multiplicative effect 
+ on growth with the other predictors, so a change in mixing proportion relates 
+ to growth in such a way that is dependent on the value of aspect. Therefore, 
+ given that aspect represents site potential - an assumption made here based 
+ on previously identified empirical studies \citep{Stage1976,Kimsey2019}, 
+ then no such weighting is necessary. 
+ 
+ Relying on aspect as the sole predictor relating to site conditions, however, 
+ may be a limitation of the current study. Aspect was selected in the model 
+ because it outweighed alternative measures, including a more comprehensive 
+ heatload metric, which is based on a combination of slope, aspect, and 
+ elevation. Including additional site variables to 
+ aspect was associated with a high degree of interdependence among variables, 
+ represented by model concurvity. For example, as a first pass, aspect, slope, 
+ and elevation were compared to determine the best of the three. After selecting 
+ aspect, the addition of slope and/or elevation both drove concurvity higher 
+ than the established maximum threshold. Aspect on its own, was then compared 
+ against heatload and stand-specific intercepts. The stand intercept version 
+ had the lowest RMSE value, but was associated with a high degree of concurvity.
+ 
+ These points highlight an overarching consideration: model selection is 
+ associated with uncertainty. 
+ -- Talk about different methods of model selection
+ -- Mention that mgcv has options for selection, but I did not use them because 
+ 1. wanted to ensure that all effects are captured
+ 2. avoid using black-box methods
+ -- wood says: "The more thought is given to appropriate model structure up front, the more successful model selection is likely to be. Simply starting with a hugely flexible model with ‘everything in’ and hoping that automatic selection will find the right structure is not often successful."
+ -- Perhaps it could make sense to apply further penalties as a check once the base model is identified?
+ 
+ -- Point about random forests ?
+ -- point?
  
 
 -- CCF, Purity, shade intol. --
@@ -1470,7 +1541,7 @@ could improve model performance in its place.
 
 
 
-\section{Conclusions}
+\chapter{Conclusions}
 
 TBD
 

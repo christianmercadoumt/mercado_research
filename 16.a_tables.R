@@ -452,6 +452,10 @@ mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
 sum.nopien <- summary(mix.diff.nopien)
 
 sm.ptbl.df <- as.data.frame(sum.nopien$s.table)
+para.df <- as.data.frame(sum.nopien$p.table)
+para.tb <- as_tibble(para.df, rownames = 'mixture')
+
+
 
 (sm.ptbl <- as_tibble(sm.ptbl.df, rownames = 'smooths'))
 (sm.ptbl1 <- sm.ptbl %>% mutate(mix = case_when(
@@ -461,15 +465,32 @@ sm.ptbl.df <- as.data.frame(sum.nopien$s.table)
 ), `p-value` = round(`p-value`, digits = 3)))
 
 sm <- c('DBH', 'Crown ratio', 'BAL ratio', 'BA', 'Aspect', 'Random')
-p.pico <- filter(sm.ptbl, grepl('pico', smooths)) %>% select(`p-value`) %>% rename(p.pico = `p-value`) %>% 
-  mutate(diff.pico = c('strong evidence', 'some evidence', 'strong evidence', 'strong evidence', 'some evidence'))
-p.psme <- filter(sm.ptbl, grepl('psme', smooths)) %>% select(`p-value`) %>% rename(p.psme = `p-value`) %>% 
-  mutate(diff.psme = c('no evidence', 'moderately strong', 'no evidence', 'moderately strong', 'strong evidence'))
+
+p.pico <- filter(sm.ptbl, grepl('pico', smooths)) %>% 
+  select(edf,`p-value`) %>% 
+  rename(p.pico = `p-value`, edf.pico = edf) %>% 
+  mutate(diff.pico = c('strong evidence', 'some evidence', 'strong evidence', 
+                       'strong evidence', 'some evidence'))
+
+p.psme <- filter(sm.ptbl, grepl('psme', smooths)) %>% 
+  select(edf, `p-value`) %>% 
+  rename(p.psme = `p-value`, edf.psme = edf) %>% 
+  mutate(diff.psme = c('no evidence', 'moderately strong', 'no evidence', 
+                       'moderately strong', 'strong evidence'))
+
 p.laoc <- filter(sm.ptbl, !grepl('psme', smooths) & !grepl('pico', smooths)) %>% 
-  mutate(Smooth = sm) %>% select(Smooth, `p-value`) %>% filter(!Smooth == 'Random') %>% rename(p.laoc = `p-value`)
+  mutate(Smooth = sm) %>% 
+  select(Smooth, edf,`p-value`) %>% 
+  filter(!Smooth == 'Random') %>% 
+  rename(p.laoc = `p-value`)
 
 ptable <- tibble(p.laoc, p.pico, p.psme)
-ptable1 <- ptable %>% select(Smooth, p.laoc, diff.pico, p.pico, diff.psme, p.psme) 
+ptable1 <- ptable %>% select(Smooth, p.laoc, edf.pico, p.pico, edf.psme, p.psme) 
+
+trms <- c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')
+
+(para.tb1 <- para.tb %>% mutate(trms) %>% select(Mixture = trms, Estimate = Estimate, 'p-value' = `Pr(>|t|)`))
+
 ptable1 %>% 
   kable(format = 'latex', booktabs = T) %>% 
   kable_styling(latex_options = c('striped')) %>% 
