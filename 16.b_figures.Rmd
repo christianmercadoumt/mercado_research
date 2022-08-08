@@ -898,10 +898,13 @@ smooth_estimates(ccf.mod, data = aaa, )
 # it samples a random unique tree, but the tree just gets excluded anyways, so it doesnt matter
 
 
-ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, diam = 4.5){
+ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, diam = 4.5, 
+                   other = FALSE, oth.vals = NA, choose.bal = FALSE){
+  set.seed(165)
+  #set values for each variable
   asp_sin <- rep(sin(asp*(pi/180)), 100)
   asp_cos <- rep(cos(asp*(pi/180)), 100)
-  
+  #decide whether ba or bal should be evaluated (see if the model contains both or just one)
   if('bal.pl.ratio' %in% names(mod$model) & 'ba.pl' %in% names(mod$model)) {
     bal.pl.ratio <- bal
     ba.pl <- ba
@@ -912,7 +915,7 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
     ba.pl <- ba
   }
   
-  
+  #decide if model used unique_tree_id or unique.tree.f (they're the same thing)
   if('unique_tree_id' %in% names(mod$model)){
     trees <- as.numeric(mod$model$unique_tree_id)
     atree <- sample(trees,1)
@@ -924,22 +927,23 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
     unique.tree.f <- rep(atree,100)
     unique_tree_id <- unique.tree.f
   } 
-  
-  # unique_tree_id <- rep(1245, 100)
-  # unique.tree.f <- unique_tree_id
-    
+  #crown ratio
   cr <- rep(cr, 100)
   
+  #if diameter is not 4.5, then sequence along diameter.
+  #if its anything else, then we're using a constant value for diam
   if(diam != 4.5) {
     DIAMETER <- seq(min(mod$model$DIAMETER), max(mod$model$DIAMETER), length = 100)
   } else {
     DIAMETER <- rep(mean(mod$model$DIAMETER), 100)
   }
   
+  #just remove the if around this and the corresponding else if to reverse
   
-
-  
-  if('percent_LAOC' %in% names(mod$model)) {
+  # Other = argument decides whether we evaluate across the range of the 
+  # mixing variable (FALSE) or the range of ba or bal (TRUE).
+  if(other == FALSE) { #if evaluating across the range of mixing terms (perhaps for discrete BAs)
+    if('percent_LAOC' %in% names(mod$model)) {
     percent_LAOC <- seq(min(mod$model$percent_LAOC), max(mod$model$percent_LAOC), length = 100)
     var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f, percent_LAOC)
   } else if('shade.tol.pl' %in% names(mod$model)) {
@@ -949,23 +953,100 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
     ccf.pl <- seq(min(mod$model$ccf.pl), max(mod$model$ccf.pl), length = 100)
     var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, asp_sin, asp_cos, unique_tree_id, unique.tree.f, ccf.pl)
   }
+  } else if(other == TRUE) { #if evaluating across something else (like BA)
+    if('percent_LAOC' %in% names(mod$model)) {#optionA
+      prty <- c()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+      #now decide whether to sequence BA or BAL (depending on oth.vals entered)
+      if(choose.bal == F){
+        ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+      } else {
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      }
+      #create newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(percent_LAOC = prty)
+    } else if('shade.tol.pl' %in% names(mod$model)) {#optionB
+      prty <- c()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+
+      #now decide whether to sequence BA or BAL (choosebal arg)
+      if(choose.bal == F){
+        ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+      } else {
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      }
+      #create tibble for newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(shade.tol.pl = prty)
+    } else if('ccf.pl' %in% names(mod$model)) {#OptionC
+      prty <- vector()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+      #choose.bal irrelevant for CCF (no ba in the model)
+      ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      
+      #create newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(ccf.pl = prty)
+    }
+    
+  }
   
+  #if this is a model with ordered factor (by variables)
   if('omixtype' %in% names(mod$model)){
-    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, 
+                         ba.pl, asp_sin, asp_cos, 
+                         unique_tree_id, unique.tree.f)
     mixtype <- c(rep('laoc', 100), rep('pico', 100), rep('psme', 100))
     # mixtype <- as.factor(mixtype)
     omixtype <- factor(mixtype, levels = c('laoc', 'pico', 'psme'), ordered = T)
-    var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% mutate(omixtype = omixtype, mixtype = mixtype)
+    var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+      mutate(omixtype = omixtype, mixtype = mixtype)
     # var.diam.a <- bind_cols(var.diam.a, mixtype, omixtype)
   }
   
-  bai.diam.a <- predict(mod, newdata = var.diam.a, type = 'link', se.fit = T, exclude = ifelse('unique_tree_id' %in% names(var.diam.a), 's(unique_tree_id)', 's(unique.tree.f)'))
-  # bai.diam.a <- ilink(bai.diam.a)
+  #finally predict from the resulting outcome of the tests above
+  bai.diam.a <- predict.gam(mod, newdata = var.diam.a, type = 'response', 
+                        se.fit = T, 
+                        exclude = ifelse('unique_tree_id' %in% names(var.diam.a), 
+                                         's(unique_tree_id)', 's(unique.tree.f)'),unconditional = T)
+  #Merge predicted values with the predictor variables
   a <- tibble(bai=bai.diam.a[[1]], se = bai.diam.a[[2]], var.diam.a)
   
   thing <- rbind(a)
   return(thing)
 }
+
+#this function creates a tibble of predictions of BAI along with the values of the covariates used to estimate BAI so that they can be plotted. 
+## you may allow the value of ccf/purity/shade intol to vary and then input values of BA/BAL (or whichever variable). Repeat the process for a few BAs, bind rows of those data, and then you have paralell curves for different values of BA/BAL
+## you may also evaluate across the range of BA, and vary by (3) discrete values of the spp. mixing term. To do this, you must specify 'other = TRUE' and then supply values of oth.vals, which must be a vector of length three of plausible values for purity, shade, or ccf. 
+## Toggle whether to do the range of BA for shade and purity or BAL with choose.bal, 
+## and only for BAL for ccf. 
 
 ```
 
@@ -978,13 +1059,13 @@ c <- ba_fun(purity, ba = 90)
 d <- ba_fun(purity, ba = 130)
 pur.dat <- rbind(a, b, c, d)
 
-ba_fun(mix.diff.nopien, ba = 10)
+# ba_fun(mix.diff.nopien, ba = 10)
 
-purty.pl <- ggplot(pur.dat, aes(x = percent_LAOC, y = bai, color = as.factor(ba.pl))) + 
+(purty.pl <- ggplot(pur.dat, aes(x = percent_LAOC, y = bai, color = as.factor(ba.pl))) + 
   geom_line() + 
   geom_ribbon(aes(ymin = bai-(2*se), 
                   ymax = bai+(2*se)), alpha = 0.2) +
-  labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area')
+  labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area'))
 
 a <- ba_fun(shade.intol, ba = 10)
 b <- ba_fun(shade.intol, ba = 50)
@@ -993,11 +1074,32 @@ d <- ba_fun(shade.intol, ba = 130)
 
 shd.dat <- bind_rows(a,b,c,d)
 
-shd.pl <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
+(shd.pl <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
   geom_line() + 
-  geom_ribbon(aes(ymin = bai-(2*se), 
-                  ymax = bai+(2*se)), alpha = 0.2) +
-  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area')
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area'))
+
+a <- ba_fun(ccf.mod, bal = 0.05)
+b <- ba_fun(ccf.mod, bal = 0.25)
+c <- ba_fun(ccf.mod, bal = 0.65)
+d <- ba_fun(ccf.mod, bal = 0.99)
+
+ccf.dat <- bind_rows(b,d)
+
+ggplot(ccf.dat, aes(x = ccf.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'BAL ratio')
+
+ba.prty <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95))
+ggplot(ba.prty, aes(x = ba.pl, y = bai, color = factor(percent_LAOC), 
+                    ymin = (bai-(2*se)),
+                            ymax = (bai+(2*se)))) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.2)
+
 
 #ccf does have ba in the model
 # a <- ba_fun(ccf.mod, bal = 10)
@@ -1017,6 +1119,67 @@ purty.pl + shd.pl
 
 ba_fun(ccf.mod, ba = 10)
 ```
+
+```{r shade tolerance plots}
+
+a <- ba_fun(shade.intol, ba = 10)
+b <- ba_fun(shade.intol, ba = 50)
+c <- ba_fun(shade.intol, ba = 90)
+d <- ba_fun(shade.intol, ba = 130)
+shd.dat <- rbind(a,b,c,d)
+(shd.plba <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area'))
+
+a <- ba_fun(shade.intol, bal = 0.01)
+b <- ba_fun(shade.intol, bal = 0.25)
+c <- ba_fun(shade.intol, bal = 0.6)
+d <- ba_fun(shade.intol, bal = 0.99)
+shd.dat <- rbind(b,d)
+(shd.plbal <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'BAL ratio'))
+
+shd.dat2 <- ba_fun(shade.intol, other = TRUE, oth.vals = c(0.5, NA, 1), choose.bal = F)
+
+shd.dat3 <- ba_fun(shade.intol, other = TRUE, oth.vals = c(0.5, NA,1), choose.bal = T)
+# shd.dat2$bai
+
+ggplot(shd.dat2, aes(x = ba.pl, y = bai, 
+                     color = factor(shade.tol.pl), 
+                     ymin = bai-(2*se),ymax = bai+(2*se))) + 
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+ggplot(shd.dat3, aes(x = bal.pl.ratio, y = bai, 
+                     color = factor(shade.tol.pl), 
+                     ymin = bai-(2*se),ymax = bai+(2*se))) + 
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+```
+
+```{r larch purity plots}
+
+ba.prty.ba <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95), choose.bal = F)
+
+ba.prty.bal <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95), choose.bal = T)
+
+ggplot(ba.prty.ba, aes(x = ba.pl, y = bai, 
+                       color = factor(percent_LAOC), 
+                       ymin = bai-(2*se),ymax = bai+(2*se))) +
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+ggplot(ba.prty.bal, aes(x = bal.pl.ratio, y = bai, 
+                       color = factor(percent_LAOC), 
+                       ymin = bai-(2*se),ymax = bai+(2*se))) +
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+
+```
+
 
 ```{r comparing mixtures with different levels of BA}
 

@@ -1079,6 +1079,14 @@ predictor with high certainty. Crown ratio was penalized to a linear effect,
 but still held a non-zero effect. The reference smooths fit for each term closely 
 resembled those of the base model, and thus are not displayed. 
 
+Model intercepts and difference intercepts are reported at the bottom of 
+Table ~\ref{tab:mixsummary}. Here, there is some evidence for the mean response 
+
+The intercept for the pure larch reference 
+condition represents the mean response of that condition, and the difference 
+intercepts represent the difference between the reference and each respective 
+condition being compared. 
+
 %% present results from summary output table. 
 \subsection{Western larch-lodgepole pine mixtures}
 % Western larch growth varied in mixture type compared to homogeneous conditions 
@@ -1100,7 +1108,7 @@ given that other variables remain constant. Furthermore, basal area effects were
 hardly different for this mixture type, but were positively and negatively 
 intensified at very low densities and higher densities, respectively, 
 although the uncertainty becomes somewhat unmanageable at higher densities, 
-likely due to a lack of high-density data for this mixture. 
+likely due to a lack of high-density data for this mixture type. 
 
 \subsection{Western larch-Douglas-fir mixtures}
 
@@ -1253,13 +1261,14 @@ $R^2$.
 CCF displayed the largest effect on tree growth, followed by purity and 
 shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, since CCF is a measure of stand 
 density, it appears very similar to the basal area smooth in the base model. 
-Both purity and shade intolerance were characterized by postive effects on 
+Both purity and shade intolerance were characterized by positive effects on 
 growth for lower values, and slightly negative effects on growth for positive 
 values. Shade intolerance effects appear highly uncertain compared to those of 
 purity and CCF, and non-zero effects are hard to identify with this model. 
 Smooths for purity and shade intolerance were generously fit with numerous 
 basis functions, or perhaps minimal penalization, which contributes to their wiggliness 
-and uncertainties. As a result, shade intolerance effects 
+and uncertainties. As a result, shade intolerance effects are difficult to 
+interpret. 
 
 %Show smooths for each measure
 
@@ -1308,7 +1317,7 @@ ecosystems.
  to have a multiplicative effect, allowing for interpretation 
  of terms as interactive with one another. 
  
- \[g(E(BAI)) \~ \Gamma(\mu,\alpha)\]
+ % \[g(E(BAI)) \~ \Gamma(\mu,\alpha)\]
  
  --- Therefore, a one-unit change in a value of diameter will have a multiplicative 
  effect on the response. 
@@ -1488,9 +1497,17 @@ could improve model performance in its place.
   --- Huber2014 - different stocking potentials of species in mixtures 
   (for a given site) should be taken into consideration prior to comparing growth
   ---- and: mixture effects depend on site conditions
-  --- Perhaps the base model selection methods implemented here did not 
-  adequately take into consideration the effects of site on tree growth?
-  --- 
+  % --- Perhaps the base model selection methods implemented here did not 
+  % adequately take into consideration the effects of site on tree growth?
+  --- There may be some indication in model predictions of growth across the 
+  range of basal area (Figure?) that purity has some influence on the effect 
+  of density on western larch growth. 
+  ----- in figure .... We see that at low levels of purity, there are higher 
+  predicted values of BAI compared to high levels of western larch purity, 
+  which resulted in lower growth rates. 
+  ----- A similar trend may be observed across the range of BAL. 
+  --- This is somewhat concurrent with 
+  
   
  -- The results here indicate that shade tolerance was also useful in estimating 
  larch growth, however, its fitted relationship with growth was highly variable 
@@ -1502,6 +1519,22 @@ could improve model performance in its place.
  increased diversity. 
  
  --- The findings of this study were inconclusive to make such determinations. 
+ --- evaluating predictions of BAI at varying levels of basal area across the 
+ range of observed shade intolerance values did provide some visual evidence 
+ that the constant predicted value of BAI changes at different levels basal 
+ area, and that the magnitude of effect that shade intolerance had on growth 
+ may vary at different values of basal area. 
+ --- looking across the range of basal area, lower values of shade intolerance 
+ are associated with higher growth across the range of basal area, but due to 
+ high uncertainty in predictions, conclusive evidence for a difference does not 
+ exist. 
+ --- similarly, across the range of BAL, lower values of shade intolerance 
+ are associated with higher values of predicted growth, holding everything 
+ else constant, but the certainty of predictions do not allow for extrapolation 
+ beyond this case. 
+ --- There simply was not enough data to provide detailed evidence for a shade 
+ intolerance effect on larch growth
+ 
  % Speculating on the fitted curve may be similarly suggestive that 
  %dissimilarity is beneficial to growth, but hard to say. 
  
