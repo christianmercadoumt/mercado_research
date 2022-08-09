@@ -216,14 +216,15 @@ job::job(import = c(o.mixtures.nopien), {
 job::job(import = c(o.mixtures.nopien), {
   library(mgcv)
   mix.diff.gam.nospr.byrand <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
-                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
-                          s(asp_sin, asp_cos, k = 20) +
-                          s(asp_sin, asp_cos, by = omixtype, k = 20) +
-                          s(unique_tree_id, by = omixtype, bs = 're'),
-                      family = 'Gamma'(link = log),
-                      data = o.mixtures.nopien, method = 'fREML')
+                                     s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                                     s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                                     s(ba.pl) + s(ba.pl, by = omixtype) +
+                                     s(asp_sin, asp_cos, k = 20) +
+                                     s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                                     s(unique_tree_id, bs = 're') +
+                                     s(unique_tree_id, by = omixtype, bs = 're'),
+                                   family = 'Gamma'(link = log),
+                                   data = o.mixtures.nopien, method = 'fREML', discrete = T)
   saveRDS(mix.diff.gam.nospr.byrand, 'data/model_objects.1/mix.diff.nopien.byrandom.rds')
 })
 #This one fits the random intercepts with a separate smoothing parameter and variance component for each level of the factor. It may not differ, but it may be more 'correct' to do it this way. 
@@ -328,6 +329,9 @@ summary(cr.mod.k9)
 # 
 # saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.gam729_lab.rds')
 
+mix.diff.gam.nospr.byrand
+
+gam.vcomp(mix.diff.gam.nospr.byrand)
 ```
 
 

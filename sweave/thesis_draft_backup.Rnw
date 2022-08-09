@@ -1043,12 +1043,12 @@ for south-facing aspects.
 
 \begin{figure}
 \centering
-\begin{subfigure}[b]{0.7\textwidth}
-\includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
-\end{subfigure}
-\begin{subfigure}[b]{0.7\textwidth}
-\includegraphics[width=\textwidth]{../17.figures_saved/base_aspect.png}
-\end{subfigure}
+% \begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=0.7\textwidth]{../17.figures_saved/base_smooths.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.7\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/base_aspect.png}
+% \end{subfigure}
 \caption[Base model smooths]{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for diameter at breast height (DBH), tree crown ratio, ratio of basal area larger than a subject (BAL), and plot basal area (BA). Effect scales vary by smooth.}
 \label{fig:basesmooths}
 \end{figure}
@@ -1184,20 +1184,28 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \end{table}
 
 %figure showing dist. for aspect? maybe switch to other variable?
+% \begin{figure}
+% \centering
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_pico.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_psme.png}
+% \end{subfigure}
+% \caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+% \label{fig:asp}
+% \end{figure}
+
 \begin{figure}
 \centering
-\begin{subfigure}[b]{0.75\textwidth}
-\includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
-\end{subfigure}
-\begin{subfigure}[b]{0.75\textwidth}
-\includegraphics[width=\textwidth]{../17.figures_saved/compass_pico.png}
-\end{subfigure}
-\begin{subfigure}[b]{0.75\textwidth}
-\includegraphics[width=\textwidth]{../17.figures_saved/compass_psme.png}
-\end{subfigure}
+\includegraphics[width=0.75\textwidth]{../17.figures_saved/compass_all.png}
 \caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
 \label{fig:asp}
 \end{figure}
+
 
 %state which values are significant and for which term
 
