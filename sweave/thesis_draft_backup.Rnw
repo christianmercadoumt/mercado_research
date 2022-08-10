@@ -206,16 +206,15 @@ For instance, \cite{Jucker2014} found that the degree of light-use
 complementarity depended on whether below-ground resources were adequate to 
 sustain high rates of photosynthesis, and they showed that increases in 
 competition for water negated such effects. There is also evidence indicating 
-that below-ground competition for resources can be asymmetric among species 
-\citep(Rewald2009), however the resulting effects on productivity may vary 
+that below-ground competition for resources can be asymmetric among species \citep{Rewald2009}, 
+however the resulting effects on productivity may vary 
 over time with environmental conditions, as species exploit resources 
 differently depending on their growth strategies \citep{delRio2014}. 
-Searle and Chen (\citeyear{Searle2020}) found that 
-positive complementary effects on individual tree growth increase with both community 
-shade-tolerance and phyologenetic dissimilarity, showing that  
-shade-tolerance can encapsulate its effects on inter-specific competition, 
-and that positive niche complementary effects on tree growth increase with 
-competition intensity.
+\cite{Searle2020} found that positive complementary effects on individual 
+tree growth increase with both community shade-tolerance and phyologenetic 
+dissimilarity, showing that shade-tolerance can encapsulate its effects on 
+inter-specific competition, and that positive niche complementary 
+effects on tree growth increase with competition intensity.
 
 % \cite{delRio2014} found 
 % that temporal variability may be tied to whether competitive or 
@@ -455,54 +454,59 @@ measures of stand species purity crown density.
 \chapter{Methods}
 \section{Tree growth data}
 
-The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
-tree forest growth model that is widely used in the western United States 
-to predict tree and stand growth as well as to evaluate management decisions 
-\citep{Dixon2020}. To establish a monitoring protocol for the FVS model,
-the USDA Forest Service northern rocky mountain region developed long-term permanent growth plot
-clusters (PGPs) in managed stands across the inland northwest (NW Montana and northern Idaho),
-referred herein to as the PGP program. The initial goal of the PGP 
-program was to remeasure the selected stands at regular increments of 
+% The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
+% tree forest growth model that is widely used in the western United States 
+% to predict tree and stand growth as well as to evaluate management decisions 
+% \citep{Dixon2020}. 
+To establish a monitoring protocol for the FVS model,
+the USDA Forest Service Northern Rocky Mountain region developed 
+long-term permanent growth plot clusters (PGPs) in managed stands 
+across the inland northwest (NW Montana and northern Idaho),
+referred herein to as the PGP program. The PGP program was primarily set up 
+to monitor long-term treatment response to precommercial thinning relative 
+to projections provided by FVS. The initial goal of the PGP program was to 
+remeasure the selected stands at regular increments of 
 5-10 years in order to provide a robust growth increment data set. 
 Various stand measurements were initialized and then remeasured between 
 1980 and 2002. The program was then paused, and was only recently revisited 
-in 2018 and 2021, creating a wide gap between recent measurements and reducing 
-consistency of measurement intervals. 
+in 2018 and 2021, allowing for analysis of long-term effects, albeit with 
+a wide gap between recent measurements. 
 
 Each PGP stand consists of 4 plot-clusters: 1 untreated control plot cluster 
-and 3 treatment plot clusters, the latter were treated with commercial 
-thinning or precommercial thinning, depending on stand age and maturity. 
-Stand prescriptions determined target residual densities by species for
-the stand in the treatment areas, providing a side-by-side comparison between
+and 3 treatment plot clusters. The latter were treated with commercial 
+or precommercial thinning, depending on stand age and maturity. 
+Stand prescriptions determined target residual densities by species 
+in the treatment areas, providing for side-by-side comparison between
 control and treatments under similar stand and site conditions. The location 
-of control and treatment plots were determined by random selection of (x,y) 
+of control and treatment plots were determined by random selection of 
 coordinates on a grid laid over a map of the stand. To ensure that the control 
 plots were not affected by nearby thinning treatments, an unthinned buffer was
-placed around control clusters. Every cluster is comprised of three ~202$m^2$ 
-large-tree, fixed-radius plots, with each plot containing three ~13.5 $m^2$ 
-small tree fixed-radius sub-plots. Data for trees in large-tree plots were taken 
+placed around control clusters. Every cluster is comprised of three 202 $\mathrm{m^2}$ 
+large-tree plots, with each plot containing three 13.5 $\mathrm{m^2}$ 
+small tree sub-plots. Data for trees in large-tree plots were taken 
 based on whether a tree was above a specified diameter threshold. 
 The diameter thresholds varied across and within stands 
 (across control and treatment plots), as well as within clusters over
 time. Yet the large trees were tagged and distance and azimuth to plot center
 were taken. Heights were taken on only a subset of large trees due to the
-operational challenges and added time of measuring tree height. Small tree 
-data were recorded for trees greater than or equal to ~15cm in height from 
+operational challenges and added time of measuring tree height. Within small 
+tree plots, counts by height and species were recorded for trees greater 
+than or equal to 15 cm in height from 
 the ground, and up to the specified diameter threshold. 
 
-During the summer of 2018, a re-measurement campaign targeted various 
-accessible stands with at least 3 previously recorded measurements on
+During the summer of 2018, a re-measurement campaign targeted 
+stands with at least 3 previously recorded measurements on
 the Lolo National Forest. During the summer of 2021, PGP stands on the
 Lolo and Kootenai National Forests that were previously measured at least
 3 times and that were composed of >50\% overstory western larch (determined
 by most recent measurement) were targeted for re-measurement. Stands across 
-the remeasured PGPs were spread between $46^{\circ}$ N and $49^{\circ}$ N, and 
+the remeasured PGPs were spread between $46^{\circ}$N and $49^{\circ}$N, and 
 between 800 and 1700 $m$ above sea level. Stands were primarily on north-facing aspects. 
 % Soil conditions were variable from site-to-site, but most were a silty-loam texture.
-Species composition varied between almost pure western larch to mixed conifer
+Overall, species composition varied between almost pure western larch to mixed conifer
 forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, grand fir, 
-subalpine fir, western hemlock, mountain hemlock, western red cedar,
-cottonwood, and quaking aspen. 
+subalpine fir, western hemlock, mountain hemlock, western redcedar,
+cottonwood \emph{Populus balsamifera}, and quaking aspen \emph{Populus tremuloides}. 
 
 \begin{table}[H]
 \caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
@@ -981,7 +985,7 @@ model summary outputs.
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
-\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($cm^2/yr.$)\\
+\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($\mathrm{cm^2}/yr.$)\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
@@ -1009,7 +1013,7 @@ increasing dispersion in the response variable. A log-link function was chosen
 to ensure that predictions of growth were positive and non-zero.
 The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
-The base model RMSE was ~3.34 $cm^2/yr.$ Fixed effects terms used 
+The base model RMSE was ~3.34 $\mathrm{cm^2}/yr.$ Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
 Random effects were accounted for using a spline basis 
 \citep{wood2006generalized}, and thus had an associated degrees of 
@@ -1020,14 +1024,14 @@ degrees of freedom was ~4401. Model statistics are reported in Table
 Tree DBH and basal area were highly correlated (0.938) and were 
 evaluated in separate models. DBH as a predictor yielded higher 
 accuracy in predicting BAI than tree BA, with model RMSE values  
-of 5.64 $cm^2/yr.$ and 5.70 $cm^2/yr.$, respectively. 
+of 5.64 $\mathrm{cm^2}/yr.$ and 5.70 $\mathrm{cm^2}/yr.$, respectively. 
 
 Competition and density variables were partitioned into two sub-groups:  
 variables representing a tree's competitive position in a stand, and variables 
 that represent the overall competitive environment. Highly collinear variable 
 combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
-Tree-level variables reduced RMSE to 4.50 $cm^2/yr.$, and then to 
-4.31 $cm^2/yr.$ with plot BA included.
+Tree-level variables reduced RMSE to 4.50 $\mathrm{cm^2}/yr.$, and then to 
+4.31 $\mathrm{cm^2}/yr.$ with plot BA included.
 
 Topographic variables (slope, aspect, elevation) were evaluated as 
 potential predictors separately from site index and heatload. Since aspect
@@ -1039,7 +1043,7 @@ Slope and elevation contributed little to prediction accuracy
 when included with aspect and were associated with concurvity values 
 beyond the established threshold. Thus, building on the model and 
 comparing aspect, site index, and heatload, aspect was selected as 
-the best term, further reducing model RMSE to 4.01 $cm^2/yr.$
+the best term, further reducing model RMSE to 4.01 $\mathrm{cm^2}/yr.$
 
 By group, competition and density metrics contributed the most in 
 deviance explained, followed by size. However, considering 
@@ -1053,7 +1057,7 @@ was relatively small overall, going from negative to positive at values near
 0.7. BAL showed a modest positive effect which decreased to a slightly 
 larger negative effect as western larch became less dominant in a plot. 
 Basal area (BA) was represented by an overall decreasing effect, where densities greater 
-than 10 $m^2/ha$ were associated with an increasingly negative effect on growth, 
+than 10 $\mathrm{m^2}/ha$ were associated with an increasingly negative effect on growth, 
 that tapered off and became less certain at values exceeding 40 $m^2/ha$. As 
 aspect varied, the partial effect on growth varied, where positive effects 
 were associated with N-NW, N-NE, and NE aspects. NW and SE aspects were associated 
@@ -1161,7 +1165,7 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \hhline{~|}
 \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($cm^2$)}} & mean & 8.94 & 7.53 & 6.05\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($\mathrm{cm^2}$)}} & mean & 8.94 & 7.53 & 6.05\\
 \hhline{-|----}
 \multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5\\
 \hhline{~|}
@@ -1315,7 +1319,7 @@ interpret.
 \centering
 \begin{tabular}{lrrr}
 \toprule
-Model & RMSE ($cm^2/yr.$) & Deviance explained (\%) & $R^2$\\
+Model & RMSE ($\mathrm{cm^2}/yr.$) & Deviance explained (\%) & $R^2$\\
 \midrule
 \cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} & \cellcolor{gray!6}{0.77886}\\
 CCF & 4.801 & 84.42 & 0.77597\\
