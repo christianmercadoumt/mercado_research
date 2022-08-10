@@ -9,7 +9,7 @@ By\\[10pt]
 
 Christian Mercado \\[10pt]
 
-M.S. Forestry, University of Montana, Missoula, Montana, year, 2022\\[10pt]
+BS Forestry, Michigan State University, East Lansing, Michigan, year, 2017\\[10pt]
 
 Thesis\\[10pt]
 
@@ -26,8 +26,8 @@ August 2022\\[10pt]
 
 Approved by:\\[10pt]
 
-Scott Whittenburg,\\
-Graduate School Dean\\[10pt]
+Scott Whittenburg, Dean\\
+Graduate School\\[10pt]
 
 David Affleck, Chair\\
 Department of Forest Management\\[10pt]
@@ -38,7 +38,6 @@ Department of Forest Management\\[10pt]
 
 Justin Crotteau\\
 United States Forest Service\\
-Department of Forest Management, Affiliate\\[10pt]
 
 David Patterson\\
 Department of Mathematics\\[10pt]
