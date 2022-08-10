@@ -498,77 +498,10 @@ pico.diff <- ggplot(picogg,
 ```
 
 ```{r mixture partial response figs}
-## diameter
-#lodgepole
-# lp.diam <- ggplot(sig.diam, 
-#        aes(x = DIAMETER*2.54, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) + 
-#   labs(x = 'DBH (cm)', y = 'Effect')
-# 
-# ##crown ratio
-# cr.pico <- sig.cr %>% filter(omixtype=='pico')
-# cr.psme <- sig.cr %>% filter(omixtype=='psme')
-# #lodgepole
-# lp.cr <- ggplot(cr.pico, 
-#        aes(x = cr, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   labs(x = 'Crown ratio', y='Effect')
-# #dougfir
-# df.cr <- ggplot(cr.psme, 
-#        aes(x = cr, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   labs(x = 'Crown ratio', y='Effect')
-# 
-# #bal lodgepole
-# 
-# lp.bal <- ggplot(sig.bal, 
-#        aes(x = bal.pl.ratio, y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) +
-#   labs(x = 'BAL', y='Effect')
-# 
-# #basal area
-# ba.pico <- sig.ba %>% filter(omixtype=='pico')
-# ba.psme <- sig.ba %>% filter(omixtype=='psme')
-# 
-# lp.ba <- ggplot(ba.pico, 
-#        aes(x = ba.pl*(2.47/10.764), y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) + coord_cartesian(ylim = c(-10, 5), xlim = c(0,40)) +
-#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect')
-# 
-# df.ba <- ggplot(ba.psme, 
-#        aes(x = ba.pl*(2.47/10.764), y = est, 
-#            ymin = lower, 
-#            ymax = upper)) + 
-#   geom_line() + 
-#   geom_hline(yintercept = 0, linetype = 'dashed') +
-#   geom_ribbon(alpha = 0.2) + #coord_cartesian(ylim = c(-5, 5)) +
-#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect')
-
-
 ## all plots
 # unique(smest.diam$facets)
 # smest.diam %>% filter(facets == 'Pure larch')
-
+#DIAM####
 mixpl.dr <-
   ggplot(subset(smest.diam, facets == 'Pure larch'),
        aes(x = DIAMETER*2.54, y = est,
@@ -610,7 +543,8 @@ mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)', y='Difference') + 
   coord_cartesian(ylim = c(-3,3)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
+        axis.text.y = element_blank())
 
 mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
        aes(x = DIAMETER*2.54, y = est,
@@ -622,8 +556,10 @@ mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)') + 
   coord_cartesian(ylim = c(-3,3)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank())
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank())
 
+#CR####
 mixpl.crr <-
   ggplot(subset(smest.cr, facets == 'Pure larch'), 
        aes(x = cr, y = est,
@@ -661,7 +597,8 @@ mixpl.cr1 <-
   # facet_wrap(~facets) +
   labs(x = 'Crown ratio', y='Difference') +
   coord_cartesian(ylim = c(-0.3,.3)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5))) 
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
+        axis.text.y = element_blank()) 
 
 
 mixpl.cr2 <- ggplot(subset(smest.cr, facets == 'Larch-Douglas-fir'),
@@ -674,8 +611,9 @@ mixpl.cr2 <- ggplot(subset(smest.cr, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = 'Crown ratio') +
   coord_cartesian(ylim = c(-0.3,.3)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank())
-# 
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+# BAL####
 mixpl.balr <-
   ggplot(subset(smest.bal, facets == 'Pure larch'), 
        aes(x = bal.pl.ratio, y = est,
@@ -692,7 +630,7 @@ mixpl.balr <-
 mixpl.bal <- ggplot(subset(smest.bal, 
                            facets %in% c('Larch-lodgepole',
                                          'Larch-Douglas-fir')),
-       aes(x = bal.pl.ratio*2.54, y = est,
+       aes(x = bal.pl.ratio, y = est,
            ymin = lower,
            ymax = upper)) +
   geom_line() +
@@ -705,7 +643,7 @@ mixpl.bal <- ggplot(subset(smest.bal,
 
 mixpl.bal1 <- ggplot(subset(smest.bal, 
                            facets == 'Larch-lodgepole'),
-       aes(x = bal.pl.ratio*2.54, y = est,
+       aes(x = bal.pl.ratio, y = est,
            ymin = lower,
            ymax = upper)) +
   geom_line() +
@@ -714,10 +652,11 @@ mixpl.bal1 <- ggplot(subset(smest.bal,
   # facet_wrap(~facets) +
   labs(x = 'BAL', y='Difference') +
   coord_cartesian(ylim = c(-0.5,.5)) +
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5))) 
+    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
+        axis.text.y = element_blank()) 
 
 mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
-       aes(x = bal.pl.ratio*2.54, y = est,
+       aes(x = bal.pl.ratio, y = est,
            ymin = lower,
            ymax = upper)) +
   geom_line() +
@@ -726,8 +665,9 @@ mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = 'BAL') +
   coord_cartesian(ylim = c(-0.5,.5)) +
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank()) 
-# 
+    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank()) 
+# BA####
 mixpl.bar <-
   ggplot(subset(smest.ba, facets == 'Pure larch'),
        aes(x = ba.pl*(2.47/10.764), y = est,
@@ -762,7 +702,8 @@ mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
   # facet_wrap(~facets) +
   labs(x = bquote('BA'~(m^2/ha)), y='Difference') +
   coord_cartesian(ylim = c(-2.5,2.5))+
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
+        axis.text.y = element_blank())
 mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
        aes(x = ba.pl*2.54, y = est,
            ymin = lower,
@@ -773,7 +714,8 @@ mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = bquote('BA'~(m^2/ha))) +
   coord_cartesian(ylim = c(-2.5,2.5))+
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank())
+    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank())
     # )
 #aspect diff#####
 #prep
@@ -783,43 +725,63 @@ ns.df <- tibble(nsew, nsew.v) #combine
 ns.df <- ns.df %>% 
   mutate(sin.t = sin(nsew.v*pi/180), 
          cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
-glimits <- c(-0.5,1)*max(abs(smest.asp$est))
+glimits <- c(-1,1)*max(abs(smest.asp$est[smest.asp$facets=='Pure larch']))
+
+
+# glimits <- c(-1,1)*max(abs(sm.asp$est))
+# 
+# 
+# contour.pl <- ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 50, color = 'peachpuff') +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+#   labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey'), 
+#         aspect.ratio = 2/(1+sqrt(5))) 
 
 #theplot
 mixpl.aspr <- 
   ggplot(subset(smest.asp, facets == 'Pure larch'), 
          aes(x = asp_sin, y = asp_cos)) +
   geom_raster(aes(fill = est)) +
-  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
-  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
-  expand_limits(fill = glimits) + 
-  coord_equal() +
+  geom_contour(aes(z = est), bins = 30, color = 'peachpuff') +
+  # scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) +
+  coord_fixed() +
   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
              alpha = 0.3, size = 2) +
-  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
-  scale_fill_gradient2(low = 'blue', high = 'darkred') +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
         panel.background = element_rect(fill = 'white'), 
         panel.grid = element_line(color = 'lightgrey'),
-        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/(1+sqrt(5)), axis.text = element_blank())  
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/(1+sqrt(5)), axis.text = element_blank(),
+        axis.title = element_blank(), legend.position = 'left', 
+        legend.title = element_text(angle = 90))  
   # facet_wrap(~facets)+
 
-mixpl.asp <- ggplot(subset(smest.asp, facets %in% c('Larch-lodgepole', 'Larch-Douglas-fir')), 
-         aes(x = asp_sin, y = asp_cos)) +
-  geom_raster(aes(fill = est)) +
-  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
-  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
-  expand_limits(fill = glimits) + 
-  coord_equal() +
-  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
-             alpha = 0.3, size  = 2) +
-  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
-  scale_fill_gradient2(low = 'blue', high = 'darkred') +
-  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
-        panel.background = element_rect(fill = 'white'), 
-        panel.grid = element_line(color = 'lightgrey')) + 
-  facet_wrap(~facets)+
-  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)))
+# mixpl.asp <- ggplot(subset(smest.asp, facets %in% c('Larch-lodgepole', 'Larch-Douglas-fir')), 
+#          aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + 
+#   coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+#              alpha = 0.3, size  = 2) +
+#   labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey')) + 
+#   facet_wrap(~facets)+
+#   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)),
+#         axis.text = element_blank())
 
 mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
          aes(x = asp_sin, y = asp_cos)) +
@@ -836,7 +798,8 @@ mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'),
         panel.background = element_rect(fill = 'white'), 
         panel.grid = element_line(color = 'lightgrey')) + 
   # facet_wrap(~facets)+
-  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)))
+  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)),
+        axis.title = element_blank(), axis.text = element_blank())
 
 mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'), 
          aes(x = asp_sin, y = asp_cos)) +
@@ -854,7 +817,7 @@ mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'),
         panel.grid = element_line(color = 'lightgrey')) + 
   # facet_wrap(~facets)+
   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)),
-        axis.text = element_blank())
+        axis.text = element_blank(), axis.title = element_blank())
     
 # library(ragg)
 # png <- function(...) ragg::agg_png(..., res = 300, units = 'in')
@@ -896,8 +859,8 @@ ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
 # plot.gam(mix.diff.nopien, select = 1)
 # sum.nopien
 
-mixpl.d1
-mixpl.d2
+# mixpl.d1
+# mixpl.d2
 
 ```
 
