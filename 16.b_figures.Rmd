@@ -96,6 +96,92 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 
 ```
 
+```{r 3.1 raw data trends}
+library(gtable)
+library(grid)
+dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+                                   bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                                   bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                                   dq.pl.all, percent_LAOC, shade.tol.pl, 
+                                   percent_PSME, percent_PIEN, percent_ABLA,
+                                   percent_ABGR, percent_PICO, percent_PIPO) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(bah.cats = case_when(
+    bah < 10 ~ '0-10',
+    bah>10 & bah<20 ~ '10-20',
+    bah>20 ~ '20+'
+  ), bal.cats = case_when(
+    bal.pl.ratio < .35 ~ 'low',
+    bal.pl.ratio > .33 & bal.pl.ratio < 0.66 ~ 'mid',
+    bal.pl.ratio > .66 ~'high'
+  ), nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+#w-nw,n-nw,n-ne,e-ne
+summary(dat$aspect_deg)
+set.seed(406)
+dat.samp <- dat %>% slice_sample(n = 2000)
+
+ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>% 
+  summarise(diam.cm = mean(diam.cm),
+            bai.cmsq = mean(bai.cmsq),
+            bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+
+bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAH~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+library(magick)
+
+ggsave('17.figures_saved/bai_diam_sumfig.png', bai.diam.asp.bah)
+knitr::plot_crop('17.figures_saved/bai_diam_sumfig.png')
+
+
+
+# ggplot(dat.samp, aes(log(diam.cm), log(tph), color = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand)
+
+# loess
+# 
+# ggplot(dat.samp, aes(x = bah, y = bai.cmsq)) + geom_point()
+# 
+# ggplot(dat.samp, aes(x = cr, y = bai.cmsq)) + geom_point()
+
+```
+
+```{r correlations}
+bai.spmx.ids %>% select(DIAMETER, treeba) %>%
+  mutate(diam.cm = DIAMETER*2.54, treeba.cm = treeba*2.54^2)
+
+
+library(GGally)
+## Size
+
+sz <- bai.spmx.ids %>% select(DIAMETER, treeba, log.bai)
+sz.nobig <- bai.size %>% select(DIAMETER, treeba, log.bai) %>% filter(!(DIAMETER > 30))
+ggpairs(sz)
+ggpairs(sz.nobig)
+
+## Competition
+
+## Site
+
+
+
+
+```
+
+
 ```{r 3.1 base model selection figures}
 re.tree.1
 # smest <- smooth_estimates(re.tree.1) %>% mutate(upper = est+(2*se), lower = est-(2*se))

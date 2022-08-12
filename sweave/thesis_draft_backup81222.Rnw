@@ -1036,48 +1036,6 @@ model summary outputs.
 
 \section{BAI model}
 
-%begin with description of the raw data
-
-%%
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{../17.figures_saved/bai_diam_sumfig.png}
-\caption[BAI-Diameter by BAH and aspect]{Individual tree BAI and DBH, gridded across aspect and BAH. Aspects are coded by cardinal direction, where N,S,E,W are north, south, east, and west, repsectively (e.g., NNW = north-northwest). Thin grey lines indicate 0 on each axis, with a 1:1 slope dotted-line passing through (0,0) included for visual reference.}
-\label{fig:sumfig}
-\end{figure}
-
-%Then presesnt results of correlation and say which predictors were selected by group
-Tree DBH and basal area were highly correlated (0.938) and were 
-evaluated in separate models. DBH as a predictor yielded higher 
-accuracy in predicting BAI than tree BA, with model RMSE values  
-of 5.64 $\mathrm{cm^2}/yr.$ and 5.70 $\mathrm{cm^2}/yr.$, respectively. 
-
-Competition variables were partitioned into two sub-groups:  
-variables representing a tree's competitive position in a stand, and variables 
-that represent the overall competitive environment. Highly collinear variable 
-combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
-Tree-level variables reduced RMSE to 4.50 $\mathrm{cm^2}/yr.$, and then to 
-4.31 $\mathrm{cm^2}/yr.$ with plot BA included.
-
-Topographic variables (slope, aspect, elevation) were evaluated as 
-potential predictors separately from site index and heatload. Since aspect
-is a circular measure, both sin (easting) and cosine (northing) 
-transformations were applied as in previous works \citep{Stage1976}. Aspect was best 
-accounted for as an interaction term in the form of an isotropic smooth, a 
-reduced rank version of thin-plate splines \citep{wood2006generalized}. 
-Slope and elevation contributed little to prediction accuracy 
-when included with aspect and were associated with concurvity values 
-beyond the established threshold. Thus, building on the model and 
-comparing aspect, site index, and heatload, aspect was selected as 
-the best term, further reducing model RMSE to 4.01 $\mathrm{cm^2}/yr.$
-
-%Then describe the numbers and introduce the table
-By group, competition metrics contributed the most in 
-deviance explained, followed by size (Table \ref{table:rmse}). However, considering 
-variables individually, DBH explained more deviance and reduced RMSE 
-more than any other variable in the model. 
-
 \begin{table}[!h]
 \caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
 \label{tab:rmse}
@@ -1120,7 +1078,34 @@ freedom, which was ~1338. Model residual
 degrees of freedom was ~4401. Model statistics are reported in Table 
 \ref{tab:rmse}.
 
+Tree DBH and basal area were highly correlated (0.938) and were 
+evaluated in separate models. DBH as a predictor yielded higher 
+accuracy in predicting BAI than tree BA, with model RMSE values  
+of 5.64 $\mathrm{cm^2}/yr.$ and 5.70 $\mathrm{cm^2}/yr.$, respectively. 
 
+Competition variables were partitioned into two sub-groups:  
+variables representing a tree's competitive position in a stand, and variables 
+that represent the overall competitive environment. Highly collinear variable 
+combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
+Tree-level variables reduced RMSE to 4.50 $\mathrm{cm^2}/yr.$, and then to 
+4.31 $\mathrm{cm^2}/yr.$ with plot BA included.
+
+Topographic variables (slope, aspect, elevation) were evaluated as 
+potential predictors separately from site index and heatload. Since aspect
+is a circular measure, both sin (easting) and cosine (northing) 
+transformations were applied as in previous works \citep{Stage1976}. Aspect was best 
+accounted for as an interaction term in the form of an isotropic smooth, a 
+reduced rank version of thin-plate splines \citep{wood2006generalized}. 
+Slope and elevation contributed little to prediction accuracy 
+when included with aspect and were associated with concurvity values 
+beyond the established threshold. Thus, building on the model and 
+comparing aspect, site index, and heatload, aspect was selected as 
+the best term, further reducing model RMSE to 4.01 $\mathrm{cm^2}/yr.$
+
+By group, Competition metrics contributed the most in 
+deviance explained, followed by size. However, considering 
+variables individually, DBH explained more deviance and reduced RMSE 
+more than any other variable in the model. 
 
 Partial response curves are shown in Figure \ref{fig:basesmooths}. DBH had an 
 overall increasing effect on BAI, eventually tapering at values larger 
