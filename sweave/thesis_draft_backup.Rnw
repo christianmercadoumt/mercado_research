@@ -630,7 +630,7 @@ BAI in previous empirical modeling efforts.
 % crown competition factor (CCF;\cite{Krajicek1961}), remove??
 %-TABLE HERE- table of all variables considered prior to modeling including definitions and how they were calculated?--
 
-A pair-wise collinearity assessment was 
+A pair-wise colinearity assessment was 
 then performed within each group of variables to avoid including 
 highly correlated variables together in the model. 
 Any predictors with a pair-wise correlation of 
@@ -1037,6 +1037,8 @@ model summary outputs.
 \section{BAI model}
 
 %begin with description of the raw data
+
+The data informing 
 
 %%
 

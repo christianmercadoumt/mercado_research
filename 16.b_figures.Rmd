@@ -160,25 +160,32 @@ knitr::plot_crop('17.figures_saved/bai_diam_sumfig.png')
 ```
 
 ```{r correlations}
-bai.spmx.ids %>% select(DIAMETER, treeba) %>%
-  mutate(diam.cm = DIAMETER*2.54, treeba.cm = treeba*2.54^2)
+sz <- bai.spmx.ids %>% select(DIAMETER, treeba) %>%
+  mutate(DBH = DIAMETER*2.54, BA = treeba*2.54^2) %>% 
+  select(DBH, BA)
 
 
 library(GGally)
 ## Size
 
-sz <- bai.spmx.ids %>% select(DIAMETER, treeba, log.bai)
-sz.nobig <- bai.size %>% select(DIAMETER, treeba, log.bai) %>% filter(!(DIAMETER > 30))
-ggpairs(sz)
-ggpairs(sz.nobig)
+ggpairs(sz,progress = F, diag = list(continuous = 'barDiag'))
 
 ## Competition
 
+comp <- bai.spmx.ids %>% 
+  select(CR = cr, BAL = bal.pl.ratio, 
+                                QMD = qmd.pl.all, Dq = dq.pl.all, 
+                                TPH = tpa.pl.all, BAH = ba.pl, CCF = ccf.pl) %>% 
+  mutate(QMD = QMD*2.54, TPH = TPH*2.47, BAH = BAH*(2.47/10.764))
+ggpairs(comp,progress = F,diag = list(continuous = 'barDiag'))
+
 ## Site
 
+# site <- bai.spmx.ids %>% select(Slope = slope_pct, 'sin(aspect)'=asp_sin, 'cos(aspect)'=asp_cos, 'Elevation'=elev_m, 'Mean site index'=mean_si, 'Heatload'=heatload)
+# 
+# ggpairs(site)
 
-
-
+re.tree.1$model
 ```
 
 
