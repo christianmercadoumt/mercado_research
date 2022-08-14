@@ -508,15 +508,15 @@ forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, g
 subalpine fir, western hemlock, mountain hemlock, western redcedar,
 cottonwood \emph{Populus balsamifera}, and quaking aspen \emph{Populus tremuloides}. 
 
-\begin{table}[H]
+\begin{table}[!h]
 \caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
 \label{tab:sumtab}
 \centering
-\begin{tabular}{lrrrr}
+\begin{tabular*}{\textwidth}{lrrrr}
 \toprule
-Stand & Plots & Unique trees & Observations & Measurements\\
+Stand & Plots & Unique trees & Increments & Measurements\\
 \midrule
-\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150} & \cellcolor{gray!6}{4}\\
+\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150}\\
 1402 & 10 & 188 & 631 & 5\\
 \cellcolor{gray!6}{1403} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{113} & \cellcolor{gray!6}{313} & \cellcolor{gray!6}{5}\\
 1404 & 10 & 146 & 465 & 5\\
@@ -524,8 +524,8 @@ Stand & Plots & Unique trees & Observations & Measurements\\
 \addlinespace
 1406 & 10 & 99 & 304 & 5\\
 \cellcolor{gray!6}{1407} & \cellcolor{gray!6}{19} & \cellcolor{gray!6}{74} & \cellcolor{gray!6}{108} & \cellcolor{gray!6}{4}\\
-1408 & 10 & 77 & 212 & 4\\
-\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5}\\
+1408 & 10 & 77 & 212 & 4 \\
+\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5} \\
 1610 & 10 & 129 & 416 & 5\\
 \addlinespace
 \cellcolor{gray!6}{1611} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{77} & \cellcolor{gray!6}{222} & \cellcolor{gray!6}{5}\\
@@ -540,8 +540,41 @@ Stand & Plots & Unique trees & Observations & Measurements\\
 \midrule
 \cellcolor{gray!6}{Totals} & \cellcolor{gray!6}{186} & \cellcolor{gray!6}{1975} & \cellcolor{gray!6}{5794} & \cellcolor{gray!6}{ }\\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
+
+% \begin{table}[!h]
+% \caption[Summary of predictors for each stand]{A summary of predictors mean and sd}
+% \label{tab:sumpre}
+% \centering
+% \begin{tabular*}{\textwidth}{llrrrrrrrr}
+% \toprule
+% Stand & Aspect & Mean DBH & SD DBH & Mean CR & SD CR & Mean BAL & SD BAL & Mean BAH & SD BAH \\
+% \midrule
+% \cellcolor{gray!6}{1401} & \cellcolor{gray!6}{ENE} & \cellcolor{gray!6}{43.412} & \cellcolor{gray!6}{7.02} & \cellcolor{gray!6}{0.34} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.42} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{47} & \cellcolor{gray!6}{11}\\
+% 1402 & SE & 7.649 & 3.60 & 0.85 & 0.10 & 0.64 & 0.26 & 7 & 5\\
+% \cellcolor{gray!6}{1403} & \cellcolor{gray!6}{WNW} & \cellcolor{gray!6}{8.264} & \cellcolor{gray!6}{4.92} & \cellcolor{gray!6}{0.88} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.64} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{5}\\
+% 1404 & WNW & 10.073 & 4.95 & 0.84 & 0.13 & 0.61 & 0.29 & 12 & 9\\
+% \cellcolor{gray!6}{1405} & \cellcolor{gray!6}{SW} & \cellcolor{gray!6}{11.528} & \cellcolor{gray!6}{3.31} & \cellcolor{gray!6}{0.41} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.57} & \cellcolor{gray!6}{0.27} & \cellcolor{gray!6}{17} & \cellcolor{gray!6}{7}\\
+% \addlinespace
+% 1406 & SW & 10.462 & 4.87 & 0.80 & 0.14 & 0.59 & 0.29 & 9 & 6\\
+% \cellcolor{gray!6}{1407} & \cellcolor{gray!6}{WNW} & \cellcolor{gray!6}{12.465} & \cellcolor{gray!6}{6.03} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.53} & \cellcolor{gray!6}{0.31} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{7}\\
+% 1408 & ENE & 30.641 & 7.92 & 0.32 & 0.09 & 0.52 & 0.30 & 41 & 18\\
+% \cellcolor{gray!6}{1609} & \cellcolor{gray!6}{SE} & \cellcolor{gray!6}{10.604} & \cellcolor{gray!6}{5.61} & \cellcolor{gray!6}{0.77} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.59} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{6}\\
+% 1610 & SW & 7.963 & 3.98 & 0.77 & 0.13 & 0.65 & 0.29 & 9 & 6\\
+% \addlinespace
+% \cellcolor{gray!6}{1611} & \cellcolor{gray!6}{ENE} & \cellcolor{gray!6}{9.380} & \cellcolor{gray!6}{4.30} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.15} & \cellcolor{gray!6}{0.62} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{7}\\
+% 1612 & SW & 8.782 & 5.37 & 0.58 & 0.25 & 0.67 & 0.28 & 10 & 6\\
+% \cellcolor{gray!6}{1614} & \cellcolor{gray!6}{NNW} & \cellcolor{gray!6}{14.503} & \cellcolor{gray!6}{6.88} & \cellcolor{gray!6}{0.81} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.49} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{4}\\
+% 1615 & WNW & 12.537 & 4.24 & 0.84 & 0.11 & 0.53 & 0.30 & 12 & 7\\
+% \cellcolor{gray!6}{1616} & \cellcolor{gray!6}{WNW} & \cellcolor{gray!6}{16.932} & \cellcolor{gray!6}{4.89} & \cellcolor{gray!6}{0.40} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.52} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{11}\\
+% \addlinespace
+% 1617 & SE & 9.247 & 2.72 & 0.79 & 0.12 & 0.59 & 0.26 & 8 & 3\\
+% \cellcolor{gray!6}{1618} & \cellcolor{gray!6}{ENE} & \cellcolor{gray!6}{8.247} & \cellcolor{gray!6}{4.61} & \cellcolor{gray!6}{0.74} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.68} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{6}\\
+% 1619 & NNE & 12.365 & 4.49 & 0.71 & 0.14 & 0.52 & 0.28 & 17 & 9\\
+% \bottomrule
+% \end{tabular*}
+% \end{table}
 
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
@@ -639,7 +672,7 @@ this threshold was selected because a 0.7 correlation indicates that
 variables are closely related. Additionally, variables 
 known to represent the same processes, even if not highly linearly correlated 
 (such as heatload and aspect, for instance), were not considered together to 
-avoid redundancies and reduce model complexity.
+avoid redundancies and reduce model complexity. 
 
 GAMs were used to select predictors and visually examine 
 predictor partial effects on BAI. % as well as examine residual structure. 
@@ -686,7 +719,13 @@ was selected over alternatives. RMSE was calculated using residual degrees of
 freedom to provide an unbiased estimate. The proportion of null deviance 
 explained by the model (or deviance explained) \citep{wood2006generalized} was also 
 considered for ensuring acceptable model fit, %Do i even say this?
-but was not used as a primary selection criterion. 
+but was not used as a primary selection criterion. Additionally, 
+A concurvity \citep{Hastie1990} assessment was also conducted between variables 
+within each group at each phase of group variable selection. 
+Concurvity is an evaluation of whether one smooth function in a model describes 
+a different covariate smooth function in the same model 
+\citep{wood2006generalized}. If estimated concurvity was greater than 0.8 for a particular 
+set of terms, then an alternative not including both terms was evaluated.
 
 
 \section{Assessing species-mixing impacts on growth}
@@ -713,8 +752,7 @@ contrast western larch growth across each identified type of mixture against
 the pure larch stand condition. Thus, the identified 
 base model formula was fit but where each mixture was allowed an offset for the intercept
 and for each smooth term, resulting in a model containing a reference smooth 
-for each predictor, and a \emph{difference smooth} for species-mixture 
-\citep{wood2006generalized}: 
+for each predictor, and a \citep[\emph{difference smooth}][]{wood2006generalized} for species-mixture: 
 
 \begin{equation}
 \label{eq:mixes}
@@ -1032,53 +1070,88 @@ model summary outputs.
 \chapter{Results}
 
 
-
-
 \section{BAI model}
-
-%begin with description of the raw data
-
-The data informing 
-
-%%
 
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/bai_diam_sumfig.png}
-\caption[BAI-Diameter by BAH and aspect]{Individual tree BAI and DBH, gridded across aspect and BAH. Aspects are coded by cardinal direction, where N,S,E,W are north, south, east, and west, repsectively (e.g., NNW = north-northwest). Thin grey lines indicate 0 on each axis, with a 1:1 slope dotted-line passing through (0,0) included for visual reference.}
+\caption[BAI-Diameter by BAH and aspect]{Individual tree BAI and DBH, gridded across aspect and BAH. Aspects are coded by cardinal direction, where N,S,E,W are north, south, east, and west, repsectively (e.g., NNW = north-northwest). Thin grey lines indicate 0 on each axis, with a 1:1 slope dotted-line passing through (0,0) included for visual reference. There were no observations in SW aspects, and all east-facing southerly aspects were binned together, as there was very little data in that quadrant.}
 \label{fig:sumfig}
+\end{figure}
+
+%begin with description of the raw data
+
+In the PGP data, tree size was positively associated with the growth of western larch 
+and this relationship varies across the range of aspect and density, 
+as shown in figure \ref{fig:sumfig}. Growth appears the most vigorous 
+in trees less than 20 cm in DBH at low densities, where a nonlinear growth 
+relationship is apparent. At moderate to higher densities, however, DBH and 
+growth express somewhat linear trends with non-constant variance as  
+density and competition increase with tree size and stand development, 
+perhaps explaining higher base-level diameter values in this relationship. 
+These relationships in the data also vary by aspect, which is most apparent at 
+moderate to high densities. Moving from west-facing 
+aspects towards northern and eastern aspects, the DBH-BAI trend appears less 
+steep, and minimum tree size is generally larger. One note, however, data for 
+most of the largest trees were collected on east-northeast aspects \ref{fig:ddist}. 
+% perhaps indicating that such sites are associated with conditions favorable to large tree growth, 
+% or perhaps because the sampling of large tree data was limited to east-northeast sites. 
+The choice of fitting non-linear relationships for predicting tree growth with a gamma 
+distribution and a long-link function appears to be 
+valid given the dispersion and non-linearity present in these relationships. 
+
+% The model was fit with a gamma distribution family because it allows for 
+% increasing dispersion in the response variable. A log-link function was chosen 
+% to ensure that predictions of growth were positive and non-zero.
+
+%diameter values at higher densities driven by competition
+%%
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/diam.dist.asp.png}
+\caption[Stand diameter distributions]{Boxplot distributions of diameter (DBH) by stand, colored by aspect (aspect coded by cardinal direction). The largest trees were concentrated in 2 stands (1401 and 1408). Boxplot whiskers are equal to 1.5 interquartile range.}
+\label{fig:ddist}
 \end{figure}
 
 %Then presesnt results of correlation and say which predictors were selected by group
 Tree DBH and basal area were highly correlated (0.938) and were 
-evaluated in separate models. DBH as a predictor yielded higher 
+evaluated in separate models. DBH as a predictor yielded slightly higher 
 accuracy in predicting BAI than tree BA, with model RMSE values  
-of 5.64 $\mathrm{cm^2}/yr.$ and 5.70 $\mathrm{cm^2}/yr.$, respectively. 
+of 5.64 $\mathrm{cm^2/yr}$ and 5.70 $\mathrm{cm^2/yr}$, respectively. 
 
 Competition variables were partitioned into two sub-groups:  
-variables representing a tree's competitive position in a stand, and variables 
-that represent the overall competitive environment. Highly collinear variable 
-combinations were were TPA-$D_q$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
-Tree-level variables reduced RMSE to 4.50 $\mathrm{cm^2}/yr.$, and then to 
-4.31 $\mathrm{cm^2}/yr.$ with plot BA included.
+variables representing a tree's competitive position in a stand 
+(BAL, $\mathrm{D_q}$, and CR), and variables that represent the overall competitive 
+environment (QMD, TPH, BAH, and CCF). Highly collinear variable 
+combinations were were TPH-$\mathrm{D_q}$ (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
+With DBH effects included, adding tree-level variables reduced RMSE to 4.50 
+$\mathrm{cm^2/yr}$, and then to 4.31 $\mathrm{cm^2/yr}$ with plot BA included. 
+CR was applied as a tree-level competition instead of a tree size variable 
+because it reflects the cumulative effects of past 
+management and competition \citep{Wykoff1990,Monserud1996}, but either way 
+it would have been included because in both scenarios it improved model accuracy. 
 
 Topographic variables (slope, aspect, elevation) were evaluated as 
 potential predictors separately from site index and heatload. Since aspect
-is a circular measure, both sin (easting) and cosine (northing) 
-transformations were applied as in previous works \citep{Stage1976}. Aspect was best 
-accounted for as an interaction term in the form of an isotropic smooth, a 
-reduced rank version of thin-plate splines \citep{wood2006generalized}. 
+is a circular measure, both sine (easting) and cosine (northing) 
+transformations were applied as in previous works \citep[e.g., ][]{Stage1976}. 
+Aspect was best accounted for as an interaction of the sine and cosine terms 
+in the form of an isotropic smooth.
+% , a reduced rank version of thin-plate splines \citep{wood2006generalized}. 
 Slope and elevation contributed little to prediction accuracy 
 when included with aspect and were associated with concurvity values 
 beyond the established threshold. Thus, building on the model and 
 comparing aspect, site index, and heatload, aspect was selected as 
-the best term, further reducing model RMSE to 4.01 $\mathrm{cm^2}/yr.$
+the best term, further reducing model RMSE to 4.01 $\mathrm{cm^2/yr}$
 
 %Then describe the numbers and introduce the table
 By group, competition metrics contributed the most in 
-deviance explained, followed by size (Table \ref{table:rmse}). However, considering 
+deviance explained, followed by size (Table \ref{tab:rmse}). However, considering 
 variables individually, DBH explained more deviance and reduced RMSE 
-more than any other variable in the model. 
+more than any other variable in the model. Variations in the size, competition, and 
+site characteristics of PGP western larch growth increments are shown in table 
+\ref{tab:mixsummary}
 
 \begin{table}[!h]
 \caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and RMSE values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. RMSE for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
@@ -1086,7 +1159,7 @@ more than any other variable in the model.
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
-\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($\mathrm{cm^2}/yr.$)\\
+\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($\mathrm{cm^2/yr}$)\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
@@ -1107,22 +1180,15 @@ more than any other variable in the model.
 \end{table}
 
 A basal area increment model was specified with the following predictors: 
-DBH, crown ratio (CR), basal area larger than the subject (BAL; expressed as a ratio), 
-plot basal area (BA), aspect, and a tree-level random effect. 
-The model was fit with a gamma distribution family because it allows for 
-increasing dispersion in the response variable. A log-link function was chosen 
-to ensure that predictions of growth were positive and non-zero.
+DBH, CR, BAL, BAH, aspect, and a tree-level random effect. 
 The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
-The base model RMSE was ~3.34 $\mathrm{cm^2}/yr.$ Fixed effects terms used 
+The base model RMSE was ~3.34 $\mathrm{cm^2/yr}$ Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
 Random effects were accounted for using a spline basis 
 \citep{wood2006generalized}, and thus had an associated degrees of 
-freedom, which was ~1338. Model residual 
-degrees of freedom was ~4401. Model statistics are reported in Table 
-\ref{tab:rmse}.
-
-
+freedom of ~1338. Model residual degrees of freedom was ~4401. 
+Model statistics are reported in table \ref{tab:rmse}.
 
 Partial response curves are shown in Figure \ref{fig:basesmooths}. DBH had an 
 overall increasing effect on BAI, eventually tapering at values larger 
@@ -1163,18 +1229,38 @@ for south-facing aspects.
 
 % modeling mixtures
 %% maybe i should constrain plotted curves to only pure larch that lie between west and north?
-The model fitted for western larch growth compared across mixtures 
-was informed by a variety of conditions as displayed in table 
-(Table ~\ref{tab:mixsummary}). Species compositions can vary with 
-variations in aspect due to species preference to different niches, so it was 
-important to consider where data was modeled from. 
-Pure larch stands evaluated sat on northerly aspects spanning from west to east
-(Fig. ~\ref{fig:asp}), and both mixtures evaluated showed some preference towards northwest 
-facing slopes, but ultimately data spanned a similar range to the pure conditions. 
-The reference curve captured variability in each 
-predictor with high certainty. Crown ratio was penalized to a linear effect, 
-but still held a non-zero effect. The reference smooths fit for each term closely 
-resembled those of the base model, and thus are not displayed. 
+
+%talk about data first - maybe include figs?
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{../17.figures_saved/mix.asp.barchart.png}
+\caption[Mixture tree counts by aspect]{Individual tree counts for each species-mixture, categorized by aspect quadrant (NW = 270-360, NE = 0-90, SE = 90-180).}
+\label{fig:aspcnts}
+\end{figure}
+
+The model fitted for western larch growth compared across mixtures with 
+lodgepole pine and Douglas-fir was informed by a variety of conditions as displayed in table 
+(Table ~\ref{tab:mixsummary}). Pure larch stands evaluated sat on northerly 
+aspects spanning from west to east (Fig. ~\ref{fig:asp}), and both mixtures 
+evaluated were more abundant on northwest-facing slopes compared to other 
+aspects, as shown in figure \ref{fig:aspcnts}. This was a non-issue in terms 
+of bias, as ultimately there was data across a similar range of aspect for 
+each mixture. 
+
+A reference smooth function was fit for western larch for each predictor, and 
+is shown in figure \ref{fig:diffsmooths}. 
+The reference smooth captured variability in each predictor with high 
+certainty (p-values $< 0.001$, see table \ref{tab:diff}). Crown ratio was 
+penalized to a linear effect, but still held a non-zero effect. The reference 
+smooths fit for each term closely resembled those of the base model. The 
+model reference intercept, 
+
+
+%discussion
+% Species compositions can vary with variations in aspect due to species 
+% preference to different niches, so it was important to consider where data was modeled from. 
 
 Model intercepts and difference intercepts are reported at the bottom of 
 Table ~\ref{tab:mixsummary}. Here, there is some evidence for the mean response 
@@ -1311,23 +1397,23 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \centering
 \caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
 \label{tab:diff}
-\begin{tabular}{lcrcr}
+\begin{tabular}{lcrcrcr}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} 
-Smooth & EDF & p-value & EDF & p-value\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Pure larch} & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+Smooth & EDF & p-value & EDF & p-value & EDF & p-value\\
 \midrule
-\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{2.75} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.14} & \cellcolor{gray!6}{0.398}\\
-Crown ratio & 2.78 & 0.031 & 3.74 & 0.004\\
-\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.11} & \cellcolor{gray!6}{0.122}\\
-BA & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
-\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{6.61} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{10.7} & \cellcolor{gray!6}{$< 0.001$}\\
+\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{7.89} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.75} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.14} & \cellcolor{gray!6}{0.398}\\
+Crown ratio & 1.00 & $< 0.001$ & 2.78 & 0.031 & 3.74 & 0.004\\
+\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.11} & \cellcolor{gray!6}{0.122}\\
+BA & 8.65 & $< 0.001$ & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
+\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{17.02} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{6.61} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{10.7} & \cellcolor{gray!6}{$< 0.001$}\\
 \bottomrule
-\multicolumn{1}{l}{Intercept} & \multicolumn{2}{c}{Estimate} & \multicolumn{2}{c}{p-value}  \\
+\multicolumn{3}{l}{Intercept} & \multicolumn{2}{c}{Estimate} & \multicolumn{2}{c}{p-value}\\
 \midrule
-\multicolumn{1}{l}{\cellcolor{gray!6}{Reference}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.0452}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.018$}} \\
-\multicolumn{1}{l}{Larch-lodgepole} & \multicolumn{2}{c}{-0.256} & \multicolumn{2}{c}{0.694} \\
-\multicolumn{1}{l}{\cellcolor{gray!6}{Larch-Douglas-fir}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.138}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.778$}} \\
+\multicolumn{3}{l}{\cellcolor{gray!6}{Reference}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.0452}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.018$}} \\
+\multicolumn{3}{l}{Larch-lodgepole} & \multicolumn{2}{c}{-0.256} & \multicolumn{2}{c}{0.694} \\
+\multicolumn{3}{l}{\cellcolor{gray!6}{Larch-Douglas-fir}} & \multicolumn{2}{c}{\cellcolor{gray!6}{-0.138}} & \multicolumn{2}{c}{\cellcolor{gray!6}{$0.778$}} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1393,7 +1479,7 @@ interpret.
 \centering
 \begin{tabular}{lrrr}
 \toprule
-Model & RMSE ($\mathrm{cm^2}/yr.$) & Deviance explained (\%) & $R^2$\\
+Model & RMSE ($\mathrm{cm^2/yr}$) & Deviance explained (\%) & $R^2$\\
 \midrule
 \cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} & \cellcolor{gray!6}{0.77886}\\
 CCF & 4.801 & 84.42 & 0.77597\\

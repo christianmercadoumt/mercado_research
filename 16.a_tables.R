@@ -48,15 +48,35 @@ bai.spmx.ids <- bai.spmx %>%
 # 2.0 Methods#####
 
 #2.1 Table of # of plots, # of trees, # of observations, other conditions ####
-
+library(kableExtra)
 num.pl <- bai.spmx.ids %>% group_by(stand) %>% 
   summarize(number.plots = n_distinct(PLOT), 
             number.trees = n_distinct(unique_tree_id), 
             number.obs = n(), 
-            n.meas = 1+n_distinct(MEASUREMENT_NO))
+            n.meas = 1+n_distinct(MEASUREMENT_NO),
+            aspect = mean(aspect_deg, na.rm = T),
+            # min.diam = min(DIAMETER, na.rm = T)*2.54,
+            mean.diam = mean(DIAMETER, na.rm = T)*2.54,
+            # max.diam = max(DIAMETER, na.rm = T)*2.54,
+            sd.diam = sd(DIAMETER, na.rm=T)*2.54,
+            mean.cr = mean(cr, na.rm = T),
+            sd.cr = sd(cr, na.rm = T),
+            mean.bal = mean(bal.pl.ratio, na.rm = T),
+            sd.bal = sd(bal.pl.ratio, na.rm = T),
+            mean.bah = mean(ba.pl, na.rm = T)*(2.47/10.764),
+            sd.bah = sd(ba.pl, na.rm = T)*(2.47/10.764)
+            ) %>% 
+  mutate(aspect = case_when(
+    aspect >=270 & aspect<315 ~'WNW',
+    aspect >=315 & aspect<=360 ~'NNW',
+    aspect >=0 & aspect <=45 ~'NNE',
+    aspect >45 & aspect <=90 ~'ENE',
+    aspect >90 & aspect <=180 ~ 'SE',
+    aspect >180 & aspect<270 ~'SW'
+  ))
 totals <- c(sum(num.pl$number.plots), sum(num.pl$number.trees), sum(num.pl$number.obs))
 num.pl %>% 
-  kable(format = 'latex', booktabs = T) %>% #caption = 'Shade tolerance for western conifers (ref:caption2)',
+  kable(format = 'latex', booktabs = T, digits = c(4,2,2,3,1,1,3,2,2,2,2,2,0,0)) %>% #caption = 'Shade tolerance for western conifers (ref:caption2)',
   kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = F)
 
 bai.spmx.ids %>% filter(stand == 1401) %>% summarize(unique(PLOT))
@@ -389,7 +409,7 @@ mixtures.all <- bind_rows(mix.w.names)
 o.mixtures.all <- mixtures.all %>% 
   select(SETTING_ID, stand, PLOT, bai, DIAMETER, 
          cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, 
-         mixtype, unique_tree_id) %>% 
+         mixtype, unique_tree_id, aspect_deg) %>% 
   filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
   mutate(mixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))

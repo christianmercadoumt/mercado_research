@@ -97,7 +97,7 @@ re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 ```
 
 ```{r 3.1 raw data trends}
-library(gtable)
+# library(gtable)
 library(grid)
 dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
                                    bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
@@ -133,6 +133,7 @@ ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>%
             bai.cmsq = mean(bai.cmsq),
             bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
 
+
 bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
   # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
   facet_grid(BAH~Aspect, labeller = label_both) +
@@ -142,13 +143,46 @@ bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alph
   # theme(aspect.ratio = 1)
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
 
+(ind.tr.sumdat <- dat %>% group_by(stand) %>% 
+  summarize(meandbh=mean(DIAMETER, na.rm = T), asp = mean(aspect_deg)))
+dat
+
 library(magick)
 
 ggsave('17.figures_saved/bai_diam_sumfig.png', bai.diam.asp.bah)
 knitr::plot_crop('17.figures_saved/bai_diam_sumfig.png')
 
+# dat %>% group_by(stand, unique_tree_id, nsew, bah.cats) %>% 
+#   summarise(diam.cm = mean(diam.cm),
+#             bai.cmsq = mean(bai.cmsq),
+#             bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
 
 
+more.dat <- dat %>% group_by(stand) %>% mutate(aspect1 = mean(aspect_deg, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(nsew = case_when(
+    aspect1 >=270 & aspect1<315 ~'WNW',
+    aspect1 >=315 & aspect1<=360 ~'NNW',
+    aspect1 >=0 & aspect1 <=45 ~'NNE',
+    aspect1 >45 & aspect1 <=90 ~'ENE',
+    aspect1 >90 & aspect1 <=180 ~ 'SE',
+    aspect1 >180 & aspect1<270 ~'SW')) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+
+#colors
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#plot
+diam.dist.asp <- ggplot(more.dat, aes(x = stand, y = DIAMETER*2.54, color = nsew)) + 
+  geom_boxplot() + 
+  labs(x = 'Stand', y = 'DBH (cm)', color = 'Aspect') +
+  scale_color_manual(values = cbPalette) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+ggsave('17.figures_saved/diam.dist.asp.png', diam.dist.asp)
+knitr::plot_crop('17.figures_saved/diam.dist.asp.png')
 # ggplot(dat.samp, aes(log(diam.cm), log(tph), color = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand)
 
 # loess
@@ -164,6 +198,7 @@ sz <- bai.spmx.ids %>% select(DIAMETER, treeba) %>%
   mutate(DBH = DIAMETER*2.54, BA = treeba*2.54^2) %>% 
   select(DBH, BA)
 
+corrplot
 
 library(GGally)
 ## Size
@@ -265,21 +300,89 @@ ggsave('17.figures_saved/base_aspect.png', contour.pl)
 
 
 ```{r all data mixtures}
-mix.data <- spp.fun(full.data, 0.2, .65, 0.7)
+# mix.data <- spp.fun(full.data, 0.2, .65, 0.7)
+# 
+# full.mix <- bind_rows(mix.data, .id = 'id')
+# 
+# full.mix %>% group_by(id, NF, stand) %>% summarize(num.obs = n())
+# 
+# bai.diam <- full.mix %>% 
+#   group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+#   summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
 
-full.mix <- bind_rows(mix.data, .id = 'id')
 
-full.mix %>% group_by(id, NF, stand) %>% summarize(num.obs = n())
 
-bai.diam <- full.mix %>% 
-  group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
-  summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7)
+individual.obs <- lapply(mixtures, function(x)
+  length(unique(x$unique_tree_id)))
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x)) # add names to different mixes in the data
+
+mixtures.all <- bind_rows(mix.w.names) #list to tibble
+
+o.mixtures.all <- mixtures.all %>% 
+  # select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+  #        bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
+  #        unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
 
 #ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
 
 ```
 
 ```{r mixture summary non-analysis figs.}
+
+mx.dat <- o.mixtures.all %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+                                   bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                                   bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                                   dq.pl.all, percent_LAOC, shade.tol.pl, 
+                                   percent_PSME, percent_PICO,omixtype) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(bah.cats = case_when(
+    bah < 10 ~ '0-10',
+    bah>10 & bah<20 ~ '10-20',
+    bah>20 ~ '20+'
+  ), bal.cats = case_when(
+    bal.pl.ratio < .35 ~ 'low',
+    bal.pl.ratio > .33 & bal.pl.ratio < 0.66 ~ 'mid',
+    bal.pl.ratio > .66 ~'high'
+  ), nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+# set.seed(406)
+# dat.samp <- dat %>% slice_sample(n = 2000)
+
+mx.ind.tr.dat <- mx.dat %>% group_by(omixtype,unique_tree_id, nsew, bah.cats) %>% 
+  summarise(diam.cm = mean(diam.cm),
+            bai.cmsq = mean(bai.cmsq),
+            bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+
+ggplot(mx.ind.tr.dat, aes(diam.cm, bai.cmsq, color = omixtype)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAH~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+
+
+
+
+###################################
 #make data
 (mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
 
@@ -299,32 +402,40 @@ ggplot(subset(mixtures.all, !(id %in% c('abla', 'laoc', 'pipo'))),
 #mixes average.tree.bai-avg.tree.diam smoothed by type#####
 
 
-bai.diam <- full.mix %>% 
+bai.diam <- full.mix %>% filter(id %in% c('laoc', 'pico', 'psme')) %>% 
   group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
   summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+  
 
-ggplot(bai.diam, aes(x = meandbh, y = meanbai, color = id)) + geom_point(alpha = 0.2) + geom_smooth(se = F)
-ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
-ggplot(subset(bai.diam, id %in% c('laoc', 'psme')), 
-       aes(x = meandbh, y = meanbai, color = id)) +
+ggplot(bai.diam, aes(x = meandbh*2.54, y = meanbai*2.54^2, color = id)) + 
   geom_point(alpha = 0.2) + 
-  geom_smooth(se = F)
-ggplot(subset(bai.diam, id %in% c('laoc', 'pico')), 
-       aes(x = meandbh, y = meanbai, color = id)) +
-  geom_point(alpha = 0.2) + 
-  geom_smooth(se = F)
-ggplot(subset(bai.diam, id %in% c('laoc', 'pien')), 
-       aes(x = meandbh, y = meanbai, color = id)) +
-  geom_point(alpha = 0.2) + 
-  geom_smooth(se = F)
-ggplot(subset(bai.diam, id %in% c('laoc', 'pipo')), 
-       aes(x = meandbh, y = meanbai, color = id)) +
-  geom_point(alpha = 0.2) + 
-  geom_smooth(se = F)
-ggplot(subset(bai.diam, id %in% c('laoc', 'abla')), 
-       aes(x = meandbh, y = meanbai, color = id)) +
-  geom_point(alpha = 0.2) + 
-  geom_smooth(se = F)
+  geom_smooth(se = F, method = 'gam') +
+  geom_vline(xintercept = 0, size=0.1) + 
+  geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed')
+
+
+# ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'psme')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pico')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pien')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pipo')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
 
 ```
 
@@ -468,6 +579,72 @@ ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
         axis.title = element_blank(), 
         axis.line = element_blank(),
         line = element_blank())
+
+
+
+o.mixtures.all <- mixtures.all %>% 
+  # select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+  #        bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
+  #        unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
+
+
+mix.asp.counts <- o.mixtures.all %>%
+  mutate(nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% 
+  mutate(nsew = factor(nsew, 
+                       levels = c('SW', 'WNW', 
+                                  'NNW', 'NNE', 
+                                  'ENE', 'SE'))) %>% 
+  mutate(asp.quads = 
+           case_when(
+             aspect_deg >=270 & aspect_deg<=360 ~ 'NW',
+             aspect_deg >=0 & aspect_deg <=90 ~ 'NE',
+             aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+             aspect_deg >180 & aspect_deg<270 ~'SW'
+           )) %>% 
+  mutate(asp.quads = factor(asp.quads, 
+                            levels = c('NW', 'NE', 'SE', 'SW'), 
+                            ordered = T)) %>% 
+  group_by(asp.quads,omixtype,mixtype) %>% 
+  summarise(trees = n_distinct(unique_tree_id), obs = n()) %>% 
+  mutate(amixtype = case_when(mixtype == 'laoc' ~ 'Pure larch',
+                             mixtype == 'pico' ~ 'Larch-lodgepole',
+                             mixtype == 'psme' ~ 'Larch-Douglas-fir')) %>% 
+  mutate(amixtype = factor(amixtype, 
+                           levels = c('Pure larch',
+                                      'Larch-lodgepole',
+                                      'Larch-Douglas-fir'), 
+                           ordered = T))
+
+mix.asp.counts
+
+
+mix.asp.bars <- ggplot(mix.asp.counts, aes(asp.quads, trees, fill = amixtype)) + 
+  geom_col(position = position_dodge()) +
+  labs(x='Aspect', y = 'No. of trees', fill = 'Mixture') +
+    theme(aspect.ratio = 2/(1+sqrt(5)), legend.position = c(.8,.8), legend.title.align = .5)
+
+ggsave('17.figures_saved/mix.asp.barchart.png')
+knitr::plot_crop('17.figures_saved/mix.asp.barchart.png')
+
+
+# ggplot(mix.asp.counts, aes(asp.quads, obs, fill = omixtype)) + 
+#   geom_col(position = position_dodge())
+# 
+# ggplot(mix.asp.counts, aes(omixtype, trees, fill = asp.quads)) +
+#   geom_col(position = position_dodge())
+# ggplot(mix.asp.counts, aes(omixtype, obs, fill = asp.quads)) +
+#   geom_col(position = position_dodge())
+
 ```
 
 ```{r mixtures partial response data}
