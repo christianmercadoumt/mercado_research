@@ -1232,6 +1232,13 @@ for south-facing aspects.
 
 %talk about data first - maybe include figs?
 
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth]{../17.figures_saved/compass_all.png}
+\caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+\label{fig:asp}
+\end{figure}
+
 
 \begin{figure}
 \centering
@@ -1247,67 +1254,23 @@ aspects spanning from west to east (Fig. ~\ref{fig:asp}), and both mixtures
 evaluated were more abundant on northwest-facing slopes compared to other 
 aspects, as shown in figure \ref{fig:aspcnts}. This was a non-issue in terms 
 of bias, as ultimately there was data across a similar range of aspect for 
-each mixture. 
+each mixture. Tests indicating certainty of non-zero effects for estimated 
+smooths (for both reference and difference smooths) and 
+intercepts are represented as p-values shown in table \ref{tab:diff}, 
+where p $< 0.001$ indicates strong evidence, 
+p $< 0.01$ indicate moderately strong evidence, 
+p $< 0.05$ indicate some evidence, 
+and p $> 0.05$ indicate little to no evidence.
 
 A reference smooth function was fit for western larch for each predictor, and 
 is shown in figure \ref{fig:diffsmooths}. 
-The reference smooth captured variability in each predictor with high 
-certainty (p-values $< 0.001$, see table \ref{tab:diff}). Crown ratio was 
-penalized to a linear effect, but still held a non-zero effect. The reference 
-smooths fit for each term closely resembled those of the base model. The 
-model reference intercept, 
-
-
-%discussion
-% Species compositions can vary with variations in aspect due to species 
-% preference to different niches, so it was important to consider where data was modeled from. 
-
-Model intercepts and difference intercepts are reported at the bottom of 
-Table ~\ref{tab:mixsummary}. Here, there is some evidence for the mean response 
-
-The intercept for the pure larch reference 
-condition represents the mean response of that condition, and the difference 
-intercepts represent the difference between the reference and each respective 
-condition being compared. 
-
-%% present results from summary output table. 
-\subsection{Western larch-lodgepole pine mixtures}
-% Western larch growth varied in mixture type compared to homogeneous conditions 
-% in response to each variable. 
-There was strong evidence indicating a departure of growth response from pure conditions
-as tree size (DBH), symmetry of competition (BAL), and stand density (BA) varied
-when mixed with lodgepole pine, and modest  
-evidence for such in crown ratio and aspect (Table ~\ref{tab:diff}). 
-In these mixtures, growth was even less in smaller western larch trees, 
-but became even greater when larch diameters exceeded ~12cm, compared to pure stands. 
-A similarly-shaped difference effect is displayed as western larch takes up more growing space 
-in its community to taking up less space than lodgepole pine 
-(as BAL increases from zero). The difference curve for BAL 
-(Fig. ~\ref{fig:diffsmooths}), practically 
-outweighs the reference curve respective of the line of 0 difference,
-indicating that asymmetric competition that is in favor of larch may negatively 
-impact it's growth and in favor of lodgepole pine may drive an increase in growth, 
-given that other variables remain constant. Furthermore, basal area effects were 
-hardly different for this mixture type, but were positively and negatively 
-intensified at very low densities and higher densities, respectively, 
-although the uncertainty becomes somewhat unmanageable at higher densities, 
-likely due to a lack of high-density data for this mixture type. 
-
-\subsection{Western larch-Douglas-fir mixtures}
-
-For larch-Douglas-fir mixtures, growth deviated from the pure stands 
-as crown ratio, stand density, and aspect varied, but little to no variation was 
-observed in response to different levels of tree size or symmetry of competition. 
-The growth difference in response to crown ratio were slightly elevated 
-for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. ~\ref{fig:diffsmooths}), 
-but the slight change likely doesn't have any important interpretation due to 
-the small impact. Similar to the lodgepole pine mixtures, basal area impacts on 
-growth in Douglas-fir mixed larch were were intensified at higher densities. 
-This impact, however, was comparatively smaller than that of the lodgepole pine 
-mixtures; the rate of this magnifying effect may require further investigation 
-using methodologies appropriate for such comparisons. 
-
-
+The reference smooth for each 
+predictor captured variability with high certainty (p-values $< 0.001$). 
+Somewhat unsurprisingly, each reference smooth closely resembled the 
+corresponding smooths fitted by the base model. Crown ratio was 
+penalized to a linear effect but strong evidence for a non-zero effect remained. 
+There was also evidence indicating that the mean value of the response for pure larch 
+conditions was not zero. 
 
 %Table of mixtures, min, max, mean for each variable in model
 
@@ -1366,6 +1329,76 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 \end{tabular}
 \end{table}
 
+
+% perhaps owing to the presence of a high-certainty random intercept value at the 
+% tree-level.
+%%revisit
+%intercept for reference conditions should represent the mean value of the response, and for differences represents the mean difference from the reference.
+% Since this is a gam, there is low certainty in the estimate of the mean value of the response, likely due to the presence of a high certianty random term (i.e., intercepts)
+
+
+%discussion
+% Species compositions can vary with variations in aspect due to species 
+% preference to different niches, so it was important to consider where data was modeled from. 
+
+% Model intercepts and difference intercepts are reported at the bottom of 
+% Table ~\ref{tab:mixsummary}. Here, there is some evidence for the mean response 
+% 
+% The intercept for the pure larch reference 
+% condition represents the mean response of that condition, and the difference 
+% intercepts represent the difference between the reference and each respective 
+% condition being compared. 
+
+%% present results from summary output table. 
+\subsection{Western larch-lodgepole pine mixtures}
+% Western larch growth varied in mixture type compared to homogeneous conditions 
+% in response to each variable. 
+There was strong evidence indicating a departure of growth response from pure conditions
+as DBH, symmetry of competition BAL, and stand density BA varied
+when mixed with lodgepole pine, and modest  
+evidence for such in crown ratio and aspect (Table ~\ref{tab:diff}). 
+In these mixtures, growth was less in smaller western larch trees, 
+but became greater when larch diameters exceeded ~12 cm, compared to pure stands. 
+A similarly-shaped difference effect is displayed as BAL increases from zero.  
+This means that a western larch tree without larger neighbors (at BAL values 
+close to zero) would have lower growth when 
+growing in a mixture with lodgepole pine compared to pure-larch 
+conditions. Inversely, a larch would achieve higher growth when 
+more of its neighbors are larger than it (BAL $> 0.75$ plot BA) when mixed 
+with lodgepole pine compared to a larch growing in a pure stand. 
+Furthermore, the BAI-BAH difference smooth showed a positive difference at 
+low densities and a negative difference at high densities. However, the 
+magnitude of the difference is very uncertain for densities greater than 
+30 $\mathrm{m^2/ha}$.
+
+% basal area effects were 
+% hardly different for this mixture type, but were positively and negatively 
+% intensified at very low densities and higher densities, respectively, 
+% although the uncertainty becomes somewhat unmanageable at higher densities, 
+% likely due to a lack of high-density data for this mixture type. 
+
+
+
+%what proportion of plot basal area is in trees that are larger than this tree
+% at a value of 0.5, only 50% of plot BA is in trees larger than this tree (and 50% smaller)
+
+\subsection{Western larch-Douglas-fir mixtures}
+
+For larch-Douglas-fir mixtures, growth deviated from the pure stands 
+as crown ratio, stand density, and aspect varied, but little to no variation was 
+observed in response to different levels of tree size or symmetry of competition. 
+The growth difference in response to crown ratio were slightly elevated 
+for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. ~\ref{fig:diffsmooths}). 
+Similar to the lodgepole pine mixtures, basal area impacts on 
+growth in Douglas-fir mixed larch were were intensified at higher densities. 
+%%%%%%%%%%%%%% revisit this point below?
+This impact, however, was comparatively smaller than that of the lodgepole pine 
+mixtures; the rate of this magnifying effect may require further investigation 
+using methodologies appropriate for such comparisons. 
+
+
+
+
 %figure showing dist. for aspect? maybe switch to other variable?
 % \begin{figure}
 % \centering
@@ -1382,12 +1415,6 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 % \label{fig:asp}
 % \end{figure}
 
-\begin{figure}
-\centering
-\includegraphics[width=0.75\textwidth]{../17.figures_saved/compass_all.png}
-\caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
-\label{fig:asp}
-\end{figure}
 
 
 %state which values are significant and for which term
@@ -1395,7 +1422,7 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 % table of significances
 \begin{table}
 \centering
-\caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. P-values < 0.001 indicate strong evidence for a difference, < 0.01 indicate moderately strong evidence, < 0.05 indicate some evidence, and > 0.05 indicate little to no evidence. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
+\caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
 \label{tab:diff}
 \begin{tabular}{lcrcrcr}
 \toprule
@@ -1433,33 +1460,41 @@ BA & 8.65 & $< 0.001$ & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
 %
 Models were specified for each species-informed measure. 
 Both shade intolerance and purity were fit as additional 
-predictors in respective models. CCF and basal area 
+predictors in respective models. CCF and BAH 
 were found to be highly correlated with one-another, so ccf was included 
-in its respective model in place of BA, as to avoid issues of collinearty 
-among predictors. 
+in its respective model in place of BAH, as to avoid issues of collinearty  
+and concurvity among predictors. 
 
 %Table w/ rmseand stuff (is below)
 Model accuracy was best improved by the addition of stand purity, followed by 
-plot shade intolerance and plot crown competition factor (Table ~\ref{tab:mixvarsrmse}). 
-Every term in each respective model was backed by a p-value < 0.001, indicating 
-that each was non-zero, provided that smoothing parameter estimation and model 
-selection were moderately error-free. Changes in RMSE were modest, all of which 
+plot shade intolerance and CCF (Table ~\ref{tab:mixvarsrmse}). 
+Every term in each respective model was backed by a p-value $< 0.001$, indicating 
+that each was confidently non-zero. Changes in RMSE were modest, all of which 
 were at the sub-square centimeter per year -level. Model fit increased in concert with 
 improvements to accuracy except for with CCF, which 
 showed a small decrease in deviance explained (Table ~\ref{tab:mixvarsrmse}) and 
 $R^2$.
 
-CCF displayed the largest effect on tree growth, followed by purity and 
-shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, since CCF is a measure of stand 
-density, it appears very similar to the basal area smooth in the base model. 
-Both purity and shade intolerance were characterized by positive effects on 
-growth for lower values, and slightly negative effects on growth for positive 
-values. Shade intolerance effects appear highly uncertain compared to those of 
-purity and CCF, and non-zero effects are hard to identify with this model. 
-Smooths for purity and shade intolerance were generously fit with numerous 
-basis functions, or perhaps minimal penalization, which contributes to their wiggliness 
-and uncertainties. As a result, shade intolerance effects are difficult to 
-interpret. 
+In the absence of BAH in the model, CCF displayed a larger effect on tree growth 
+than purity and shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, 
+since CCF is a size-weighted measure of stand density, it appears very similar 
+to the BAH smooth in the base model, showing a declining effect from low to high values. 
+Both purity and shade intolerance were also characterized by declining  
+effects on growth as each increased, but since density is already accounted for 
+by BAH in each of these models, both of these measures have an 
+expected smaller effect on growth. 
+The effect sizes across the range of both purity and shade intolerance 
+are variable, where shade intolerance specifically lacks certainty to distinguish 
+the effect from 0. As a result, the shade intolerance curve is difficult 
+to interpret at values less than 0.75. 
+
+% Shade intolerance effects appear highly 
+% uncertain compared to those of 
+% purity and CCF, and non-zero effects are hard to identify with this model. 
+% Smooths for purity and shade intolerance were generously fit with numerous 
+% basis functions, or perhaps minimal penalization, which contributes to their wiggliness 
+% and uncertainties. As a result, shade intolerance effects are difficult to 
+% interpret. 
 
 %Show smooths for each measure
 
@@ -1602,6 +1637,34 @@ Point: The difference between larch growth in the lodgepole-mixed and
 pure larch conditions is suggestive that interspecific competitive dynamics 
 between western larch and lodgepole pine are different from intra-specific 
 dynamics for pure larch stands. 
+
+%%%%%%%%%%%%% revisit these points below
+%% maybe a discussion point?
+%% adding a figure of predicted values may be useful to illustrate this idea. 
+LARCH-LODGEPOLE
+The difference curve for BAL (Fig. ~\ref{fig:diffsmooths}) shows negative and positive 
+values of difference that outweigh the positive and negative values of the 
+reference curve, respectively. For example, when BAL is 0.25 in pure conditions, 
+the expected effect on growth is positive, with an effect size of roughly 0.12. 
+However, when in a mixture with lodgepole pine, the expected difference from 
+that effect size is about -0.35. 
+that valuable differences in the growth relationship 
+
+that is, 
+differences in western larch growth . 
+
+This indicates that asymmetric competition that is in favor of larch may negatively 
+impact it's growth and in favor of lodgepole pine may drive an increase in growth, 
+given that other variables remain constant. 
+
+LARCH-DOUGFIR
+
+the growth difference in response to crown ratio were slightly elevated for 
+larch-dougfir mixtures and only in mid range values, but the slight change 
+likely doesn't have any important interpretation due to 
+the small impact. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
  -- This is shown by an amplified negative growth effect for small diameter  
  larch and similarly increased positive effect for larger diameter larch 

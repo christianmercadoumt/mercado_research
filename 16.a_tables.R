@@ -289,6 +289,12 @@ ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') #shade tole
 purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
 shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
 
+summary.gam(ccf.mod, re.test = F)
+summary.gam(purity, re.test = F)
+summary.gam(shade.intol, re.test = F)
+
+
+
 hold.data <- readRDS('data/bai.hold.7_14_22.rds')
 hab_loc_codes <- read_csv('data/habtypes.csv')
 hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
