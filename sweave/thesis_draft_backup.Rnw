@@ -516,7 +516,7 @@ cottonwood \emph{Populus balsamifera}, and quaking aspen \emph{Populus tremuloid
 \toprule
 Stand & Plots & Unique trees & Increments & Measurements\\
 \midrule
-\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150}\\
+\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150} & \cellcolor{gray!6}{4}\\
 1402 & 10 & 188 & 631 & 5\\
 \cellcolor{gray!6}{1403} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{113} & \cellcolor{gray!6}{313} & \cellcolor{gray!6}{5}\\
 1404 & 10 & 146 & 465 & 5\\
@@ -1500,7 +1500,7 @@ to interpret at values less than 0.75.
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{../17.figures_saved/ccf_pur_shd.png}
+\includegraphics[width=0.5\textwidth]{../17.figures_saved/ccf_pur_shd.png}
 \caption[CCF, purity, shade intolerance smooths]{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
 \label{fig:ccf_pur_shd}
 \end{figure}
