@@ -283,7 +283,7 @@ pure western larch stands.
 Additionally, I expected that species-mixing effects would best be captured by 
 a measure that accounts for different species' shade tolerance, as this would 
 address the primary mechanisms behind variations in growth, as opposed to 
-measures of stand species purity crown density. 
+measures of stand species purity or crown density. 
 
 % questions
 % \bf{How does community composition (species-mixing) influence the growth of western larch?} 
@@ -1531,24 +1531,127 @@ Shade intol. & 4.627 & 85.02 & 0.77946\\
 
 \chapter{Discussion}
 
+% Talk about species mixing, its effects on growth, and context of this region.
+%% then- say what i did here- used data to fit generalize additive mixed models to estimate western larch growth
+%% variability was captured by a,b,c variables, which more or less controlled for a,b,c effects
+%% western larch growth was characterized differently across mixtures, depending on which species it was mixed with, and variations in different variables.  
+
+% paragraph about overall findings presented in results (which address the objectives)
+
+%
+
+
+% Advances in forest ecology and statistics base 
+% Between climatic uncertainty and the realization of numerous ecosystem values, 
+% contemporary management of forest ecosystems has pointed towards realizing the 
+% potential benefits of managing for biodiversity in mixed species stands \citep{}. 
+% In recent years studies have shown that tree- and stand- level growth and 
+% yield can differ between mixed-species stands and monospecific stands, 
+% creating a modernly relevant area of study \citep{}. 
+% 
+% This is especially relevant 
+% considering the prevalence of human influence on ecosystems across the 
+% western portion of North America. 
+
+In this study, an individual tree growth model was specified using a 
+nonparametric approach to evaluate the complex dynamics that explain the 
+growth of western larch, including previously unidentified effects of 
+community composition. Variability in growth was captured by variations 
+in individual tree diameter, crown size, competitive position relative to 
+other trees, overall crowding, and site aspect. There was evidence 
+indicating that these variables effect the growth of western larch differently 
+depending on the species composition-type that a western 
+larch grows in. Further, the results here indicate that including information 
+about the species surrounding a western larch tree can contribute to minor 
+improvements to individual tree growth estimation. 
+
+These findings were not without limitations such as a lack of diverse species composition data, 
+computation time associated with fitting multivariate additive mixed models, 
+and challenges associated with interpreting non-linear functional relationships. 
+
+% mixtures 
+% 
+% After 
+% accounting for these effects, there was evidence that 
+% 
+% 
+% Specifically, in the inland northwestern region of the US, where there is a 
+% large land-base of publicly owned forest land that mixed conifer forests dominate, 
+% the threats of changing climate conditions are at the forefront of public 
+% concern due to the potential 
+% increased risk of severe wildfire, 
+
 \section{GAMs and model selection}
 
---- A blurb about GAMs, their usage, the pros, the cons. 
-- The use of generalized additive models is becoming more prevalent in 
-ecological research to capture non-linear patterns that exist in 
-ecosystems.
+%GAMs showed us relationships
 
- -- Since the models fit here estimate BAI conditional on a gamma 
- distribution with a log-link function, the model terms together may be considered 
- to have a multiplicative effect, allowing for interpretation 
- of terms as interactive with one another. 
+GAMs (and GAMMs) are becoming more prevalent in ecological research for 
+various applications to aid in capturing and describing complex non-linear 
+relationships that otherwise would require extensive testing to determine an 
+assumed model form in parametric approaches \citep{Robinson2011,Adamec2015}. 
+
+\cite{Johnston2019} showed that GAMs were effective in modeling tree growth 
+response across different levels of fire severity. 
+
+%% interpret relationships
+
+
+
+
+
+The GAM models fit estimate BAI conditional on a gamma 
+distribution with a log-link function, thus the model terms together are  
+considered to have a multiplicative effect on the mean response \citep{Faraway2016}, 
+allowing for interpretation of terms as interactive with one another. 
+
+
+
+This provides a benefit to interpretation because the effects 
+of site and species-mixing are highly related \citep{Huber2014}. 
+
+
+
+ 
+
+
+ 
+\cite{Vospernik2020} found that only including BAL as a competition measure 
+was sufficient in capturing competitive effects. That option was 
+excluded here because it was thought important to consider tree-level 
+competitive effects in addition to community crowding effects. This allowed for 
+more accurate estimates, as BAH showed a large effect on growth estimates. 
+Additionally, the use of BAL corroborates with \cite{Contreras2011}, which 
+showed that BAL was highly correlated with BAI in western larch, compared to 
+other distance-independent measures. 
+
+
+
+
+Initially CCF was considered as a base-model competition measure because 
+it offered greater improvements to RMSE than BAH when slope was also considered 
+in the model.  
+but these improvements 
+were marginal compared to BAH, as demonstrated in the comparison 
+
+, 
+and was selected in a model formulation with slope as well, however 
+the benefit to RMSE that this formula provided was marginal compared 
+to the formula that included BA. 
+
+Further, to accommodate analyses which 
+recognized CCF as a species composition informed measure, 
+it was deemed more practical to compare non-species informed BA to CCF
+
+% and 
+% improved model accuracy
+
+% Compare the gam relationships to other studies
+
  
  % \[g(E(BAI)) \~ \Gamma(\mu,\alpha)\]
+
  
- --- Therefore, a one-unit change in a value of diameter will have a multiplicative 
- effect on the response. 
- 
- --- This provides the flexibility to remark on 
+
 
  -- but it is not a panacea 
  
@@ -1613,17 +1716,9 @@ ecosystems.
 
 -The model formula specified here is more or less in concurence with others efforts. 
 
-- Vospernik 2020 found that only including BAL as a competition measure 
-was sufficient in capturing competitive effects. That option was 
-excluded here because it was thought important to consider tree-level 
-competitive effects in addition to community effects. 
+- 
 
-- Intially ccf was considered as a Competition measure, 
-and CCF was selected in a model formulation with slope as well, however 
-the benefit to RMSE that this formula provided was marginal compared 
-to the formula that included BA. Further, to accommodate analyses which 
-recognized CCF as a species composition informed measure, 
-it was deemed more practical to compare non-species informed BA to CCF
+- 
 
 % - These results are more or less concurrent with previous studies on the matter.
 %  -- perhaps important to highlight the fact it was different from others
@@ -1726,6 +1821,7 @@ the small impact.
  against heatload and stand-specific intercepts. The stand intercept version 
  had the lowest RMSE value, but was associated with a high degree of concurvity.
  
+ 
  These points highlight an overarching consideration: model selection is 
  associated with uncertainty. 
  -- Talk about different methods of model selection
@@ -1825,6 +1921,22 @@ could improve model performance in its place.
 % - discussion on BA proportion as a measure of species-mixing
 % - pros and cons of ccf as a mixture variable
 % - using ba as a versatile variable to do things? look in mixed species book
+
+
+Since these data were limited by a lack of robust growth increment data for 
+western larch in shade tolerant mixtures, an obvious next step would be to perform 
+analyses on a data set for western larch growing within mixtures 
+across the entire shade tolerance spectrum. 
+
+These findings are limited to western larch only, and cannot speak to 
+an entire ecosystem, however, it is often of interest to optimize the growth 
+of a particular species to provide the maximum return on investment. 
+Across-species analysis to determine which type of mixture optimizes the growth 
+of western larch and the other incumbent species through complementary relationships 
+is necessary. 
+
+
+An additional next step
 
 
 

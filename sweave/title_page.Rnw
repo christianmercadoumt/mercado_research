@@ -3,7 +3,7 @@
 \begin{center}
 Evaluating the effects of forest community composition on \emph{Larix occidentalis} growth\\[10pt] 
 
-TITLE continues, maybe \\[10pt]
+% TITLE continues, maybe \\[10pt]
 
 By\\[10pt]
 
@@ -37,7 +37,7 @@ Andrew Larson\\
 Department of Forest Management\\[10pt]
 
 Justin Crotteau\\
-United States Forest Service\\
+United States Forest Service\\[10pt]
 
 David Patterson\\
 Department of Mathematics\\[10pt]
