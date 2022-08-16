@@ -654,9 +654,9 @@ knitr::plot_crop('17.figures_saved/mix.asp.barchart.png')
 
 ```{r mixtures partial response data}
 library(tidymv)
-
+# 
 mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
-mix.diff.byrand <- readRDS('data/model_objects.1/mix.diff.nopien.byrandom.rds')
+# mix.diff.byrand <- readRDS('data/model_objects.1/mix.diff.nopien.byrandom.rds')
 
 # mix.sum.byrand <- summary.gam(mix.diff.byrand)
 # summary(mix.diff.nopien)
@@ -964,7 +964,7 @@ mixpl.aspr <-
   ggplot(subset(smest.asp, facets == 'Pure larch'), 
          aes(x = asp_sin, y = asp_cos)) +
   geom_raster(aes(fill = est)) +
-  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
   # scale_fill_distiller(palette = 'RdBu', type = 'div') +
   expand_limits(fill = glimits) +
   coord_fixed() +
@@ -988,7 +988,7 @@ mixpl.aspr <-
 mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
          aes(x = asp_sin, y = asp_cos)) +
   geom_raster(aes(fill = est)) +
-  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
   expand_limits(fill = glimits) + 
   coord_equal() +
@@ -1006,7 +1006,7 @@ mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'),
 mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'), 
          aes(x = asp_sin, y = asp_cos)) +
   geom_raster(aes(fill = est)) +
-  geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
   expand_limits(fill = glimits) + 
   coord_equal() +
@@ -1038,15 +1038,15 @@ diffs.pl <- arrangeGrob(pur, ll, ldf,
                         mixpl.crr, mixpl.cr1,mixpl.cr2, 
                         mixpl.balr, mixpl.bal1,mixpl.bal2, 
                         mixpl.bar, mixpl.ba1,mixpl.ba2, 
-                        mixpl.aspr, mixpl.asp1, mixpl.asp1,
+                        mixpl.aspr, mixpl.asp1, mixpl.asp2,
                         layout_matrix = lay, 
                         heights = list(0.5, 2,2,2,2,1.75), widths = c(2,2,2))
 
 ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
 
 mixpl.aspr
-mixpl.ba1
-mixpl.ba2
+mixpl.asp1
+mixpl.asp2
 ```
 
 ```{r}
