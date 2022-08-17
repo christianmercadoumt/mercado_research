@@ -1656,6 +1656,7 @@ ggplot(ba.prty.bal, aes(x = bal.pl.ratio, y = bai,
 ```{r comparing mixtures with different levels of BA}
 
 #set diameter to any value that is not 4.5
+#Vary by BA##### 
 
 a <- ba_fun(mix.diff.nopien, ba = 10, diam = 6)
 b <- ba_fun(mix.diff.nopien, ba = 50, diam = 6)
@@ -1668,13 +1669,34 @@ ggplot(subset(mixplts, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = b
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
   geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
-  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA') + coord_cartesian(ylim = c(-3,3))
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA') + 
+  coord_cartesian(ylim = c(0,10), xlim = c(0, 15))
 
 ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
   geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
-  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ coord_cartesian(ylim = c(-3,3))
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ 
+  coord_cartesian(ylim = c(0,10), xlim = c(0,10))
+
+
+#Vary by BAL##### 
+
+a <- ba_fun(mix.diff.nopien, bal = 0.1, diam = 6)
+b <- ba_fun(mix.diff.nopien, bal = 0.3, diam = 6)
+c <- ba_fun(mix.diff.nopien, bal = 0.6, diam = 6)
+d <- ba_fun(mix.diff.nopien, bal = 0.9, diam = 6)
+
+mixplts <- rbind(a,b,c,d)
+
+ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bal.pl.ratio)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ 
+  coord_cartesian(ylim = c(0,10), xlim = c(0,10))
+
+
 
 ```
 

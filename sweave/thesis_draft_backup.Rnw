@@ -1583,6 +1583,32 @@ and challenges associated with interpreting non-linear functional relationships.
 
 \section{GAMs and model selection}
 
+
+The model selection approach applied here resulted in a model 
+resembling other basal area increment models. 
+- The diameter partial response curve is characterized by a sharp increasing 
+effect tapering out asymptotically at higher diameters, similar to the classic 
+model identified by \cite{Stage1973b}.
+-- Larger trees grow at a faster rate than smaller trees.
+
+- Crown ratio follows a similar pattern to that identified by \cite{Monserud1996}
+-- low values associated with lower growth. 
+-- cr a crude measure of photosynthetic capacity
+-- CR measurements are prone to error. In this study they were based on 
+ocular estimation. \cite{Leites2009}. 
+
+- BAL was associated with modest effect sizes, it had a decreasing effect on 
+BAI, but most interestingly, the shape of the fitted curve here is different 
+from those previously identified \cite{Stage1973b,Monserud1996,Hann1991,Vospernik2020}. 
+
+- The functional form of BAH is similar to previous works
+
+
+- Northern aspects were mostly associated with positive effects on BAI. This is 
+somewhat expected, as northern aspects have more resources conducive to growth. 
+-- Representing site effects by aspect alone may have missed something.. 
+
+
 %GAMs showed us relationships
 
 GAMs (and GAMMs) are becoming more prevalent in ecological research for 
@@ -1596,25 +1622,12 @@ response across different levels of fire severity.
 %% interpret relationships
 
 
-
-
-
 The GAM models fit estimate BAI conditional on a gamma 
 distribution with a log-link function, thus the model terms together are  
 considered to have a multiplicative effect on the mean response \citep{Faraway2016}, 
 allowing for interpretation of terms as interactive with one another. 
 
 
-
-This provides a benefit to interpretation because the effects 
-of site and species-mixing are highly related \citep{Huber2014}. 
-
-
-
- 
-
-
- 
 \cite{Vospernik2020} found that only including BAL as a competition measure 
 was sufficient in capturing competitive effects. That option was 
 excluded here because it was thought important to consider tree-level 
@@ -1728,6 +1741,116 @@ it was deemed more practical to compare non-species informed BA to CCF
 
 \section{Assessing species-mixing impacts on growth}
 
+
+%%%%%Mixture analysis stuff
+
+The pure larch reference curves were visually indistinguishable 
+from the base model curves. This is unsurprising. 
+
+
+----- is there a valid way to show average size of difference ----- 
+
+Lodgpole:
+-diameter-Smaller trees had even lower growth, and larger trees had even higher
+
+-BAL-
+-- The difference for BAL is such that western larch trees larger than 
+its neighbors (in terms of BA) had lower rates of growth when growing with 
+lodgepole, and higher growth rates when neighboring trees were larger. 
+
+--- the difference is so high, that it may suggest the relationship between 
+BAL in larch-lodgepole pine mixtures has a completely different characterization.
+
+--- This is suggestive that the high amounts of competition for light 
+between these fast-growing shade-intolerant species actually enhances 
+individual tree growth.
+--- maybe it suggests that there's some sort of facilitative interaction 
+between larch and lodgepole when lodgepole is larger than larch?
+---- perhaps lodgepole does not do a good job shading out larch, and therefore 
+provides a 'sheltering' effect. --TALK about crown allometry of both--
+
+-BUT in DBH, this relationship, no such evidence exists-
+---CREATE FIGURES for DBH-BAI varying by BAL---
+
+-HOW DOES THIS COMPARE TO OTHERS-
+
+---- perhaps this also indicates that lodgepole pine is not very effective at 
+shading-out western larch. --- say something about crown allometry --- 
+
+
+some text here:
+The difference curve for BAL (Fig. ~\ref{fig:diffsmooths}) shows negative and positive 
+values of difference that outweigh the positive and negative values of the 
+reference curve, respectively. For example, when BAL is 0.25 in pure conditions, 
+the expected effect on growth is positive, with an effect size of roughly 0.12. 
+However, when in a mixture with lodgepole pine, the expected difference from 
+that effect size is about -0.35. 
+
+
+DOUGLAS fir:
+
+--- No such differences observed in DBH or BAL
+--- CR appeared to have a slight positive effect when with douglas fir 
+for mid-range CR values
+--- BAH had a magnifying negative effect at high densities
+---- however - this magnifying effect appears much smaller, and less intense 
+than that of lodgepole pine. 
+---- This could potentially be indicative that western larch have higher 
+resource-use efficiency in mixtures with douglas fir than when mixed with 
+lodgepole pine. 
+
+
+IN ALL-
+
+- Lodgepole pine mixtures had more impactful differences than the douglas fir 
+mixtures. 
+- Both, however, showed differences across variables. 
+- There was not strong evidence indicating the mean of the response 
+was different between each mixture and the pure conditions, but 
+this could be impacted by the presence of random effects. 
+
+-- This means that the way that growth is characterized across these mixture 
+types is different. Evidence for this is shown primarily in the way that 
+western larch interacts with the trees around it in terms of density and 
+individual tree competitive position. 
+
+
+%%%%%%%%%%%%%%%% Comparing CCF-Purity-Shade
+
+ccf-purity-shade
+
+This provides a benefit to interpretation because the effects 
+of site and species-mixing are highly related \citep{Huber2014}. 
+
+-Purity and shade tolerance both similarly had a decreasing effect 
+on BAI. 
+-These results suggest that western larch grows better when growing 
+with other species of trees. 
+-- maybe make sure that's not confounded with density? -- 
+
+-similarly, there is a decreasing trend in shade intolerance, meaning 
+that larch growing with species more tolerant of shade may lead 
+to higher rates of growth, but these results are highly uncertain. 
+
+-- ccf served well in place of BAH, but its hard to interpret species 
+effects. 
+-- would be more useful on this front if it was compared across species 
+mixtures, as there may be different functional forms of the relationship 
+shown here. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Point: The difference between larch growth in the lodgepole-mixed and 
 pure larch conditions is suggestive that interspecific competitive dynamics 
 between western larch and lodgepole pine are different from intra-specific 
@@ -1737,12 +1860,7 @@ dynamics for pure larch stands.
 %% maybe a discussion point?
 %% adding a figure of predicted values may be useful to illustrate this idea. 
 LARCH-LODGEPOLE
-The difference curve for BAL (Fig. ~\ref{fig:diffsmooths}) shows negative and positive 
-values of difference that outweigh the positive and negative values of the 
-reference curve, respectively. For example, when BAL is 0.25 in pure conditions, 
-the expected effect on growth is positive, with an effect size of roughly 0.12. 
-However, when in a mixture with lodgepole pine, the expected difference from 
-that effect size is about -0.35. 
+
 that valuable differences in the growth relationship 
 
 that is, 
@@ -1874,14 +1992,17 @@ could improve model performance in its place.
  that the constant predicted value of BAI changes at different levels basal 
  area, and that the magnitude of effect that shade intolerance had on growth 
  may vary at different values of basal area. 
+ 
  --- looking across the range of basal area, lower values of shade intolerance 
  are associated with higher growth across the range of basal area, but due to 
  high uncertainty in predictions, conclusive evidence for a difference does not 
  exist. 
+ 
  --- similarly, across the range of BAL, lower values of shade intolerance 
  are associated with higher values of predicted growth, holding everything 
  else constant, but the certainty of predictions do not allow for extrapolation 
  beyond this case. 
+ 
  --- There simply was not enough data to provide detailed evidence for a shade 
  intolerance effect on larch growth
  
