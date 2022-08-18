@@ -107,15 +107,17 @@ lodgepole pine (\emph{Pinus contorta}), Engelmann spruce (\emph{Picea engellmani
 subalpine fir (\emph{Abies lasiocarpa}), ponderosa pine (\emph{Pinus ponderosa}),
 western hemlock (\emph{Tsuga heterophylla}), mountain hemlock (\emph{Tsuga mertensiana}),
 and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1981a,Schmidt1988}. 
-Western larch is classified as very intolerant of shade and one of the fastest-growing within
+It is sometimes managed in even-aged, homogeneous plantations, but more 
+typically is managed in mixed-conifer settings where interactions among species 
+(or species-mixing) at tree and stand levels may occur. 
+Additionally, western larch is classified 
+as very intolerant of shade and one of the fastest-growing within
 its communities \citep{Baker1949,Schmidt1988}. 
 Larch's prolific regeneration and rapid juvenile growth allows it to 
 out-compete other trees, which can lead to high stand density \citep{Schmidt1998}.  
 Thus, it responds well to density management early in stand development, 
 which can have lasting impacts on tree and stand growth \citep{Schaedel2017a}.
-It is sometimes managed in even-aged, homogeneous plantations, but more 
-typically is managed in mixed-conifer settings where interactions among species 
-at tree and stand levels may occur. 
+
 
 % Since stand density closely relates to tree growth \citep{Reineke1933}, 
 % the effects of species-mixing on density can translate 
@@ -223,7 +225,7 @@ effects on tree growth increase with competition intensity.
 For stands in the inland northwest region of the United States, 
 where relatively low intensity management occurs over a broad area and across 
 tree, stand, and site conditions, managers and researchers commonly use the 
-Forest Vegetation Simulator \citep[FVS;][]{Dixon2020} variant to estimate future 
+Forest Vegetation Simulator \citep[FVS;][]{Dixon2020} to estimate future 
 stand dynamics. FVS uses a distance-independent individual tree growth model 
 \citep{Stage1973,Wykoff1990} that does not require individual tree locations 
 to measure competition, and projects tree growth using tree size, stand density, 
@@ -452,7 +454,7 @@ measures of stand species purity or crown density.
 % the effectiveness of different measures of species-mixing
 
 \chapter{Methods}
-\section{Tree growth data}
+\section{Permanent growth plot study}
 
 % The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
 % tree forest growth model that is widely used in the western United States 
@@ -507,6 +509,70 @@ Overall, species composition varied between almost pure western larch to mixed c
 forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, grand fir, 
 subalpine fir, western hemlock, mountain hemlock, western redcedar,
 cottonwood \emph{Populus balsamifera}, and quaking aspen \emph{Populus tremuloides}. 
+
+Large-tree data recorded at each time of measurement includes: diameter at breast 
+height (DBH), total height (as previously described), crown ratio (CR), 
+crown class, species, whether the tree was alive or dead, and biotic and/or abiotic 
+damage to the tree and its intensity. For small trees taller than 15 cm but 
+shorter than 1.4 m, species, live/dead status, crown ratio, height, and crown class were 
+recorded. For small trees tall enough for DBH measurement and with a DBH below 
+the established threshold, species, count, DBH, crown class, and height were 
+recorded. Small trees were tallied based on height classes: less than 1.4 m, 
+1.4 m to 3.7 m, 3.7 m to 5.8 m, and trees taller than 5.8 m (tallied individually). 
+In this study these data were used to calculate various other relevant metrics.
+
+One such measure is the annual growth of western larch, which was quantified 
+by basal area increment (BAI; Equation ~\ref{eq:bai}): 
+
+\begin{equation}
+\label{eq:bai}
+BAI_m = \frac{BA_{m+1}-BA_{m}}{t_{m+1}-t_m}
+\end{equation}
+
+, where $BA_m$ refers to tree basal area at measurement $m$ and $t_m$ to the 
+measurement occasion and $m+1$ is a subsequent measurement occasion.
+The choice to annualize BAI was made because re-measurement intervals were inconsistent 
+across the data set and annulization allows for flexibility and a finer-scale measure of 
+stand dynamics over time \citep{weiskittel2011forest}.
+
+Other variables were grouped together based on the types of tree or stand 
+attributes that they describe. These groups are variables that represent 
+(i) tree size, (ii) individual and inter-tree density and competition 
+(referred together as competition herein) and (iii), characteristics of the site 
+where trees are growing. 
+
+Size variables include $DBH$, and tree basal area ($BA$). 
+
+Calculated density and competition variables were: plot number of trees per hectare 
+($TPH_{pm}$), plot basal area per hectare ($BAH_{pm}$), 
+ratio of plot BAH in trees that are larger than a focal tree of interest 
+($BAL_{km}$), plot quadratic mean diameter ($QMD_{pm}$), ratio of tree DBH to QMD ($Dq_{km}$)
+
+%ADD SITE HERE
+
+In the following definitions, $k$ denotes an individual tree, $p$ represents a 
+unique plot, $m$ represents a measurement occasion, each is omitted. 
+
+\begin{equation}
+\begin{aligned}
+BA_{km} &= \pi(\frac{DBH_{km}}{2})^2\\
+TPH_{km} &= hCount_{km}\\
+TPH_{pm} &= \sum_p TPH_{km}\\
+BAH_{pm} &= \sum_p hBA_{km}\\
+BAL_{km} &= \frac{BA_{km}}{\sum_{p, BA_{km} > BA_{km}} BA_{km}}\\
+QMD_{pm} &= \frac{BAH_{pm}}{0.0000785TPH_{pm}}\\
+Dq_{km} &= \frac{DBH_{km}}{QMD_{pm}}\\
+\end{aligned}
+\end{equation}
+% 0.0000785
+% dq DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
+% qmd sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
+
+
+
+
+
+
 
 \begin{table}[!h]
 \caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
@@ -581,25 +647,14 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 
 \section{GAM overview}
 
-Using these data, a generalized additive mixed model (GAMM) was developed to estimate 
-annual growth of western larch, quantified by basal area increment (BAI; Equation ~\ref{eq:bai}): 
-
-\begin{equation}
-\label{eq:bai}
-BAI = \frac{BA_{m+1}-BA_{m}}{t_{m+1}-t_m}
-\end{equation}
-
-, where $BA_m$ refers to tree basal area at measurement $m$ and $t_m$ to the 
-unique year of measurement and $m+1$ is a subsequent measurement year.
-The choice to annualize BAI was made because re-measurement intervals were inconsistent 
-across the data set and annulization allows for flexibility and a finer-scale measure of 
-stand dynamics over time \citep{weiskittel2011forest}.
-
-Generalized additive models \citep[GAMs][]{Hastie1990} allow for flexibility in model fitting and an allowance for non-linear 
-relationships across variables \citep{Zhao2005,wood2006generalized}. Contrary to traditional 
-parametric modeling approaches, GAMs let the data determine the 
-shape of the functional relationships by fitting predictor effects with a sum of 
-smooth functions of covariates instead of specified parameters \citep{wood2006generalized,Robinson2011}. 
+Using these data, a generalized additive mixed model (GAMM) was developed. 
+Generalized additive models \citep[GAMs][]{Hastie1990} allow for flexibility 
+in model fitting and an allowance for non-linear 
+relationships across variables \citep{Zhao2005,wood2006generalized}. 
+Contrary to traditional parametric modeling approaches, GAMs let the 
+data determine the shape of the functional relationships by fitting predictor 
+effects with a sum of \emph{smooth} functions of covariates instead of 
+specified parameters \citep{wood2006generalized,Robinson2011}. 
 %which also proved beneficial in this case due to the inconsistency of measurement intervals. 
 The choice to use a mixed-model approach was made owing to the  
 dependence structure that arises from repeat measurements 
@@ -1559,7 +1614,7 @@ growth of western larch, including previously unidentified effects of
 community composition. Variability in growth was captured by variations 
 in individual tree diameter, crown size, competitive position relative to 
 other trees, overall crowding, and site aspect. There was evidence 
-indicating that these variables effect the growth of western larch differently 
+indicating that these variables' effect the growth of western larch differently 
 depending on the species composition-type that a western 
 larch grows in. Further, the results here indicate that including information 
 about the species surrounding a western larch tree can contribute to minor 
@@ -1581,16 +1636,51 @@ and challenges associated with interpreting non-linear functional relationships.
 % concern due to the potential 
 % increased risk of severe wildfire, 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+thoughts-outline 8/17
+-focus on my objectives
+start with - "I came up with a model that ccounted for... .
+-These functions were similar to others
+
+-BAL wasn't
+-- BAL doesn't matter until there are more larger trees around the subject
+-- flat effect until values > 0.75
+
+-Using aspect alone to account for site conditions is somewhat unsatisfactory
+-- but that allowed me to accomplish the objective of fitting a model w/out spp. informed measures
+-- heatload relies on assumptions
+-- No slope, but slope is usually helpful 
+
+segway into what I like and don't like about gams
+-They allow for these things to change, lack of apriori relationship assumptions
+-but they can result in fitting problems
+-- overfitting - wiggliness
+-- inference in p-values
+-- bias-variance tradeoffs? (maybe?)
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{GAMs and model selection}
 
 
-The model selection approach applied here resulted in a model 
-resembling other basal area increment models. 
-- The diameter partial response curve is characterized by a sharp increasing 
-effect tapering out asymptotically at higher diameters, similar to the classic 
-model identified by \cite{Stage1973b}.
--- Larger trees grow at a faster rate than smaller trees.
+The model selection approach applied here produced a BAI model 
+fit with smooth functions that resemble previously established functional 
+relationships between BAI and each covariate except for BAL. Other functions 
+show BAL increasing with a sharp initial decreased effect followed by asymptotic behavior 
+thereafter, but the smooth function fit here shows a sharp decrease only 
+at high values of BAL. 
 
+-The diameter partial response curve is characterized by a sharp increasing 
+growth effect tapering out asymptotically at higher diameters, similar to the classic 
+model identified by \cite{Stage1973b}, showing that western larch growth is 
+proportional to tree size until diameter exceeds 50 cm. 
+% -- Larger trees grow at a faster rate than smaller trees.
 - Crown ratio follows a similar pattern to that identified by \cite{Monserud1996}
 -- low values associated with lower growth. 
 -- cr a crude measure of photosynthetic capacity
@@ -1607,6 +1697,15 @@ from those previously identified \cite{Stage1973b,Monserud1996,Hann1991,Vosperni
 - Northern aspects were mostly associated with positive effects on BAI. This is 
 somewhat expected, as northern aspects have more resources conducive to growth. 
 -- Representing site effects by aspect alone may have missed something.. 
+--- specifically, by representing site with only aspect, an assumption is made 
+that slope effects are constant, however, not all sites studied here were on 
+a slope, (but most were?). The slope position also impacts growth dynamics. 
+--- maybe there's something to be said about these things being accounted for 
+in other variables?
+
+
+
+
 
 
 %GAMs showed us relationships
@@ -1750,7 +1849,7 @@ from the base model curves. This is unsurprising.
 
 ----- is there a valid way to show average size of difference ----- 
 
-Lodgpole:
+Lodgepole:
 -diameter-Smaller trees had even lower growth, and larger trees had even higher
 
 -BAL-

@@ -123,6 +123,8 @@ dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_t
     aspect_deg >90 & aspect_deg <=180 ~ 'SE',
     aspect_deg >180 & aspect_deg<270 ~'SW'
   )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+dat %>% group_by(stand) %>% summarize(n_distinct(aspect_deg))
 #w-nw,n-nw,n-ne,e-ne
 summary(dat$aspect_deg)
 set.seed(406)
@@ -134,14 +136,35 @@ ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>%
             bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
 
 
-bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+(bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
   # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
   facet_grid(BAH~Aspect, labeller = label_both) +
   labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
   geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
   geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
   # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
+
+
+ind.tr.dat2 <- dat %>% group_by(unique_tree_id, nsew, bal.cats) %>% 
+  summarise(diam.cm = mean(diam.cm),
+            bai.cmsq = mean(bai.cmsq),
+            bal.pl.ratio = mean(bal.pl.ratio)) %>% rename(Aspect = nsew, BAL = bal.cats) %>% 
+  mutate(BAL = factor(BAL, levels = c('low', 'mid', 'high'), ordered = T))
+unique(ind.tr.dat2$BAL)
+
+ggplot(ind.tr.dat2, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAL~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+ggplot(ind.tr.dat2, aes(x = bal.pl.ratio, y = bai.cmsq)) + geom_point() + facet_wrap(~Aspect)
+
+ggplot(ind.tr.dat2, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point(alpha = 0.2)
 
 (ind.tr.sumdat <- dat %>% group_by(stand) %>% 
   summarize(meandbh=mean(DIAMETER, na.rm = T), asp = mean(aspect_deg)))
@@ -190,6 +213,17 @@ knitr::plot_crop('17.figures_saved/diam.dist.asp.png')
 # ggplot(dat.samp, aes(x = bah, y = bai.cmsq)) + geom_point()
 # 
 # ggplot(dat.samp, aes(x = cr, y = bai.cmsq)) + geom_point()
+
+
+
+(bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(log(diam.cm), log(bai.cmsq))) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAH~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
 
 ```
 
@@ -1669,14 +1703,14 @@ ggplot(subset(mixplts, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = b
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
   geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
-  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA') + 
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH') + 
   coord_cartesian(ylim = c(0,10), xlim = c(0, 15))
 
 ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
   geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
-  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ 
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH')+ 
   coord_cartesian(ylim = c(0,10), xlim = c(0,10))
 
 
@@ -1693,7 +1727,7 @@ ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = b
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
   geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bal.pl.ratio)) +
-  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BA')+ 
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH')+ 
   coord_cartesian(ylim = c(0,10), xlim = c(0,10))
 
 
