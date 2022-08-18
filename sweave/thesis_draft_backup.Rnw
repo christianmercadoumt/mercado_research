@@ -526,11 +526,11 @@ by basal area increment (BAI; Equation ~\ref{eq:bai}):
 
 \begin{equation}
 \label{eq:bai}
-BAI_m = \frac{BA_{m+1}-BA_{m}}{t_{m+1}-t_m}
+BAI_{km} = \frac{BA_{m+1}-BA_{m}}{t_{m+1}-t_m}
 \end{equation}
 
-, where $BA_m$ refers to tree basal area at measurement $m$ and $t_m$ to the 
-measurement occasion and $m+1$ is a subsequent measurement occasion.
+, where $BA_{km}$ refers to tree $k$ basal area at measurement occasion $m$ at 
+year $t$, where $m+1$ indicates a subsequent measurement occasion.
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{weiskittel2011forest}.
@@ -538,47 +538,58 @@ stand dynamics over time \citep{weiskittel2011forest}.
 Other variables were grouped together based on the types of tree or stand 
 attributes that they describe. These groups are variables that represent 
 (i) tree size, (ii) individual and inter-tree density and competition 
-(referred together as competition herein) and (iii), characteristics of the site 
+(referred to as competition herein) and (iii), characteristics of the site 
 where trees are growing. 
 
-Size variables include $DBH$, and tree basal area ($BA$). 
-
-Calculated density and competition variables were: plot number of trees per hectare 
+Size variables include diameter at breast height $DBH_{km}$ and 
+tree basal area $BA_{km}$. 
+Competition variables were: plot $p$ number of trees per hectare 
 ($TPH_{pm}$), plot basal area per hectare ($BAH_{pm}$), 
-ratio of plot BAH in trees that are larger than a focal tree of interest 
-($BAL_{km}$), plot quadratic mean diameter ($QMD_{pm}$), ratio of tree DBH to QMD ($Dq_{km}$)
+ratio of plot $BAH_{pm}$ in trees that are larger than an individual tree 
+($BAL_{km}$), plot quadratic mean diameter ($QMD_{pm}$), and the ratio of 
+tree $DBH_{km}$ to $QMD_{pm}$ ($Dq_{km}$). 
+Site variables were percent slope, aspect (between 0 and 360 degrees), 
+elevation (in meters), site index 
+\citep[an average height of 50-year-old site trees;][]{Reineke1933}, 
+and heatload \citep[90 m resolution][]{Theobald2015}, 
+where slope, aspect, elevation, and heatload were measured and/or calculated 
+for each cluster using GPS data points, pulled from a digital elevation model. 
 
-%ADD SITE HERE
+Mathematical definitions for calculated variables are found in equations 2.2-2.9, 
+where $k$ denotes an individual tree, $p$ represents a unique plot, and 
+$m$ represents a distinct measurement occasion. 
 
-In the following definitions, $k$ denotes an individual tree, $p$ represents a 
-unique plot, $m$ represents a measurement occasion, each is omitted. 
-
-\begin{equation}
-\begin{aligned}
-BA_{km} &= \pi(\frac{DBH_{km}}{2})^2\\
-TPH_{km} &= hCount_{km}\\
-TPH_{pm} &= \sum_p TPH_{km}\\
-BAH_{pm} &= \sum_p hBA_{km}\\
-BAL_{km} &= \frac{BA_{km}}{\sum_{p, BA_{km} > BA_{km}} BA_{km}}\\
-QMD_{pm} &= \frac{BAH_{pm}}{0.0000785TPH_{pm}}\\
-Dq_{km} &= \frac{DBH_{km}}{QMD_{pm}}\\
-\end{aligned}
-\end{equation}
+% \begin{equation}
+\begin{align}
+BA_{km} &= \pi\frac{DBH_{km}^2}{4} \label{eq:BA}\\[1em]
+TPH_{km} &= hCount_{km} \label{eq:treeTPH}\\[1em]
+TPH_{pm} &= \sum_{k,pm} TPH_{km} \label{eq:TPH}\\[1em]
+BAH_{pm} &= \sum_{k,pm} hBA_{km} \label{eq:BAH}\\[1em]
+BAL_{km} &= \frac{BA_{km}}{\sum\limits_{k,pm} BA_{km} > BA_{km}} \label{eq:BAL}\\[1em]
+QMD_{pm} &= \frac{BAH_{pm}}{0.0000785TPH_{pm}} \label{eq:QMD}\\[1em]
+Dq_{km} &= \frac{DBH_{km}}{QMD_{pm}} \label{eq:Dq}\\[1em]
+\end{align}
+% \end{equation}
 % 0.0000785
 % dq DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
 % qmd sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
 
-
-
-
-
+% BAI can be estimated from these variables. This was 
+Models were used to evaluate the effects of different combinations 
+of these variables on BAI of western larch trees throughout these data, using 
+the PGP data. These data were split into a model training data set, and a 
+data set that was withheld from model training, which was used to validate and assess 
+models that were fit with the training data. The withheld data consisted of 
+tree data from two measurement plots out of each stand 
+(across measurements occasions). A summary of the training data set may be 
+viewed in table \ref{tab:sumtab}. 
 
 
 \begin{table}[!h]
 \caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
 \label{tab:sumtab}
 \centering
-\begin{tabular*}{\textwidth}{lrrrr}
+\begin{tabular}{lrrrr}
 \toprule
 Stand & Plots & Unique trees & Increments & Measurements\\
 \midrule
@@ -591,7 +602,7 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 1406 & 10 & 99 & 304 & 5\\
 \cellcolor{gray!6}{1407} & \cellcolor{gray!6}{19} & \cellcolor{gray!6}{74} & \cellcolor{gray!6}{108} & \cellcolor{gray!6}{4}\\
 1408 & 10 & 77 & 212 & 4 \\
-\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5} \\
+\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5}\\
 1610 & 10 & 129 & 416 & 5\\
 \addlinespace
 \cellcolor{gray!6}{1611} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{77} & \cellcolor{gray!6}{222} & \cellcolor{gray!6}{5}\\
@@ -606,7 +617,7 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 \midrule
 \cellcolor{gray!6}{Totals} & \cellcolor{gray!6}{186} & \cellcolor{gray!6}{1975} & \cellcolor{gray!6}{5794} & \cellcolor{gray!6}{ }\\
 \bottomrule
-\end{tabular*}
+\end{tabular}
 \end{table}
 
 % \begin{table}[!h]
@@ -647,7 +658,8 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 
 \section{GAM overview}
 
-Using these data, a generalized additive mixed model (GAMM) was developed. 
+Using these data, generalized additive mixed models (GAMMs) were developed to 
+relate the BAI of western larch trees to the variables described above. 
 Generalized additive models \citep[GAMs][]{Hastie1990} allow for flexibility 
 in model fitting and an allowance for non-linear 
 relationships across variables \citep{Zhao2005,wood2006generalized}. 
@@ -664,45 +676,102 @@ individual tree-level. %was it? should it?
 %---include something visual about dependence structure?---
 
 GAMMs were fit using the mgcv package \citep{Wood2011} in R \citep{RCoreTeam2021}. 
-The mgcv package allows for the specification of smooth functions (or smoothers). 
-Smoothers are a sum of fitted estimated basis 
-functions that characterize the conditional relationship between the predictor 
-and independent variable. They are penalized by a smoothing parameter, which 
-constrains a smoother as its complexity grows higher \citep{Pedersen2019}. 
+The mgcv package allows for the specification of 
+smooth functions (or smoothers). 
+Smoothers are composed of a sum of fitted estimated \emph{basis functions} 
+which characterize the conditional relationship between a predictor 
+and an independent variable. They are penalized by a 
+\emph{smoothing parameter}, which constrains a smoother as its complexity 
+(or "wiggliness") grows higher \citep{Pedersen2019}.
+In mgcv, the thin-plate regression spline (TPRS) basis type 
+is the default smoother owing to its simple and effective behavior \citep{Wood2003},
+and was used for all model terms fit in the present study. 
 The mgcv package allows smoothing parameters to be estimated via likelihood, information 
 theoretical methods, or cross-validation-based methods \citep{wood2006generalized}. 
-The maximum likelihood method was used in this study because it allows for 
-likelihood-based comparison across models with different fixed terms and smoothing parameters. 
-Random effects may also be coded as penalized smooths in this format \citep{Pedersen2019}. 
+The maximum likelihood method was used in this study where comparison across models with 
+different fixed terms and smoothing parameters was necessary. Otherwise models 
+were fit using the restricted maximum likelihood criteria (REML) approach 
+because it reduces computation time. 
+Additionally, random effects may also be coded as penalized smooths in this format 
+\citep{Pedersen2019}, which allowed for simple specification of random 
+intercepts. 
+
+% The smooth functions fit using mgcv may be visualized in the form of 
+% partial response curves.
+
+In this study, it was of interest to compare GAMs for their predictive 
+accuracy, which was estimated by two different definitions of root mean squared 
+error. One definition was evaluated as within sample error using the model 
+training data and model number of residual degrees of freedom (RMSE_{df}), 
+and the other which evaluates error using the withheld data, and number of 
+observations thereof (RMSE): 
+
+\begin{align}
+RMSE_{df} = \sqrt{\frac{\sum_k (\widehat{BAI_{km}} - BAI_{km})^2}{n_{df}}} \label{eq:rmsedf}\\
+RMSE = \sqrt{\frac{\sum_k (\widehat{BAI_{km}} - BAI_{km})^2}{n}} \label{eq:rmse}
+\end{align}
+
+where $\widehat{BAI_{km}}$ is the model prediction, 
+$BAI_{km}$ is the observed value, $n_{df}$ is the model residual 
+degrees of freedom (number of increments less model effective degrees of freedom)
+and $n$ is the number of observations. $RMSE_{df}$ was used for comparing 
+model accuracy across models during model selection, and RMSE was used to 
+when determining model validity. 
+
+In addition to model accuracy, model fit was also of interest. Model fit for 
+GAMs may be evaluated through visual examination of residual structure as well 
+as through assessing the proportion of null deviance 
+explained by the model, simply referred to as deviance explained 
+\citep{wood2006generalized}. A combination of these assessments were made 
+to evaluate fit in the present study. Additionally, model concurvity 
+\citep{Hastie1990} may be used to measure appropriateness of model variables. 
+Concurvity is an evaluation of whether one smooth function in a model describes 
+a different covariate smooth function in the same model 
+\citep{wood2006generalized}, thus it is analogous to collinearity in linear 
+models.
+
+% s to evaluate 
+% the independence of data as well as overall homogeneity. 
+% 
+% to assess for 
+% patterns indicative of violation of model fitting assumptions.  and the appropriateness of distributional assumptions implemented. 
+% Further, model fit can be represented by the proportion of null deviance 
+% explained by the model, 
+
+
+
+% REML-(CITE: patterson and thompson 1971)
 % , however, 
 % when fitting large numbers of intercepts (as done in this study) 
 % computation can extremely slow . %%%more here?? do I talk about using both methods since the way random effects are handled with the gamm case is kinda weird? (see pedersen 2019 page 34)
-With mgcv, the thin-plate regression spline (TPRS) type
-is the default owing to its simple and effective behavior \citep{Wood2003},
-and was used for all terms. 
+
 % GAMs in mgcv also allow for 
 
+Three different GAMM analyses were conducted, where each involved fitting 
+models to estimate the BAI of individual western larch trees. 
+The first analysis involved identifying a model 
+structure by selecting predictors that effectively estimate growth without 
+including information about community species composition. The resulting 
+model structure was then used as a foundation for the following two model 
+sub-analyses, which were fit including same variables. The second model, then, was 
+fit with an additional variable that identified distinct offsets for each smooth 
+function and model intercept for distinct species mixtures. The third effort 
+involved fitting three different models, each including its own respective 
+species composition -informed metric in order to compare and describe each 
+alternative in estimate in estimating growth. The following three sections will 
+describe how each of these was accomplished. 
 
-The model formulation described here was developed with a training 
-data set which allowed for varying conditions across all variables. 
-Data for two measurement plots out of each stand were withheld for 
-the purpose of model validation and assessment.
-The model formulation resulting from the selection process described below
-was used to evaluate effects of predictors 
-on BAI across the entire data set. The formula was also used to assess smooths
-across different species mixtures, where the model was re-fit with a subset 
-of the training data set where species mixture type was categorized.  
-In this case, models were fit using restricted maximum likelihood criteria (REML) 
-approach (CITE: patterson and thompson 1971) because it reduces computation time and 
-models were not compared in the across-mixture analyses. 
+% In this case, models were fit using restricted maximum likelihood criteria (REML) 
+% approach (CITE: patterson and thompson 1971) because it reduces computation time and 
+% models were not compared in the across-mixture analyses. 
 %also reduces bias in variance component estimation
 
-\section{Base model selection}
+\section{Model selection}
 
 Predictor selection followed the logic of \cite{Wykoff1990}, 
 (\cite{Monserud1996}), and \cite{Vospernik2021} where predictors were 
-grouped together based on the following categories: 
-(i) size, (ii) density and competition, and (iii) site predictors. 
+grouped together based on the categories described above: 
+(i) size, (ii) competition, and (iii) site. 
 Size variables considered were tree diameter at breast 
 height ($DBH$) and tree basal area ($BA$). 
 Density and competition variables considered were: plot basal area ($BAH$), 
@@ -757,29 +826,13 @@ of smooth functions for a given group, $x_1$, $x_2$, $x_3$ represent
 size, competition, and site predictor variables, respectively, and $f_1$, $f_2$, $f_3$ 
 are smooth functions for each, respectively. 
 
-Root mean squared error (RMSE; Eq. ~\ref{eq:rmse}) was calculated to assess 
-model accuracy: 
 
-\begin{equation}
-\label{eq:rmse}
-RMSE = \sqrt{\frac{\sum_k (\widehat{BAI_k} - BAI_k)^2}{n_{df}}}
-\end{equation}
-
-where $\widehat{BAI_k}$ is the model prediction, 
-$BAI_k$ is the observed value, and $n_{df}$ is the model residual 
-degrees of freedom (number of increments less model effective degrees of freedom).
 
 When comparing models, a model formulation with the lowest RMSE (highest predictive accuracy) 
 was selected over alternatives. RMSE was calculated using residual degrees of 
-freedom to provide an unbiased estimate. The proportion of null deviance 
-explained by the model (or deviance explained) \citep{wood2006generalized} was also 
-considered for ensuring acceptable model fit, %Do i even say this?
-but was not used as a primary selection criterion. Additionally, 
-A concurvity \citep{Hastie1990} assessment was also conducted between variables 
-within each group at each phase of group variable selection. 
-Concurvity is an evaluation of whether one smooth function in a model describes 
-a different covariate smooth function in the same model 
-\citep{wood2006generalized}. If estimated concurvity was greater than 0.8 for a particular 
+freedom to provide an unbiased estimate. 
+
+If estimated concurvity was greater than 0.8 for a particular 
 set of terms, then an alternative not including both terms was evaluated.
 
 
