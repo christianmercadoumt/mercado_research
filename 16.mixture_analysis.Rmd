@@ -227,6 +227,39 @@ job::job(import = c(o.mixtures.nopien), {
                                    data = o.mixtures.nopien, method = 'fREML', discrete = T)
   saveRDS(mix.diff.gam.nospr.byrand, 'data/model_objects.1/mix.diff.nopien.byrandom.rds')
 })
+
+
+job::job(import = c(o.mixtures.nopien), {
+  library(mgcv)
+  mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) +
+                          s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(unique_tree_id, bs = 're'),
+                      family = 'Gamma'(link = log),
+                      data = o.mixtures.nopien, method = 'ML')
+  saveRDS(mix.diff.gam.nospr, 'data/model_objects.1/mix.diff.nopien_ML.rds')
+})
+
+
+#THIS ONE DIDNT FIT-MORE COEFFICIENTS THAN DATA
+job::job(import = c(o.mixtures.nopien), {
+  library(mgcv)
+  mix.diff.gam.nospr.byrand <- gam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+                                     s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                                     s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+                                     s(ba.pl) + s(ba.pl, by = omixtype) +
+                                     s(asp_sin, asp_cos, k = 20) +
+                                     s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                                     s(unique_tree_id, bs = 're') +
+                                     s(unique_tree_id, by = omixtype, bs = 're'),
+                                   family = 'Gamma'(link = log),
+                                   data = o.mixtures.nopien, method = 'ML')
+  saveRDS(mix.diff.gam.nospr.byrand, 'data/model_objects.1/mix.diff.nopien.byrandom_ML.rds')
+})
+
 #This one fits the random intercepts with a separate smoothing parameter and variance component for each level of the factor. It may not differ, but it may be more 'correct' to do it this way. 
 
 cr.mod.k9 <- gam(bai~mixtype + s(cr, k = 9) + s(cr, k = 9, by = omixtype), data = o.mixtures.nopien, method = 'REML', family = 'Gamma'(link = log))
