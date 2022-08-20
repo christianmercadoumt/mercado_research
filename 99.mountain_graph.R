@@ -58,3 +58,7 @@ library(lattice)
 xyplot(heatload ~ mean_si, data=combo,
        type=c("p","smooth"))
 
+library(tidyverse)
+
+ggplot(combo, aes())
+

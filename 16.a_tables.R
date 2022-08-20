@@ -50,21 +50,22 @@ bai.spmx.ids <- bai.spmx %>%
 #2.1 Table of # of plots, # of trees, # of observations, other conditions ####
 library(kableExtra)
 num.pl <- bai.spmx.ids %>% group_by(stand) %>% 
-  summarize(number.plots = n_distinct(PLOT), 
-            number.trees = n_distinct(unique_tree_id), 
-            number.obs = n(), 
-            n.meas = 1+n_distinct(MEASUREMENT_NO),
-            aspect = mean(aspect_deg, na.rm = T),
+  summarize(
+    # number.plots = n_distinct(PLOT), 
+            # number.trees = n_distinct(unique_tree_id), 
+            # number.obs = n(), 
+            # n.meas = 1+n_distinct(MEASUREMENT_NO),
+            # aspect = mean(aspect_deg, na.rm = T),
             # min.diam = min(DIAMETER, na.rm = T)*2.54,
-            mean.diam = mean(DIAMETER, na.rm = T)*2.54,
+            mind = min(DIAMETER, na.rm = T)*2.54,
             # max.diam = max(DIAMETER, na.rm = T)*2.54,
-            sd.diam = sd(DIAMETER, na.rm=T)*2.54,
-            mean.cr = mean(cr, na.rm = T),
-            sd.cr = sd(cr, na.rm = T),
-            mean.bal = mean(bal.pl.ratio, na.rm = T),
-            sd.bal = sd(bal.pl.ratio, na.rm = T),
-            mean.bah = mean(ba.pl, na.rm = T)*(2.47/10.764),
-            sd.bah = sd(ba.pl, na.rm = T)*(2.47/10.764)
+            maxd = max(DIAMETER, na.rm=T)*2.54,
+            mincr = min(cr, na.rm = T),
+            maxcr = max(cr, na.rm = T),
+            minbal = min(bal.pl.ratio, na.rm = T),
+            maxbal = max(bal.pl.ratio, na.rm = T),
+            mindbah = min(ba.pl, na.rm = T)*(2.47/10.764),
+            maxbah = max(ba.pl, na.rm = T)*(2.47/10.764)
             ) %>% 
   mutate(aspect = case_when(
     aspect >=270 & aspect<315 ~'WNW',
@@ -217,6 +218,42 @@ sum(site$edf)
 # st.dcomp.edf <- sum(st.edf$edf[c(2,3,4)])
 # st.sit.edf <- sum(st.edf$edf[c(5,6)])
 # st.st <- st.edf$edf[8]
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+bai.spmx.h <- bai.hold %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids.h <- bai.spmx.h %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
 
 smooth <- c('DBH', 'crown ratio', 'BAL', 
             'BA', 'aspect', 'tree random intercept', 'full model')#, 'WL ratio', 'Shade')
@@ -236,6 +273,8 @@ rmse.mods <- c(my.rmse.2(size)[[2]]*cm.sq,
                my.rmse.2(compd)[[2]]*cm.sq, NA, NA, 
                my.rmse.2(site)[[2]]*cm.sq, NA,
                my.rmse.2(re.tree.1)[[2]]*cm.sq)#, my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
+
+c(my.rmse.3(size, bai.spmx.ids.h),my.rmse.3(compd, bai.spmx.ids.h), my.rmse.3(site, bai.spmx.ids.h), my.rmse.3(re.tree.1, bai.spmx.ids.h))*cm.sq
 
 tb1 <- tibble(smooth, EDF, dev, rmse.mods) #%>% rename('Smooth'= smooth, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm^2/yr.)' = rmse.mods)
 

@@ -22,6 +22,10 @@ hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
 bai.train <- readRDS('data/bai.train.7_14_22.rds')
 bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
 
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+
+
 bai.spmx <- bai.train %>% 
   select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
          bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
@@ -57,9 +61,46 @@ bai.spmx.ids <- bai.spmx %>%
          unique.tree.f = as.factor(unique_tree_id)) %>% 
   filter(unique_tree_id != 15431)
 
-bai.train <- readRDS('data/bai.train.7_14_22.rds')
 bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
-full.data <- bind_rows(bai.train, bai.hold)
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+bai.spmx.h <- bai.hold %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids.h <- bai.spmx.h %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+# bai.train <- readRDS('data/bai.train.7_14_22.rds')
+# bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+# full.data <- bind_rows(bai.train, bai.hold)
 
 #identify mixtures
 spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
@@ -90,21 +131,71 @@ spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
   g <- data.set %>% filter(percent_LAOC>0.9) %>% 
     mutate(other.pct = percent_LAOC)
    return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
-  }
+}
+
+spfun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% mutate(mixtype = 
+                             case_when(
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PSME<spp_maximum & percent_PSME>spp_min) &
+                                 ((percent_LAOC+percent_PSME)>combined_min) ~ 'psme',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_ABLA<spp_maximum & percent_ABLA>spp_min) & 
+                                 ((percent_LAOC+percent_ABLA)>combined_min) ~ 'abla', 
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_ABGR<spp_maximum & percent_ABGR>spp_min) &
+                                 ((percent_LAOC+percent_ABGR)>combined_min) ~ 'abgr',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PIEN<spp_maximum & percent_PIEN>spp_min) &
+                                 ((percent_LAOC+percent_PIEN)>combined_min) ~ 'pien',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PICO<spp_maximum & percent_PICO>spp_min) &
+                                 ((percent_LAOC+percent_PICO)>combined_min) ~ 'pico',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_PIPO<spp_maximum & percent_PIPO>spp_min) & 
+                                 ((percent_LAOC+percent_PIPO)>combined_min) ~ 'pipo',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_other<spp_maximum & percent_other>spp_min) &
+                                 ((percent_LAOC+percent_other)>combined_min) ~ 'other',
+                               percent_LAOC>combined_min ~ 'laoc'))
+  return(a)
+}
+
+# ccc <- spfun(bai.spmx.ids, 0.2, .65, 0.7)
+# unique(ccc$mixtype)
+# ccc %>% group_by(mixtype) %>% summarize(n())
+# mixtures.all %>% group_by(mixtype) %>% summarize(n())
+                           
+  #   mutate(other.pct = percent_PSME)
+  # b <- data.set %>% filter( %>% 
+  #   mutate(other.pct = percent_ABLA)
+  # c <- data.set %>% filter() %>% 
+  #   mutate(other.pct = percent_ABGR)
+  # d <- data.set %>% filter() %>% 
+  #   mutate(other.pct = percent_PIEN)
+  # e <- data.set %>% filter %>% 
+  #   mutate(other.pct = percent_PICO)
+  # f <- data.set %>% filter %>% 
+  #   mutate(other.pct = percent_PIPO)
+  # g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+  #   mutate(other.pct = percent_LAOC)
 
 re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
 
 ```
 
-```{r 3.1 raw data trends}
+```{r 3.1 raw data trends create data}
 # library(gtable)
-library(grid)
-dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
-                                   bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
-                                   bal.pl.ratio, ccf.pl, qmd.pl.all, 
-                                   dq.pl.all, percent_LAOC, shade.tol.pl, 
-                                   percent_PSME, percent_PIEN, percent_ABLA,
-                                   percent_ABGR, percent_PICO, percent_PIPO) %>% 
+# library(grid)
+
+dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, cluster, 
+                               unique.cluster.f, unique_tree_id, 
+                               bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                               bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                               dq.pl.all, percent_LAOC, shade.tol.pl, 
+                               percent_PSME, percent_PIEN, percent_ABLA,
+                               percent_ABGR, percent_PICO, percent_PIPO, 
+                               percent_other, aspect_deg, elev_m, asp_cos, asp_sin) %>% 
   mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
          tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
   mutate(bah.cats = case_when(
@@ -124,28 +215,73 @@ dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_t
     aspect_deg >180 & aspect_deg<270 ~'SW'
   )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
 
-dat %>% group_by(stand) %>% summarize(n_distinct(aspect_deg))
-#w-nw,n-nw,n-ne,e-ne
-summary(dat$aspect_deg)
-set.seed(406)
-dat.samp <- dat %>% slice_sample(n = 2000)
+dat.abc <- spfun(dat, 0.2, .65, 0.7) %>% 
+  mutate(mix.type = case_when(
+    !(mixtype %in% c('laoc', 'pico', 'psme')) ~ 'Other',
+    mixtype == 'laoc' ~ 'Pure larch',
+    mixtype == 'pico' ~ 'Larch-lodgepole', 
+    mixtype == 'psme' ~ 'Larch-Douglas-fir'
+  )) %>% 
+  mutate(Mixture = factor(mix.type, 
+                           levels = c('Pure larch','Larch-lodgepole','Larch-Douglas-fir', 'Other'),
+                           ordered = T),
+         bal.cats = factor(bal.cats, levels = c('low', 'mid', 'high'), 
+                           ordered = T),
+         BAH = factor(bah.cats, levels = c('0-10', "10-20", "20+"), ordered = T))
 
-ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>% 
-  summarise(diam.cm = mean(diam.cm),
-            bai.cmsq = mean(bai.cmsq),
-            bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
 
+# dat %>% group_by(stand) %>% summarize(n_distinct(aspect_deg))
+# #w-nw,n-nw,n-ne,e-ne
+# summary(dat$aspect_deg)
+# set.seed(406)
+# dat.samp <- dat %>% slice_sample(n = 2000)
 
-(bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+# ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>% 
+#    summarise(diam.cm = mean(diam.cm),
+#              bai.cmsq = mean(bai.cmsq),
+#              bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+```
+
+```{r 3.1 trend spp facet}
+#data trends plot###### 
+#4 stands
+# set.seed(406)
+# standsamp <- sample(unique(dat$SETTING_ID), 4)
+
+set.seed(106)
+samp.dat.abc <- dat.abc %>% group_by(mix.type) %>% slice_sample(n = 300)
+#species-facet#####
+spp.facet.plot <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq))) + geom_point(alpha = 0.2) + 
   # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
-  facet_grid(BAH~Aspect, labeller = label_both) +
+  facet_grid(Mixture~BAH) +
+  labs(x = bquote(DBH[km]), y = bquote(log(BAI[km]))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+   # geom_smooth(se = F, method = 'gam', size = 0.5, linetype = 'dashed') +
+  # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+ggsave('17.figures_saved/bai_diam_spp.png', spp.facet.plot)
+knitr::plot_crop('17.figures_saved/bai_diam_spp.png')
+# dat1 <- dat %>% filter(SETTING_ID %in% standsamp)
+# dat1.spp <- spp.fun(dat1, 0.2, .65, 0.7)
+# dat1.mixnam <- map(names(dat1.spp), ~dat1.spp[[.x]] %>% mutate(dat1.spp = .x))
+# dat1.mix <- bind_rows(dat1.mixnam)
+
+```
+
+```{r 3.1 trend aspect facet}
+#aspect facet#####
+(bai.diam.asp.bah <- ggplot(dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(bah.cats~nsew, labeller = label_both) +
   labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
   geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
   geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
   # theme(aspect.ratio = 1)
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
 
-
+#Trying out more data trends#####
 ind.tr.dat2 <- dat %>% group_by(unique_tree_id, nsew, bal.cats) %>% 
   summarise(diam.cm = mean(diam.cm),
             bai.cmsq = mean(bai.cmsq),
@@ -180,7 +316,10 @@ knitr::plot_crop('17.figures_saved/bai_diam_sumfig.png')
 #             bai.cmsq = mean(bai.cmsq),
 #             bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
 
+```
 
+
+```{r diam dist aspect}
 more.dat <- dat %>% group_by(stand) %>% mutate(aspect1 = mean(aspect_deg, na.rm = T)) %>% 
   ungroup() %>% 
   mutate(nsew = case_when(
@@ -226,6 +365,7 @@ knitr::plot_crop('17.figures_saved/diam.dist.asp.png')
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
 
 ```
+
 
 ```{r correlations}
 sz <- bai.spmx.ids %>% select(DIAMETER, treeba) %>%
@@ -336,6 +476,28 @@ ggsave('17.figures_saved/base_aspect.png', contour.pl)
 
 
 ```
+
+```{r base model diagnostics}
+re.tree.1
+
+hist(bai.spmx.ids.h$bai)
+#predicted vs. fitted values
+preddat <- predict.gam(re.tree.1, newdata = bai.spmx.ids.h, exclude = 's(unique_tree_id)', type = 'response')
+
+pred.tb <- tibble(bai.spmx.ids.h,'fit'=preddat)
+pred.tb <- pred.tb %>% mutate(res = bai-fit)
+#fit vs. response
+ggplot(pred.tb, aes(x = fit, y=bai)) + geom_point() + geom_smooth(method = 'lm')
+
+
+apr <- appraise(re.tree.1, point_alpha = 0.2)
+gam.check(re.tree.1)
+
+ggsave('17.figures_saved/base.diagnostic.png', apr)
+
+
+```
+
 
 
 ```{r all data mixtures}
@@ -478,7 +640,8 @@ ggplot(bai.diam, aes(x = meandbh*2.54, y = meanbai*2.54^2, color = id)) +
 
 ```
 
-```{r mixtures compass figs}
+```{r mixtures compass figs SEE OTHER}
+
 
 
 library(ggforce)
@@ -686,6 +849,97 @@ knitr::plot_crop('17.figures_saved/mix.asp.barchart.png')
 
 ```
 
+```{r mixture compass revisted}
+load("data/ingy_clusters_googleearth.Rdata")
+library(ggforce)
+elevs <- seq(800,1800,by=200)
+rotate_aspect <- function(azimuth_degrees){
+  new_asp <- ifelse(azimuth_degrees<=90,90-azimuth_degrees,
+                    ifelse(azimuth_degrees>270,
+                           450-azimuth_degrees,
+                           -(azimuth_degrees-90)))
+  new_asp
+}
+
+1.05*(max(elevs)-min(elevs))*c(1,0,-1,0)
+##this is from chunk3and4
+names(dat.abc)
+sitedat <- dat.abc %>% 
+  group_by(stand, cluster, Mixture) %>% 
+  summarize(asp_cos = mean(asp_cos), 
+            asp_sin = mean(asp_sin), 
+            elev_m = mean(elev_m),
+            aspect_deg = mean(aspect_deg)) %>% 
+  mutate(aspect_rot = rotate_aspect(aspect_deg))
+
+1.05*(max(elevs)-min(elevs))*c(1,0,-1,0)
+1.05*(max(elevs)-min(elevs))*c(0,-1,0,1)
+
+aa <- 1.05*(max(elevs)-min(elevs))
+xx <- c(0,1050, 0, -1050)
+yy <- c(1050,0, -1050, 0)
+nsew <- c('N', 'E', 'S', 'W')
+xxyy <- data.frame(xx, yy, nsew)
+
+els <- max(elevs)-elevs
+vals <- cos(pi*(-135)/180)*(max(elevs)-elevs)
+circ <- data.frame('x0'=rep(0,length(els)), 'y0'=rep(0,length(els)), els, vals)
+
+
+spp.compass <- ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180), 
+                    y = (max(elevs)-elev_m)*sin(pi*aspect_rot/180) 
+                    )) +  
+  geom_hline(yintercept = 0, color = 'grey') + #horizontal 
+  geom_vline(xintercept = 0, color = 'grey') + 
+  geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
+  geom_point() + 
+  geom_text(inherit.aes = F, data = circ, aes(x = vals, y = vals, label = 1800-els)) +
+  geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
+  facet_wrap(~Mixture) +# facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),aspect.ratio = 2/2.5)
+
+ggsave('17.figures_saved/mix.compass.png')
+knitr::plot_crop('17.figures_saved/mix.compass.png')
+
+# ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+#   geom_hline(yintercept = 0) + #horizontal 
+#   geom_vline(xintercept = 0) + #vertical
+#   geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+#   # geom_text(aes(x = -1, y = 1, label = 'A')) +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+#   geom_point(alpha = 0.6, size = 4) + # points for each aspect
+#   facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 3) + # facet by mixture type
+#   theme(axis.ticks = element_blank(), 
+#         axis.text = element_blank(), 
+#         axis.title = element_blank(), 
+#         axis.line = element_blank(),
+#         line = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+
+# ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
+#          aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + 
+#   coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+#              alpha = 0.3, size  = 2) +
+#   # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey')) + 
+#   # facet_wrap(~facets)+
+#   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+#         axis.title = element_blank(), axis.text = element_blank())
+
+```
+
+
 ```{r mixtures partial response data}
 library(tidymv)
 # 
@@ -841,8 +1095,9 @@ mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)', y='Difference') + 
   coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
-        axis.text.y = element_blank())
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank())
 
 mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
        aes(x = DIAMETER*2.54, y = est,
@@ -854,7 +1109,9 @@ mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)') + 
   coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)), 
+        axis.title.y = element_blank(),
         axis.text.y = element_blank())
 
 #CR####
@@ -883,8 +1140,8 @@ mixpl.cr1 <-
   # facet_wrap(~facets) +
   labs(x = 'Crown ratio', y='Difference') +
   coord_cartesian(ylim = c(-0.3,.3)) +
-  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
-        axis.text.y = element_blank()) 
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank()) 
 
 
 mixpl.cr2 <- ggplot(subset(smest.cr, facets == 'Larch-Douglas-fir'),
@@ -911,7 +1168,7 @@ mixpl.balr <-
   # facet_wrap(~facets) +
   labs(x = 'BAL', y='Effect')  +
   coord_cartesian(ylim = c(-0.5,.5)) +
-  theme(aspect.ratio = 2/(1+sqrt(5)))
+  theme(aspect.ratio = 2/3.5)
 
 
 mixpl.bal1 <- ggplot(subset(smest.bal, 
@@ -925,8 +1182,9 @@ mixpl.bal1 <- ggplot(subset(smest.bal,
   # facet_wrap(~facets) +
   labs(x = 'BAL', y='Difference') +
   coord_cartesian(ylim = c(-0.5,.5)) +
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)),
-        axis.text.y = element_blank()) 
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank()) 
 
 mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
        aes(x = bal.pl.ratio, y = est,
@@ -938,7 +1196,9 @@ mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
   # facet_wrap(~facets) +
   labs(x = 'BAL') +
   coord_cartesian(ylim = c(-0.5,.5)) +
-    theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5, 
+          axis.title.y = element_blank(),
         axis.text.y = element_blank()) 
 # BA####
 mixpl.bar <-
@@ -966,8 +1226,9 @@ mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
   # facet_wrap(~facets) +
   labs(x = bquote('BAH'~(m^2/ha)), y='Difference') +
   coord_cartesian(ylim = c(-2.5,2.5))+
-    theme(strip.text = element_blank(),aspect.ratio = 2/3.5,
-        axis.text.y = element_blank())
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank())
 
 mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
        aes(x = ba.pl*(2.47/10.764), y = est,
@@ -1029,13 +1290,24 @@ mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'),
   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
              alpha = 0.3, size  = 2) +
   # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
-  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey', 
+                       guide = guide_colorbar(title = 'Difference', title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              ticks = F, barwidth = unit(1, 'mm'), barheight = unit(25,'mm'), 
+                                              label.theme = element_text(size = 6, angle = 90),direction = 'vertical')) +
   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
         panel.background = element_rect(fill = 'white'), 
-        panel.grid = element_line(color = 'lightgrey')) + 
-  # facet_wrap(~facets)+
-  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
-        axis.title = element_blank(), axis.text = element_blank())
+        panel.grid = element_line(color = 'lightgrey'),
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/2.5, axis.text = element_blank(),
+        axis.title = element_blank(),
+        legend.position = 'left', legend.margin = margin())
+  # scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  # theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+  #       panel.background = element_rect(fill = 'white'), 
+  #       panel.grid = element_line(color = 'lightgrey')) + 
+  # # facet_wrap(~facets)+
+  # theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+  #       axis.title = element_blank(), axis.text = element_blank())
 
 mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'), 
          aes(x = asp_sin, y = asp_cos)) +
@@ -1055,28 +1327,47 @@ mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'),
   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
         axis.text = element_blank(), axis.title = element_blank())
     
+#put it all together####
 library(gridExtra)
 library(grid)
 pur <- textGrob('Pure larch', just = 'center', gp = gpar(fontsize = 10))
 ll <- textGrob('Larch-lodgepole', just = 'center', gp = gpar(fontsize = 10))
 ldf <- textGrob('Larch-Douglas-fir', just = 'center', gp = gpar(fontsize = 10))
 
-lay <- rbind(c(1,2,3),
-             c(4,5,6),
-             c(7,8,9),
-             c(10,11,12),
-             c(13,14,15),
-             c(16,17,18))
-diffs.pl <- arrangeGrob(pur, ll, ldf,
-                        mixpl.dr, mixpl.d1,mixpl.d2, 
-                        mixpl.crr, mixpl.cr1,mixpl.cr2, 
-                        mixpl.balr, mixpl.bal1,mixpl.bal2, 
-                        mixpl.bar, mixpl.ba1,mixpl.ba2, 
-                        mixpl.aspr, mixpl.asp1, mixpl.asp2,
+# lay <- rbind(c(1,2,3),
+#              c(4,5,6),
+#              c(7,8,9),
+#              c(10,11,12),
+#              c(13,14,15),
+#              c(16,17,18))
+
+# diffs.pl <- arrangeGrob(pur, ll, ldf,
+#                         mixpl.dr, mixpl.d1,mixpl.d2, 
+#                         mixpl.crr, mixpl.cr1,mixpl.cr2, 
+#                         mixpl.balr, mixpl.bal1,mixpl.bal2, 
+#                         mixpl.bar, mixpl.ba1,mixpl.ba2, 
+#                         mixpl.aspr, mixpl.asp1, mixpl.asp2,
+#                         layout_matrix = lay, 
+#                         heights = list(0.5, 2,2,2,2,1.75), widths = c(2,2,2))
+
+lay <- rbind(c(1,2),
+             c(3,4),
+             c(5,6),
+             c(7,8),
+             c(9,10),
+             c(11,12))
+diffs.pl <- arrangeGrob(ll, ldf,
+                        mixpl.d1,mixpl.d2, 
+                        mixpl.cr1,mixpl.cr2, 
+                        mixpl.bal1,mixpl.bal2, 
+                        mixpl.ba1,mixpl.ba2, 
+                        mixpl.asp1, mixpl.asp2,
                         layout_matrix = lay, 
-                        heights = list(0.5, 2,2,2,2,1.75), widths = c(2,2,2))
+                        heights = list(0.25, 1.2,1.2,1.2,1.2,.95), widths = list(3.5/2, 3.5/2), respect = T)
+ll$x
 
 ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
+knitr::plot_crop('17.figures_saved/mix_diff_smooths.png')
 
 mixpl.aspr
 mixpl.asp1
