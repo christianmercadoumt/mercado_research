@@ -1256,10 +1256,6 @@ are displayed in figure \ref{fig:aspel}.
 % or perhaps because the sampling of large tree data was limited to east-northeast sites.
 
 
-% The choice of fitting non-linear relationships for predicting tree growth with a gamma 
-% distribution and a long-link function appears to be 
-% valid given the dispersion and non-linearity present in these relationships. 
-
 % The model was fit with a gamma distribution family because it allows for 
 % increasing dispersion in the response variable. A log-link function was chosen 
 % to ensure that predictions of growth were positive and non-zero.
@@ -1766,40 +1762,175 @@ segway into what I like and don't like about gams
 
 \section{GAMs and model selection}
 
+GAMs (and GAMMs) are becoming more prevalent in ecological research for 
+various applications to aid in capturing and describing complex non-linear 
+relationships that otherwise would require extensive testing to determine an 
+assumed model form in parametric approaches \citep{Robinson2011,Adamec2015}. 
+\cite{Johnston2019} showed that GAMs were effective in modeling tree growth 
+response across different levels of fire severity. \cite{Kemp2019} and 
+\cite{Povak2020} also demonstrated the use of GAM(M)s for evaluating post-fire 
+seedling establishment and regeneration. 
 
-The model selection approach applied here produced a BAI model 
-fit with smooth functions that resemble previously established functional 
-relationships between BAI and each covariate except for BAL. Other functions 
-show BAL increasing with a sharp initial decreased effect followed by asymptotic behavior 
-thereafter, but the smooth function fit here shows a sharp decrease only 
-at high values of BAL. 
-
--The diameter partial response curve is characterized by a sharp increasing 
-growth effect tapering out asymptotically at higher diameters, similar to the classic 
-model identified by \cite{Stage1973b}, showing that western larch growth is 
-proportional to tree size until diameter exceeds 50 cm. 
-% -- Larger trees grow at a faster rate than smaller trees.
-- Crown ratio follows a similar pattern to that identified by \cite{Monserud1996}
--- low values associated with lower growth. 
--- cr a crude measure of photosynthetic capacity
--- CR measurements are prone to error. In this study they were based on 
-ocular estimation. \cite{Leites2009}. 
-
-- BAL was associated with modest effect sizes, it had a decreasing effect on 
-BAI, but most interestingly, the shape of the fitted curve here is different 
-from those previously identified \cite{Stage1973b,Monserud1996,Hann1991,Vospernik2020}. 
-
-- The functional form of BAH is similar to previous works
+GAMMs were an invaluable tool in this study for estimating non-linear relationships and 
+dynamics that otherwise would have required more testing to determine 
+functional form. The model selection approach applied here produced a BAI model 
+which resulted in relationships consistent with other empirical 
+individual tree growth models. The smooths fitted for diameter, 
+crown ratio, and BAH are all consistent with well-established 
+functional relationships for each term \citep{Wykoff1990,Monserud1996}. 
+This is somewhat unsurprising given that all variables were considered because 
+they are well-established in tree growth modelling. 
 
 
-- Northern aspects were mostly associated with positive effects on BAI. This is 
-somewhat expected, as northern aspects have more resources conducive to growth. 
--- Representing site effects by aspect alone may have missed something.. 
---- specifically, by representing site with only aspect, an assumption is made 
-that slope effects are constant, however, not all sites studied here were on 
-a slope, (but most were?). The slope position also impacts growth dynamics. 
---- maybe there's something to be said about these things being accounted for 
-in other variables?
+% Additionally, the raw data displayed nonlinear trends 
+% with increasing dispersion, thus the choice of a gamma distribution and a 
+% long-link function appears to be justified.  
+
+
+BAL, however, contrasts from previously identified 
+characterizations, highlighting a potential advantage of this approach. 
+BAL previously has been characterized by an overall 
+decreasing growth effect. In this model, it doesn't appear relevant 
+until BAL is in excess of 0.8, meaning that western larch growth may not be 
+particularly adversely affected by the presence of larger trees until there 
+is a very large presence of them. \cite{Vospernik2020} found that only 
+including BAL as a competition measure 
+was sufficient in capturing competitive effects across species. That option was 
+excluded here because it was thought important to consider tree-level 
+competitive effects in addition to community crowding effects. 
+The results in this study indicate both levels are pertinent in the western 
+larch growth relationship. They may also indicate that western larch has competitive 
+resource-use strategies, which likely depends on overall stand density. 
+The use of BAL in this model is supported by the findings of \cite{Contreras2011}, which 
+showed that BAL was highly correlated with BAI in western larch, compared to 
+other distance-independent measures. 
+Allowing this (and other) functional relationships to vary dynamically 
+may help uncover effects that may be missed when fitting 
+models with \emph{a priori} functional shape assumptions. 
+  
+% This allowed for more accurate estimates, as BAL showed a large effect on growth estimates. 
+
+% Of note, however, is that here a ratio of BAL to plot basal area was 
+% used to represent this effect, similar to \cite{Stage1973b}. 
+
+Along the same lines, however, smoothers can over-fit 
+these relationships. For example, the variability shown at high 
+values of BAH in figure \ref{fig:basesmooths} highlight the importance of 
+careful consideration when fitting models like this. In this study the 
+maximum effective degrees of freedom (EDF; defined by k-1) for each smooth chosen was 
+9 for DBH , BAL, and BAH, the default value provided by mgcv (k = 10). Although 
+the degree of penalization is not necessarily selected through 
+specifying this parameter \citep{wood2006generalized}, a higher value of 
+k creates more space for a function to vary. In the case of BAH, 
+there clearly was a low amount of penalization and/or too high 
+of a basis dimension, shown by the smooth's wiggliness at high values. 
+In this case it doesn't challenge the interpretability 
+of the BAH effect on growth, as there clearly is an overall decreasing 
+effect that, which was backed by a very low p-value. In other cases, such as the 
+shade intolerance smooth, further constraints may be necessary to 
+provide for a higher confidence in valuable interpretation. 
+
+Additionally, the way that site conditions were represented in the model 
+formula also contrast from previous formulations, which often include 
+information about slope, aspect, elevation, habitat, and/or climatic data 
+\citep{Weiskittel2009}. In this study, site effects on growth were only 
+represented by aspect, potentially failing to account for other site influences. 
+By only accounting for aspect differences, 
+an implicit assumption is made that the effect of site on growth is constant 
+regardless of slope or elevation on a particular aspect.
+However, aspect was selected by the selection criteria because it simply 
+outperformed alternative measures, including a more comprehensive heatload 
+metric that is based on a combination of slope, aspect, elevation, and 
+incoming solar radiation \cite{Theobald2015}. However, using map-based metrics 
+rely on their own set of assumptions, particularly related to the scale at which 
+estimates are made which may not detect microclimatic conditions at the tree-level. 
+\cite{Stage2007} suggested that using a combination of slope, aspect, and elevation 
+should improve prediction accuracy, which was observed here. However, these improvements 
+were marginal and were associated with high concurvity values between topographic 
+variables as well as with BAH. These inconsistencies highlight that which was 
+found by \cite{Froese2007}, noting that there was bias associated with growth prediction 
+when site conditions are favorable. Clearly there are tradeoffs associated 
+with accounting for different site effects in this format, and future growth 
+modelling efforts should consider these tradeoffs and how they may interact 
+with modelling objectives. 
+
+% Given this combination then, the model terms together are considered to have a 
+% multiplicative effect on the mean response \citep{Faraway2016} of BAI, 
+% allowing for interpretation of terms as interactive with one another. 
+
+
+
+
+% - Northern aspects were mostly associated with positive effects on BAI. This is 
+% somewhat expected, as northern aspects have more resources conducive to growth. 
+% -- Representing site effects by aspect alone may have missed something.. 
+% --- specifically, by representing site with only aspect, an assumption is made 
+% that slope effects are constant, however, not all sites studied here were on 
+% a slope, (but most were?). The slope position also impacts growth dynamics. 
+% --- maybe there's something to be said about these things being accounted for 
+% in other variables?
+
+% These inconsistencies are on par with 
+% 
+% Furthermore, 
+% 
+% However, measurements like this may 
+% require assumptions
+% 
+% 
+%  Relying on aspect as the sole predictor relating to site conditions, however, 
+%  may be a limitation of the current study.  Including additional site variables to 
+%  aspect was associated with a high degree of interdependence among variables, 
+%  represented by model concurvity. For example, as a first pass, aspect, slope, 
+%  and elevation were compared to determine the best of the three. After selecting 
+%  aspect, the addition of slope and/or elevation both drove concurvity higher 
+%  than the established maximum threshold. Aspect on its own, was then compared 
+%  against heatload and stand-specific intercepts. The stand intercept version 
+%  had the lowest RMSE value, but was associated with a high degree of concurvity.
+% 
+% , when the proportion of basal area in 
+% larger trees within a plot
+% 
+% 
+% which 
+% represents
+% 
+% 
+% 
+% the nature of the initial variables considered
+% 
+% appropriate for assessing the impacts of species-mixing 
+% on the growth of western larc. 
+% 
+% that accounted for factors already known to be important in estimating 
+% tree growth 
+% 
+% with smooth functions that resemble previously identified functional 
+% relationships between BAI and each covariate except for BAL. 
+% 
+% Other functions 
+% show BAL increasing with a sharp initial decreased effect followed by asymptotic behavior 
+% thereafter, but the smooth function fit here shows a sharp decrease only 
+% at high values of BAL. 
+% 
+% -The diameter partial response curve is characterized by a sharp increasing 
+% growth effect tapering out asymptotically at higher diameters, similar to the classic 
+% model identified by \cite{Stage1973b}, showing that western larch growth is 
+% proportional to tree size until diameter exceeds 50 cm. 
+% % -- Larger trees grow at a faster rate than smaller trees.
+% - Crown ratio follows a similar pattern to that identified by \cite{Monserud1996}
+% -- low values associated with lower growth. 
+% -- cr a crude measure of photosynthetic capacity
+% -- CR measurements are prone to error. In this study they were based on 
+% ocular estimation. \cite{Leites2009}. 
+% 
+% - BAL was associated with modest effect sizes, it had a decreasing effect on 
+% BAI, but most interestingly, the shape of the fitted curve here is different 
+% from those previously identified \cite{Stage1973b,Monserud1996,Hann1991,Vospernik2020}. 
+% 
+% - The functional form of BAH is similar to previous works
+
+
 
 
 
@@ -1808,49 +1939,32 @@ in other variables?
 
 %GAMs showed us relationships
 
-GAMs (and GAMMs) are becoming more prevalent in ecological research for 
-various applications to aid in capturing and describing complex non-linear 
-relationships that otherwise would require extensive testing to determine an 
-assumed model form in parametric approaches \citep{Robinson2011,Adamec2015}. 
 
-\cite{Johnston2019} showed that GAMs were effective in modeling tree growth 
-response across different levels of fire severity. 
 
 %% interpret relationships
 
 
-The GAM models fit estimate BAI conditional on a gamma 
-distribution with a log-link function, thus the model terms together are  
-considered to have a multiplicative effect on the mean response \citep{Faraway2016}, 
-allowing for interpretation of terms as interactive with one another. 
-
-
-\cite{Vospernik2020} found that only including BAL as a competition measure 
-was sufficient in capturing competitive effects. That option was 
-excluded here because it was thought important to consider tree-level 
-competitive effects in addition to community crowding effects. This allowed for 
-more accurate estimates, as BAH showed a large effect on growth estimates. 
-Additionally, the use of BAL corroborates with \cite{Contreras2011}, which 
-showed that BAL was highly correlated with BAI in western larch, compared to 
-other distance-independent measures. 
 
 
 
 
-Initially CCF was considered as a base-model competition measure because 
-it offered greater improvements to RMSE than BAH when slope was also considered 
-in the model.  
-but these improvements 
-were marginal compared to BAH, as demonstrated in the comparison 
 
-, 
-and was selected in a model formulation with slope as well, however 
-the benefit to RMSE that this formula provided was marginal compared 
-to the formula that included BA. 
 
-Further, to accommodate analyses which 
-recognized CCF as a species composition informed measure, 
-it was deemed more practical to compare non-species informed BA to CCF
+% 
+% Initially CCF was considered as a base-model competition measure because 
+% it offered greater improvements to RMSE than BAH when slope was also considered 
+% in the model.  
+% but these improvements 
+% were marginal compared to BAH, as demonstrated in the comparison 
+% 
+% , 
+% and was selected in a model formulation with slope as well, however 
+% the benefit to RMSE that this formula provided was marginal compared 
+% to the formula that included BA. 
+% 
+% Further, to accommodate analyses which 
+% recognized CCF as a species composition informed measure, 
+% it was deemed more practical to compare non-species informed BA to CCF
 
 % and 
 % improved model accuracy
@@ -2123,18 +2237,7 @@ the small impact.
  on previously identified empirical studies \citep{Stage1976,Kimsey2019}, 
  then no such weighting is necessary. 
  
- Relying on aspect as the sole predictor relating to site conditions, however, 
- may be a limitation of the current study. Aspect was selected in the model 
- because it outweighed alternative measures, including a more comprehensive 
- heatload metric, which is based on a combination of slope, aspect, and 
- elevation. Including additional site variables to 
- aspect was associated with a high degree of interdependence among variables, 
- represented by model concurvity. For example, as a first pass, aspect, slope, 
- and elevation were compared to determine the best of the three. After selecting 
- aspect, the addition of slope and/or elevation both drove concurvity higher 
- than the established maximum threshold. Aspect on its own, was then compared 
- against heatload and stand-specific intercepts. The stand intercept version 
- had the lowest RMSE value, but was associated with a high degree of concurvity.
+
  
  
  These points highlight an overarching consideration: model selection is 

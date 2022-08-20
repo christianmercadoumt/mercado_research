@@ -144,6 +144,8 @@ sitelist1b <- list('slope' = site.n1b, 'elev' = site.n2b, 'sinasp' = site.n3b, '
 
 rmse.conc.table(sitelist1b)
 
+lapply(sitelist1b,rmse.conc)
+
 #lapply(sitelist1b, rmse.conc)
 rmse.conc(compd.ba1)
 rmse.conc(site.n5b)
@@ -218,6 +220,9 @@ site5b.2 <- readRDS('data/model_objects.1/site5b.2.rds') #update(site.n5b, . ~ .
 
 rmse.conc(site5b.1)
 rmse.conc(site5b.2)
+
+concurvity(site5b.2, full=F
+           )
 ```
 
 
