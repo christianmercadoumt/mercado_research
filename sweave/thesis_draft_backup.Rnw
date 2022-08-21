@@ -2052,6 +2052,24 @@ with modelling objectives.
 
 \section{Assessing species-mixing impacts on growth}
 
+The mechanisms by which species interactions lead to modifications 
+in productivity are dictated by the availability, acquisition, and efficiency by which 
+resources required for growth are used for different species in a mixture 
+\cite{Pretzsch2017a}. Competition describes how these traits differ among 
+trees, where it may increase if there is a mis-match in any of these traits within 
+a community. Western larch is known for its high light-use efficiency, and thus 
+it was posited that limitations in light may drive modifications in its growth. 
+
+
+
+Western larch growth was characterized differently when growing 
+with other western larch vs. when it was growing with either lodgepole pine 
+or Douglas-fir. For lodgepole pine mixtures, this was made apparent in 
+the partial relationships of tree size, competition and site, whereas 
+differences in Douglas-fir mixtures were only apparent in competition 
+and site. 
+
+
 
 %%%%%Mixture analysis stuff
 
