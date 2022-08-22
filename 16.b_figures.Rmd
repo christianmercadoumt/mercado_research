@@ -1736,7 +1736,7 @@ smooth_estimates(ccf.mod, data = aaa, )
 
 
 ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, diam = 4.5, 
-                   other = FALSE, oth.vals = NA, choose.bal = FALSE){
+                   other = FALSE, oth.vals = NA, choose.seq = NA){
   set.seed(165)
   #set values for each variable
   asp_sin <- rep(sin(asp*(pi/180)), 100)
@@ -1797,14 +1797,18 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
         prty <- c(prty, rep(i, 100))
       }
       #now decide whether to sequence BA or BAL (depending on oth.vals entered)
-      if(choose.bal == F){
+      if(choose.seq == 'ba'){
         ba.pl <- seq(min(mod$model$ba.pl), 
                      150, 
                      length = 100)
-      } else {
+      } else if(choose.seq == 'bal'){
         bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
                             max(mod$model$bal.pl.ratio), 
                             length = 100)
+      } else if(choose.seq == 'dbh') {
+        DIAMETER <- seq(min(mod$model$DIAMETER),
+                        max(mod$model$DIAMETER),
+                        length = 100)
       }
       #create newdata
       var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
@@ -1818,14 +1822,18 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
       }
 
       #now decide whether to sequence BA or BAL (choosebal arg)
-      if(choose.bal == F){
+            if(choose.seq == 'ba'){
         ba.pl <- seq(min(mod$model$ba.pl), 
                      150, 
                      length = 100)
-      } else {
+      } else if(choose.seq == 'bal'){
         bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
                             max(mod$model$bal.pl.ratio), 
                             length = 100)
+      } else if(choose.seq == 'dbh') {
+        DIAMETER <- seq(min(mod$model$DIAMETER),
+                        max(mod$model$DIAMETER),
+                        length = 100)
       }
       #create tibble for newdata
       var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
@@ -1838,12 +1846,26 @@ ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, dia
         prty <- c(prty, rep(i, 100))
       }
       #choose.bal irrelevant for CCF (no ba in the model)
-      ba.pl <- seq(min(mod$model$ba.pl), 
+            if(choose.seq == 'ba'){
+        ba.pl <- seq(min(mod$model$ba.pl), 
                      150, 
                      length = 100)
+      } else if(choose.seq == 'bal'){
         bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
                             max(mod$model$bal.pl.ratio), 
                             length = 100)
+      } else if(choose.seq == 'dbh') {
+        DIAMETER <- seq(min(mod$model$DIAMETER),
+                        max(mod$model$DIAMETER),
+                        length = 100)
+      }
+      
+      # ba.pl <- seq(min(mod$model$ba.pl), 
+      #                150, 
+      #                length = 100)
+      #   bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+      #                       max(mod$model$bal.pl.ratio), 
+      #                       length = 100)
       
       #create newdata
       var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
@@ -1904,6 +1926,12 @@ pur.dat <- rbind(a, b, c, d)
                   ymax = bai+(2*se)), alpha = 0.2) +
   labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area'))
 
+(purty.pl <- ggplot(pur.dat, aes(x = DIAMETER, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = bai-(2*se), 
+                  ymax = bai+(2*se)), alpha = 0.2) +
+  labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area'))
+
 a <- ba_fun(shade.intol, ba = 10)
 b <- ba_fun(shade.intol, ba = 50)
 c <- ba_fun(shade.intol, ba = 90)
@@ -1955,6 +1983,30 @@ ggplot(ba.prty, aes(x = ba.pl, y = bai, color = factor(percent_LAOC),
 purty.pl + shd.pl
 
 ba_fun(ccf.mod, ba = 10)
+
+
+
+
+prt.diamdat40 <- ba_fun(purity, diam = 6, other = T, oth.vals = c(0.25, 0.75, 1), choose.seq = 'dbh', ba=40)
+prt.diamdat80 <- ba_fun(purity, diam = 6, other = T, oth.vals = c(0.25, 0.75, 1), choose.seq = 'dbh', ba=80)
+prt.diamdat110 <- ba_fun(purity, diam = 6, other = T, oth.vals = c(0.25, 0.75, 1), choose.seq = 'dbh', ba=110)
+prt.all <- bind_rows(prt.diamdat40, prt.diamdat80, prt.diamdat110)
+
+# prt.cats.ddat <- prt.diamdat %>% mutate(prty.cats = case_when(
+#   percent_LAOC<0.4~'low',
+#   percent_LAOC>0.4 & percent_LAOC<0.8~'mid',
+#   percent_LAOC>0.8~'high'
+# ))
+ggplot(prt.all, aes(x = DIAMETER, y = bai, color = factor(percent_LAOC))) + geom_line() + facet_wrap(~ba.pl)
+
+s.diamdat40 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', ba=40)
+s.diamdat80 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', ba=80)
+s.diamdat110 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', ba=110)
+shd.all <- bind_rows(s.diamdat40, s.diamdat80, s.diamdat110)
+ggplot(shd.all, aes(x = DIAMETER, y = bai, color = factor(shade.tol.pl))) + geom_line() + facet_wrap(~ba.pl) + 
+  coord_cartesian(xlim=c(0,15))
+
+
 ```
 
 ```{r shade tolerance plots}

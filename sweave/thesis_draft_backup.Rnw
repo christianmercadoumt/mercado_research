@@ -2093,11 +2093,45 @@ The addition of species-information was useful in estimating the growth
 of western larch. The relationships fit for both 
 purity and shade intolerance indicate that even after accounting for 
 other factors, western larch growth may be better characterized 
-with the addition with a simple measure of proportional basal area than 
-by CCF. Similarly, \cite{Dirnberger2014} and 
-\cite{Dirnberger2017} both found that species-proportional measures of 
-composition were more effective than crown-area based measures in two-species 
-stands. 
+with a simple measure of proportional basal area than with CCF. 
+Similarly, \cite{Dirnberger2014} and \cite{Dirnberger2017} both found that 
+species-proportional measures of composition were more effective than 
+crown-area based measures when two-species stands to monospecific stands. 
+Further, \cite{Dirnberger2017} suggested that individual tree level species 
+proportions by area should account for leaf area rather than crown projection 
+area. The use of plot-level species shade tolerance in this study was 
+presumed a simple and readily available measure to capture the effects 
+of varying light-interception among trees within a mixture. Given that 
+only one species (western larch) was evaluated and that the model structure 
+had an inherent multiplicative effect across predictors, 
+proportional leaf-area across species may have captured. However this is 
+highly extrapolative given that there simply was not enough high shade tolerance 
+mixtures. Further investigation on how shade tolerance interacts with 
+individual tree leaf area and intertree competitive dynamics should be the 
+focus of future studies. 
+
+Regardless of these limitations, both shade intolerance and purity displayed 
+relationships indicating that western larch growth may be positively 
+impacted when growing with other species. 
+%IS this more apparent in smaller trees?
+This apparent effect appeared 
+most relevant 
+
+
+
+
+
+
+Their proportional measures, however, were weighted by estimated 
+potential basal area, which was based on a neighboring monospecific stand with 
+similar conditions. Given that the present study lacked this type of control, 
+and that the PGP stands were treated with thinning, no such proxy could be 
+acquired. The lack of identifiability among mixing effects and site effects 
+within this study may be subject to criticism. 
+\cite{Huber2014} indicated that the effects of species mixture 
+is closely related to site
+
+
 
 The present findings are also in concordance
 
@@ -2107,8 +2141,7 @@ In the context of evaluating the effect o
 
 
 stands where proportional measures were based on site potential. 
-\cite{Huber2014} indicated that the effects of species mixture 
-is closely related to site
+
 
 
 however, they also concluded that species proportions 
