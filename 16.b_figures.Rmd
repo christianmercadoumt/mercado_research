@@ -248,6 +248,8 @@ dat.abc <- spfun(dat, 0.2, .65, 0.7) %>%
 # set.seed(406)
 # standsamp <- sample(unique(dat$SETTING_ID), 4)
 
+ggplot(dat.abc, aes(x = percent_LAOC))
+
 set.seed(106)
 samp.dat.abc <- dat.abc %>% group_by(mix.type) %>% slice_sample(n = 300)
 #species-facet#####
@@ -267,6 +269,44 @@ knitr::plot_crop('17.figures_saved/bai_diam_spp.png')
 # dat1.spp <- spp.fun(dat1, 0.2, .65, 0.7)
 # dat1.mixnam <- map(names(dat1.spp), ~dat1.spp[[.x]] %>% mutate(dat1.spp = .x))
 # dat1.mix <- bind_rows(dat1.mixnam)
+laoc.mix <- dat.abc %>% filter(mixtype %in% c('laoc', 'pico'), bah.cats != '20+')
+ggplot(laoc.mix, aes(diam.cm, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  facet_grid(bal.cats~bah.cats, scales = 'free_x') + 
+  geom_smooth(method = 'gam', se = F)
+
+ggplot(laoc.mix, aes(diam.cm, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  facet_wrap(~bah.cats, scales = 'free_x') + 
+  geom_smooth(method = 'gam', se = F)
+
+ggplot(laoc.mix, aes(bal.pl.ratio, bai.cmsq,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+ggplot(laoc.mix, aes(diam.cm, bal.pl.ratio,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+ggplot(laoc.mix, aes(dq.pl.all, bal.pl.ratio,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+
+ggplot(laoc.mix, aes(x = bal.pl.ratio, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method = 'lm',se = F) + facet_wrap(~MEASUREMENT_NO)
+
+laoc.mix1 <- samp.dat.abc %>% filter(mixtype %in% c('laoc', 'pico'), bah.cats != '20+')
+ggplot(laoc.mix1, aes(diam.cm, bal.pl.ratio, color = as.factor(cluster))) + geom_point() + 
+  facet_wrap(~stand)
+
+all.pico <- dat.abc %>% filter(mixtype == 'pico')
+ggplot(all.pico, aes(diam.cm, bal.pl.ratio, color = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(x = bal.pl.ratio, y = percent_PICO, color = factor(cluster))) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(diam.cm, bai.cmsq, color = bah.cats)) + geom_point() + facet_wrap(~bal.cats)
+ggplot(all.pico, aes(bal.pl.ratio, bai.cmsq, color = percent_PICO)) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(dq.pl.all, bal.pl.ratio, color = percent_PICO)) + geom_point() + facet_wrap(~stand)
+ggplot()
+# ggplot(laoc.mix, aes(bal.pl.ratio, log(bai.cmsq), color = mixtype)) + geom_point()
+
+# plot(mix.diff.nopien, residuals = T, scale = 0)
+draw(mix.diff.nopien, residuals = T,rug = F, select = 's(DIA', partial_match = T)
+
+draw(mix.diff.nopien, residuals = T,rug = F, select = 's(bal', partial_match = T)
+
+
 
 ```
 
@@ -1979,28 +2019,44 @@ ggplot(ba.prty.bal, aes(x = bal.pl.ratio, y = bai,
 
 
 ```{r comparing mixtures with different levels of BA}
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
 
 #set diameter to any value that is not 4.5
 #Vary by BA##### 
+
 
 a <- ba_fun(mix.diff.nopien, ba = 10, diam = 6)
 b <- ba_fun(mix.diff.nopien, ba = 50, diam = 6)
 c <- ba_fun(mix.diff.nopien, ba = 90, diam = 6)
 d <- ba_fun(mix.diff.nopien, ba = 130, diam = 6)
 
-mixplts <- rbind(a,b,c,d)
+mixplts1 <- rbind(a,b,c,d)
+mixplts1 <- mixplts1 %>% mutate(bah = ba.pl*(2.47/10.764))
 
-ggplot(subset(mixplts, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = bai, 
+#bah-5 = 2.47acres(ha)/10.764sqft(msq) * 5
+## bah5 = 21.78947
+## bah15 = 65.36842
+## bah25 = 108.9474
+
+a <- ba_fun(mix.diff.nopien, ba = 21.78947, diam = 6)
+b <- ba_fun(mix.diff.nopien, ba = 65.36842, diam = 6)
+c <- ba_fun(mix.diff.nopien, ba = 108.947, diam = 6)
+# d <- ba_fun(mix.diff.nopien, ba = 130, diam = 6)
+
+mixplts1 <- rbind(a,b,c)
+mixplts1 <- mixplts1 %>% mutate(bah = round(ba.pl*(2.47/10.764), 1))
+
+ggplot(subset(mixplts1, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = bai, 
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
-  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bah)) +
   labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH') + 
   coord_cartesian(ylim = c(0,10), xlim = c(0, 15))
 
-ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
+ggplot(subset(mixplts1, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
                     color = omixtype, ymin = bai-(2*se),
                     ymax = bai+(2*se))) + geom_line() + 
-  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(ba.pl)) +
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bah)) +
   labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH')+ 
   coord_cartesian(ylim = c(0,10), xlim = c(0,10))
 

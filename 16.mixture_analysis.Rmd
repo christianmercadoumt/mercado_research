@@ -194,23 +194,49 @@ concurvity(diam.diff.gam, full = F)
 
 AIC(mix.diff.nopien)
 
+newd <- o.mixtures.all %>% mutate(omixtype = factor(omixtype, ordered = F))
+no.offset <- bam(bai~ omixtype + s(DIAMETER, by = omixtype) +
+                          s(cr, by = omixtype, k = 9) +
+                          s(bal.pl.ratio, by = omixtype) +
+                          s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, by = omixtype, k = 20)
+                          ,
+                      family = 'Gamma'(link = log),
+                      data = newd, method = 'fREML')
+
+
+m1 <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype, m = 1) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9, m = 1) +
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype, m=1) +
+                          s(ba.pl) + s(ba.pl, by = omixtype,m=1) +
+                          s(asp_sin, asp_cos, k = 20,m=1) +
+                          s(asp_sin, asp_cos, by = omixtype, k = 20,m=1),
+                      family = 'Gamma'(link = log),
+                      data = o.mixtures.all, method = 'fREML')
+
+plot.gam(no.offset, scale = 0)
+plot.gam(m1, scale = 0)
+summary(m1)
+
+s(unique_tree_id, bs = 're')
+
 ```
 
 ```{r fitting the diff models}
 o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
 unique(o.mixtures.nopien$mixtype)
-job::job(import = c(o.mixtures.nopien), {
+job::job(import = c(o.mixtures.all), {
   library(mgcv)
-  mix.diff.gam.nospr <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
-                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
-                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-                          s(ba.pl) + s(ba.pl, by = omixtype) +
+  mix.diff.gam.nospr.m1 <- bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype, m=1) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9,m=1) +
+                          s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype,m=1) +
+                          s(ba.pl) + s(ba.pl, by = omixtype,m=1) +
                           s(asp_sin, asp_cos, k = 20) +
-                          s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(asp_sin, asp_cos, by = omixtype, k = 20,m=1) +
                           s(unique_tree_id, bs = 're'),
                       family = 'Gamma'(link = log),
-                      data = o.mixtures.nopien, method = 'fREML')
-  saveRDS(mix.diff.gam.nospr, 'data/model_objects.1/mix.diff.nopien.rds')
+                      data = o.mixtures.all, method = 'fREML')
+  saveRDS(mix.diff.gam.nospr.m1, 'data/model_objects.1/mix.diff.nopien.m1.rds')
 })
 
 job::job(import = c(o.mixtures.nopien), {

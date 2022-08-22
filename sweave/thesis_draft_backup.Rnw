@@ -2055,19 +2055,163 @@ with modelling objectives.
 The mechanisms by which species interactions lead to modifications 
 in productivity are dictated by the availability, acquisition, and efficiency by which 
 resources required for growth are used for different species in a mixture 
-\cite{Pretzsch2017a}. Competition describes how these traits differ among 
-trees, where it may increase if there is a mis-match in any of these traits within 
+\cite{Pretzsch2017a}. Competition is modified when these vary, where 
+the complementarity of species niches can lead to enhanced resource-use among 
+species within a mixture, reducing competition, and 
+leading to higher observed rates of growth \citep{Forrester2016}. 
+Since western larch is known for its high light-use efficiency, 
+it was posited that limitations in light acquisition in mixtures with 
+other light demanding species would increase competition and result
+in lower growth in western larch compared to pure larch conditions. 
+The results indicate that western larch growth 
+differs when larch is growing with other western larch vs. when 
+growing with other species.
+
+--- pretzsch et al 2016 found that crown ratio wass significanly 
+affected by mixture and water availability
+
+
+For lodgepole pine mixtures, this was made apparent in 
+the partial relationships between growth and both tree size 
+and competition variables. 
+
+BAL may be used to indicate the level of size-asymmetric competition for 
+above-ground resources such as light \cite{Mina2018a}. Since the results 
+show a negative difference at low values of BAL for lodgepole pine mixtures, 
+this may indicate that the competition for above-ground resources is 
+higher when there is a low degree of size asymmetry between larch and 
+lodgepole pine. 
+
+Given that lodgepole pine is a similarly fast-growing 
+shade-intolerant species, its unsurprising 
+
+%%%%%%%%%%%%%%%%%%%%%% return once the model is fit
+
+%%%%%%%%%%%%%%%%%%%%%%% CCF purity, etc
+
+The addition of species-information was useful in estimating the growth 
+of western larch. The relationships fit for both 
+purity and shade intolerance indicate that even after accounting for 
+other factors, western larch growth may be better characterized 
+with the addition with a simple measure of proportional basal area than 
+by CCF. Similarly, \cite{Dirnberger2014} and 
+\cite{Dirnberger2017} both found that species-proportional measures of 
+composition were more effective than crown-area based measures in two-species 
+stands. 
+
+The present findings are also in concordance
+
+
+In the context of evaluating the effect o
+
+
+
+stands where proportional measures were based on site potential. 
+\cite{Huber2014} indicated that the effects of species mixture 
+is closely related to site
+
+
+however, they also concluded that species proportions 
+based on potential density. However, these studies also concluded that 
+
+
+
+for 
+individual tree growth modelling definitions 
+
+These findings are somewhat in line with the findings of 
+
+
+
+However, the fitted relationship for shade intolerance, although points 
+to a positive relationship between shade intolerance
+
+Furthermore, its been found that incorporating
+
+
+Its been suggested that defining different mixtures with proportion of 
+basal area alone can lead to inaccurate estimations of individual tree growth
+since mixture effects depend on site conditions \citep{Huber2014}. 
+
+
+Considering niche complementarity, these results fail to indicate such 
+
+Furthermore, 
+
+
+
+By accounting for mixture with weighted proportions 
+of plot basal area, 
+
+
+
+
+Here, mixing was defined by either weighted or unweighted proportions of 
+basal area. Although different mixture types were not weighted specifically 
+by site conditions or stocking potentials as the literature suggests, 
+site conditions were considered in the model as a separate term, aspect. 
+Furthermore, since the model was specified with a log link function, 
+changes in one predictor have a multiplicative effect 
+on growth with the other predictors, so a change in mixing proportion relates 
+to growth in such a way that is dependent on the value of aspect. Therefore, 
+given that aspect represents site potential - an assumption made here based 
+on previously identified empirical studies \citep{Stage1976,Kimsey2019}, 
+then no such weighting is necessary. 
+
+
+-
+
+
+this 
+may indicate
+% Lower observed growth in smaller trees 
+% may be a result of increased competition from 
+
+Since it is a proportion 
+of basal area, low values don't necessarily indicate that a tree is without 
+competition, but rather that a low proportion of basal area is in trees of 
+greater size than a subject tree, meaning that there still could be some 
+proportion of trees smaller
+
+where there could still be trees of equal or very similar size 
+(large or small), measure may indicate that there 
+
+
+In this case, then, if a low proportion of plot basal area is in larger 
+trees,
+
+then these results may indicate that when there are few 
+competitors larger than a larch in a mixture with lodgepole pine, then 
+expected 
+
+but perhaps 
+the presence of 
+
+A decreased effect at low values of BAL may indicate that 
+
+
+
+
+
+
+whereas 
+differences in Douglas-fir mixtures were only apparent in competition 
+and site. 
+
+
+western larch growth was characterized differently when growing 
+.
+
+
+
+
+it may increase if there is a mis-match in any of these characteristics within 
 a community. Western larch is known for its high light-use efficiency, and thus 
 it was posited that limitations in light may drive modifications in its growth. 
 
 
 
-Western larch growth was characterized differently when growing 
-with other western larch vs. when it was growing with either lodgepole pine 
-or Douglas-fir. For lodgepole pine mixtures, this was made apparent in 
-the partial relationships of tree size, competition and site, whereas 
-differences in Douglas-fir mixtures were only apparent in competition 
-and site. 
+ 
 
 
 
@@ -2145,6 +2289,7 @@ individual tree competitive position.
 
 
 %%%%%%%%%%%%%%%% Comparing CCF-Purity-Shade
+
 
 ccf-purity-shade
 
@@ -2240,20 +2385,7 @@ the small impact.
   i. choice of covariates in model and the processes they account for
   ii. model selection. 
   
- -- Its been suggested that defining different mixtures with proportion of 
- basal area alone can lead to inaccurate estimations of individual tree growth
- since mixture effects depend on site conditions \citep{Huber2014}. 
- Here, mixing was defined by either weighted or unweighted proportions of 
- basal area. Although different mixture types were not weighted specifically 
- by site conditions or stocking potentials as the literature suggests, 
- site conditions were considered in the model as a separate term, aspect. 
- Furthermore, since the model was specified with a log link function, 
- changes in one predictor have a multiplicative effect 
- on growth with the other predictors, so a change in mixing proportion relates 
- to growth in such a way that is dependent on the value of aspect. Therefore, 
- given that aspect represents site potential - an assumption made here based 
- on previously identified empirical studies \citep{Stage1976,Kimsey2019}, 
- then no such weighting is necessary. 
+ -- 
  
 
  
