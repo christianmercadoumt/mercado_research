@@ -1,0 +1,2468 @@
+---
+title: "Untitled"
+author: "Christian Mercado"
+date: '2022-07-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r get data}
+#get data
+library(gratia)
+library(tidyverse)
+library(mgcv)
+library(gridExtra)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+bai.spmx.h <- bai.hold %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids.h <- bai.spmx.h %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+# bai.train <- readRDS('data/bai.train.7_14_22.rds')
+# bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+# full.data <- bind_rows(bai.train, bai.hold)
+
+#identify mixtures
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+    mutate(other.pct = percent_LAOC)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+}
+
+spfun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% mutate(mixtype = 
+                             case_when(
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PSME<spp_maximum & percent_PSME>spp_min) &
+                                 ((percent_LAOC+percent_PSME)>combined_min) ~ 'psme',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_ABLA<spp_maximum & percent_ABLA>spp_min) & 
+                                 ((percent_LAOC+percent_ABLA)>combined_min) ~ 'abla', 
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_ABGR<spp_maximum & percent_ABGR>spp_min) &
+                                 ((percent_LAOC+percent_ABGR)>combined_min) ~ 'abgr',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PIEN<spp_maximum & percent_PIEN>spp_min) &
+                                 ((percent_LAOC+percent_PIEN)>combined_min) ~ 'pien',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PICO<spp_maximum & percent_PICO>spp_min) &
+                                 ((percent_LAOC+percent_PICO)>combined_min) ~ 'pico',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_PIPO<spp_maximum & percent_PIPO>spp_min) & 
+                                 ((percent_LAOC+percent_PIPO)>combined_min) ~ 'pipo',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_other<spp_maximum & percent_other>spp_min) &
+                                 ((percent_LAOC+percent_other)>combined_min) ~ 'other',
+                               percent_LAOC>combined_min ~ 'laoc'))
+  return(a)
+}
+
+# ccc <- spfun(bai.spmx.ids, 0.2, .65, 0.7)
+# unique(ccc$mixtype)
+# ccc %>% group_by(mixtype) %>% summarize(n())
+# mixtures.all %>% group_by(mixtype) %>% summarize(n())
+                           
+  #   mutate(other.pct = percent_PSME)
+  # b <- data.set %>% filter( %>% 
+  #   mutate(other.pct = percent_ABLA)
+  # c <- data.set %>% filter() %>% 
+  #   mutate(other.pct = percent_ABGR)
+  # d <- data.set %>% filter() %>% 
+  #   mutate(other.pct = percent_PIEN)
+  # e <- data.set %>% filter %>% 
+  #   mutate(other.pct = percent_PICO)
+  # f <- data.set %>% filter %>% 
+  #   mutate(other.pct = percent_PIPO)
+  # g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+  #   mutate(other.pct = percent_LAOC)
+
+re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
+
+```
+
+```{r 3.1 raw data trends create data}
+# library(gtable)
+# library(grid)
+
+dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, cluster, 
+                               unique.cluster.f, unique_tree_id, 
+                               bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                               bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                               dq.pl.all, percent_LAOC, shade.tol.pl, 
+                               percent_PSME, percent_PIEN, percent_ABLA,
+                               percent_ABGR, percent_PICO, percent_PIPO, 
+                               percent_other, aspect_deg, elev_m, asp_cos, asp_sin) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(bah.cats = case_when(
+    bah < 10 ~ '0-10',
+    bah>10 & bah<20 ~ '10-20',
+    bah>20 ~ '20+'
+  ), bal.cats = case_when(
+    bal.pl.ratio < .35 ~ 'low',
+    bal.pl.ratio > .33 & bal.pl.ratio < 0.66 ~ 'mid',
+    bal.pl.ratio > .66 ~'high'
+  ), nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+dat.abc <- spfun(dat, 0.2, .65, 0.7) %>% 
+  mutate(mix.type = case_when(
+    !(mixtype %in% c('laoc', 'pico', 'psme')) ~ 'Other',
+    mixtype == 'laoc' ~ 'Pure larch',
+    mixtype == 'pico' ~ 'Larch-lodgepole', 
+    mixtype == 'psme' ~ 'Larch-Douglas-fir'
+  )) %>% 
+  mutate(Mixture = factor(mix.type, 
+                           levels = c('Pure larch','Larch-lodgepole','Larch-Douglas-fir', 'Other'),
+                           ordered = T),
+         bal.cats = factor(bal.cats, levels = c('low', 'mid', 'high'), 
+                           ordered = T),
+         BAH = factor(bah.cats, levels = c('0-10', "10-20", "20+"), ordered = T))
+
+
+# dat %>% group_by(stand) %>% summarize(n_distinct(aspect_deg))
+# #w-nw,n-nw,n-ne,e-ne
+# summary(dat$aspect_deg)
+# set.seed(406)
+# dat.samp <- dat %>% slice_sample(n = 2000)
+
+# ind.tr.dat <- dat %>% group_by(unique_tree_id, nsew, bah.cats) %>% 
+#    summarise(diam.cm = mean(diam.cm),
+#              bai.cmsq = mean(bai.cmsq),
+#              bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+```
+
+```{r 3.1 trend spp facet}
+#data trends plot###### 
+#4 stands
+# set.seed(406)
+# standsamp <- sample(unique(dat$SETTING_ID), 4)
+
+ggplot(dat.abc, aes(x = percent_LAOC))
+
+set.seed(106)
+samp.dat.abc <- dat.abc %>% group_by(mix.type) %>% slice_sample(n = 300)
+#species-facet#####
+spp.facet.plot <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq))) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(Mixture~BAH) +
+  labs(x = bquote(DBH[km]), y = bquote(log(BAI[km]))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+   # geom_smooth(se = F, method = 'gam', size = 0.5, linetype = 'dashed') +
+  # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+ggsave('17.figures_saved/bai_diam_spp.png', spp.facet.plot)
+knitr::plot_crop('17.figures_saved/bai_diam_spp.png')
+# dat1 <- dat %>% filter(SETTING_ID %in% standsamp)
+# dat1.spp <- spp.fun(dat1, 0.2, .65, 0.7)
+# dat1.mixnam <- map(names(dat1.spp), ~dat1.spp[[.x]] %>% mutate(dat1.spp = .x))
+# dat1.mix <- bind_rows(dat1.mixnam)
+laoc.mix <- dat.abc %>% filter(mixtype %in% c('laoc', 'pico'), bah.cats != '20+')
+ggplot(laoc.mix, aes(diam.cm, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  facet_grid(bal.cats~bah.cats, scales = 'free_x') + 
+  geom_smooth(method = 'gam', se = F)
+
+ggplot(laoc.mix, aes(diam.cm, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  facet_wrap(~bah.cats, scales = 'free_x') + 
+  geom_smooth(method = 'gam', se = F)
+
+ggplot(laoc.mix, aes(bal.pl.ratio, bai.cmsq,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+ggplot(laoc.mix, aes(diam.cm, bal.pl.ratio,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+ggplot(laoc.mix, aes(dq.pl.all, bal.pl.ratio,color = mixtype)) + geom_point(alpha = 0.2) + facet_wrap(~stand)
+
+ggplot(laoc.mix, aes(x = bal.pl.ratio, bai.cmsq, color = mixtype)) + 
+  geom_point(alpha = 0.2) + 
+  geom_smooth(method = 'lm',se = F) + facet_wrap(~MEASUREMENT_NO)
+
+laoc.mix1 <- samp.dat.abc %>% filter(mixtype %in% c('laoc', 'pico'), bah.cats != '20+')
+ggplot(laoc.mix1, aes(diam.cm, bal.pl.ratio, color = as.factor(cluster))) + geom_point() + 
+  facet_wrap(~stand)
+
+all.pico <- dat.abc %>% filter(mixtype == 'pico')
+ggplot(all.pico, aes(diam.cm, bal.pl.ratio, color = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(x = bal.pl.ratio, y = percent_PICO, color = factor(cluster))) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(diam.cm, bai.cmsq, color = bah.cats)) + geom_point() + facet_wrap(~bal.cats)
+ggplot(all.pico, aes(bal.pl.ratio, bai.cmsq, color = percent_PICO)) + geom_point() + facet_wrap(~stand)
+ggplot(all.pico, aes(dq.pl.all, bal.pl.ratio, color = percent_PICO)) + geom_point() + facet_wrap(~stand)
+ggplot()
+# ggplot(laoc.mix, aes(bal.pl.ratio, log(bai.cmsq), color = mixtype)) + geom_point()
+
+# plot(mix.diff.nopien, residuals = T, scale = 0)
+draw(mix.diff.nopien, residuals = T,rug = F, select = 's(DIA', partial_match = T)
+
+draw(mix.diff.nopien, residuals = T,rug = F, select = 's(bal', partial_match = T)
+
+
+
+```
+
+```{r 3.1 trend aspect facet}
+#aspect facet#####
+(bai.diam.asp.bah <- ggplot(dat, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(bah.cats~nsew, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
+
+#Trying out more data trends#####
+ind.tr.dat2 <- dat %>% group_by(unique_tree_id, nsew, bal.cats) %>% 
+  summarise(diam.cm = mean(diam.cm),
+            bai.cmsq = mean(bai.cmsq),
+            bal.pl.ratio = mean(bal.pl.ratio)) %>% rename(Aspect = nsew, BAL = bal.cats) %>% 
+  mutate(BAL = factor(BAL, levels = c('low', 'mid', 'high'), ordered = T))
+unique(ind.tr.dat2$BAL)
+
+ggplot(ind.tr.dat2, aes(diam.cm, bai.cmsq)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAL~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+ggplot(ind.tr.dat2, aes(x = bal.pl.ratio, y = bai.cmsq)) + geom_point() + facet_wrap(~Aspect)
+
+ggplot(ind.tr.dat2, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point(alpha = 0.2)
+
+(ind.tr.sumdat <- dat %>% group_by(stand) %>% 
+  summarize(meandbh=mean(DIAMETER, na.rm = T), asp = mean(aspect_deg)))
+dat
+
+library(magick)
+
+ggsave('17.figures_saved/bai_diam_sumfig.png', bai.diam.asp.bah)
+knitr::plot_crop('17.figures_saved/bai_diam_sumfig.png')
+
+# dat %>% group_by(stand, unique_tree_id, nsew, bah.cats) %>% 
+#   summarise(diam.cm = mean(diam.cm),
+#             bai.cmsq = mean(bai.cmsq),
+#             bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+
+```
+
+
+```{r diam dist aspect}
+more.dat <- dat %>% group_by(stand) %>% mutate(aspect1 = mean(aspect_deg, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(nsew = case_when(
+    aspect1 >=270 & aspect1<315 ~'WNW',
+    aspect1 >=315 & aspect1<=360 ~'NNW',
+    aspect1 >=0 & aspect1 <=45 ~'NNE',
+    aspect1 >45 & aspect1 <=90 ~'ENE',
+    aspect1 >90 & aspect1 <=180 ~ 'SE',
+    aspect1 >180 & aspect1<270 ~'SW')) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+
+#colors
+cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#plot
+diam.dist.asp <- ggplot(more.dat, aes(x = stand, y = DIAMETER*2.54, color = nsew)) + 
+  geom_boxplot() + 
+  labs(x = 'Stand', y = 'DBH (cm)', color = 'Aspect') +
+  scale_color_manual(values = cbPalette) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+ggsave('17.figures_saved/diam.dist.asp.png', diam.dist.asp)
+knitr::plot_crop('17.figures_saved/diam.dist.asp.png')
+# ggplot(dat.samp, aes(log(diam.cm), log(tph), color = factor(MEASUREMENT_NO))) + geom_point() + facet_wrap(~stand)
+
+# loess
+# 
+# ggplot(dat.samp, aes(x = bah, y = bai.cmsq)) + geom_point()
+# 
+# ggplot(dat.samp, aes(x = cr, y = bai.cmsq)) + geom_point()
+
+
+
+(bai.diam.asp.bah <- ggplot(ind.tr.dat, aes(log(diam.cm), log(bai.cmsq))) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAH~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm')))
+
+```
+
+
+```{r correlations}
+sz <- bai.spmx.ids %>% select(DIAMETER, treeba) %>%
+  mutate(DBH = DIAMETER*2.54, BA = treeba*2.54^2) %>% 
+  select(DBH, BA)
+
+corrplot
+
+library(GGally)
+## Size
+
+ggpairs(sz,progress = F, diag = list(continuous = 'barDiag'))
+
+## Competition
+
+comp <- bai.spmx.ids %>% 
+  select(CR = cr, BAL = bal.pl.ratio, 
+                                QMD = qmd.pl.all, Dq = dq.pl.all, 
+                                TPH = tpa.pl.all, BAH = ba.pl, CCF = ccf.pl) %>% 
+  mutate(QMD = QMD*2.54, TPH = TPH*2.47, BAH = BAH*(2.47/10.764))
+ggpairs(comp,progress = F,diag = list(continuous = 'barDiag'))
+
+## Site
+
+# site <- bai.spmx.ids %>% select(Slope = slope_pct, 'sin(aspect)'=asp_sin, 'cos(aspect)'=asp_cos, 'Elevation'=elev_m, 'Mean site index'=mean_si, 'Heatload'=heatload)
+# 
+# ggpairs(site)
+
+re.tree.1$model
+```
+
+
+```{r 3.1 base model selection figures}
+re.tree.1
+# smest <- smooth_estimates(re.tree.1) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.diam <- smooth_estimates(re.tree.1, smooth = 'DIAM', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.cr <- smooth_estimates(re.tree.1, smooth = 'cr', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.bal <- smooth_estimates(re.tree.1, smooth = 'bal', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.ba <- smooth_estimates(re.tree.1, smooth = 'ba.pl', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
+sm.asp <- smooth_estimates(re.tree.1, smooth = 'asp', partial_match = T, dist = .2) %>% add_confint(coverage = 0.9772499)
+# draw(sm.asp)
+
+library(ggforce)
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
+
+glimits <- c(-1,1)*max(abs(sm.asp$est))
+
+
+contour.pl <- ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 30, color = 'peachpuff') +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred',
+                       guide = guide_colorbar(title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              barwidth = unit(1, 'mm'), barheight = unit(30, 'mm'), 
+                                              label.theme = element_text(size = 8, angle = 90),
+                                              direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'), 
+        aspect.ratio = 2/2.5, legend.position = 'left', legend.margin = margin()) 
+#+ opts(aspect.ratio = 2/(1+sqrt(5))
+ 
+
+#fitted smooth functions
+d.pl <- ggplot(sm.diam, aes(x = DIAMETER*2.54, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) + geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'DBH (cm)', y = 'Effect') + coord_cartesian(ylim = c(-2.5, 2.5)) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+cr.pl <- ggplot(sm.cr, aes(x = cr, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'Crown ratio', y = 'Effect') +
+  coord_cartesian(ylim = c(-.5,.5))+
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+bal.pl <- ggplot(sm.bal, aes(x = bal.pl.ratio, y = est, ymin = lower, ymax = upper)) +
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'BAL ratio', y = 'Effect') + 
+  coord_cartesian(ylim = c(-.55, .55))+
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+basal.pl <- ggplot(sm.ba, aes(x = ba.pl*(2.47/10.764), y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = bquote('BA'~(m^2/ha)), y = 'Effect')+
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+library(grid)
+
+layt <- rbind(c(1,2),
+              c(3,4),
+              c(5,5))
+grid.pl <- arrangeGrob(d.pl, cr.pl, bal.pl, basal.pl, contour.pl, layout_matrix = layt)
+
+ggsave('17.figures_saved/base_smooths.png', grid.pl)
+
+
+ggsave('17.figures_saved/base_aspect.png', contour.pl)
+
+# plot.gam(re.tree.1, select = 5)
+# draw(re.tree.1, select = 'asp', partial_match = T)
+
+
+
+```
+
+```{r base model diagnostics}
+re.tree.1
+
+hist(bai.spmx.ids.h$bai)
+#predicted vs. fitted values
+preddat <- predict.gam(re.tree.1, newdata = bai.spmx.ids.h, exclude = 's(unique_tree_id)', type = 'response')
+
+pred.tb <- tibble(bai.spmx.ids.h,'fit'=preddat)
+pred.tb <- pred.tb %>% mutate(res = bai-fit)
+#fit vs. response
+ggplot(pred.tb, aes(x = fit, y=bai)) + geom_point() + geom_smooth(method = 'lm')
+
+
+apr <- appraise(re.tree.1, point_alpha = 0.2)
+gam.check(re.tree.1)
+
+ggsave('17.figures_saved/base.diagnostic.png', apr)
+
+
+```
+
+
+
+```{r all data mixtures}
+# mix.data <- spp.fun(full.data, 0.2, .65, 0.7)
+# 
+# full.mix <- bind_rows(mix.data, .id = 'id')
+# 
+# full.mix %>% group_by(id, NF, stand) %>% summarize(num.obs = n())
+# 
+# bai.diam <- full.mix %>% 
+#   group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+#   summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+
+
+
+mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7)
+individual.obs <- lapply(mixtures, function(x)
+  length(unique(x$unique_tree_id)))
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x)) # add names to different mixes in the data
+
+mixtures.all <- bind_rows(mix.w.names) #list to tibble
+
+o.mixtures.all <- mixtures.all %>% 
+  # select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+  #        bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
+  #        unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
+
+#ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+
+```
+
+```{r mixture summary non-analysis figs.}
+
+mx.dat <- o.mixtures.all %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, unique_tree_id, 
+                                   bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                                   bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                                   dq.pl.all, percent_LAOC, shade.tol.pl, 
+                                   percent_PSME, percent_PICO,omixtype) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(bah.cats = case_when(
+    bah < 10 ~ '0-10',
+    bah>10 & bah<20 ~ '10-20',
+    bah>20 ~ '20+'
+  ), bal.cats = case_when(
+    bal.pl.ratio < .35 ~ 'low',
+    bal.pl.ratio > .33 & bal.pl.ratio < 0.66 ~ 'mid',
+    bal.pl.ratio > .66 ~'high'
+  ), nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+
+# set.seed(406)
+# dat.samp <- dat %>% slice_sample(n = 2000)
+
+mx.ind.tr.dat <- mx.dat %>% group_by(omixtype,unique_tree_id, nsew, bah.cats) %>% 
+  summarise(diam.cm = mean(diam.cm),
+            bai.cmsq = mean(bai.cmsq),
+            bah = mean(bah)) %>% rename(Aspect = nsew, BAH = bah.cats)
+
+ggplot(mx.ind.tr.dat, aes(diam.cm, bai.cmsq, color = omixtype)) + geom_point(alpha = 0.2) + 
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(BAH~Aspect, labeller = label_both) +
+  labs(x = 'DBH (cm)', y = bquote('BAI'~(cm^2/yr.))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
+
+
+
+
+
+###################################
+#make data
+(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+
+full.mix <- bind_rows(mixtures, .id = 'id')
+
+#mixtures_summary#####.
+mixtures.all <- full.mix %>%  
+  mutate(laoc_to_other = case_when(percent_LAOC/other.pct >= 1 ~ (percent_LAOC/other.pct),
+                                   percent_LAOC/other.pct < 1 ~ (other.pct/percent_LAOC))) %>% 
+  ungroup() %>% 
+  mutate(more.larch = case_when(percent_LAOC/other.pct >= 1 ~ 'yes',
+                                percent_LAOC/other.pct < 1 ~ 'no'))
+ggplot(subset(mixtures.all, !(id %in% c('abla', 'laoc', 'pipo'))), 
+       aes(x = id, y = laoc_to_other)) + 
+  geom_jitter(alpha = 0.5, aes(color = more.larch))
+
+#mixes average.tree.bai-avg.tree.diam smoothed by type#####
+
+
+bai.diam <- full.mix %>% filter(id %in% c('laoc', 'pico', 'psme')) %>% 
+  group_by(NF, stand, PLOT, id, unique_tree_id) %>% 
+  summarise(meanbai = mean(bai), meandbh = mean(DIAMETER))
+  
+
+ggplot(bai.diam, aes(x = meandbh*2.54, y = meanbai*2.54^2, color = id)) + 
+  geom_point(alpha = 0.2) + 
+  geom_smooth(se = F, method = 'gam') +
+  geom_vline(xintercept = 0, size=0.1) + 
+  geom_hline(yintercept = 0, size = .1) + 
+  geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed')
+
+
+# ggplot(bai.diam, aes(x = meandbh, y = meanbai)) + geom_point() + geom_smooth(se = F) + facet_wrap(~id)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'psme')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pico')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pien')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'pipo')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+# ggplot(subset(bai.diam, id %in% c('laoc', 'abla')),
+#        aes(x = meandbh, y = meanbai, color = id)) +
+#   geom_point(alpha = 0.2) +
+#   geom_smooth(se = F)
+
+```
+
+```{r mixtures compass figs SEE OTHER}
+
+
+
+library(ggforce)
+(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+
+#add names to mixtures
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+lapply(mix.w.names, function(x){x %>% summarise()})
+#combine data in list
+mixtures.all <- bind_rows(mix.w.names)
+#create factor
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, 
+         cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, 
+         mixtype, unique_tree_id) %>% 
+  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(mixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
+
+#what I really want is a table that is grouped by mixtype
+## and then grouped below into max, min, mean, sd, num.obs
+# every row is a variable
+
+
+
+#squareft to msquared - 10.76392ft^2 = 1m^2
+#acres to ha - 2.471052acre = 1ha
+#ft^2/acre -> m^2/ha = 2.471052/10.76392 
+# histogram for each mixture
+ggplot(o.mixtures.nopien, aes(x = (ba.pl*0.229568),
+                           color = omixtype, fill = omixtype)) +
+  geom_histogram(position = 'identity', alpha = 0.2) +
+  labs(y = '# of obs', x = 'Plot basal area (sqm/ha)')
+# density plot for each mixture
+# ggplot(o.mixtures.all, aes(x = (ba.pl*0.229568), color = omixtype, fill = omixtype,
+#                            after_stat(count/sum(count)))) + 
+#   geom_density(position = 'identity', alpha = 0.2) +
+#   labs(y = 'Proportion of total observations', x = 'Plot basal area (m/ha)')
+
+#histogram for diameter
+ggplot(o.mixtures.nopien, aes(x = DIAMETER*2.54, color = omixtype, fill = omixtype)) +
+  geom_histogram(position = 'identity', alpha = 0.2) +
+  labs(y = 'Number of observations', x = 'DBH(cm)')
+
+ggplot(o.mixtures.nopien, aes(x = bai*2.54^2, color = omixtype, fill = omixtype)) +
+  geom_histogram(position = 'identity', alpha = 0.2) +
+  labs(y = 'Number of observations', x = 'bai(cmsq/yr)')
+
+# create compasses - see if i can make point sizes correspond to amount of data at each?
+comp <- o.mixtures.nopien %>% 
+  group_by(mixtype, asp_sin, asp_cos) %>% 
+  mutate(mixtype = case_when(mixtype == 'laoc' ~ 'Pure larch',
+                             mixtype == 'pico' ~ 'Larch-lodgepole',
+                             mixtype == 'psme' ~ 'Larch-Douglas-fir')) %>% 
+  summarise(n_distinct(stand), n()) # subset data to have one row per aspect
+
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) #transform
+
+
+
+(comp.psme <- ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  # geom_text(aes(x = -1, y = 1, label = 'C')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) +
+  geom_point(alpha = 0.6, size = 4) +# points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 1) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5))))
+# comp.psme
+
+
+comp.pico <-  ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  # geom_text(aes(x = -1, y = 1, label = 'B')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 2) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+# comp.pico
+
+
+comp.laoc <-  ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  # geom_text(aes(x = -1, y = 1, label = 'A')) +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 3) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+# comp.laoc
+
+compass.grid <- arrangeGrob(comp.laoc, comp.pico, comp.psme, layout_matrix = rbind(c(1,1),
+                                                                                   c(2,3)))
+
+ggsave('17.figures_saved/compass_all.png', compass.grid)
+
+
+ggsave('17.figures_saved/compass_psme.png', comp.psme)
+ggsave('17.figures_saved/compass_pico.png', comp.pico)
+ggsave('17.figures_saved/compass_laoc.png', comp.laoc)
+
+grid.arrange(comp.laoc, comp.pico, comp.psme, )
+
+ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+  geom_hline(yintercept = 0) + #horizontal 
+  geom_vline(xintercept = 0) + #vertical
+  geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+  geom_point(alpha = 0.6, size = 4) + # points for each aspect
+  facet_wrap(~mixtype, nrow = 3, ncol = 1) + # facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank())
+
+
+
+o.mixtures.all <- mixtures.all %>% 
+  # select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+  #        bal.pl.ratio, ba.pl, asp_sin, asp_cos, mixtype, 
+  #        unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
+
+
+mix.asp.counts <- o.mixtures.all %>%
+  mutate(nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% 
+  mutate(nsew = factor(nsew, 
+                       levels = c('SW', 'WNW', 
+                                  'NNW', 'NNE', 
+                                  'ENE', 'SE'))) %>% 
+  mutate(asp.quads = 
+           case_when(
+             aspect_deg >=270 & aspect_deg<=360 ~ 'NW',
+             aspect_deg >=0 & aspect_deg <=90 ~ 'NE',
+             aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+             aspect_deg >180 & aspect_deg<270 ~'SW'
+           )) %>% 
+  mutate(asp.quads = factor(asp.quads, 
+                            levels = c('NW', 'NE', 'SE', 'SW'), 
+                            ordered = T)) %>% 
+  group_by(asp.quads,omixtype,mixtype) %>% 
+  summarise(trees = n_distinct(unique_tree_id), obs = n()) %>% 
+  mutate(amixtype = case_when(mixtype == 'laoc' ~ 'Pure larch',
+                             mixtype == 'pico' ~ 'Larch-lodgepole',
+                             mixtype == 'psme' ~ 'Larch-Douglas-fir')) %>% 
+  mutate(amixtype = factor(amixtype, 
+                           levels = c('Pure larch',
+                                      'Larch-lodgepole',
+                                      'Larch-Douglas-fir'), 
+                           ordered = T))
+
+mix.asp.counts
+
+
+mix.asp.bars <- ggplot(mix.asp.counts, aes(asp.quads, trees, fill = amixtype)) + 
+  geom_col(position = position_dodge()) +
+  labs(x='Aspect', y = 'No. of trees', fill = 'Mixture') +
+    theme(aspect.ratio = 2/(1+sqrt(5)), legend.position = c(.8,.8), legend.title.align = .5)
+
+ggsave('17.figures_saved/mix.asp.barchart.png')
+knitr::plot_crop('17.figures_saved/mix.asp.barchart.png')
+
+
+# ggplot(mix.asp.counts, aes(asp.quads, obs, fill = omixtype)) + 
+#   geom_col(position = position_dodge())
+# 
+# ggplot(mix.asp.counts, aes(omixtype, trees, fill = asp.quads)) +
+#   geom_col(position = position_dodge())
+# ggplot(mix.asp.counts, aes(omixtype, obs, fill = asp.quads)) +
+#   geom_col(position = position_dodge())
+
+```
+
+```{r mixture compass revisted}
+load("data/ingy_clusters_googleearth.Rdata")
+library(ggforce)
+elevs <- seq(800,1800,by=200)
+rotate_aspect <- function(azimuth_degrees){
+  new_asp <- ifelse(azimuth_degrees<=90,90-azimuth_degrees,
+                    ifelse(azimuth_degrees>270,
+                           450-azimuth_degrees,
+                           -(azimuth_degrees-90)))
+  new_asp
+}
+
+1.05*(max(elevs)-min(elevs))*c(1,0,-1,0)
+##this is from chunk3and4
+names(dat.abc)
+sitedat <- dat.abc %>% 
+  group_by(stand, cluster, Mixture) %>% 
+  summarize(asp_cos = mean(asp_cos), 
+            asp_sin = mean(asp_sin), 
+            elev_m = mean(elev_m),
+            aspect_deg = mean(aspect_deg)) %>% 
+  mutate(aspect_rot = rotate_aspect(aspect_deg))
+
+1.05*(max(elevs)-min(elevs))*c(1,0,-1,0)
+1.05*(max(elevs)-min(elevs))*c(0,-1,0,1)
+
+aa <- 1.05*(max(elevs)-min(elevs))
+xx <- c(0,1050, 0, -1050)
+yy <- c(1050,0, -1050, 0)
+nsew <- c('N', 'E', 'S', 'W')
+xxyy <- data.frame(xx, yy, nsew)
+
+els <- max(elevs)-elevs
+vals <- cos(pi*(-135)/180)*(max(elevs)-elevs)
+circ <- data.frame('x0'=rep(0,length(els)), 'y0'=rep(0,length(els)), els, vals)
+
+
+spp.compass <- ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180), 
+                    y = (max(elevs)-elev_m)*sin(pi*aspect_rot/180) 
+                    )) +  
+  geom_hline(yintercept = 0, color = 'grey') + #horizontal 
+  geom_vline(xintercept = 0, color = 'grey') + 
+  geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
+  geom_point() + 
+  geom_text(inherit.aes = F, data = circ, aes(x = vals, y = vals, label = 1800-els)) +
+  geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
+  facet_wrap(~Mixture) +# facet by mixture type
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),aspect.ratio = 2/2.5)
+
+ggsave('17.figures_saved/mix.compass.png')
+knitr::plot_crop('17.figures_saved/mix.compass.png')
+
+# ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
+#   geom_hline(yintercept = 0) + #horizontal 
+#   geom_vline(xintercept = 0) + #vertical
+#   geom_circle(inherit.aes = F, aes(x0=0, y0=0, r=1)) + #make circle
+#   # geom_text(aes(x = -1, y = 1, label = 'A')) +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew)) + #label
+#   geom_point(alpha = 0.6, size = 4) + # points for each aspect
+#   facet_wrap_paginate(~mixtype, nrow = 1, ncol = 1, page = 3) + # facet by mixture type
+#   theme(axis.ticks = element_blank(), 
+#         axis.text = element_blank(), 
+#         axis.title = element_blank(), 
+#         axis.line = element_blank(),
+#         line = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+
+# ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
+#          aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + 
+#   coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+#              alpha = 0.3, size  = 2) +
+#   # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey')) + 
+#   # facet_wrap(~facets)+
+#   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+#         axis.title = element_blank(), axis.text = element_blank())
+
+```
+
+
+```{r mixtures partial response data}
+library(tidymv)
+# 
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
+# mix.diff.byrand <- readRDS('data/model_objects.1/mix.diff.nopien.byrandom.rds')
+
+# mix.sum.byrand <- summary.gam(mix.diff.byrand)
+# summary(mix.diff.nopien)
+# mix.diff.nopien
+
+# tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'psme')))
+# tidymv::get_smooths_difference(mix.diff.nopien, DIAMETER, list(omixtype = c('laoc', 'pico')))
+
+# plot_smooths(mix.diff.nopien, DIAMETER, comparison = omixtype)
+
+# plot.gamViz(mix.diff.nopien)
+# par(mfrow = c(2,2))
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = c(1), xlab = 'DBH')
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 2)
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 3)
+# plot.gam(mix.diff.nopien, scale = 0, shade = T, seWithMean = T, select = 4)
+
+# viz.1 <- getViz(mix.diff.gam.m1)
+# plot(viz.1)
+
+
+
+smest.diam <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+
+smest.cr <- smooth_estimates(mix.diff.nopien, smooth = 's(cr', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.bal <- smooth_estimates(mix.diff.nopien, smooth ='s(bal', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.ba <- smooth_estimates(mix.diff.nopien, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.asp <- smooth_estimates(mix.diff.nopien, smooth = 'asp', partial_match = T, unconditional = T, dist = 0.2) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, 
+                                       levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+sig.diam <- smest.diam %>% filter(omixtype == 'pico')
+sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
+sig.bal <- smest.bal %>% filter(omixtype == 'pico')
+sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
+
+# plot.gam(mix.diff.nopien, scale = 0)
+```
+
+```{r new mixtures partial data }
+
+smest.diam <- smooth_estimates(mix.diff.gam.nospr.m1, smooth = 's(DIAMETER)', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+
+smest.cr <- smooth_estimates(mix.diff.gam.nospr.m1, smooth = 's(cr', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.bal <- smooth_estimates(mix.diff.gam.nospr.m1, smooth ='s(bal', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.ba <- smooth_estimates(mix.diff.gam.nospr.m1, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+smest.asp <- smooth_estimates(mix.diff.gam.nospr.m1, smooth = 'asp', partial_match = T, unconditional = T, dist = 0.2) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, 
+                                       levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+sig.diam <- smest.diam %>% filter(omixtype == 'pico')
+sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
+sig.bal <- smest.bal %>% filter(omixtype == 'pico')
+sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
+
+
+
+######
+
+mixpl.dr <-
+  ggplot(subset(smest.diam, facets == 'Pure larch'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)', y='Effect') +
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+  
+
+
+mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)', y='Difference') + 
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank())
+
+mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)') + 
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)), 
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+
+#CR####
+mixpl.crr <-
+  ggplot(subset(smest.cr, facets == 'Pure larch'), 
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio', y='Effect') +
+  coord_cartesian(ylim = c(-0.3,.3)) + theme(aspect.ratio = 2/(1+sqrt(5)))
+   
+
+
+mixpl.cr1 <- 
+  ggplot(subset(smest.cr, facets == 'Larch-lodgepole'),
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio', y='Difference') +
+  coord_cartesian(ylim = c(-0.3,.3)) +
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank()) 
+
+
+mixpl.cr2 <- ggplot(subset(smest.cr, facets == 'Larch-Douglas-fir'),
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio') +
+  coord_cartesian(ylim = c(-0.3,.3)) +
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+# BAL####
+mixpl.balr <-
+  ggplot(subset(smest.bal, facets == 'Pure larch'), 
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL', y='Effect')  +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+  theme(aspect.ratio = 2/3.5)
+
+
+mixpl.bal1 <- ggplot(subset(smest.bal, 
+                           facets == 'Larch-lodgepole'),
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL', y='Difference') +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank()) 
+
+mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL') +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5, 
+          axis.title.y = element_blank(),
+        axis.text.y = element_blank()) 
+# BA####
+mixpl.bar <-
+  ggplot(subset(smest.ba, facets == 'Pure larch'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + 
+  coord_cartesian(ylim = c(-2.5, 2.5)) +
+  # facet_wrap(~facets, scales = 'free_y') +
+  labs(x =  bquote('BAH'~(m^2/ha)), y='Effect') +
+  theme(aspect.ratio = 2/3.5)
+    
+
+
+mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = bquote('BAH'~(m^2/ha)), y='Difference') +
+  coord_cartesian(ylim = c(-2.5,2.5))+
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank())
+
+mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = bquote('BAH'~(m^2/ha))) +
+  coord_cartesian(ylim = c(-2.5,2.5))+
+    theme(strip.text = element_blank(),aspect.ratio = 2/3.5, 
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank())
+    # )
+#aspect diff#####
+
+#prep
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
+glimits <- c(-1,1)*max(abs(smest.asp$est[smest.asp$facets=='Pure larch']))
+
+mixpl.aspr <- 
+  ggplot(subset(smest.asp, facets == 'Pure larch'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  # scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) +
+  coord_fixed() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size = 2) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey', 
+                       guide = guide_colorbar(title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              ticks = F, barwidth = unit(1, 'mm'), barheight = unit(25,'mm'), 
+                                              label.theme = element_text(size = 6, angle = 90),direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'),
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/2.5, axis.text = element_blank(),
+        axis.title = element_blank(),
+        legend.position = 'left', legend.margin = margin())
+  # facet_wrap(~facets)+
+
+
+mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + 
+  coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size  = 2) +
+  # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey', 
+                       guide = guide_colorbar(title = 'Difference', title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              ticks = F, barwidth = unit(1, 'mm'), barheight = unit(25,'mm'), 
+                                              label.theme = element_text(size = 6, angle = 90),direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'),
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/2.5, axis.text = element_blank(),
+        axis.title = element_blank(),
+        legend.position = 'left', legend.margin = margin())
+  # scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  # theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+  #       panel.background = element_rect(fill = 'white'), 
+  #       panel.grid = element_line(color = 'lightgrey')) + 
+  # # facet_wrap(~facets)+
+  # theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+  #       axis.title = element_blank(), axis.text = element_blank())
+
+mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + 
+  coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size  = 2) +
+  # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey')) + 
+  # facet_wrap(~facets)+
+  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+        axis.text = element_blank(), axis.title = element_blank())
+
+
+lay <- rbind(c(1,2),
+             c(3,4),
+             c(5,6),
+             c(7,8),
+             c(9,10),
+             c(11,12))
+grid.arrange( mixpl.d1,mixpl.d2, 
+                        mixpl.cr1,mixpl.cr2, 
+                        mixpl.bal1,mixpl.bal2, 
+                        mixpl.ba1,mixpl.ba2, 
+                        mixpl.asp1, mixpl.asp2,ncol=2)
+                        # layout_matrix = lay, 
+                        # heights = list(0.25, 1.2,1.2,1.2,1.2,.95), widths = list(3.5/2, 3.5/2), respect = T)
+                        # 
+
+```
+
+
+```{r fix issue with pico, include = F}
+### issue was that when trying to use coord_cartesian to adjust the plotting space, the ribbons were not displayed. 
+### this is a known bug and was fixed by changing the device to AGG
+### evaluate at limited diameters
+DIAMETER <- rep(seq(0,15,length = 30), 3)
+asp_sin <- rep(sin(315*(pi/180)), 90)
+asp_cos <- rep(cos(315*(pi/180)), 90)
+bal.pl.ratio <- rep(0.6622384, 90)
+ba.pl <- rep(40.83743, 90)
+cr <- rep(0.5, 90)
+mixtype <- c(rep('laoc', 30), rep('pico', 30), rep('psme', 30))
+omixtype <- factor(mixtype, levels = c('laoc', 'pico', 'psme'), ordered = T)
+unique_tree_id <- c(rep(1699, 30), rep(14298, 30), rep(4524, 30))
+
+#this filters to an average-ish value of bai for a species to figure out an 
+#average-ish tree to identify unique_tree_id values for each species
+#mix.diff.nopien$model %>% filter(mixtype == 'laoc', bai > (mean(bai)-0.5) & bai < (mean(bai) + 0.5)) 
+#trees used here: psme tree4524 #pico 14298 #laoc1699
+
+
+smest.dat <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, omixtype, mixtype, unique_tree_id)
+
+smthdat <- smooth_estimates(mix.diff.nopien, smooth = 's(DIAMETER)', partial_match = T, unconditional = T, data = smest.dat) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), 
+         facets = case_when(
+           is.na(omixtype) ~ 'Pure larch',
+           omixtype == 'pico' ~ 'Larch-lodgepole',
+           omixtype == 'psme' ~ 'Larch-Douglas-fir'
+         )) %>% mutate(facets = factor(facets, levels = c('Pure larch', 'Larch-lodgepole', 'Larch-Douglas-fir')))
+
+picogg <- smthdat %>% filter(omixtype=='pico')
+
+pico.diff <- ggplot(picogg, 
+       aes(x = DIAMETER*2.54, y = est, 
+           ymin = lower, 
+           ymax = upper)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + 
+  labs(x = 'DBH(cm)', y = 'Effect')
+
+
+#+ 
+ # facet_wrap(~facets)
+
+library(gridExtra)
+library(grid)
+pur <- textGrob('Pure larch', just = 'center', gp = gpar(fontsize = 10))
+ll <- textGrob('Larch-lodgepole', just = 'center', gp = gpar(fontsize = 10))
+ldf <- textGrob('Larch-Douglas-fir', just = 'center', gp = gpar(fontsize = 10))
+
+
+```
+
+```{r mixture partial response figs}
+## all plots
+# unique(smest.diam$facets)
+# smest.diam %>% filter(facets == 'Pure larch')
+#DIAM####
+mixpl.dr <-
+  ggplot(subset(smest.diam, facets == 'Pure larch'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)', y='Effect') +
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+  
+
+
+mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)', y='Difference') + 
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank())
+
+mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
+       aes(x = DIAMETER*2.54, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'DBH (cm)') + 
+  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  theme(strip.text = element_blank(),
+        aspect.ratio = 2/(1+sqrt(5)), 
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+
+#CR####
+mixpl.crr <-
+  ggplot(subset(smest.cr, facets == 'Pure larch'), 
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio', y='Effect') +
+  coord_cartesian(ylim = c(-0.3,.3)) + theme(aspect.ratio = 2/(1+sqrt(5)))
+   
+
+
+mixpl.cr1 <- 
+  ggplot(subset(smest.cr, facets == 'Larch-lodgepole'),
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio', y='Difference') +
+  coord_cartesian(ylim = c(-0.3,.3)) +
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+        # ,        axis.text.y = element_blank()) 
+
+
+mixpl.cr2 <- ggplot(subset(smest.cr, facets == 'Larch-Douglas-fir'),
+       aes(x = cr, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'Crown ratio') +
+  coord_cartesian(ylim = c(-0.3,.3)) +
+  theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)), axis.title.y = element_blank(),
+        axis.text.y = element_blank())
+# BAL####
+mixpl.balr <-
+  ggplot(subset(smest.bal, facets == 'Pure larch'), 
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL', y='Effect')  +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+  theme(aspect.ratio = 2/3.5)
+
+
+mixpl.bal1 <- ggplot(subset(smest.bal, 
+                           facets == 'Larch-lodgepole'),
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL', y='Difference') +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank()) 
+
+mixpl.bal2 <- ggplot(subset(smest.bal, facets == 'Larch-Douglas-fir'),
+       aes(x = bal.pl.ratio, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = 'BAL') +
+  coord_cartesian(ylim = c(-0.5,.5)) +
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5, 
+          axis.title.y = element_blank(),
+        axis.text.y = element_blank()) 
+# BA####
+mixpl.bar <-
+  ggplot(subset(smest.ba, facets == 'Pure larch'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) + 
+  coord_cartesian(ylim = c(-2.5, 2.5)) +
+  # facet_wrap(~facets, scales = 'free_y') +
+  labs(x =  bquote('BAH'~(m^2/ha)), y='Effect') +
+  theme(aspect.ratio = 2/3.5)
+    
+
+
+mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = bquote('BAH'~(m^2/ha)), y='Difference') +
+  coord_cartesian(ylim = c(-2.5,2.5))+
+    theme(strip.text = element_blank(),
+          aspect.ratio = 2/3.5)
+          # ,        axis.text.y = element_blank())
+
+mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
+       aes(x = ba.pl*(2.47/10.764), y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  # facet_wrap(~facets) +
+  labs(x = bquote('BAH'~(m^2/ha))) +
+  coord_cartesian(ylim = c(-2.5,2.5))+
+    theme(strip.text = element_blank(),aspect.ratio = 2/3.5, 
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank())
+    # )
+#aspect diff#####
+
+#prep
+nsew <- c('N', 'S', 'E', 'W', 'NW', 'NE', 'SW', 'SE') # for label
+nsew.v <- c(0, 180, 90, 270, 315, 45, 225, 135) # aspect values
+ns.df <- tibble(nsew, nsew.v) #combine
+ns.df <- ns.df %>% 
+  mutate(sin.t = sin(nsew.v*pi/180), 
+         cos.t = cos(nsew.v*pi/180)) %>% filter(nsew != 'S')
+glimits <- c(-1,1)*max(abs(smest.asp$est[smest.asp$facets=='Pure larch']))
+
+mixpl.aspr <- 
+  ggplot(subset(smest.asp, facets == 'Pure larch'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  # scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) +
+  coord_fixed() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size = 2) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey', 
+                       guide = guide_colorbar(title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              ticks = F, barwidth = unit(1, 'mm'), barheight = unit(25,'mm'), 
+                                              label.theme = element_text(size = 6, angle = 90),direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'),
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/2.5, axis.text = element_blank(),
+        axis.title = element_blank(),
+        legend.position = 'left', legend.margin = margin())
+  # facet_wrap(~facets)+
+
+
+mixpl.asp1 <- ggplot(subset(smest.asp, facets == 'Larch-lodgepole'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + 
+  coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size  = 2) +
+  # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey', 
+                       guide = guide_colorbar(title = 'Difference', title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              ticks = F, barwidth = unit(1, 'mm'), barheight = unit(25,'mm'), 
+                                              label.theme = element_text(size = 6, angle = 90),direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'),
+        legend.key.size = unit(0.25, 'cm'),aspect.ratio = 2/2.5, axis.text = element_blank(),
+        axis.title = element_blank(),
+        legend.position = 'left', legend.margin = margin())
+  # scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  # theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+  #       panel.background = element_rect(fill = 'white'), 
+  #       panel.grid = element_line(color = 'lightgrey')) + 
+  # # facet_wrap(~facets)+
+  # theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+  #       axis.title = element_blank(), axis.text = element_blank())
+
+mixpl.asp2 <- ggplot(subset(smest.asp, facets == 'Larch-Douglas-fir'), 
+         aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 25, color = 'peachpuff', alpha = 0.5) +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + 
+  coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+             alpha = 0.3, size  = 2) +
+  # labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred', na.value = 'grey') +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey')) + 
+  # facet_wrap(~facets)+
+  theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
+        axis.text = element_blank(), axis.title = element_blank())
+    
+#put it all together####
+library(gridExtra)
+library(grid)
+pur <- textGrob('Pure larch', just = 'center', gp = gpar(fontsize = 10))
+ll <- textGrob('Larch-lodgepole', just = 'center', gp = gpar(fontsize = 10))
+ldf <- textGrob('Larch-Douglas-fir', just = 'center', gp = gpar(fontsize = 10))
+
+# lay <- rbind(c(1,2,3),
+#              c(4,5,6),
+#              c(7,8,9),
+#              c(10,11,12),
+#              c(13,14,15),
+#              c(16,17,18))
+
+# diffs.pl <- arrangeGrob(pur, ll, ldf,
+#                         mixpl.dr, mixpl.d1,mixpl.d2, 
+#                         mixpl.crr, mixpl.cr1,mixpl.cr2, 
+#                         mixpl.balr, mixpl.bal1,mixpl.bal2, 
+#                         mixpl.bar, mixpl.ba1,mixpl.ba2, 
+#                         mixpl.aspr, mixpl.asp1, mixpl.asp2,
+#                         layout_matrix = lay, 
+#                         heights = list(0.5, 2,2,2,2,1.75), widths = c(2,2,2))
+
+lay <- rbind(c(1,2),
+             c(3,4),
+             c(5,6),
+             c(7,8),
+             c(9,10),
+             c(11,12))
+diffs.pl <- arrangeGrob(ll, ldf,
+                        mixpl.d1,mixpl.d2, 
+                        mixpl.cr1,mixpl.cr2, 
+                        mixpl.bal1,mixpl.bal2, 
+                        mixpl.ba1,mixpl.ba2, 
+                        mixpl.asp1, mixpl.asp2,
+                        layout_matrix = lay, 
+                        heights = list(0.25, 1.2,1.2,1.2,1.2,.95), widths = list(3.5/2, 3.5/2), respect = T)
+ll$x
+
+ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
+knitr::plot_crop('17.figures_saved/mix_diff_smooths.png')
+
+mixpl.aspr
+mixpl.asp1
+mixpl.asp2
+```
+
+```{r}
+
+# mixpl.d <- ggplot(subset(smest.diam, 
+#                          facets %in% c('Larch-lodgepole',
+#                                        'Larch-Douglas-fir')),
+#        aes(x = DIAMETER*2.54, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) +
+#   labs(x = 'DBH (cm)', y='Difference') + 
+#   coord_cartesian(ylim = c(-3,3)) +
+#   theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5)))
+#   # theme(strip.text.x =element_text(margin(0.1,0,.1,0, 'cm')),
+#   #       strip.placement = 'outside')
+#   
+# # 
+
+# mixpl.cr <- ggplot(subset(smest.cr, 
+#                           facets %in% c('Larch-lodgepole',
+#                                         'Larch-Douglas-fir')),
+#        aes(x = cr*2.54, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) +
+#   labs(x = 'Crown ratio', y='Difference') +
+#   coord_cartesian(ylim = c(-0.3,.3)) +
+#   theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5))) 
+
+# mixpl.bal <- ggplot(subset(smest.bal, 
+#                            facets %in% c('Larch-lodgepole',
+#                                          'Larch-Douglas-fir')),
+#        aes(x = bal.pl.ratio, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) +
+#   labs(x = 'BAL', y='Difference') +
+#   coord_cartesian(ylim = c(-0.5,.5)) +
+#     theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5))) 
+
+# mixpl.ba <- ggplot(subset(smest.ba, facets %in% c('Larch-lodgepole', 'Larch-Douglas-fir')),
+#        aes(x = ba.pl*2.54, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   facet_wrap(~facets) +
+#   labs(x = bquote('BA'~(m^2/ha)), y='Difference') +
+#   coord_cartesian(ylim = c(-2.5,2.5))+
+#     theme(strip.text = element_blank(),aspect.ratio = 2/(1+sqrt(5))) 
+
+# mixpl.asp <- ggplot(subset(smest.asp, facets %in% c('Larch-lodgepole', 'Larch-Douglas-fir')), 
+#          aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 25, color = 'peachpuff') +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + 
+#   coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), 
+#              alpha = 0.3, size  = 2) +
+#   labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Difference') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey')) + 
+#   facet_wrap(~facets)+
+#   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/(1+sqrt(5)),
+#         axis.text = element_blank())
+
+
+
+# glimits <- c(-1,1)*max(abs(sm.asp$est))
+# 
+# 
+# contour.pl <- ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+#   geom_raster(aes(fill = est)) +
+#   geom_contour(aes(z = est), bins = 50, color = 'peachpuff') +
+#   #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+#   expand_limits(fill = glimits) + coord_equal() +
+#   geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+#   labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+#   scale_fill_gradient2(low = 'blue', high = 'darkred') +
+#   theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+#         panel.background = element_rect(fill = 'white'), 
+#         panel.grid = element_line(color = 'lightgrey'), 
+#         aspect.ratio = 2/(1+sqrt(5))) 
+
+#theplot
+
+# library(ragg)
+# png <- function(...) ragg::agg_png(..., res = 300, units = 'in')
+# lab1 <- textGrob('Larch-lodgepole')
+# lab2 <- textGrob('Larch-Douglas-fir')
+# agrid <- arrangeGrob(lab1, lab2, lp.diam, lp.cr, df.cr, lp.bal, lp.ba, df.ba, layout_matrix = rbind(c(1,2), c(3,NA), c(4,5), c(6,NA), c(7,8)))
+
+# lp.cr
+# ggsave('17.figures_saved/mix_diff_smooths.png', agrid, device = png)
+#      
+
+# plot_grid(mixpl.d, mixpl.cr, mixpl.bal, mixpl.ba, nrow = 2)
+# plot(diffs.pl)
+# summary.gam(mix.diff.nopien)
+
+# gam.check(mix.diff.nopien)
+# draw(mix.diff.gam.m1)
+# draw
+
+# plot.gam(mix.diff.nopien, select = 1)
+# sum.nopien
+
+# mixpl.d1
+# mixpl.d2
+
+# dum.dat <- smest.ba %>% mutate(ba.pl=ba.pl*(2.47/10.764))
+#   ggplot(subset(dum.dat, facets == 'Pure larch'),
+#        aes(x = ba.pl, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) + 
+#   coord_cartesian(ylim = c(-2.5, 2.5)) +
+#   # facet_wrap(~facets, scales = 'free_y') +
+#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
+#   theme(aspect.ratio = 2/(1+sqrt(5)))
+# 
+#   ggplot(subset(smest.ba, facets == 'Pure larch'),
+#        aes(x = ba.pl*(2.47/10.764), y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) + 
+#   coord_cartesian(ylim = c(-2.5, 2.5)) +
+#   # facet_wrap(~facets, scales = 'free_y') +
+#   labs(x =  bquote('BA'~(m^2/ha)), y='Effect') +
+#   theme(aspect.ratio = 2/(1+sqrt(5)))
+  
+```
+
+
+```{r 3.3 partial response}
+
+# basemodel <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds') 
+ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') 
+purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
+shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
+
+smest.ba11 <- smooth_estimates(basemodel, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+
+
+smest.ccf <- smooth_estimates(ccf.mod, smooth = 's(ccf', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+smest.purity <- smooth_estimates(purity, smooth = 's(percent_LAOC', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+smest.shade <- smooth_estimates(shade.intol, smooth = 's(shade.to', partial_match = T, unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+(ccf.smth <- ggplot(smest.ccf, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(purty.smth <- ggplot(smest.purity, 
+       aes(x = percent_LAOC, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-.1, 0.5)) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Purity', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(shade.smth <- ggplot(smest.shade, 
+       aes(x = shade.tol.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-.1, 0.5)) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Shade intolerance', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+layot <- rbind(c(1,1),
+               c(2,3))
+ccf.pr.sh <- arrangeGrob(ccf.smth, purty.smth, shade.smth)
+ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh)
+knitr::plot_crop('17.figures_saved/ccf_pur_shd.png')
+
+draw(ccf.mod, residuals = T, select = 'ccf', partial_match = T)
+draw(purity, residuals = T, select = 'percent', partial_match = T)
+draw(shade.intol, residuals = T, select = 'shade', partial_match = T)
+
+```
+
+```{r 3.3 partial response but vary BA-diam}
+
+# bal.function <- function(mod, xlab = 'BAL ratio'){
+#   require(mgcv)
+#   require(gratia)
+# 
+#   bal.pl.ratio = c(0.2, 0.5, 0.75)
+#   bal.lst <- 
+#     
+#     
+#     
+#   for(i in bal.pl.ratio){
+#     d1 <- smooth_data(mod, 1, n = 100, include_all = T) %>%
+#       mutate(bal.pl.ratio = 0.2)
+#     d1a <- smooth_estimates(mod, smooth = 's(bal.pl.ratio', 
+#                             partial_match = T, unconditional = T) %>% 
+#       mutate(upper = est+(2*se), lower = est-(2*se), data = a1)
+#     
+#   }
+#     
+#     pl.d <- ggplot(d1a, aes(x = bal.pl.ratio, y = est, 
+#                 ymin = lower, ymax = upper)) + 
+#        geom_line() +
+#        geom_hline(yintercept = 0, linetype = 'dashed') +
+#        geom_ribbon(alpha = 0.2) +
+#        labs(x = xlab, y='Effect')
+#  
+#     ba.pl <- c(25, 50, 75, 100, 125)
+#     
+#     b1 <- smooth_data(mod, 1, n = 100, include_all = T) %>%
+#        mutate(bal.pl.ratio = 0.2)
+#     b1a <- 
+# }
+
+
+a <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 10)
+a1 <- smooth_estimates(purity, data = a, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.2)
+aa <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 60)
+aa1 <- smooth_estimates(purity, data = aa, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.6)
+aaa <- smooth_data(purity, 7, n = 100, include_all = T) %>% mutate(ba.pl = 110)
+aaa1 <- smooth_estimates(purity, data = aaa, 
+                       smooth = 's(percent_L', 
+                       partial_match = T, 
+                       unconditional = T) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se), ba.pl = 0.8)
+
+aaaa <- bind_rows(a1, aa1, aaa1)
+
+ggplot(aaaa, aes(x = percent_LAOC, y = est, ymin = lower, 
+               ymax = upper)) + geom_line() +
+  geom_ribbon(alpha = 0.2) + facet_wrap(~as.factor(ba.pl))
+
+
+
+
+
+# 
+# plot.smth <- function(smth.dat.fn,varname){
+#   names(smth.dat.fn)[4]
+#   ggplot(smth.dat.fn, aes(x = bal.pl.ratio, y = est, 
+#                 ymin = lower, ymax = upper)) + 
+#        geom_line() +
+#        geom_hline(yintercept = 0, linetype = 'dashed') +
+#        geom_ribbon(alpha = 0.2) +
+#        labs(x = xlab, y='Effect')
+# }
+
+abc <- smthdatfn(ccf.mod, varname)
+  ggplot(a1, aes(x = bal.pl.ratio, y = est, 
+                ymin = lower, ymax = upper)) + 
+       geom_line() +
+       geom_hline(yintercept = 0, linetype = 'dashed') +
+       geom_ribbon(alpha = 0.2) +
+       labs(x = xlab, y='Effect')
+
+smthdatfn(ccf.mod, 2, smooth.term = 's(cr')
+# bal.function(ccf.mod)
+
+smooth_data(ccf.mod, 'bal.pl.ratio', include_all = T)
+
+
+
+
+aaa <- smooth_data(ccf.mod, 4, n = 100, include_all = T) %>%
+    mutate(bal.pl.ratio = 0.2)
+smooth_estimates(ccf.mod, data = aaa, )
+```
+
+
+```{r FUNCTION for creating prediction plots}
+#taking into account smoothness estimation#####
+
+#this function creates predictions for each type of model that was fit in these analyses
+# for ccf - shade- purity analysis: Creates data set that is predicted based on the given values of each parameter.
+# - diameter is set to the mean value. Must be repeated for each model
+
+# For the mixture analysis, it creates a data set 300 rows long, 100 rows per level of the factor
+# it samples a random unique tree, but the tree just gets excluded anyways, so it doesnt matter
+
+
+ba_fun <- function(mod, asp = 315, bal = 0.6622384, ba = 40.83743, cr = 0.5, diam = 4.5, 
+                   other = FALSE, oth.vals = NA, choose.bal = FALSE){
+  set.seed(165)
+  #set values for each variable
+  asp_sin <- rep(sin(asp*(pi/180)), 100)
+  asp_cos <- rep(cos(asp*(pi/180)), 100)
+  #decide whether ba or bal should be evaluated (see if the model contains both or just one)
+  if('bal.pl.ratio' %in% names(mod$model) & 'ba.pl' %in% names(mod$model)) {
+    bal.pl.ratio <- bal
+    ba.pl <- ba
+  } else if('bal.pl.ratio' %in% names(mod$model) & !('ba.pl' %in% names(mod$model))) {
+    bal.pl.ratio <- bal
+  } else {
+    bal.pl.ratio <- bal
+    ba.pl <- ba
+  }
+  
+  #decide if model used unique_tree_id or unique.tree.f (they're the same thing)
+  if('unique_tree_id' %in% names(mod$model)){
+    trees <- as.numeric(mod$model$unique_tree_id)
+    atree <- sample(trees,1)
+    unique_tree_id <- rep(atree, 100)
+    unique.tree.f <- unique_tree_id
+  } else if('unique.tree.f' %in% names(mod$model)){
+    trees <- as.numeric(mod$model$unique.tree.f)
+    atree <- sample(trees, 1)
+    unique.tree.f <- rep(atree,100)
+    unique_tree_id <- unique.tree.f
+  } 
+  #crown ratio
+  cr <- rep(cr, 100)
+  
+  #if diameter is not 4.5, then sequence along diameter.
+  #if its anything else, then we're using a constant value for diam
+  if(diam != 4.5) {
+    DIAMETER <- seq(min(mod$model$DIAMETER), max(mod$model$DIAMETER), length = 100)
+  } else {
+    DIAMETER <- rep(mean(mod$model$DIAMETER), 100)
+  }
+  
+  #just remove the if around this and the corresponding else if to reverse
+  
+  # Other = argument decides whether we evaluate across the range of the 
+  # mixing variable (FALSE) or the range of ba or bal (TRUE).
+  if(other == FALSE) { #if evaluating across the range of mixing terms (perhaps for discrete BAs)
+    if('percent_LAOC' %in% names(mod$model)) {
+    percent_LAOC <- seq(min(mod$model$percent_LAOC), max(mod$model$percent_LAOC), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f, percent_LAOC)
+  } else if('shade.tol.pl' %in% names(mod$model)) {
+    shade.tol.pl <- seq(min(mod$model$shade.tol.pl), max(shade.intol$model$shade.tol.pl), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, unique_tree_id, unique.tree.f, shade.tol.pl)
+  } else if('ccf.pl' %in% names(mod$model)) {
+    ccf.pl <- seq(min(mod$model$ccf.pl), max(mod$model$ccf.pl), length = 100)
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, asp_sin, asp_cos, unique_tree_id, unique.tree.f, ccf.pl)
+  }
+  } else if(other == TRUE) { #if evaluating across something else (like BA)
+    if('percent_LAOC' %in% names(mod$model)) {#optionA
+      prty <- c()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+      #now decide whether to sequence BA or BAL (depending on oth.vals entered)
+      if(choose.bal == F){
+        ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+      } else {
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      }
+      #create newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(percent_LAOC = prty)
+    } else if('shade.tol.pl' %in% names(mod$model)) {#optionB
+      prty <- c()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+
+      #now decide whether to sequence BA or BAL (choosebal arg)
+      if(choose.bal == F){
+        ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+      } else {
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      }
+      #create tibble for newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(shade.tol.pl = prty)
+    } else if('ccf.pl' %in% names(mod$model)) {#OptionC
+      prty <- vector()
+      for(i in oth.vals){
+        prty <- c(prty, rep(i, 100))
+      }
+      #choose.bal irrelevant for CCF (no ba in the model)
+      ba.pl <- seq(min(mod$model$ba.pl), 
+                     150, 
+                     length = 100)
+        bal.pl.ratio <- seq(min(mod$model$bal.pl.ratio), 
+                            max(mod$model$bal.pl.ratio), 
+                            length = 100)
+      
+      #create newdata
+      var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, ba.pl, 
+                         asp_sin, asp_cos, unique_tree_id, unique.tree.f)
+      var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+        mutate(ccf.pl = prty)
+    }
+    
+  }
+  
+  #if this is a model with ordered factor (by variables)
+  if('omixtype' %in% names(mod$model)){
+    var.diam.a <- tibble(DIAMETER, cr, bal.pl.ratio, 
+                         ba.pl, asp_sin, asp_cos, 
+                         unique_tree_id, unique.tree.f)
+    mixtype <- c(rep('laoc', 100), rep('pico', 100), rep('psme', 100))
+    # mixtype <- as.factor(mixtype)
+    omixtype <- factor(mixtype, levels = c('laoc', 'pico', 'psme'), ordered = T)
+    var.diam.a <- bind_rows(var.diam.a, var.diam.a, var.diam.a) %>% 
+      mutate(omixtype = omixtype, mixtype = mixtype)
+    # var.diam.a <- bind_cols(var.diam.a, mixtype, omixtype)
+  }
+  
+  #finally predict from the resulting outcome of the tests above
+  bai.diam.a <- predict.gam(mod, newdata = var.diam.a, type = 'response', 
+                        se.fit = T, 
+                        exclude = ifelse('unique_tree_id' %in% names(var.diam.a), 
+                                         's(unique_tree_id)', 's(unique.tree.f)'),unconditional = T)
+  #Merge predicted values with the predictor variables
+  a <- tibble(bai=bai.diam.a[[1]], se = bai.diam.a[[2]], var.diam.a)
+  
+  thing <- rbind(a)
+  return(thing)
+}
+
+#this function creates a tibble of predictions of BAI along with the values of the covariates used to estimate BAI so that they can be plotted. 
+## you may allow the value of ccf/purity/shade intol to vary and then input values of BA/BAL (or whichever variable). Repeat the process for a few BAs, bind rows of those data, and then you have paralell curves for different values of BA/BAL
+## you may also evaluate across the range of BA, and vary by (3) discrete values of the spp. mixing term. To do this, you must specify 'other = TRUE' and then supply values of oth.vals, which must be a vector of length three of plausible values for purity, shade, or ccf. 
+## Toggle whether to do the range of BA for shade and purity or BAL with choose.bal, 
+## and only for BAL for ccf. 
+
+```
+
+```{r comparing ccf, shade, etc over levels of BA and BAL}
+
+
+a <- ba_fun(purity, ba = 10)
+b <- ba_fun(purity, ba = 50)
+c <- ba_fun(purity, ba = 90)
+d <- ba_fun(purity, ba = 130)
+pur.dat <- rbind(a, b, c, d)
+
+# ba_fun(mix.diff.nopien, ba = 10)
+
+(purty.pl <- ggplot(pur.dat, aes(x = percent_LAOC, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = bai-(2*se), 
+                  ymax = bai+(2*se)), alpha = 0.2) +
+  labs(x = 'Purity', y = 'Pred. BAI', color = 'Basal area'))
+
+a <- ba_fun(shade.intol, ba = 10)
+b <- ba_fun(shade.intol, ba = 50)
+c <- ba_fun(shade.intol, ba = 90)
+d <- ba_fun(shade.intol, ba = 130)
+
+shd.dat <- bind_rows(a,b,c,d)
+
+(shd.pl <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area'))
+
+a <- ba_fun(ccf.mod, bal = 0.05)
+b <- ba_fun(ccf.mod, bal = 0.25)
+c <- ba_fun(ccf.mod, bal = 0.65)
+d <- ba_fun(ccf.mod, bal = 0.99)
+
+ccf.dat <- bind_rows(b,d)
+
+ggplot(ccf.dat, aes(x = ccf.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'BAL ratio')
+
+ba.prty <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95))
+ggplot(ba.prty, aes(x = ba.pl, y = bai, color = factor(percent_LAOC), 
+                    ymin = (bai-(2*se)),
+                            ymax = (bai+(2*se)))) + 
+  geom_line() + 
+  geom_ribbon(alpha = 0.2)
+
+
+#ccf does have ba in the model
+# a <- ba_fun(ccf.mod, bal = 10)
+# b <- ba_fun(ccf.mod, bal = 50)
+# c <- ba_fun(ccf.mod, bal = 90)
+# d <- ba_fun(ccf.mod, bal = 130)
+# 
+# ccf.dat <- bind_rows(a,b,c,d)
+# 
+# ccf.pl <- ggplot(ccf.dat, aes(x = ccf.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+#   geom_line() + 
+#   geom_ribbon(aes(ymin = bai-(2*se), 
+#                   ymax = bai+(2*se)), alpha = 0.2)
+
+# ccf.pl + 
+purty.pl + shd.pl
+
+ba_fun(ccf.mod, ba = 10)
+```
+
+```{r shade tolerance plots}
+
+a <- ba_fun(shade.intol, ba = 10)
+b <- ba_fun(shade.intol, ba = 50)
+c <- ba_fun(shade.intol, ba = 90)
+d <- ba_fun(shade.intol, ba = 130)
+shd.dat <- rbind(a,b,c,d)
+(shd.plba <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(ba.pl))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'Basal area'))
+
+a <- ba_fun(shade.intol, bal = 0.01)
+b <- ba_fun(shade.intol, bal = 0.25)
+c <- ba_fun(shade.intol, bal = 0.6)
+d <- ba_fun(shade.intol, bal = 0.99)
+shd.dat <- rbind(b,d)
+(shd.plbal <- ggplot(shd.dat, aes(x = shade.tol.pl, y = bai, color = as.factor(bal.pl.ratio))) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin = (bai-(2*se)), 
+                  ymax =  (bai+(2*se))), alpha = 0.2) +
+  labs(x = 'Plot shade intolerance', y = 'Pred. BAI', color = 'BAL ratio'))
+
+shd.dat2 <- ba_fun(shade.intol, other = TRUE, oth.vals = c(0.5, NA, 1), choose.bal = F)
+
+shd.dat3 <- ba_fun(shade.intol, other = TRUE, oth.vals = c(0.5, NA,1), choose.bal = T)
+# shd.dat2$bai
+
+ggplot(shd.dat2, aes(x = ba.pl, y = bai, 
+                     color = factor(shade.tol.pl), 
+                     ymin = bai-(2*se),ymax = bai+(2*se))) + 
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+ggplot(shd.dat3, aes(x = bal.pl.ratio, y = bai, 
+                     color = factor(shade.tol.pl), 
+                     ymin = bai-(2*se),ymax = bai+(2*se))) + 
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+```
+
+```{r larch purity plots}
+
+ba.prty.ba <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95), choose.bal = F)
+
+ba.prty.bal <- ba_fun(purity, other = TRUE, oth.vals = c(.1, NA, .95), choose.bal = T)
+
+ggplot(ba.prty.ba, aes(x = ba.pl, y = bai, 
+                       color = factor(percent_LAOC), 
+                       ymin = bai-(2*se),ymax = bai+(2*se))) +
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+ggplot(ba.prty.bal, aes(x = bal.pl.ratio, y = bai, 
+                       color = factor(percent_LAOC), 
+                       ymin = bai-(2*se),ymax = bai+(2*se))) +
+  geom_line() + geom_ribbon(alpha = 0.2)
+
+
+```
+
+
+```{r comparing mixtures with different levels of BA}
+mix.diff.nopien <- readRDS('data/model_objects.1/mix.diff.nopien.rds')
+
+#set diameter to any value that is not 4.5
+#Vary by BA##### 
+
+
+a <- ba_fun(mix.diff.nopien, ba = 10, diam = 6)
+b <- ba_fun(mix.diff.nopien, ba = 50, diam = 6)
+c <- ba_fun(mix.diff.nopien, ba = 90, diam = 6)
+d <- ba_fun(mix.diff.nopien, ba = 130, diam = 6)
+
+mixplts1 <- rbind(a,b,c,d)
+mixplts1 <- mixplts1 %>% mutate(bah = ba.pl*(2.47/10.764))
+
+#bah-5 = 2.47acres(ha)/10.764sqft(msq) * 5
+## bah5 = 21.78947
+## bah15 = 65.36842
+## bah25 = 108.9474
+
+a <- ba_fun(mix.diff.nopien, ba = 21.78947, diam = 6)
+b <- ba_fun(mix.diff.nopien, ba = 65.36842, diam = 6)
+c <- ba_fun(mix.diff.nopien, ba = 108.947, diam = 6)
+# d <- ba_fun(mix.diff.nopien, ba = 130, diam = 6)
+
+mixplts1 <- rbind(a,b,c)
+mixplts1 <- mixplts1 %>% mutate(bah = round(ba.pl*(2.47/10.764), 1))
+
+ggplot(subset(mixplts1, omixtype %in% c('laoc', 'psme')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bah)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH') + 
+  coord_cartesian(ylim = c(0,10), xlim = c(0, 15))
+
+ggplot(subset(mixplts1, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bah)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH')+ 
+  coord_cartesian(ylim = c(0,10), xlim = c(0,10))
+
+
+#Vary by BAL##### 
+
+a <- ba_fun(mix.diff.nopien, bal = 0.1, diam = 6)
+b <- ba_fun(mix.diff.nopien, bal = 0.3, diam = 6)
+c <- ba_fun(mix.diff.nopien, bal = 0.6, diam = 6)
+d <- ba_fun(mix.diff.nopien, bal = 0.9, diam = 6)
+
+mixplts <- rbind(a,b,c,d)
+
+ggplot(subset(mixplts, omixtype %in% c('laoc', 'pico')), aes(x = DIAMETER, y = bai, 
+                    color = omixtype, ymin = bai-(2*se),
+                    ymax = bai+(2*se))) + geom_line() + 
+  geom_ribbon(alpha = 0.2) + facet_wrap(~factor(bal.pl.ratio)) +
+  labs(x = 'DIAMETER', y = 'Pred. BAI', color = 'BAH')+ 
+  coord_cartesian(ylim = c(0,10), xlim = c(0,10))
+
+
+
+```
+
+
+```{r 3.3 diagnostic plots}
+
+gam.check(ccf.mod)
+
+appraise(ccf.mod, point_alpha = 0.2)
+appraise(purity, point_alpha = 0.2)
+appraise(shade.intol, point_alpha = 0.2)
+
+```
+
+
+```{r}
+ggplot(smest.ba11, 
+       aes(x = ba.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'ba', y='Effect')
+
+ggplot(smest.ccf, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect')
+```
+
+```{r}
+unique(mix.diff.nopien$model$omixtype)
+smooth_estimates(mix.diff.nopien, smooth = 's(DIA', partial_match = T) %>% add_partial_residuals(model = mix.diff.nopien, smooth = 's(DIA', partial_match = T)
+partial_residuals()
+smest.bal %>% add_partial_residuals(model = mix.diff.nopien,smooth = 's(bal.pl.ratio', partial)
+plot_diff(mix.diff.nopien, 'bal.pl.ratio', comp = list(omixtype=c('laoc', 'pico')))
+
+a <- plot.gam(mix.diff.nopien, scale = 0, select = 8)
+
+smooth.construct(mix.diff.nopien)
+draw(mix.diff.nopien, residuals = F, rug = F, select = 's(bal.pl', partial_match = T)
+
+
+summary(mix.diff.nopien)
+```
+
+
+
