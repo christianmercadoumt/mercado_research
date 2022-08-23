@@ -1054,7 +1054,7 @@ sig.cr <- smest.cr %>% filter(omixtype %in% c('pico', 'psme'))
 sig.bal <- smest.bal %>% filter(omixtype == 'pico')
 sig.ba <- smest.ba %>% filter(omixtype %in% c('psme', 'pico'))
 
-# plot.gam(mix.diff.nopien, scale = 0)
+plot.gam(mix.diff.nopien, scale = 0)
 ```
 
 ```{r fix issue with pico, include = F}
@@ -1992,11 +1992,6 @@ prt.diamdat80 <- ba_fun(purity, diam = 6, other = T, oth.vals = c(0.25, 0.75, 1)
 prt.diamdat110 <- ba_fun(purity, diam = 6, other = T, oth.vals = c(0.25, 0.75, 1), choose.seq = 'dbh', ba=110)
 prt.all <- bind_rows(prt.diamdat40, prt.diamdat80, prt.diamdat110)
 
-# prt.cats.ddat <- prt.diamdat %>% mutate(prty.cats = case_when(
-#   percent_LAOC<0.4~'low',
-#   percent_LAOC>0.4 & percent_LAOC<0.8~'mid',
-#   percent_LAOC>0.8~'high'
-# ))
 ggplot(prt.all, aes(x = DIAMETER, y = bai, color = factor(percent_LAOC))) + geom_line() + facet_wrap(~ba.pl)
 
 s.diamdat40 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', ba=40)
@@ -2006,6 +2001,12 @@ shd.all <- bind_rows(s.diamdat40, s.diamdat80, s.diamdat110)
 ggplot(shd.all, aes(x = DIAMETER, y = bai, color = factor(shade.tol.pl))) + geom_line() + facet_wrap(~ba.pl) + 
   coord_cartesian(xlim=c(0,15))
 
+
+s.diam.bal1 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', bal = 0.1)
+s.diam.bal2 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', bal = 0.5)
+s.diam.bal3 <- ba_fun(shade.intol, diam = 6, other = T, oth.vals = c(0.4, 0.8, 0.99), choose.seq = 'dbh', bal = 0.9)
+s.bal <- bind_rows(s.diam.bal1, s.diam.bal2,s.diam.bal3)
+ggplot(s.bal, aes(x = DIAMETER, y = bai, color = factor(bal.pl.ratio))) + geom_line() + facet_wrap(~shade.tol.pl)
 
 ```
 
