@@ -1,0 +1,520 @@
+\section{Raw data trends}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/bai_diam_spp.png}
+\caption[BAI-Diameter by BAH and species mix]{Individual western larch log(BAI) and DBH. Columns represent different levels of density (BAH) and rows represent different species mixture types (rows), where 300 observations were randomly sampled for each displayed mixture type from the full data set.}
+\label{fig:sumfig}
+\end{figure}
+
+% Aspects are coded by cardinal direction, where N,S,E,W are north, south, east, and west, repsectively (e.g., NNW = north-northwest). Thin grey lines indicate 0 on each axis, with a 1:1 slope dotted-line passing through (0,0) included for visual reference. There were no observations in SW aspects, and all east-facing southerly aspects were binned together, as there was very little data in that quadrant.
+
+Predictor variables varied across and 
+within stands, as shown in table \ref{tab:sumpre}. Tree size 
+was positively associated with the growth of western larch 
+and this relationship varies across other variables, 
+as shown in figure \ref{fig:sumfig}. Growth appears the lowest in smaller trees, 
+and the highest in larger trees, where growth tends increase the most vigorously 
+in trees less than 20 cm in DBH at low densities and then taper as tree 
+size and density increase. Larger diameter trees 
+appear at higher densities in each mixture. High-density growth data was 
+limited in the lodgepole-pine mixture type. 
+These data primarily lie on cooler and wetter north-facing aspects distributed from 
+west to east. Few data were evaluated on southern aspects. 
+Elevation ranged from 800 m to 1800 m. Site attributes for different mixtures 
+are displayed in figure \ref{fig:aspel}. 
+
+\begin{figure}
+\includegraphics[width=\textwidth]{../17.figures_saved/mix.compass.png}
+\caption[Aspect-elevation plot]{Plot of aspect and elevations for different mixtures. Each point represents an individual cluster.}
+\label{fig:aspel}
+\end{figure}
+
+% At moderate to higher 
+% densities, however, DBH and 
+% 
+% growth express somewhat linear trends with non-constant variance as  
+% density and competition increase with tree size and stand development, 
+% perhaps explaining higher base-level diameter values in this relationship. 
+% These relationships in the data also vary by aspect, which is most apparent at 
+% moderate to high densities. Moving from west-facing 
+% aspects towards northern and eastern aspects, the DBH-$BAI_{km}$ trend appears less 
+% steep, and minimum tree size is generally larger. One note, however, data for 
+% most of the largest trees were collected on east-northeast aspects \ref{fig:ddist}. 
+
+% \begin{table}
+% \caption[Summary of predictors for each stand]{Mean and standard deviation (SD) of DBH, CR, BAL, and BAH.}
+% \label{tab:sumpre}
+% \centering
+% \begin{tabular}{lrrrrrrrr}
+% \toprule
+% \multicolumn{1}{c}{\cellcolor{gray!6}{Variable}} & \multicolumn{2}{c}{\cellcolor{gray!6}{DBH}} & \multicolumn{2}{c}{\cellcolor{gray!6}{CR}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAL}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAH}} \\
+% \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9}
+% Stand & Mean & SD & Mean & SD & Mean & SD & Mean & SD \\
+% \midrule
+% \cellcolor{gray!6}{1401} & \cellcolor{gray!6}{43.412} & \cellcolor{gray!6}{7.02} & \cellcolor{gray!6}{0.34} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.42} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{47} & \cellcolor{gray!6}{11}\\
+% 1402 & 7.649 & 3.60 & 0.85 & 0.10 & 0.64 & 0.26 & 7 & 5\\
+% \cellcolor{gray!6}{1403} & \cellcolor{gray!6}{8.264} & \cellcolor{gray!6}{4.92} & \cellcolor{gray!6}{0.88} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.64} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{5}\\
+% 1404 & 10.073 & 4.95 & 0.84 & 0.13 & 0.61 & 0.29 & 12 & 9\\
+% \cellcolor{gray!6}{1405} & \cellcolor{gray!6}{11.528} & \cellcolor{gray!6}{3.31} & \cellcolor{gray!6}{0.41} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.57} & \cellcolor{gray!6}{0.27} & \cellcolor{gray!6}{17} & \cellcolor{gray!6}{7}\\
+% \addlinespace
+% 1406 & 10.462 & 4.87 & 0.80 & 0.14 & 0.59 & 0.29 & 9 & 6\\
+% \cellcolor{gray!6}{1407} & \cellcolor{gray!6}{12.465} & \cellcolor{gray!6}{6.03} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.53} & \cellcolor{gray!6}{0.31} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{7}\\
+% 1408 & 30.641 & 7.92 & 0.32 & 0.09 & 0.52 & 0.30 & 41 & 18\\
+% \cellcolor{gray!6}{1609} & \cellcolor{gray!6}{10.604} & \cellcolor{gray!6}{5.61} & \cellcolor{gray!6}{0.77} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.59} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{6}\\
+% 1610 & 7.963 & 3.98 & 0.77 & 0.13 & 0.65 & 0.29 & 9 & 6\\
+% \addlinespace
+% \cellcolor{gray!6}{1611} & \cellcolor{gray!6}{9.380} & \cellcolor{gray!6}{4.30} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.15} & \cellcolor{gray!6}{0.62} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{7}\\
+% 1612 & 8.782 & 5.37 & 0.58 & 0.25 & 0.67 & 0.28 & 10 & 6\\
+% \cellcolor{gray!6}{1614} & \cellcolor{gray!6}{14.503} & \cellcolor{gray!6}{6.88} & \cellcolor{gray!6}{0.81} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.49} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{4}\\
+% 1615 & 12.537 & 4.24 & 0.84 & 0.11 & 0.53 & 0.30 & 12 & 7\\
+% \cellcolor{gray!6}{1616} & \cellcolor{gray!6}{16.932} & \cellcolor{gray!6}{4.89} & \cellcolor{gray!6}{0.40} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.52} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{11}\\
+% \addlinespace
+% 1617 & 9.247 & 2.72 & 0.79 & 0.12 & 0.59 & 0.26 & 8 & 3\\
+% \cellcolor{gray!6}{1618} & \cellcolor{gray!6}{8.247} & \cellcolor{gray!6}{4.61} & \cellcolor{gray!6}{0.74} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.68} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{6}\\
+% 1619 & 12.365 & 4.49 & 0.71 & 0.14 & 0.52 & 0.28 & 17 & 9\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+\section{BAI model}
+
+
+%begin with description of the raw data
+
+
+% perhaps indicating that such sites are associated with conditions favorable to large tree growth, 
+% or perhaps because the sampling of large tree data was limited to east-northeast sites.
+
+
+% The model was fit with a gamma distribution family because it allows for 
+% increasing dispersion in the response variable. A log-link function was chosen 
+% to ensure that predictions of growth were positive and non-zero.
+
+%diameter values at higher densities driven by competition
+%%
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=\textwidth]{../17.figures_saved/diam.dist.asp.png}
+% \caption[Stand diameter distributions]{Boxplot distributions of diameter (DBH) by stand, colored by aspect (aspect coded by cardinal direction). The largest trees were concentrated in 2 stands (1401 and 1408). Boxplot whiskers are equal to 1.5 interquartile range.}
+% \label{fig:ddist}
+% \end{figure}
+
+%Then presesnt results of correlation and say which predictors were selected by group
+Tree DBH and basal area (G) were highly correlated (0.938) and were 
+evaluated in separate models. DBH as a predictor yielded slightly higher 
+accuracy in predicting BAI than G, with model $\mathrm{RMSE_{df}}$ values  
+of 5.64 $\mathrm{cm^2/yr}$ and 5.70 $\mathrm{cm^2/yr}$, respectively. 
+
+Competition variables were partitioned into two sub-groups:  
+variables representing a tree's competitive position in a stand 
+(BAL,Dq, and CR), and variables that represent the overall competitive 
+environment (QMD, TPH, and BAH). CR was applied as a tree-level competition 
+instead of a tree size variable 
+because it reflects the cumulative effects of past 
+management and competition \citep{Wykoff1990,Monserud1996}. Highly collinear variable 
+combinations were were TPH-Dq (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
+With DBH effects included, adding tree-level variables reduced $\mathrm{RMSE_{df}}$
+to 4.50 $\mathrm{cm^2/yr}$, and then to 4.31 $\mathrm{cm^2/yr}$ with plot BA included. 
+
+
+Topographic variables (slope, aspect, elevation) were evaluated as 
+potential predictors separately from site index and heatload. Since aspect
+is a circular measure, both sine (easting) and cosine (northing) 
+transformations were applied as in previous works \citep[e.g., ][]{Stage1976} 
+using an isotropic smooth. 
+Aspect was best accounted for as an interaction of the sine and cosine transformations.
+% , a reduced rank version of thin-plate splines \citep{wood2006generalized}. 
+Slope and elevation contributed little to prediction accuracy 
+when included with aspect and were associated with concurvity values 
+beyond the established threshold. Thus, building on the model and 
+comparing aspect, site index, and heatload, aspect was selected as 
+the best term, further reducing model $\mathrm{RMSE_{df}}$ to 4.01 $\mathrm{cm^2/yr}$
+
+Given this information, a basal area increment model was specified with the following predictors: 
+DBH, CR, BAL, BAH, aspect, and a tree-level random effect. 
+The model training data set consisted of %training data set?
+5,792 basal area increments across 1,975 individual western larch trees. 
+The base model $\mathrm{RMSE_{df}}$ was ~3.34 $\mathrm{cm^2/yr}$. Fixed effects terms used 
+~53 degrees of freedom, and total model deviance explained was 84.9\%. 
+Random effects were accounted for using a spline basis 
+\citep{wood2006generalized}, and thus had an associated degrees of 
+freedom of ~1338. Model residual degrees of freedom was ~4401. 
+Model statistics are reported in table \ref{tab:rmse}. 
+Residuals and errors are plotted in figure \ref{fig:resids}. 
+
+
+
+
+Partial response curves are shown in Figure \ref{fig:basesmooths}. DBH had an 
+overall increasing effect on BAI, eventually tapering at values larger 
+than 30 cm. Crown ratio was penalized to a near-linear increasing effect that 
+was relatively small overall, going from negative to positive at values near 
+0.7. BAL showed a modest positive effect which decreased to a slightly 
+larger negative effect as western larch became less dominant in a plot. 
+BAH was represented by an overall decreasing effect, where densities greater 
+than 10 $\mathrm{m^2/ha}$ were associated with an increasingly negative effect on growth, 
+that tapered off and became less certain at values exceeding 40 $m^2/ha$. As 
+aspect varied, the partial effect on growth varied, where positive effects 
+were associated with N-NW, N-NE, and NE aspects. NW and SE aspects were associated 
+with some negative growth. Data was not sufficient for estimating aspect effects 
+for south-facing aspects. 
+
+\begin{figure}
+\centering
+% \begin{subfigure}[b]{0.7\textwidth}
+\includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.7\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/base_aspect.png}
+% \end{subfigure}
+\caption[Base model smooths]{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for DBH, CR, BAL, and BAH. Effect scales vary by smooth.}
+\label{fig:basesmooths}
+\end{figure}
+
+%Then describe the numbers and introduce the table
+By group, competition metrics contributed the most in 
+deviance explained, followed by size (Table \ref{tab:rmse}). However, considering 
+variables individually, DBH explained more deviance and reduced $\mathrm{RMSE_{df}}$  
+more than any other variable in the model. Variations in the size, competition, and 
+site characteristics of PGP western larch growth increments are shown in table 
+\ref{tab:mixsummary}
+
+\begin{table}[!h]
+\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and $\mathrm{RMSE_{df}}$ values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. $\mathrm{RMSE_{df}}$ for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+\label{tab:rmse}
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+\toprule
+\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($\mathrm{cm^2/yr}$)\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
+\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Size + competition}} & 62.87 & 4.31 \\
+\hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{1em}BAL & 8 & & \\
+\hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\multicolumn{2}{l}{\textbf{Size + competition + site}} & 67.39 & 4.01197\\
+\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\addlinespace[0.3em]
+\textbf{Size + competition + site + random intercept} & 1389 & 84.91 & 3.32142 \\
+\hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/res_err.png}
+\caption[Residuals]{Deviance residuals vs. linear predictor (left) plot and estimation error (right). Both are on the link scale, where error is observed values in the withheld data (i.e., BAI on the link scale) minus the predicted values of BAI (on the link scale).}
+\label{fig:resids}
+\end{figure}
+
+
+
+% -- model fitting rmse table -- 
+
+
+
+% Furthermore, aspect effects were evaluated in the model separately as easting, 
+% northing, as a joint interaction term, and as a decomposed tensor 
+% product interaction term (CITE - wood?).
+% to ensure that multi-level competitive effects were captured
+
+\section{Assessing growth across different communities}
+
+% modeling mixtures
+%% maybe i should constrain plotted curves to only pure larch that lie between west and north?
+
+%talk about data first - maybe include figs?
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.75\textwidth]{../17.figures_saved/compass_all.png}
+% \caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+% \label{fig:asp}
+% \end{figure}
+
+
+% \begin{figure}
+% \centering
+% \includegraphics[width=0.5\textwidth]{../17.figures_saved/mix.asp.barchart.png}
+% \caption[Mixture tree counts by aspect]{Individual tree counts for each species-mixture, categorized by aspect quadrant (NW = 270-360, NE = 0-90, SE = 90-180).}
+% \label{fig:aspcnts}
+% \end{figure}
+
+The model fitted for western larch growth compared across mixtures with 
+lodgepole pine and Douglas-fir was informed by a variety of conditions as displayed in table 
+(Table ~\ref{tab:mixsummary}). Pure larch stands evaluated sat on northerly 
+aspects spanning from west to east (Fig. ~\ref{fig:aspel}), and both mixtures 
+evaluated were more abundant on northwest-facing slopes compared to other 
+aspects, as shown in figure \ref{fig:aspel}. This was a non-issue in terms 
+of bias, as ultimately there was data across a similar range of aspect for 
+each mixture. Tests indicating certainty of non-zero effects for estimated 
+smooths (for both reference and difference smooths) and 
+intercepts are represented as p-values shown in table \ref{tab:diff}, 
+where p $< 0.001$ indicates strong evidence, 
+p $< 0.01$ indicate moderately strong evidence, 
+p $< 0.05$ indicate some evidence, 
+and p $> 0.05$ indicate little to no evidence.
+
+A reference smooth function was fit for western larch for each predictor, all 
+of which were indistinguishable from figure \ref{fig:basesmooths}. 
+The reference smooth for each 
+predictor captured variability with high certainty (p-values $< 0.001$). 
+Crown ratio was 
+penalized to a linear effect but strong evidence for a non-zero effect remained. 
+There was also some evidence indicating that the intercept for pure larch 
+conditions was not zero. 
+
+%Table of mixtures, min, max, mean for each variable in model
+
+\begin{table}[H]
+\caption[Mixtures data summary]{Summary table for different species-mixture data subsets.}
+\label{tab:mixsummary}
+\centering
+\begin{tabular}{llrrr}
+\toprule
+Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
+\midrule
+\multicolumn{1}{c|}{\cellcolor{gray!6}}& \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.05} & \cellcolor{gray!6}{0.03} & \cellcolor{gray!6}{0.10}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 53.3 & 29.7 & 36.2\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($\mathrm{cm^2}$)}} & mean & 8.94 & 7.53 & 6.05\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{57.7} & \cellcolor{gray!6}{22.6} & \cellcolor{gray!6}{38.9}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 11.7 & 4.3 & 6.2\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} DBH($cm$)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{13.6} & \cellcolor{gray!6}{9.2} & \cellcolor{gray!6}{12.4}\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 0.93 & 0.93 & 0.93\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.25} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} Crown ratio}} & mean & 0.61 & 0.78 & 0.53\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.00 & 0.00 & 0.00\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 0.30 & 0.27 & 0.29\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAL (ratio)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.59} & \multicolumn{1}{c|}{\cellcolor{gray!6}}{0.64} & \cellcolor{gray!6}{0.58}\\
+\hhline{-|----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.23} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.67}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 55.9 & 23.4 & 69.1\\
+\hhline{~|}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{11.5} & \cellcolor{gray!6}{5.4} & \cellcolor{gray!6}{16.0}\\
+\hhline{~|}
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BA($ft^2/ha$)}} & mean & 12.8 & 9.2 & 21.7\\
+\hhline{-|----}
+\multicolumn{2}{c}{\cellcolor{gray!6}{Observations}} & \cellcolor{gray!6}{1358} & \cellcolor{gray!6}{396} & \cellcolor{gray!6}{638}\\
+\hhline{~|}
+\multicolumn{2}{c}{Unique trees} & 497 & 211 & 320\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% perhaps owing to the presence of a high-certainty random intercept value at the 
+% tree-level.
+%%revisit
+%intercept for reference conditions should represent the mean value of the response, and for differences represents the mean difference from the reference.
+% Since this is a gam, there is low certainty in the estimate of the mean value of the response, likely due to the presence of a high certianty random term (i.e., intercepts)
+
+
+%discussion
+% Species compositions can vary with variations in aspect due to species 
+% preference to different niches, so it was important to consider where data was modeled from. 
+
+% Model intercepts and difference intercepts are reported at the bottom of 
+% Table ~\ref{tab:mixsummary}. Here, there is some evidence for the mean response 
+% 
+% The intercept for the pure larch reference 
+% condition represents the mean response of that condition, and the difference 
+% intercepts represent the difference between the reference and each respective 
+% condition being compared. 
+
+%% present results from summary output table. 
+\subsection{Western larch-lodgepole pine mixtures}
+% Western larch growth varied in mixture type compared to homogeneous conditions 
+% in response to each variable. 
+There was strong evidence indicating a departure of growth response from pure conditions
+as DBH, BAL, and BAH varied
+when mixed with lodgepole pine, and modest  
+evidence for such in crown ratio and aspect (Table ~\ref{tab:diff}). 
+In these mixtures, growth was less in smaller western larch trees, 
+but became greater when larch diameters exceeded ~12 cm, compared to pure stands. 
+A similarly-shaped difference effect is displayed as BAL increases from zero.  
+This means that a western larch tree in a dominant position would have lower growth when 
+growing in a mixture with lodgepole pine compared to pure-larch 
+conditions. Inversely, a larch would achieve higher growth when 
+BAL $> 0.75$ of BAH when mixed with lodgepole pine compared to a larch growing in a pure stand. 
+Furthermore, the BAI-BAH difference smooth showed a positive difference at 
+low densities and a negative difference at high densities. However, the 
+magnitude of the difference is very uncertain for densities greater than 
+30 $\mathrm{m^2/ha}$.
+
+% basal area effects were 
+% hardly different for this mixture type, but were positively and negatively 
+% intensified at very low densities and higher densities, respectively, 
+% although the uncertainty becomes somewhat unmanageable at higher densities, 
+% likely due to a lack of high-density data for this mixture type. 
+
+
+
+%what proportion of plot basal area is in trees that are larger than this tree
+% at a value of 0.5, only 50% of plot BA is in trees larger than this tree (and 50% smaller)
+
+\subsection{Western larch-Douglas-fir mixtures}
+
+For larch-Douglas-fir mixtures, growth deviated from the pure stands 
+as crown ratio, stand density, and aspect varied, but little to no variation was 
+observed in response to different levels of tree size or symmetry of competition. 
+The growth difference in response to crown ratio were slightly elevated 
+for larch-Douglas-fir mixtures and only in mid-range values of CR (Fig. ~\ref{fig:diffsmooths}). 
+Similar to the lodgepole pine mixtures, basal area impacts on 
+growth in Douglas-fir mixed larch were were intensified at higher densities. 
+
+%%%%%%%%%%%%%% revisit this point below?
+% This impact, however, was comparatively smaller than that of the lodgepole pine 
+% mixtures; the rate of this magnifying effect may require further investigation 
+% using methodologies appropriate for such comparisons. 
+
+%figure showing dist. for aspect? maybe switch to other variable?
+% \begin{figure}
+% \centering
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_laoc.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_pico.png}
+% \end{subfigure}
+% \begin{subfigure}[b]{0.75\textwidth}
+% \includegraphics[width=\textwidth]{../17.figures_saved/compass_psme.png}
+% \end{subfigure}
+% \caption[Mixture aspects]{Distribution of aspect values for each species-mixture evaluated, respective of their values on a $0-360^{\circ}$ compass.}
+% \label{fig:asp}
+% \end{figure}
+
+
+
+%state which values are significant and for which term
+
+% table of significances
+\begin{table}
+\centering
+\caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
+\label{tab:diff}
+\begin{tabular}{lcrcrcr}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Pure larch} & \multicolumn{2}{c}{Larch-lodgepole} & \multicolumn{2}{c}{Larch-Douglas-fir} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+Smooth & EDF & p-value & EDF & p-value & EDF & p-value\\
+\midrule
+\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{7.89} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.75} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.14} & \cellcolor{gray!6}{0.398}\\
+Crown ratio & 1.00 & $< 0.001$ & 2.78 & 0.031 & 3.74 & 0.004\\
+\cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.11} & \cellcolor{gray!6}{0.122}\\
+BA & 8.65 & $< 0.001$ & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
+\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{17.02} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{6.61} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{10.7} & \cellcolor{gray!6}{$< 0.001$}\\
+Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% given those results, here are some partial response curves 
+%show smooths
+\begin{figure}
+\centering
+\includegraphics[width=.75\textwidth]{../17.figures_saved/mix_diff_smooths.png}
+\caption[Difference smooths]{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
+\label{fig:diffsmooths}
+\end{figure}
+
+
+\section{Comparing species-informed measures}
+
+%
+Models were specified for each species-informed measure. 
+Both shade intolerance and purity were fit as additional 
+predictors in respective models. CCF and BAH 
+were found to be highly correlated with one-another, so ccf was included 
+in its respective model in place of BAH, as to avoid issues of collinearty  
+and concurvity among predictors. 
+
+%Table w/ rmseand stuff (is below)
+Model accuracy was best improved by the addition of stand purity, followed by 
+plot shade intolerance and CCF (Table ~\ref{tab:mixvarsrmse}). 
+Every term in each respective model was backed by a p-value $< 0.001$, indicating 
+that each was confidently non-zero. Changes in RMSE were modest, all of which 
+were at the sub-square centimeter per year -level. Model fit increased in concert with 
+improvements to accuracy except for with CCF, which 
+showed a small decrease in deviance explained (Table ~\ref{tab:mixvarsrmse}).
+
+In the absence of BAH in the model, CCF displayed a larger effect on tree growth 
+than purity and shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, 
+since CCF is a size-weighted measure of stand density, it appears very similar 
+to the BAH smooth in the base model, showing a declining effect from low to high values. 
+Both purity and shade intolerance were also characterized by declining  
+effects on growth as each increased, but since density is already accounted for 
+by BAH in each of these models, both of these measures have an 
+expected smaller effect on growth. 
+The effect sizes across the range of both purity and shade intolerance 
+are variable, where shade intolerance specifically lacks certainty to distinguish 
+the effect from 0. As a result, the shade intolerance curve is difficult 
+to interpret at values less than 0.75. 
+
+% Shade intolerance effects appear highly 
+% uncertain compared to those of 
+% purity and CCF, and non-zero effects are hard to identify with this model. 
+% Smooths for purity and shade intolerance were generously fit with numerous 
+% basis functions, or perhaps minimal penalization, which contributes to their wiggliness 
+% and uncertainties. As a result, shade intolerance effects are difficult to 
+% interpret. 
+
+%Show smooths for each measure
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{../17.figures_saved/ccf_pur_shd.png}
+\caption[CCF, purity, shade intolerance smooths]{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
+\label{fig:ccf_pur_shd}
+\end{figure}
+
+
+% -table of RMSE, dev.expl values for each model-
+
+\begin{table}[!h]
+\caption[CCF, purity, shade intolerance table]{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
+\label{tab:mixvarsrmse}
+\centering
+\begin{tabular}{lrr}
+\toprule
+Model & RMSE ($\mathrm{cm^2/yr}$) & Deviance explained (\%)\\
+\midrule
+\cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} \\
+CCF & 4.801 & 84.42 \\
+\cellcolor{gray!6}{Purity} & \cellcolor{gray!6}{4.595} & \cellcolor{gray!6}{85.07} \\
+Shade intol. & 4.627 & 85.02 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%bullet point list of results
+ % - competition and density metrics contributed the most in deviance explained, followed by size.
+ % -- DBH was the best individual predictor
+ % -

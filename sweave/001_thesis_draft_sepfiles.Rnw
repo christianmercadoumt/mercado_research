@@ -1,0 +1,796 @@
+\documentclass[12pt, oneside, letterpaper, fleqn]{book}
+% fleqn is for left aligned equations
+% change oneside to twoside if chapters should all start on odd-numbered pages
+
+%%% Import a bunch of formatting commands, packages
+\SweaveInput{options.rnw}
+
+%%% Decide if you want to have figures/tables/floats at the end, or not
+\usepackage[tablesfirst,notablist,nofiglist]{endfloat} % or comment out
+
+%%% Line numbering
+\linenumbers % or comment this out to suppress line numbering
+
+%%% Actual document begins here
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+%%%% FRONT MATTER
+\frontmatter
+\thispagestyle{empty} % no header, page number centered on bottom
+
+%%%% TITLE PAGE
+% ...can input separate files like this
+\SweaveInput{title_page.Rnw}
+
+\pagestyle{plain}
+
+%%%% Other prelim sections...can instead be inserted directly in this file
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+Thanks.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+TBD
+
+\tableofcontents
+
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoftables
+
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoffigures
+
+%%%% BODY
+\mainmatter
+\setlength{\baselineskip}{22pt} % begin double spacing
+\chapter{Introduction}
+% \section{}
+
+\SweaveInput{01_intro.rnw}
+
+
+
+\chapter{Methods}
+\section{Permanent growth plot study}
+
+\SweaveInput{02_methods.rnw}
+
+\chapter{Results}
+
+\SweaveInput{03_results.rnw}
+
+\chapter{Discussion}
+
+\SweaveInput{04_discussion.rnw}
+
+
+\chapter{Conclusions}
+
+INCOMPLETE
+
+-these are just thoughts-
+
+Since these data were limited by a lack of robust growth increment data for 
+western larch in shade tolerant mixtures, an obvious next step would be to perform 
+analyses on a data set for western larch growing within mixtures 
+across the entire shade tolerance spectrum. 
+
+These findings are limited to western larch only, and cannot speak to 
+an entire ecosystem, however, it is often of interest to optimize the growth 
+of a particular species to provide the maximum return on investment. 
+Across-species analysis to determine which type of mixture optimizes the growth 
+of western larch and the other incumbent species through complementary relationships 
+is necessary. 
+
+
+% Few studies have evaluated the mixing-growth dynamics of \emph{Larix} species 
+% to date. 
+% 
+% This 
+% may indicate that the competition from Douglas-fir 
+% 
+% suggest that at high densities. 
+% 
+% 
+% Positive differences at mid-range crown ratio 
+% 
+% creating a potentially false-impression that the 
+% presence of large trees actually improves growth. 
+% 
+% show a negative difference at low values of BAL for 
+% lodgepole pine mixtures,
+% 
+% This may have been avoided 
+% through further penalization of this functional term during the fitting process, 
+% but the resulting interpretation would have been the same. 
+% 
+% BAL may be used to indicate the level of size-asymmetric competition for 
+% above-ground resources such as light \cite{Mina2018a}. , 
+% this may indicate that the competition for above-ground resources is 
+% higher when there is a low degree of size asymmetry between larch and 
+% lodgepole pine. 
+% 
+% The results indicate that western larch growth 
+% differs when larch is growing with other western larch vs. when 
+% growing with other species. 
+% 
+% --- pretzsch et al 2016 found that crown ratio wass significanly 
+% affected by mixture and water availability
+% 
+% Given that lodgepole pine is a similarly fast-growing 
+% shade-intolerant species, its unsurprising 
+
+%%%%%%%%%%%%%%%%%%%%%% return once the model is fit
+
+%%%%%%%%%%%%%%%%%%%%%%% CCF purity, etc
+% 
+% Although the effects of shade tolerance and purity are associated with 
+% improved growth estimation, . 
+% 
+% 
+% 
+% Although 
+% these findings do not support observations beyond the tree-level, 
+% 
+% 
+% an additional benefit to separating species-mixing effects 
+% from density 
+% 
+% 
+% This provides a benefit to interpretation because the effects 
+% of site and species-mixing are highly related \citep{Huber2014}. 
+% 
+% 
+% 
+% Given that 
+% CCF is commonly used in empirical growth modelling, combining density measures 
+% with species proportions in place of CCF may be a simple addition
+% 
+% 
+% measures when comparing 
+% between two-species stands and monospecific stands. 
+% 
+% 
+% The results of the present 
+% study are consistent with these findings. 
+% 
+% Although this type of comparison was not conducted 
+% 
+% 
+% Further, \cite{Dirnberger2017} suggested that individual 
+% tree level species proportions by area should account for leaf area rather 
+% than crown projection area. No such test was conducted here, but if 
+% 
+% By using shade-tolerance in this study, and 
+% given that it may have a similar
+% 
+% The use of plot-level species shade tolerance in this study was 
+% presumed a simple and readily available measure to capture the effects 
+% of varying light-interception among trees within a mixture. 
+% 
+% Given that 
+% only one species (western larch) was evaluated and that the model structure 
+% had an inherent multiplicative effect across predictors, 
+% proportional leaf-area across species may have captured. However this is 
+% highly extrapolative given that there simply was not enough high shade tolerance 
+% mixtures. Further investigation on how shade tolerance interacts with 
+% individual tree leaf area and intertree competitive dynamics should be the 
+% focus of future studies. 
+% 
+% Regardless of these limitations, . 
+% %%% make raw data trends and talk about them here
+% %There is limited research on the topic of western larch growth and
+% 
+% growth in temperate and boreal forests. 
+% 
+% 
+% 
+% which found 
+% that dissimilarity in shade tolerance and phylogenetic dissimilarity 
+% lead to 
+% 
+% 
+% %IS this more apparent in smaller trees?
+% 
+% This apparent effect appeared 
+% most relevant 
+% 
+% 
+% 
+% 
+% 
+% 
+% Their proportional measures, however, were weighted by estimated 
+% potential basal area, which was based on a neighboring monospecific stand with 
+% similar conditions. Given that the present study lacked this type of control, 
+% and that the PGP stands were treated with thinning, no such proxy could be 
+% acquired. The lack of identifiability among mixing effects and site effects 
+% within this study may be subject to criticism. 
+% \cite{Huber2014} indicated that the effects of species mixture 
+% is closely related to site
+% 
+% 
+% 
+% The present findings are also in concordance
+% 
+% 
+% In the context of evaluating the effect o
+% 
+% 
+% 
+% stands where proportional measures were based on site potential. 
+% 
+% 
+% 
+% however, they also concluded that species proportions 
+% based on potential density. However, these studies also concluded that 
+% 
+% 
+% 
+% for 
+% individual tree growth modelling definitions 
+% 
+% These findings are somewhat in line with the findings of 
+% 
+% 
+% 
+% However, the fitted relationship for shade intolerance, although points 
+% to a positive relationship between shade intolerance
+% 
+% Furthermore, its been found that incorporating
+% 
+% 
+% Its been suggested that defining different mixtures with proportion of 
+% basal area alone can lead to inaccurate estimations of individual tree growth
+% since mixture effects depend on site conditions \citep{Huber2014}. 
+% 
+% 
+% Considering niche complementarity, these results fail to indicate such 
+% 
+% Furthermore, 
+% 
+% 
+% 
+% By accounting for mixture with weighted proportions 
+% of plot basal area, 
+% 
+% 
+% 
+% 
+% Here, mixing was defined by either weighted or unweighted proportions of 
+% basal area. Although different mixture types were not weighted specifically 
+% by site conditions or stocking potentials as the literature suggests, 
+% site conditions were considered in the model as a separate term, aspect. 
+% Furthermore, since the model was specified with a log link function, 
+% changes in one predictor have a multiplicative effect 
+% on growth with the other predictors, so a change in mixing proportion relates 
+% to growth in such a way that is dependent on the value of aspect. Therefore, 
+% given that aspect represents site potential - an assumption made here based 
+% on previously identified empirical studies \citep{Stage1976,Kimsey2019}, 
+% then no such weighting is necessary. 
+% 
+% 
+% -
+% 
+% 
+% this 
+% may indicate
+% % Lower observed growth in smaller trees 
+% % may be a result of increased competition from 
+% 
+% Since it is a proportion 
+% of basal area, low values don't necessarily indicate that a tree is without 
+% competition, but rather that a low proportion of basal area is in trees of 
+% greater size than a subject tree, meaning that there still could be some 
+% proportion of trees smaller
+% 
+% where there could still be trees of equal or very similar size 
+% (large or small), measure may indicate that there 
+% 
+% 
+% In this case, then, if a low proportion of plot basal area is in larger 
+% trees,
+% 
+% then these results may indicate that when there are few 
+% competitors larger than a larch in a mixture with lodgepole pine, then 
+% expected 
+% 
+% but perhaps 
+% the presence of 
+% 
+% A decreased effect at low values of BAL may indicate that 
+% 
+% 
+% 
+% 
+% 
+% 
+% whereas 
+% differences in Douglas-fir mixtures were only apparent in competition 
+% and site. 
+% 
+% 
+% western larch growth was characterized differently when growing 
+% .
+% 
+% 
+% 
+% 
+% it may increase if there is a mis-match in any of these characteristics within 
+% a community. Western larch is known for its high light-use efficiency, and thus 
+% it was posited that limitations in light may drive modifications in its growth. 
+% 
+% 
+% 
+%  
+% 
+% 
+% 
+% %%%%%Mixture analysis stuff
+% 
+% The pure larch reference curves were visually indistinguishable 
+% from the base model curves. This is unsurprising. 
+% 
+% 
+% ----- is there a valid way to show average size of difference ----- 
+% 
+% Lodgepole:
+% -diameter-Smaller trees had even lower growth, and larger trees had even higher
+% 
+% -BAL-
+% -- The difference for BAL is such that western larch trees larger than 
+% its neighbors (in terms of BA) had lower rates of growth when growing with 
+% lodgepole, and higher growth rates when neighboring trees were larger. 
+% 
+% --- the difference is so high, that it may suggest the relationship between 
+% BAL in larch-lodgepole pine mixtures has a completely different characterization.
+% 
+% --- This is suggestive that the high amounts of competition for light 
+% between these fast-growing shade-intolerant species actually enhances 
+% individual tree growth.
+% --- maybe it suggests that there's some sort of facilitative interaction 
+% between larch and lodgepole when lodgepole is larger than larch?
+% ---- perhaps lodgepole does not do a good job shading out larch, and therefore 
+% provides a 'sheltering' effect. --TALK about crown allometry of both--
+% 
+% -BUT in DBH, this relationship, no such evidence exists-
+% ---CREATE FIGURES for DBH-BAI varying by BAL---
+% 
+% -HOW DOES THIS COMPARE TO OTHERS-
+% 
+% ---- perhaps this also indicates that lodgepole pine is not very effective at 
+% shading-out western larch. --- say something about crown allometry --- 
+% 
+% 
+% some text here:
+% The difference curve for BAL (Fig. ~\ref{fig:diffsmooths}) shows negative and positive 
+% values of difference that outweigh the positive and negative values of the 
+% reference curve, respectively. For example, when BAL is 0.25 in pure conditions, 
+% the expected effect on growth is positive, with an effect size of roughly 0.12. 
+% However, when in a mixture with lodgepole pine, the expected difference from 
+% that effect size is about -0.35.
+% 
+% 
+% DOUGLAS fir:
+% 
+% --- No such differences observed in DBH or BAL
+% --- CR appeared to have a slight positive effect when with douglas fir 
+% for mid-range CR values
+% --- BAH had a magnifying negative effect at high densities
+% ---- however - this magnifying effect appears much smaller, and less intense 
+% than that of lodgepole pine. 
+% ---- This could potentially be indicative that western larch have higher 
+% resource-use efficiency in mixtures with douglas fir than when mixed with 
+% lodgepole pine. 
+% 
+% 
+% IN ALL-
+% 
+% - Lodgepole pine mixtures had more impactful differences than the douglas fir 
+% mixtures. 
+% - Both, however, showed differences across variables. 
+% - There was not strong evidence indicating the mean of the response 
+% was different between each mixture and the pure conditions, but 
+% this could be impacted by the presence of random effects. 
+% 
+% -- This means that the way that growth is characterized across these mixture 
+% types is different. Evidence for this is shown primarily in the way that 
+% western larch interacts with the trees around it in terms of density and 
+% individual tree competitive position. 
+% 
+% 
+% %%%%%%%%%%%%%%%% Comparing CCF-Purity-Shade
+% 
+% 
+% ccf-purity-shade
+% 
+% 
+% 
+% -Purity and shade tolerance both similarly had a decreasing effect 
+% on BAI. 
+% -These results suggest that western larch grows better when growing 
+% with other species of trees. 
+% -- maybe make sure that's not confounded with density? -- 
+% 
+% -similarly, there is a decreasing trend in shade intolerance, meaning 
+% that larch growing with species more tolerant of shade may lead 
+% to higher rates of growth, but these results are highly uncertain. 
+% 
+% -- ccf served well in place of BAH, but its hard to interpret species 
+% effects. 
+% -- would be more useful on this front if it was compared across species 
+% mixtures, as there may be different functional forms of the relationship 
+% shown here. 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% 
+% Point: The difference between larch growth in the lodgepole-mixed and 
+% pure larch conditions is suggestive that interspecific competitive dynamics 
+% between western larch and lodgepole pine are different from intra-specific 
+% dynamics for pure larch stands. 
+% 
+% %%%%%%%%%%%%% revisit these points below
+% %% maybe a discussion point?
+% %% adding a figure of predicted values may be useful to illustrate this idea. 
+% LARCH-LODGEPOLE
+% 
+% that valuable differences in the growth relationship 
+% 
+% that is, 
+% differences in western larch growth . 
+% 
+% This indicates that asymmetric competition that is in favor of larch may negatively 
+% impact it's growth and in favor of lodgepole pine may drive an increase in growth, 
+% given that other variables remain constant. 
+% 
+% LARCH-DOUGFIR
+% 
+% the growth difference in response to crown ratio were slightly elevated for 
+% larch-dougfir mixtures and only in mid range values, but the slight change 
+% likely doesn't have any important interpretation due to 
+% the small impact. 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%  -- This is shown by an amplified negative growth effect for small diameter  
+%  larch and similarly increased positive effect for larger diameter larch 
+%  when mixed with lodgepole pine.
+%  -- These diameter-related effects are similar/different to:
+%   -- x 
+%   -- y 
+%   -- z
+% 
+%  -- Also, larch-mixed with lodgepole had far less growth when the larch were 
+%  larger than neighboring lodgepole pine, and higher rates of growth when the 
+%  lodgepole pine were larger. %look at where the predictions are coming from 
+%  -- this is similar/different to:
+%   -- riofrio, other papers. 
+%   -- likely depends on basal area
+%   -- and/or diam.
+%   -- investigate other vars changing..
+%   
+%   
+%  -- Discuss theory behind why this might happen
+%  --- competition for light/above ground comp (usually posited for inter-specific comp.)
+%  --- below-ground competition (usually posited for intra-specific comp.)
+%  --- 
+%  
+%  Caveat:
+%  -- Difficult to draw conclusions due to 
+%  -A. uncertainty in estimation (although p-values aren't too bad)
+%  -B. Because the variations in one covariate could relate to 
+%  the variations in a different covariate (despite the collinearity assessment)
+%   - thus these types of analyses require careful consideration of 
+%   i. choice of covariates in model and the processes they account for
+%   ii. model selection. 
+%   
+%  -- 
+%  
+% 
+%  
+%  
+%  These points highlight an overarching consideration: model selection is 
+%  associated with uncertainty. 
+%  -- Talk about different methods of model selection
+%  -- Mention that mgcv has options for selection, but I did not use them because 
+%  1. wanted to ensure that all effects are captured
+%  2. avoid using black-box methods
+%  -- wood says: "The more thought is given to appropriate model structure up front, the more successful model selection is likely to be. Simply starting with a hugely flexible model with ‘everything in’ and hoping that automatic selection will find the right structure is not often successful."
+%  -- Perhaps it could make sense to apply further penalties as a check once the base model is identified?
+%  
+%  -- Point about random forests ?
+%  -- point?
+%  
+% 
+% -- CCF, Purity, shade intol. --
+% 
+% Point: CCF is already widely used in regional growth models, but implementing other measures 
+% could improve model performance in its place. 
+% 
+%  -- In this study, a model with purity of stand (the ratio of a given species) 
+%  out-predicted and out-fit models with alternative measures.  
+%  --- This more or less is in alignment with the findings of:
+%   --- Weiskittel2009 - stand composition can influence max. size-density relationship
+%   --- Huber2014 - different stocking potentials of species in mixtures 
+%   (for a given site) should be taken into consideration prior to comparing growth
+%   ---- and: mixture effects depend on site conditions
+%   % --- Perhaps the base model selection methods implemented here did not 
+%   % adequately take into consideration the effects of site on tree growth?
+%   --- There may be some indication in model predictions of growth across the 
+%   range of basal area (Figure?) that purity has some influence on the effect 
+%   of density on western larch growth. 
+%   ----- in figure .... We see that at low levels of purity, there are higher 
+%   predicted values of BAI compared to high levels of western larch purity, 
+%   which resulted in lower growth rates. 
+%   ----- A similar trend may be observed across the range of BAL. 
+%   --- This is somewhat concurrent with 
+%   
+%   
+%  -- The results here indicate that shade tolerance was also useful in estimating 
+%  larch growth, however, its fitted relationship with growth was highly variable 
+%  and had minimal confidence in predictions
+%  
+%  --- Both these studies said shade tol. dissimilarity is useful: Chen2016 and Searle2020
+%  ---- They found that shade tolerance dissimilarity reduced competition
+%  ---- also found that smaller trees benefited more than larger trees from 
+%  increased diversity. 
+%  
+%  --- The findings of this study were inconclusive to make such determinations. 
+%  --- evaluating predictions of BAI at varying levels of basal area across the 
+%  range of observed shade intolerance values did provide some visual evidence 
+%  that the constant predicted value of BAI changes at different levels basal 
+%  area, and that the magnitude of effect that shade intolerance had on growth 
+%  may vary at different values of basal area. 
+%  
+%  --- looking across the range of basal area, lower values of shade intolerance 
+%  are associated with higher growth across the range of basal area, but due to 
+%  high uncertainty in predictions, conclusive evidence for a difference does not 
+%  exist. 
+%  
+%  --- similarly, across the range of BAL, lower values of shade intolerance 
+%  are associated with higher values of predicted growth, holding everything 
+%  else constant, but the certainty of predictions do not allow for extrapolation 
+%  beyond this case. 
+%  
+%  --- There simply was not enough data to provide detailed evidence for a shade 
+%  intolerance effect on larch growth
+ 
+ % Speculating on the fitted curve may be similarly suggestive that 
+ %dissimilarity is beneficial to growth, but hard to say. 
+ 
+ 
+
+
+
+% - The p-values are not strictly valid (Wood 2006)
+% - We did not explicitly select model degrees of freedom, so that's in our favor
+% - fitting the model unpenalized could ameliorate issues, but this may render 
+% the test pointless because we're trying to describe ecological dynamics
+%  -- sorta like in the case of 
+ 
+ 
+
+ 
+%  
+% -- Discuss the discrepancy between the rate at which the negative ba-provoked 
+% growth difference becomes more negative, comparing douglas fir and lodgepole mixed larch
+% -- discuss the limitations of this approach, as it does not offer pairwise comparisons 
+% among all conditions. 
+
+% -Acquah2020 discusses competition modification by species mixing
+%   -- points
+%   --- Higher intra*specific comp. for smaller douglas fir
+%   --- no general pattern in larger trees. 
+%   --- main driver limiting growth in the stands is aboveground competition for light
+% 
+% -Contreres said BAL is good for all trees in the study
+ 
+% 
+% \subsection{Comparing species-mixing measures}
+% 
+% - discussion on BA proportion as a measure of species-mixing
+% - pros and cons of ccf as a mixture variable
+% - using ba as a versatile variable to do things? look in mixed species book
+
+
+% \captionof{equation}{Root mean squared error (RMSE) equation, where \hat{y} 
+% represents a predicted value, y represents an observed value, and n_{df} 
+% represents model residual degrees of freedom}
+
+% The following steps outline the pragmatic variable selection
+% approach mentioned in step (ii) above:
+% \begin{enumerate}
+%   \item Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. 
+%   \item Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). 
+%   \item Different groups of variables within groups were compared with RMSE. 
+%   \item Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
+%   \item A concurvity \citep{Hastie1990} assessment was then conducted between variables within each group. If concurvity was greater than 0.8 for a particular set of terms, then an alternative not including both terms was evaluated. 
+% \end{enumerate}
+% 
+% The following steps outline the implemented selection framework:
+% (i) evaluating and estimating potential explanatory variables 
+% in the available data set based on established relationships
+% with the dependent variable (BAI), (ii) sequentially
+% selecting predictor variables within the pre-determined groups 
+% through a pragmatic variable selection approach to identify
+% a base-model structure for the GAM, and (iii) evaluating random effects.
+% 
+
+
+
+
+% The order of these variable groups is 
+% the order in which the model formulation was iteratively constructed, 
+% based on their previously identified relative importance 
+% in estimating BAI .
+
+
+% (iv-a) assess whether larch growth varies across different types of mixtures
+% (iv-b) assessing effects produced by identified species-mixing variables. 
+
+% For (i), explanatory variables were identified based on availability 
+% in the PGP data set and whether they could be calculated from the 
+% available data. 
+% Variables contained in established and widely-used
+% empirical models, such as the diameter growth model in FVS \textbf{(*CITE*)},
+% were considered because, 1. the PGP data collection focused on such
+% variables, and 2. these variables are relatively easy to collect 
+% and commonly found in long-term data collection efforts similar to
+% the PGP data. 
+% This allows for the potential expansion of these 
+% methodologies to other, similar works. 
+% Variables considered that were beyond the scope identified above, related primarily to site conditions. 
+
+% \textbf{**ADD TABLE that lists variables from the ln(DDS) model, as well as variables not in that model in BOLD text?**} 
+% Once explanatory variables were identified for consideration,
+% they were then grouped into the following categories: tree size,
+% density and competition, and site.
+
+
+
+
+% The following steps outline the pragmatic variable selection
+% approach mentioned in step (ii) above:
+% 
+% \begin{enumerate}
+%   \item Evaluate co-linearity of within-group predictors with each other to help avoid redundant inclusion of variables. Any pair-wise linear relationship with a correlation coefficient of 0.7 or higher was not considered together. (R-squared of .49 or higher). This was chosen as the cutoff because .7 correlation means that variance is roughly 50\% accounted for between variables. Additionally, variables known to represent the same processes, like tree Gsal area and diameter, were not considered together to avoid redundancies and reduce model complexity. 
+%   \item Only necessary or inherent interactions were considered, such as an interaction between sin(aspect) and cos(aspect). 
+%   \item Different groups of variables within groups were compared with RMSE. 
+%   \item Ultimately, the lowest RMSE version within each group was chosen based on the above workflow.
+%   \item A concurvity \citep{Hastie1990} assessment was then conducted between variables within each group. If concurvity was greater than 0.8 for a particular set of terms, then an alternative not including both terms was evaluated. 
+% \end{enumerate}
+
+% -FIGRE/TABLE of colinearity assessment?- (maybe include in table of variables?) tile plot? table of corrs?--
+
+
+% , *such terms will be scrutinized.* (Johnston et al 2019 uses a very low concurvity cutoff. It oftentimes is arbitrary). 
+
+%2.%*These two were inherent because they are derived from the same variable, aspect, which cannot be used in its raw form due to scaling issues. The sin/cos transformation and the resulting interaction term allows this variable to represent aspect in a way that parses out east-west from north-south. Model comparisons were made with their inclusion and without.*
+
+
+% 3.*For example, in the site variables group, 3 different groups were compared - heatload, site index, and raw topographic variables. The model bearing the lowest RMSE (highest predictive accuracy) was selected. These groups were derived as a result of the colinearity assessments as well as prior knowledge that heatload is derived from topographic variables and site index is meant to serve as a catch-all that accounts for all site variables. In the case of site variables as well, a stand categorization intercept was evaluated against the other within-group groups to account for site effects. *
+
+% Step (iii) Random effects
+% 
+% Step (iv) species mixing
+
+% \subsubsection{Within-group dimensional reduction}
+% 
+% Selecting variables within each group posed challenges due to the 
+% number of predictors, colinearity and/or concurvity among variables
+% and terms, and the numerous potential interactions between variables
+% within groups. This required a firmly-structured process where
+% co-variate relationships are assessed. 
+% 
+% **DEFINE CONCURVITY** (Hastie and Tibshirani 1990)
+% 
+% *curse of dimensionality of nonparametric functions* Wood(2004) 
+% stable and efficient multiple smoothing parameter estimation for
+% generalized additive models
+% *Sure-independence screening*
+% 
+% Prior to implementing the steps here, assessment of co-linearity
+% was performed between variables within each group, since there is
+% some amount of redundancy within groups. This assessment was made 
+% through plotting each variable with each other variable, identifying
+% if there is a relationship through graphical analysis, and then 
+% evaluating the strength of linear relationships with r-squared values. 
+% Additionally, if one variable is derived from another present, 
+% these will not be considered as covariates in the same model.
+
+% \subsubsection{Evaluating species mixing}
+
+% Once a parsimonious base-model is selected, species-mixing variables 
+% will then be added to detect if there is a species-mixing effect. 
+% Further elaboration on applying this approach will be explained in
+% the following text. **The following equation** (Equation...xxx) 
+% represents the modeling framework: 
+
+
+
+% \subsection{Basal Area Increment Model}
+
+% Here is an equation:
+% \begin{align}
+% B & = \frac{2^x}{\sin{\theta}} \sum_{i=1}^N y_i^3 \\ \nonumber
+% & = 3
+% \end{align}
+% 
+% \section{A second section}
+% \subsection{With one subsection}
+
+% Here is a code chunk.
+% 
+% <<no_need_for_a_name>>=
+% 10^3
+% @
+% and another without the call showing.
+% 
+% <<no_need_for_a_name,echo=F>>=
+% 10^3
+% @
+% and you can also do inline \Sexpr{round(pi,5)}.
+@
+
+% \chapter{Chunks of extended abstract}
+% 
+% Western larch (\emph{Larix occidentalis}) is an important tree species that is 
+% exclusive to the inland northwest region of North America %[@Knudsen1968; @Schmidt1976; @Schmidt1995]. 
+% \citep{Knudsen1968,Schmidt1976,Schmidt1995}.
+% It is very intolerant of shade, and grows across a wide range 
+% of communities with both shade-tolerant and -intolerant species %[@Baker1949; @Schmidt1988]. 
+% A growing body of evidence suggests that species traits in mixed-species 
+% forest communities can impact tree growth relationships %[@Forrester2017; @Riofrio2017]. 
+% The objectives of this research are: 
+% \begin{enumerate}
+% \item
+% to identify whether community species composition impacts the growth 
+% of western larch after accounting for other influential factors, 
+% \item to identify if a stand average shade-tolerance more effectively 
+% captures species-mixing effects on growth when compared to a less 
+% specific relative abundance metric, and
+% \item to quantify the degree to which 
+% species-mixing impacts the growth of western larch (if an effect is observed).
+% \end{enumerate}
+% 
+% As shown in Fig.~~\ref{fig:junk}, there are many references to consider.
+% \begin{figure}\centering
+% %\includegraphics[width=\textwidth]{../extab_refs.JPG}
+% \includegraphics[width=2in]{../extab_refs.JPG}
+% \caption{This is a figure.}\label{fig:junk}
+% \end{figure}
+% 
+% Next I have a table, called Table ~\ref{tab:fake}.
+% \begin{table}\centering
+% \caption{This is my table.}\label{tab:fake}
+% \begin{tabular}{cc}
+% \hline
+% Row 1 & Column 2 \\ \hline
+% 1 & 2 \\
+% 3 & 4 \\ \hline
+% \end{tabular}
+% \end{table}
+
+%%%% BACK MATTER
+\backmatter
+\chapter*{Literature Cited}
+\addcontentsline{toc}{chapter}{Literature Cited}
+\bibliography{../zotero_library}{}
+% \cite{*} % use this to list all entries in bib file
+
+\end{document}
