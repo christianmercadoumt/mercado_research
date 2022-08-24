@@ -165,7 +165,7 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
 
-\section{GAM overview}
+\section{GAM overview} \label{gamoverview}
 
 Using these data, generalized additive mixed models (GAMMs) were developed to 
 relate the BAI of western larch trees to the variables described above. 
@@ -191,7 +191,8 @@ Smoothers are composed of a sum of fitted estimated \emph{basis functions}
 which characterize the conditional relationship between a predictor 
 and an independent variable. They are penalized by a 
 \emph{smoothing parameter}, which constrains a smoother as its complexity 
-(or "wiggliness") grows higher \citep{Pedersen2019}.
+(or "wiggliness") grows higher, as indicated by a smoother's effective degrees of 
+freedom (EDF) \citep{Pedersen2019}.
 The thin-plate regression spline (TPRS) 
 is the default smoother in mgcv owing to its simple and effective behavior \citep{Wood2003},
 and was used for all model terms fit in the present study. 

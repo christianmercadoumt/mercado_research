@@ -47,23 +47,23 @@ TBD
 %%%% BODY
 \mainmatter
 \setlength{\baselineskip}{22pt} % begin double spacing
-\chapter{Introduction}
+\chapter{Introduction} \label{introduction}
 % \section{}
 
 \SweaveInput{01_intro.rnw}
 
 
 
-\chapter{Methods}
+\chapter{Methods} \label{methods}
 \section{Permanent growth plot study}
 
 \SweaveInput{02_methods.rnw}
 
-\chapter{Results}
+\chapter{Results} \label{results}
 
 \SweaveInput{03_results.rnw}
 
-\chapter{Discussion}
+\chapter{Discussion} \label{discussion}
 
 \SweaveInput{04_discussion.rnw}
 

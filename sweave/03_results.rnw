@@ -1,4 +1,4 @@
-\section{Raw data trends}
+\section{Raw data trends} \label{rawdata}
 
 \begin{figure}
 \centering
@@ -77,7 +77,7 @@ are displayed in figure \ref{fig:aspel}.
 % \end{tabular}
 % \end{table}
 
-\section{BAI model}
+\section{BAI model} \label{basemodel}
 
 
 %begin with description of the raw data
@@ -226,7 +226,7 @@ site characteristics of PGP western larch growth increments are shown in table
 % product interaction term (CITE - wood?).
 % to ensure that multi-level competitive effects were captured
 
-\section{Assessing growth across different communities}
+\section{Assessing growth across different communities} \label{comparespp}
 
 % modeling mixtures
 %% maybe i should constrain plotted curves to only pure larch that lie between west and north?
@@ -350,7 +350,7 @@ Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
 % condition being compared. 
 
 %% present results from summary output table. 
-\subsection{Western larch-lodgepole pine mixtures}
+\subsection{Western larch-lodgepole pine mixtures} \label{mixlp}
 % Western larch growth varied in mixture type compared to homogeneous conditions 
 % in response to each variable. 
 There was strong evidence indicating a departure of growth response from pure conditions
@@ -380,7 +380,7 @@ magnitude of the difference is very uncertain for densities greater than
 %what proportion of plot basal area is in trees that are larger than this tree
 % at a value of 0.5, only 50% of plot BA is in trees larger than this tree (and 50% smaller)
 
-\subsection{Western larch-Douglas-fir mixtures}
+\subsection{Western larch-Douglas-fir mixtures} \label{mixdf}
 
 For larch-Douglas-fir mixtures, growth deviated from the pure stands 
 as crown ratio, stand density, and aspect varied, but little to no variation was 
@@ -446,7 +446,7 @@ Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
 \end{figure}
 
 
-\section{Comparing species-informed measures}
+\section{Comparing species-informed measures} \label{comparemeas}
 
 %
 Models were specified for each species-informed measure. 
