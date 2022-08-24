@@ -517,23 +517,98 @@ ggsave('17.figures_saved/base_aspect.png', contour.pl)
 
 ```
 
-```{r base model diagnostics}
-re.tree.1
+```{r residuals- base model diagnostics}
 
+summary(bai.spmx.ids.h$bai)
+summary(bai.spmx.ids$bai)
+
+
+re.tree.1
+gam.check(re.tree.1)
 hist(bai.spmx.ids.h$bai)
 #predicted vs. fitted values
-preddat <- predict.gam(re.tree.1, newdata = bai.spmx.ids.h, exclude = 's(unique_tree_id)', type = 'response')
+preddat <- predict.gam(re.tree.1, newdata = bai.spmx.ids.h, exclude = 's(unique_tree_id)', type = 'link')
+
+residuals_linpred_plot(re.tree.1, point_alpha = 0.2, type = 'deviance')
+residuals_linpred_plot(re.tree.1, point_alpha = 0.2, type = 'response')
+
 
 pred.tb <- tibble(bai.spmx.ids.h,'fit'=preddat)
 pred.tb <- pred.tb %>% mutate(res = bai-fit)
+
+
+
+observed_fitted_plot(re.tree.1)
+
+
+bi <- re.tree.1$model$bai
+ft <- fitted(re.tree.1)
+all.equal(log(fitted(re.tree.1)), linpr)
+
+
+
+
+summary(ft_lp$bai)
+ggplot(ft_lp, aes(x = fit, y = bai)) + 
+  geom_point(alpha = .2) 
+# +   geom_smooth(method = 'lm', se = F)
+
+
+m1 <- lm(bai~fit, data=ft_lp)
+plot(m1)
+summary(m1)
+#residuals-linearpredictor#####
+devrs <- residuals.gam(re.tree.1, type = 'deviance')
+linpr <- re.tree.1$linear.predictors
+fit <- re.tree.1$fitted.values
+abc <- tibble(devrs, linpr,fit)
+
+
+
+residuals1 <- ggplot(abc, aes(x = 2.54^2*fit, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = bquote('BAI'~(cm^2/yr.)), y = 'Deviance residuals') +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_y_continuous(limits = c(-5,5)) +
+  geom_smooth(se = F)
+
+# ggsave('17.figures_saved/residual_plot.png', residuals1)
+# knitr::plot_crop('17.figures_saved/residual_plot.png')
+
+#estimation error#####
+ft_lp <- fitted_values(re.tree.1, data = bai.spmx.ids.h, scale = 'response')
+# ft_lp <- ft_lp %>% mutate(obs =bai, fit = re.tree.1$family$linkinv(fitted))
+ft_lp <- ft_lp %>% mutate(fit.cm = fitted*2.54^2, bai.cm = bai*2.54^2)
+
+estimationerr <- ggplot(ft_lp, aes(x = fit.cm, y = bai-fitted)) +
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = bquote('BAI'~(cm^2/yr.)), y = 'Error') +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_y_continuous(limits = c(-5,5)) +
+  geom_smooth(se = F)
+
+
+res.err <- arrangeGrob(residuals1, estimationerr, ncol =2)
+ggsave('17.figures_saved/res_err.png', res.err)
+knitr::plot_crop('17.figures_saved/res_err.png')
+
+# ggsave('17.figures_saved/esterr.png', residuals1)
+# knitr::plot_crop('17.figures_saved/esterr.png')
+
+
 #fit vs. response
 ggplot(pred.tb, aes(x = fit, y=bai)) + geom_point() + geom_smooth(method = 'lm')
+
+ggplot(pred.tb, aes(x = bai, y = res)) + geom_point() + geom_hline(yintercept = 0, linetype = 'dashed')
 
 
 apr <- appraise(re.tree.1, point_alpha = 0.2)
 gam.check(re.tree.1)
 
 ggsave('17.figures_saved/base.diagnostic.png', apr)
+
+
 
 
 ```
@@ -2145,6 +2220,12 @@ appraise(shade.intol, point_alpha = 0.2)
 
 ```
 
+
+```{r residuals}
+fit <- re.tree.1
+
+
+```
 
 ```{r}
 ggplot(smest.ba11, 
