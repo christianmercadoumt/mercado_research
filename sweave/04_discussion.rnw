@@ -10,8 +10,9 @@ The model selection approach applied here produced a BAI model
 which resulted in relationships consistent with other empirical 
 individual tree growth models. The effect of diameter on growth 
 resembled the findings of \cite{Wykoff1990}, and 
-\cite{Monserud1996}, such that it shows rapid increasing growth at lower 
-values which taper at high values, but differs in that ours does not show 
+\cite{Monserud1996}, such that growth increases rapidly at lower 
+values of DBH and then taper at high values, but differs in that the BAI-DBH 
+relationship modeled in this study does not show 
 a decreasing effect \ref{fig:basesmooths}. With respect to the overall 
 increasing effect and the lack of a decreasing effect, 
 these results are most similar to \emph{L. decidua} presented by 
@@ -70,8 +71,8 @@ and biophysical conditions are constant and that models estimating the variable
 are accurate. \cite{Stage2007} suggested that using a combination of slope, aspect, and elevation 
 should improve prediction accuracy, which was observed here. However, these improvements 
 were marginal and were associated with high concurvity values among topographic 
-variables as well as with BAH. Furthermore, the relative improvements to prediction 
-realized by adding site variables was minimal, which is in line with previous 
+variables as well as with BAH. Furthermore, the relative improvements to 
+prediction accuracy realized by adding site variables was minimal, which is in line with previous 
 findings \citep{weiskittel2011forest}. Clearly there are tradeoffs associated 
 with accounting for different site effects in this format, and future growth 
 modelling efforts should consider these tradeoffs and how they may interact 
@@ -204,42 +205,163 @@ factor.
 \section{Assessing species-mixing impacts on growth}
 
 The mechanisms by which species interactions lead to modifications 
-in productivity are dictated by the availability, acquisition, and efficiency by which 
-resources required for growth are used for different species in a mixture 
-\cite{Pretzsch2017a}. Competition is modified when these vary, where 
-the complementarity of species niches can lead to enhanced resource-use among 
-species within a mixture, reducing competition, and 
-leading to higher observed rates of growth \citep{Forrester2016}. 
-Since western larch is known for its high light-use efficiency, 
-it was posited that limitations in light acquisition in mixtures with 
+in productivity may be viewed by the interaction of resource availability, 
+acquisition of resources, and efficiency by which resources required for 
+growth are used by different species in a mixture \citep{Pretzsch2017a}. 
+
+
+Mutualism and competition among tree species have been used to explain 
+forest development \citep{Oliver}
+
+As resources availability, their acquisition, and efficiency of thier use 
+change through stand developement, 
+
+
+
+
+
+
+
+
+Competition for resources then may occur when a resource is limited, 
+
+
+Trees of different species at the same site may compete for resources 
+when sharing growing space, 
+
+
+
+Thus, inter-tree competition for a particular resource 
+(e.g., light, water, soil nutrients) can be modified when 
+resource availability becomes limited or in excess, when trees have similar or different 
+acquisition methods, or when the efficiency of resource-use is 
+similar or different. Since western larch is known for its high growth 
+efficiency and shade-intolerance \citep{Schmidt1976}, it was posited that 
+limitations in light acquisition in mixtures with 
 other light demanding species would increase competition and result
 in lower growth in western larch compared to pure larch conditions. 
 Although there is no clear evidence of species-specific niche complementarity 
 effects, these results do indicate that such dynamics may be at play. 
 
+Therefore, inter-species competition may be modified 
+if at one point in time two trees have comparable or differing strategies, 
+given the same level of the resource in question. 
 
-For larch-lodgepole pine mixtures, this was made apparent in 
-the partial relationships between growth and each variable group. 
-However, the apparent effects may be explained partially by the distribution 
-of data in this mixture-type. Specifically, the amplified effects of size 
-modeled may be due to the average and maximum tree sizes in this 
-mixture being substantially smaller than those of the reference level 
-(see table \ref{tab:mixsummary}). Since there is limited large-tree data, 
-the fitted relationship fails to account for the asymptotic behavior that 
-occurs beyond 20 cm in the reference curve, leading to over-estimation. 
-The results also indicate that BAL may be characterized differently, where 
-increasing effect displayed in figure \ref{fig:diffsmooths}, suggests that 
-if there is an effect, it's likely quite small. This also may be due to 
-the limited data points in this mixture, as the range of BAH is much smaller 
-than the other groups. Since this variable is a ratio as opposed to a quantity, 
-an issue of scale is created where a BAL value of 1 implies a very different 
-meaning between groups with mis-match distributions of BAH. This is a known 
-weakness of accounting for BAL in this way, but studies of alternative 
-forms provide mixed results \citep{weiskittel2011forest}. Nonetheless, this 
-highlights a flaw of model selection given the usage of BAL in this 
-portion of the analysis. The high uncertainties at large values of BAH 
-are also due to a lack of data, however, the trend does not suffer from 
-scaling issues, thus its interpretation is unaffected. 
+For example, if two trees compete for 
+
+Species-diversity, then may
+
+, such as during a drought for example, 
+or when two species have phenotypes . 
+
+
+when these vary, where 
+the complementarity of species niches can lead to enhanced resource-use among 
+species within a mixture, reducing competition, and 
+leading to higher observed rates of growth \citep{Forrester2016}. 
+
+
+
+For larch-lodgepole pine mixtures, this varying competitive dynamics were 
+made apparent in the partial relationships between growth and each variable group. 
+
+
+  although 
+a difference of characterization of variables was present. 
+
+
+
+
+
+Whether increasing competition as a result of mixing larch and lodgepole pine 
+related to the growth of western larch was unclear in this study. There was,
+however, a difference in the way that western larch growth was characterized 
+when mixed with lodgepole pine compared to the reference pure-larch conditions, 
+as provided by the evidence for a non-zero difference effect for the DBH, 
+BAL, and BAH smooth terms in table \ref{tab:diff}. 
+
+% The effects presented in section \ref{mixlp} may be explained 
+% partially by the distribution of data in this mixture-type. 
+% 
+% Specifically, 
+
+The DBH difference smooth shown in Figure \ref{fig:diffsmooths} displays a 
+positive difference at values greater than 12 cm, meaning that larch in mixtures 
+with lodgepole pine, given this data set, would have higher expected growth at those 
+values than larch growing with other larch, holding all else constant. This 
+directly contradicts the expectations for these conditions provided in 
+Chapter \ref{introduction}. There may be some truth to the positive difference 
+displayed, but it also may be partially due to the average and maximum tree 
+sizes in this mixture being substantially smaller than those of the reference 
+level (see Table \ref{tab:mixsummary}). Additionally, a visual comparison 
+between the pure larch and larch-lodgepole mixtures 
+in Figure \ref{fig:sumfig} (first and second rows, respectively) shows few observations of DBH greater 
+than 20 cm in the second row, where the slope of the trend lines in the second row 
+fail to achieve the same taper as those of the first row at values above 20 cm. 
+Therefore, the positive difference at values higher than 20 cm in 
+\ref{fig:diffsmooths} may not be subject to valid interpretation. However, 
+the negative difference at low DBH values is in concurrence with the stated 
+expectation, suggesting that smaller-diameter western larch trees mixed with 
+lodgepole pine experience lower rates of growth than the same size trees 
+growing primarily with other western larch. Considering the similar shade-tolerances 
+and fast growth exhibited for each of these species, as well as 
+
+
+the increasing 
+difference between lodgepole-mixed larch growth in \ref{fig:diffsmoooths} may 
+be indicative that light is the primary limiting factor for growth in smaller 
+western larch trees in mixtures with lodgepole pine whereas when size is larger, 
+below-ground resources, such as nitrogen, may be the primary limiting factor. 
+Without evaluating the growth relationship of lodgepole pine, however, I can't say 
+this with any certainty. 
+
+This finding is consistent with 
+those of 
+
+
+
+
+% 
+% 
+% . Since there 
+% is limited large-tree data in the larch-lodgepole mixtures, the BAI-DBH 
+% relationship most likely fails to account for the tapering increasing 
+% effect that occurs when DBH is greater than 20 cm. Presumably, this explains 
+% why at larger diameter values 
+% 
+% to 
+% over-estimation. 
+
+The results described in section \ref{mixlp} suggest that competitively dominant larch 
+trees grow less when mixed with lodgepole pine and that non-competitively dominant
+larch trees in the same mixtures grow more compared to larch growing in pure stands with the same 
+values of BAL. Since BAL was calculated as plot basal area in trees larger than a subject  
+tree divided by total plot basal area, as opposed to a quantity of the former, 
+an issue of scale was created when comparing across mixtures in these data. 
+For example, if comparing a BAL value of 0.25 
+in a plot where the BAH is 40 $m^2/ha$ in a pure larch plot, to a plot where the 
+BAH is 10 $m^2/ha$ in a lodgepole pine mixture, the trees of interest are being 
+out-competed by 10 $m^2/ha$ and 2.5 $m^2/ha$ worth of are occupied by tree stems, 
+respectively. Thus, in this example the relative social position, being 
+numerically equal, does not imply the same theoretical quantity of competition 
+in larger trees. Considering the relative ranges of DBH values for both lodgepole 
+pine mixtures and pure larch mixtures in Table \ref{tab:mixsummary}, where the 
+lodgepole pine data are of smaller trees (based on average DBH) than those of 
+the pure data, this issue arises. Therefore a competitively dominant larch in a lodgepole 
+mixture is likely smaller than one growing with other larch, thus noting a 
+negative difference in growth for such a tree is intuitive, given the BAI-DBH 
+relationship identified in Figure \ref{fig:basesmooths}. This scaling issue is a 
+known weakness of accounting for BAL as a proportion of plot basal area, 
+but studies of alternative forms provide mixed results 
+\citep{weiskittel2011forest}. Since this model uses a log-link function and 
+thus implies a multiplicative effect of variables, BAL is a useful measure of 
+social competitive position. However, BAL is confounded with tree size in this 
+comparison across conditions, making it difficult to interpret. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Return to this point 82522
+
 
 In Douglas-fir mixtures, the difference effect sizes were generally 
 smaller and more stable than those of the lodgepole pine mixtures. 
@@ -311,6 +433,63 @@ Given the limited information on species-mixing dynamics for \emph{Larix},
 a literature review covering each and/or all species may be useful to identify 
 next-steps to elucidate \emph{Larix} growth and yield dynamics in mixed-species 
 forests. 
+
+
+% The interpretation of BAL
+% 
+% Nonetheless, this highlights a flaw of model 
+% selection given the usage of BAL in this portion of the analysis. 
+% 
+% The high 
+% uncertainties at large values of BAH are also due to a lack of data, however, 
+% the trend does not suffer from scaling issues, thus its interpretation is unaffected. 
+% 
+% so given the BAI-DBH 
+% relationship for larch in Figure \ref{fig:basesmooths} th . 
+% 
+% For instance, comparisons of BAL could be made where total plot basal area 
+% could be completely different acros
+% 
+% dominance of the trees 
+% being compared is different.  
+% 
+% data with differing plot basal areas could be compared where the relative 
+% dominance of a particular tree. That is, a BAL ratio of 1:4
+% 
+% 
+% if a plot 
+% basal area value in a pure larch plot is 40 $\mathrm{m^2/ha}$
+% 
+% For example, consider a tree wit
+% 
+% Since high BAL values (close to or equal to 1) imply that most or every tree 
+% in a plot is larger than the tree whose growth is being evaluated, 
+% 
+% a very different 
+% meaning between groups with mis-match distributions of BAH. 
+% 
+% 
+% 
+% 
+% 
+% 
+% This comparison also suffered from data limitations
+% 
+% 
+% 
+% in the BAI-BAL relationship for larch mixed with lodgepole pine 
+% (compared to pure larch) in figure \ref{fig:diffsmooths} shows an increasing 
+% relationship with BAI, characterized by a negative difference at low values 
+% 
+% suggests that if 
+% there is an effect of BAL on western larch BAI when mixed with lodgepole pine, 
+% it's likely quite small. 
+% 
+% However, the range of BAH is muc
+% 
+% This also may be 
+% due to the limited data points in this mixture, as the range of BAH is much smaller 
+% than the other groups. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Other thoughts/ideas/sentences/ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
