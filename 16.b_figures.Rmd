@@ -258,7 +258,7 @@ spp.facet.plot <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq))) + geom_point
   facet_grid(Mixture~BAH) +
   labs(x = bquote(DBH[km]), y = bquote(log(BAI[km]))) + 
   geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
-   # geom_smooth(se = F, method = 'gam', size = 0.5, linetype = 'dashed') +
+   geom_smooth(se = F, method = 'gam', size = 0.5) +
   # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
   # theme(aspect.ratio = 1)
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))

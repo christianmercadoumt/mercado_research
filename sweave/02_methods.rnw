@@ -77,7 +77,7 @@ measurement occasion (m),
 where $m+1$ indicates a subsequent measurement occasion.
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
 across the data set and annulization allows for flexibility and a finer-scale measure of 
-stand dynamics over time \citep{weiskittel2011forestforest}.
+stand dynamics over time \citep{Weiskittel2011}.
 
 Other variables were grouped together based on the types of tree or stand 
 attributes that they describe. These groups are variables that represent 

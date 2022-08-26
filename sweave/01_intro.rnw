@@ -171,7 +171,7 @@ Its formulation is paralleled by growth models in other regions and countries,
 like the multiple US and Canada regional variants of FVS or PROGNAUS \citep{Monserud1996} 
 in Austria. These types of models are widely used because they 
 provide an accurate, simple, and efficient basis for projecting tree and stand 
-growth \citep{weiskittel2011forestforest}. 
+growth \citep{Weiskittel2011}. 
 Various studies have evaluated species-mixing effects on tree growth
 using the vetted framework of such models. 
 One study showed that when incorporated into an individual 
