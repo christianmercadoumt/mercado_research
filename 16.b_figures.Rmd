@@ -546,14 +546,6 @@ ft <- fitted(re.tree.1)
 all.equal(log(fitted(re.tree.1)), linpr)
 
 
-
-
-summary(ft_lp$bai)
-ggplot(ft_lp, aes(x = fit, y = bai)) + 
-  geom_point(alpha = .2) 
-# +   geom_smooth(method = 'lm', se = F)
-
-
 m1 <- lm(bai~fit, data=ft_lp)
 plot(m1)
 summary(m1)
@@ -565,11 +557,11 @@ abc <- tibble(devrs, linpr,fit)
 
 
 
-residuals1 <- ggplot(abc, aes(x = 2.54^2*fit, y = devrs)) + 
+residuals1 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
-  geom_point(alpha = 0.2) + labs(x = bquote('BAI'~(cm^2/yr.)), y = 'Deviance residuals') +
+  geom_point(alpha = 0.2) + labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = 'Deviance residuals') +
   theme(aspect.ratio = 2/(1+sqrt(5))) + 
-  scale_y_continuous(limits = c(-5,5)) +
+  # scale_y_continuous(limits = c(-5,5)) +
   geom_smooth(se = F)
 
 # ggsave('17.figures_saved/residual_plot.png', residuals1)
@@ -580,14 +572,25 @@ ft_lp <- fitted_values(re.tree.1, data = bai.spmx.ids.h, scale = 'response')
 # ft_lp <- ft_lp %>% mutate(obs =bai, fit = re.tree.1$family$linkinv(fitted))
 ft_lp <- ft_lp %>% mutate(fit.cm = fitted*2.54^2, bai.cm = bai*2.54^2)
 
-estimationerr <- ggplot(ft_lp, aes(x = fit.cm, y = bai-fitted)) +
+estimationerr <- ggplot(ft_lp, aes(x = fit.cm, y = bai.cm-fit.cm)) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
   geom_point(alpha = 0.2) + 
-  labs(x = bquote('BAI'~(cm^2/yr.)), y = 'Error') +
+  labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = bquote('Error'~(cm^2/yr.))) +
   theme(aspect.ratio = 2/(1+sqrt(5))) + 
-  scale_y_continuous(limits = c(-5,5)) +
+  # scale_y_continuous(limits = c(-5,5)) +
   geom_smooth(se = F)
 
+ggplot(bai.spmx.ids)
+
+ggplot(data = NULL,aes(x = bai.spmx.ids$DIAMETER, y = ft_lp$fit.cm)) +
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = bquote('Error'~(cm^2/yr.))) +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  # scale_y_continuous(limits = c(-5,5)) +
+  geom_smooth(se = F)
+
+plot(x = bai.spmx.ids$DIAMETER, y = ft_lp$fit.cm)
 
 res.err <- arrangeGrob(residuals1, estimationerr, ncol =2)
 ggsave('17.figures_saved/res_err.png', res.err)
@@ -609,6 +612,12 @@ gam.check(re.tree.1)
 ggsave('17.figures_saved/base.diagnostic.png', apr)
 
 
+## what's going on with this tree.
+ggplot(aes(x = re.tree.1$model$DIAMETER, y = re.tree.1$model$bal.pl.ratio)) + geom_point()
+
+ggplot(bai.spmx.ids, aes(DIAMETER, ba.pl)) + geom_point()
+ft_lp %>% filter(fit.cm>35)
+bai.spmx.ids.h %>% filter(unique_tree_id==9626)
 
 
 ```

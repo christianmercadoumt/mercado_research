@@ -1,12 +1,14 @@
+\section{Permanent Growth Plot study}
 
 % The Forest Vegetation Simulator (FVS) is a distance-independent, individual 
 % tree forest growth model that is widely used in the western United States 
 % to predict tree and stand growth as well as to evaluate management decisions 
 % \citep{Dixon2020}. 
+
 To establish a monitoring protocol for the FVS model,
-the USDA Forest Service Northern Rocky Mountain region developed 
+the USDA Forest Service Northern Rocky Mountain Region developed 
 long-term permanent growth plot clusters (PGPs) in managed stands 
-across the inland northwest (NW Montana and northern Idaho),
+across the inland northwest (Montana and northern Idaho),
 referred herein to as the PGP program. The PGP program was primarily set up 
 to monitor long-term treatment response to precommercial thinning relative 
 to projections provided by FVS. The initial goal of the PGP program was to 
@@ -35,7 +37,7 @@ The diameter thresholds varied across and within stands
 time. Yet the large trees were tagged and distance and azimuth to plot center
 were taken. Heights were taken on only a subset of large trees due to the
 operational challenges and added time of measuring tree height. Within small 
-tree plots, species counts grouped by height class were recorded for trees greater 
+tree plots, tree counts by species and height class were recorded for trees greater 
 than or equal to 15 cm in height from 
 the ground, and up to the specified diameter threshold. 
 
@@ -46,7 +48,7 @@ Lolo and Kootenai National Forests that were previously measured at least
 3 times and that were composed of >50\% overstory western larch (determined
 by most recent measurement) were targeted for re-measurement. Stands across 
 the remeasured PGPs were spread between $46^{\circ}$N and $49^{\circ}$N, and 
-between 800 and 1800 $m$ above sea level. Stands were primarily on north-facing aspects. 
+between 800 and 1800 $\mathrm{m}$ above sea level. Stands were primarily on north-facing aspects. 
 % Soil conditions were variable from site-to-site, but most were a silty-loam texture.
 Overall, species composition varied between almost pure western larch to mixed conifer
 forests composed of mixtures of: western larch, Douglas-fir, Engelmann spruce, grand fir, 
@@ -56,12 +58,12 @@ cottonwood (\emph{Populus balsamifera}), and quaking aspen (\emph{Populus tremul
 Large-tree data recorded at each time of measurement includes: diameter at breast 
 height (DBH), total height (as previously described), crown ratio (CR), 
 crown class, species, whether the tree was alive or dead, and biotic and/or abiotic 
-damage to the tree and the intensity thereof. For small trees taller than 15 cm but 
+damage to the tree (and the intensity thereof). For small trees taller than 15 cm but 
 shorter than 1.4 m, species, live/dead status, CR, height, and crown class were 
 recorded. For small trees tall enough for DBH measurement ($\ge 1.4 m$) and with a DBH below 
-the established threshold, species, count, DBH, crown class, and height were 
-recorded. Small trees were tallied based on height classes: less than 1.4 m, 
-1.4 m to 3.7 m, 3.7 m to 5.8 m, and trees taller than 5.8 m (which were tallied individually). 
+the established threshold, DBH and height were also recorded. Small trees were 
+tallied based on height classes: less than 1.4 m, 1.4 m to 3.7 m, 3.7 m to 
+5.8 m, and trees taller than 5.8 m (which were tallied individually). 
 In this study these data were used to calculate various other relevant metrics.
 
 One such measure is the annual growth of western larch, which was quantified 
@@ -69,14 +71,13 @@ by basal area increment (BAI; Equation ~\ref{eq:bai}):
 
 \begin{equation}
 \label{eq:bai}
-BAI_{kpm} = \frac{G_{kp(m+1)}-G_{kpm}}{t_{m+1}-t_m}
+BAI_{kpm} = \frac{G_{kp(m+1)}-G_{kpm}}{t_{p,(m+1)}-t_{pm}}
 \end{equation}
 
-, where $G_k$ refers to the basal area (G) of a tree (k) in plot (p) during a 
-measurement occasion (m),
-where $m+1$ indicates a subsequent measurement occasion.
+where $G_{kpm}$ refers to the basal area of a tree $k$ in plot $p$ at a 
+measurement occasion $m$, and $t_{pm}$ denotes the year of this measurement.
 The choice to annualize BAI was made because re-measurement intervals were inconsistent 
-across the data set and annulization allows for flexibility and a finer-scale measure of 
+across the data set and annualization allows for flexibility and a finer-scale measure of 
 stand dynamics over time \citep{Weiskittel2011}.
 
 Other variables were grouped together based on the types of tree or stand 
@@ -85,45 +86,84 @@ attributes that they describe. These groups are variables that represent
 (referred together as competition herein) and (iii), characteristics of the site 
 where trees are growing. 
 
-Size variables include diameter at breast height $DBH_{kpm}$ and 
-tree basal area $G_{kpm}$. 
-Competition variables were: plot number of trees per hectare 
-($TPH_{pm}$), plot basal area per hectare ($BAH_{pm}$), 
-ratio of plot $BAH_{pm}$ in trees that are larger than an individual tree 
-($BAL_{kpm}$), plot quadratic mean diameter ($QMD_{pm}$), and the ratio of 
-tree $DBH_{kpm}$ to $QMD_{pm}$ ($Dq_{kpm}$). 
-Site variables were percent slope, aspect (between 0 and 360 degrees), 
-elevation (in meters), site index 
-\citep[an average height of 50-year-old site trees;][]{Millner1992}, 
-and heatload \citep[90 m resolution][]{Theobald2015}, 
-where slope, aspect, elevation, and heatload were measured and/or calculated 
-for each cluster using GPS data points using Google Earth Engine \citep{Gorelick2017}. 
+Size variables include diameter at breast height $DBH$ and 
+tree basal area $G$. 
 
-Mathematical definitions for calculated variables are found in equations 2.2-2.9:
+Competition variables were: plot number of trees per hectare 
+($TPH$)
+
+\begin{equation}
+TPH_{pm} = \sum_{k} h_{kpm} C_{kpm}
+\end{equation}
+
+where $h_{kpm}$ is the tree expansion factor and $C_{kpm}$ is the number 
+of trees represented, 
+
+plot basal area per hectare ($BAH$) 
+
+\begin{equation}
+BAH_{pm} = \sum_{k} h_{kpm} G_{kpm}
+\end{equation}
+
+the ratio of plot $BAH$ in trees that are larger than an individual tree ($BAL$) 
+
+\begin{equation}
+BAL_{kpm} = \frac{\sum\limits_{k`} h_{k`pm} G_{k`pm}}{BAH_{pm}}
+\end{equation}
+
+where $\sum_{k`}$ is over trees $k`$ with DBH larger than a subject $k$, 
+
+plot quadratic mean diameter ($QMD$) 
+
+\begin{equation}
+QMD_{pm} = \sqrt{\frac{BAH_{pm}}{TPH_{pm}} \frac{40,000}{\pi}}
+\end{equation}
+
+and the ratio of tree $DBH$ to $QMD$ ($Dq$) 
+
+\begin{equation}
+Dq_{kpm} = \frac{DBH_{kpm}}{QMD_{pm}} \label{eq:Dq}
+\end{equation}
+
+
+
+Topographic site variables, measured at the cluster-level, were percent slope, 
+aspect (between 0 and 360 degrees), and elevation (in meters). 
+Site index was calculated at the stand-level as an average value over 
+dominant, undamaged trees between 25 and 100 years of age \citep{Millner1992}. 
+Heatload for each cluster was estimated as described by \cite{Theobald2015}. 
+Slope, aspect, elevation, and heatload were measured and/or calculated 
+using GPS data points taken at a point in each cluster using Google Earth 
+Engine \citep{Gorelick2017}. 
+
+% Mathematical definitions for calculated variables are found in equations 2.2-2.9:
 
 % \begin{equation}
-\begin{align}
-G_{kpm} &= \pi\frac{DBH_{kpm}^2}{4} \label{eq:G}\\[1em]
-TPH_{kpm} &= h_{kpm}Count_{kpm} \label{eq:treeTPH}\\[1em]
-TPH_{pm} &= \sum_{k} TPH_{kpm} \label{eq:TPH}\\[1em]
-BAH_{pm} &= \sum_{k} hG{kpm} \label{eq:BAH}\\[1em]
-BAL_{kpm} &= \frac{\sum\limits_{k} h_{kpm}G_{kpm} > G_{kpm}}{BAH_{pm}} \label{eq:BAL}\\[1em]
-QMD_{pm} &= \sqrt{\frac{BAH_{pm}}{0.0000785TPH_{pm}}} \label{eq:QMD}\\[1em]
-Dq_{kpm} &= \frac{DBH_{kpm}}{QMD_{pm}} \label{eq:Dq}
-\end{align}
+
+% \begin{align}
+% G_{kpm} &= \pi\frac{DBH_{kpm}^2}{4} \label{eq:G}\\[1em]
+% TPH_{kpm} &= h_{kpm}Count_{kpm} \label{eq:treeTPH}\\[1em]
+% TPH_{pm} &= \sum_{k} TPH_{kpm} \label{eq:TPH}\\[1em]
+% BAH_{pm} &= \sum_{k} hG{kpm} \label{eq:BAH}\\[1em]
+% BAL_{kpm} &= \frac{\sum\limits_{k} h_{kpm}G_{kpm} > G_{kpm}}{BAH_{pm}} \label{eq:BAL}\\[1em]
+% QMD_{pm} &= \sqrt{\frac{BAH_{pm}}{0.0000785TPH_{pm}}} \label{eq:QMD}\\[1em]
+% Dq_{kpm} &= \frac{DBH_{kpm}}{QMD_{pm}} \label{eq:Dq}
+% \end{align}
+
 % \end{equation}
 % 0.0000785
 % dq DIAMETER/sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
 % qmd sqrt(576*(ba.pl)/(tpa.pl.all)/pi)
 
 % BAI can be estimated from these variables. This was 
+
 The effects of different combinations 
-of these variables were evaluated on BAI of western larch trees throughout 
+of these variables on BAI of western larch trees were evaluated throughout 
 the PGP data. These data were split into a model training data set, and a 
 data set that was withheld from model training, which was used to validate and assess 
-models that were fit with the training data. The withheld data consisted of 
+models. The withheld data consisted of 
 tree data from two measurement plots out of each stand. An overview of the 
-amount of data in the training data set may be viewed in table \ref{tab:sumtab}. 
+amount of data in the training data set may be viewed in Table \ref{tab:sumtab}. 
 
 
 \begin{table}[!h]
@@ -165,39 +205,39 @@ Stand & Plots & Unique trees & Increments & Measurements\\
 % In all, the portion of the PGP inventory data set used here contained -A CLUSTERS-, -X PLOTS-,
 % -Y TREES-. Tree size/height varied by -----INFO------, 
 
-\section{GAM overview} \label{gamoverview}
+\section{Overview of additive modeling approach} \label{gamoverview}
 
 Using these data, generalized additive mixed models (GAMMs) were developed to 
 relate the BAI of western larch trees to the variables described above. 
-Generalized additive models \citep[GAMs][]{Hastie1990} allow for flexibility 
+Generalized additive models \citep[GAMs; ][]{Hastie1990} allow for flexibility 
 in model fitting and an allowance for non-linear 
 relationships across variables \citep{Zhao2005,wood2006generalized}. 
 Contrary to traditional parametric modeling approaches, GAMs let the 
 data determine the shape of the functional relationships by fitting predictor 
-effects with a sum of \emph{smooth} functions of covariates instead of fitting them with 
+effects with a sum of smooth functions of covariates instead of fitting them with 
 specified parameters \citep{wood2006generalized,Robinson2011}. 
 %which also proved beneficial in this case due to the inconsistency of measurement intervals. 
 The choice to use a mixed-model approach was made owing to the  
 dependence structure that arises from repeat measurements 
-on the same trees over time, and thus random effects were specified at the 
-individual tree-level. %was it? should it?
+on the same trees that were within plots within clusters over time, 
+and thus random effects were specified at the individual tree-level. 
 
 %---include something visual about dependence structure?---
 
 GAMMs were fit using the mgcv package \citep{Wood2011} in R \citep{RCoreTeam2021}. 
 The mgcv package allows for the specification of 
-smooth functions (or \emph{smoothers}). 
-Smoothers are composed of a sum of fitted estimated \emph{basis functions} 
+smooth functions (or smoothers). 
+Smoothers are composed of a sum of fitted estimated basis functions 
 which characterize the conditional relationship between a predictor 
 and an independent variable. They are penalized by a 
-\emph{smoothing parameter}, which constrains a smoother as its complexity 
-(or "wiggliness") grows higher, as indicated by a smoother's effective degrees of 
+smoothing parameter, which constrains a smoother as its complexity 
+(or 'wiggliness') grows higher, as indicated by a smoother's effective degrees of 
 freedom (EDF) \citep{Pedersen2019}.
 The thin-plate regression spline (TPRS) 
 is the default smoother in mgcv owing to its simple and effective behavior \citep{Wood2003},
 and was used for all model terms fit in the present study. 
 
-Additionally, the mgcv package allows smoothing parameters to be estimated via likelihood, information 
+The mgcv package allows smoothing parameters to be estimated via likelihood, information 
 theoretical methods, or cross-validation-based methods \citep{wood2006generalized}. 
 The maximum likelihood method was used in this study where comparison across models with 
 different fixed terms and smoothing parameters was necessary. Otherwise models 
@@ -205,17 +245,16 @@ were fit using the restricted maximum likelihood criteria (REML) approach
 because it reduces computation time and typically renders comparable results. 
 Additionally, random effects may also be coded as penalized smooths in this format 
 \citep{Pedersen2019}, which allowed for simple specification of random 
-intercepts. 
+intercepts for individual trees. 
 
 Furthermore, the mgcv package allows for smooth functions that 
 vary across different groups. This works by fitting a smoother with its own smoothing 
 parameter for each level of a categorical variable \citep{Pedersen2019}, resulting in 
-a separate smoother for each level. Further specification may dictate model fitting where 
+a separate smoother for each level. In particular, model fitting where 
 one level may be specified as the reference level and fit with a smooth 
-representing reference conditions. In this case, each of the remaining levels 
-are then fit with respective smooths that then 
-characterize how the relationship deviates from the reference 
-smooth \citep{Pedersen2019,wood2006generalized,zurr2009}. 
+representing reference conditions. Each of the remaining levels 
+are then fit with respective smooths that each characterize how the relationship 
+for that level deviates from the reference smooth \citep{Pedersen2019,wood2006generalized,zurr2009}. 
 
 % how conditions 
 % an identified reference category, and 
@@ -231,21 +270,21 @@ smooth \citep{Pedersen2019,wood2006generalized,zurr2009}.
 
 In this study it was of interest to compare GAMs on the basis of predictive 
 accuracy, which was estimated by two different definitions of root mean squared 
-error. One definition was evaluated as within sample error using the model 
-training data and model number of residual degrees of freedom ($\mathrm{RMSE_{df}}$), 
+error (RMSE). One definition was evaluated as within sample error using the model 
+training data and model number of residual degrees of freedom ($\mathrm{RMSE_{int}}$), 
 and the other which evaluates error using the withheld data and number of 
-observations thereof ($\mathrm{RMSE_n}$): 
+observations therein ($\mathrm{RMSE_ext}$): 
 
 \begin{align}
-RMSE_{df} = \sqrt{\frac{\sum_k (\widehat{BAI_{kpm}} - BAI_{kpm})^2}{n_{df}}} \label{eq:rmsedf}\\
-RMSE_n = \sqrt{\frac{\sum_k (\widehat{BAI_{kpm}} - BAI_{kpm})^2}{n}} \label{eq:rmse}
+RMSE_{int} &= \sqrt{\frac{\sum_m \sum_p \sum_k (\widehat{BAI}_{kpm} - BAI_{kpm})^2}{n_{df}}} \label{eq:rmsedf}\\[1em]
+RMSE_{ext} &= \sqrt{\frac{\sum_m \sum_p \sum_k (\widehat{BAI}_{kpm} - BAI_{kpm})^2}{n}} \label{eq:rmse}
 \end{align}
 
-where $\widehat{BAI_{kpm}}$ is the model predicted BAI, 
-$BAI_{km}$ is the observed value, $n_{df}$ is the model residual 
-degrees of freedom (number of increments less model effective degrees of freedom)
-and $n$ is the number of observations in the withheld data. $\mathrm{RMSE_{df}}$ was used for comparing 
-model accuracy across models during model selection, and $\mathrm{RMSE_n}$ was used to 
+where $\widehat{BAI}_{kpm}$ and $BAI_{kpm}$ are the predicted and observed values 
+of BAI, $n_{df}$ is the model residual degrees of freedom (number of increments 
+less model effective degrees of freedom) and $n$ is the number of increments 
+in the withheld data. $\mathrm{RMSE_{int}}$ was used for comparing 
+model accuracy across models during model selection, and $\mathrm{RMSE_{ext}}$ was used to 
 when assess model validity and predictive accuracy. 
 
 In addition to model accuracy, model fit was also of interest. Model fit for 
@@ -254,26 +293,38 @@ as through assessing the proportion of null deviance
 explained by the model, simply referred to as deviance explained 
 \citep{wood2006generalized}. A combination of these assessments were made 
 to evaluate fit in the present study. Additionally, model concurvity 
-\citep{Hastie1990} may be used to measure appropriateness of model variables. 
-Concurvity is an evaluation measure of whether one covariate smooth function in a model 
-describes a different covariate smooth function in the same model 
-\citep{wood2006generalized}, thus it is analogous to collinearity in linear 
-models.
+\citep{Hastie1990} may be used to measure dependence among predictors in a GAM. 
+It determines whether one covariate smooth function in a model is associated 
+with a different covariate smooth function in the same model 
+\citep{wood2006generalized}, represented with a value between 0 and 1, 
+and thus is analogous to collinearity in linear models. Concurvity estimates 
+may be calculated pair-wise between functions, or between each smooth and the rest 
+of the model that it is in. The latter of these two options was chosen for 
+simplicity, where a model with any estimated concurvity value > 0.8 was not considered. 
 
 
-Three different GAMM analyses were conducted to accomplish the objectives of 
-this study. 
-The first analysis involved identifying a model 
-structure by selecting predictors that effectively estimate growth without 
-including information about community species composition. The resulting 
-model structure was then used as a foundation for the following two 
-analyses. The second model, then, was 
-fit with an additional variable that identified distinct offsets for each smooth 
-function and model intercept for distinct species mixtures. The third effort 
-involved fitting three different models, each including its own respective 
-species composition -informed metric in order to compare and describe each 
-alternative in estimating BAI. The following three sections will 
-describe each of these efforts in more detail.  
+A sequence of three different analyses were conducted to accomplish the objectives of 
+this study. The first involved identifying an initial model by selecting 
+size (S), competition (C), and site productivity (P) predictors that effectively estimate western larch growth 
+but that carried no information about community species composition. This initial 
+model and its formulation will be referred to herein as SCP. Once identified, 
+SCP was then used as a foundation for subsequent analyses. 
+The second analysis utilized data only from three specific stand species 
+combinations, fit to SCP, and evaluated differences of smooths across these 
+combinations. 
+% whether and how 
+% M1 deviated when fit across the different species combinations. 
+% was fit with an additional variable that identified 
+% distinct offsets for each smooth function and model intercept for distinct 
+% species mixtures. 
+The third analysis involved augmenting SCP using three different species-mixing 
+measures (each in its own respective model) in order to evaluate whether 
+they could effectively capture differences in the growth of western larch. 
+The following three sections will describe each of these analyses in more detail.  
+
+% fitting three different models, each including its own respective 
+% species composition -informed metric in order to compare and describe each 
+% alternative in estimating BAI. 
 
 % In this case, models were fit using restricted maximum likelihood criteria (REML) 
 % approach (CITE: patterson and thompson 1971) because it reduces computation time and 
@@ -294,21 +345,23 @@ describe each of these efforts in more detail.
 
 \section{Model selection}
 
-Selecting which predictors to include within the model 
+Selecting which predictors to include within the initial model (M1)
 followed the logic of \cite{Wykoff1990}, 
 \cite{Monserud1996}, and \cite{Vospernik2021} where predictors were 
 grouped together based on the categories described above, i.e., 
-(i) size, (ii) competition, and (iii) site. 
-Prior to testing predictors within a GAM, a pair-wise colinearity assessment was 
+(i) S, (ii) C, and (iii) P. 
+Prior to testing predictors within a GAM, a colinearity assessment was 
 performed within each group of variables to avoid including 
-highly correlated variables together in the model. 
-Any predictors with a pair-wise Pearson correlation of 
-0.7 or higher were not considered in a model together. Although somewhat arbitrary, 
-this threshold was selected because a 0.7 correlation indicates 
-(somewhat subjectively) that variables are very closely related. Additionally, 
+highly correlated variables together in candidate models. 
+Any predictors with an absolute Pearson correlation of 
+0.7 or higher were not considered in a model together. Additionally, 
 variables known to represent the same processes, even if not highly linearly 
 correlated (such as heatload and aspect, for instance), were not considered 
 together to avoid redundancies and reduce model complexity. 
+
+% Although somewhat arbitrary, 
+% this threshold was selected because a 0.7 correlation indicates 
+% (somewhat subjectively) that variables are very closely related
 
 % These initial explanatory 
 % variables were identified based on availability 
@@ -332,39 +385,44 @@ Highly correlated variables in the same group were compared in alternative model
 to determine which contributed the most to estimating BAI.
 For example, alternative models were fit for both tree DBH 
 and BA, selecting whichever best predicted BAI. 
-Then, with the selected size variable present in the model, 
-competition variables were evaluated and selected 
+Then, with the selected S variable(s) present in the model, 
+C variables were evaluated and selected 
 based on maximizing model accuracy and reducing overlap between variables.
-A model formulation with the lowest $RMSE_{df}$ 
+A model formulation with the lowest $RMSE_{int}$ 
 was selected over alternatives. If estimated concurvity was greater than 0.8 
-for a particular set of terms, then an alternatives without that combination 
-were evaluated.
-The same process was used for site variables thereafter. This resulted in 
-a model with the following form: 
+for a particular term, then alternative predictors were assessed in its place.  
+The same process was used for P variables thereafter. 
+Once a parsimonious GAM was identified with variables for each group, random intercepts for 
+individual trees were then included. This resulted in model SCP, taking the 
+following form: 
 
 \begin{equation}
 \label{eq:baiform}
-ln[E(BAI_{km})] = \beta_0 + \sum_j f_{1j}(x_{1j}) + \sum_j f_{2j}(x_{2j}) + \sum_j f_{3j}(x_{3j})\\
+ln[E(BAI)] = B + \sum_j f_{1j}(x_{1j}) + \sum_j f_{2j}(x_{2j}) + \sum_j f_{3j}(x_{3j})\\
 \end{equation}
 
-where $ln$ represents the logarithmic link function, $E(BAI_{kpm})$ represents the expected 
-value of $BAI_{kpm}$, $\beta_0$ represents an estimated intercept, $\sum\limits_{j}$ represents summation 
-of smooth functions for a given group ($j$), $x_1$, $x_2$, $x_3$ represent 
-size, competition, and site predictor variables, respectively, and $f_1$, $f_2$, $f_3$ 
-are smooth functions for each, respectively. 
+where $ln$ represents the natural logarithmic link function, $E(BAI)$ represents the expected 
+value of $BAI$, $B$ represents an estimated tree-level random intercept, and $x_{ij}$ 
+represents a predictor variable in group $i$ (S, C, or P), and $f_{ij}$ is the smooth 
+function thereof.
+% 
+% $\sum\limits_{j}$ represents summation of smooth functions for a given group 
+% ($j$), $x_1$, $x_2$, $x_3$ represent 
+% size, competition, and site predictor variables, respectively, and $f_1$, $f_2$, $f_3$ 
+% are smooth functions for each, respectively. 
 
 % including non-correlated variables together 
 % respective of grouping while maximizing model accuracy and avoiding overlap. 
 
 
-\section{Assessing western larch across different communities}
+\section{Assessing western larch growth across different communities}
 
 % - Once a model exists, we can use it on subsets of the data set to 
 % determine types of species-mixing effects and their effects on BAI
 
 In order to test for differences in larch growth between different 
-species mixtures, distinct species combinations were determined based on species 
-proportional share of BAH. 
+species mixtures, distinct species combinations were determined based on species' 
+proportional shares of plot basal area.  
 To qualify as a specific mixture-type, a minimum of 20\% of the total plot 
 basal area had to be in western larch trees and a minimum of 20\% 
 in either Douglas-fir or lodgepole pine. 
@@ -372,37 +430,46 @@ This was to ensure that there was minimal
 representation by both western larch and its counter-species in a mixture. 
 To ensure that neither species was  
 over-represented in a plot, neither larch nor the other species 
-could exceed 65\% of BAH. Also, both species combined basal area had 
-to occupy at least 70\% of BAH. 
+could exceed 65\% of plot basal area. Also, both species combined basal area had 
+to occupy at least 70\% of plot basal area. 
 For reference, a pure larch condition was defined as at least 70\% of plot 
-BA in western larch. 
+basal area in western larch. 
 % This ensured that a range of each mixture-type was captured while prohibiting over-representation of either species within the mixture. 
 % These two were selected based on availability 
 % in the data and because of their similar and contrasting shade tolerance values. 
 
-The previously identified model formula was then fit allowing each mixture 
-an offset for the intercept and for each smooth term, resulting in a model 
-containing a reference smooth for each predictor, and a \emph{difference smooth}
-\citep{wood2006generalized} for each identified species-mixture: 
+SCP was then fit with the species-mixture data, allowing each mixture an offset 
+for the intercept and for each smooth term. This resulted in a model containing a 
+reference smooth for each predictor corresponding to the pure larch condition, 
+and a difference smooth \citep{wood2006generalized} for each identified 
+species-mixture: 
 
 \begin{equation}
 \label{eq:mixes}
-\begin{aligned}
-ln[E(BAI_{km})] =& \beta_0 + \sum_j f_{j}(x_{j}) + \sum_s \delta_s(\alpha_s + \sum_j g_{j,s}x_j) \\
-\delta_s =& 
-\begin{cases}
-0 & \text{if pure larch}\\
-1 & \text{if species mix } s
-\end{cases}
-\end{aligned}
+% \begin{aligned}
+ln[E(BAI)] = B + \sum_j f_{j}(x_{j}) + \sum_s \delta_s[\alpha_s + \sum_j g_{j,s}(x_j)] \\
+% \delta_s =& 
+% \begin{cases}
+% 0 & \text{if pure larch}\\
+% 1 & \text{if species mix } s
+% \end{cases}
+% \end{aligned}
 \end{equation}
 % \beta_{1j} + f_{j}(x_{n})
 
-where $s$ is a species-mix indicator, $\alpha_s$ is an offset on the intercept 
-$\beta_0$ and, $g_{j,s}$ is an offset on a smooth for species $s$ and predictor $j$.
+where $\delta_s$ is a species-mix indicator ($\delta_s = 0$ if the observation 
+is in a pure larch condition or $\delta_s = 1$ if the observation is in mixture $s$), 
+$\alpha_s$ is an offset on the intercept, and $g_{js}()$ is an offset smooth 
+for species $s$ and predictor $j$. 
 These difference smooths were evaluated 
-against the pure larch reference smooth using a hypothesis test 
-to identify evidence that a difference is non-zero, similar to an ANOVA decomposition. 
+against the pure larch reference smooth using a hypothesis test. In this test, 
+the null hypothesis states that a coefficient in a linear model for a given term 
+for a mixture is not different from zero \citep{wood2006generalized}. 
+The alternative hypothesis, then, is that the corresponding linear model 
+coefficient for a mixture smooth term is 
+indeed different from zero. P-values were calculated using an F-test, and were  
+extracted from model outputs. 
+
 % where $\beta_0$ is the model intercept, representing the mean value
 % of $BAI$ for pure larch conditions, 
 % $\beta_{1j}$ represents the difference between $\beta_0$ and the intercept 
@@ -508,31 +575,39 @@ to identify evidence that a difference is non-zero, similar to an ANOVA decompos
 % --- do i compare pointwise, based on the confidence interval?
 
 
-\section{Comparing species-informed measures}
+\section{Comparing species-mixing measures}
 
-Three different species-informed measures were identified for comparison: 
-crown competition factor, the proportion of plot basal area occupied by larch, 
-and proportion of plot basal area weighted by species-shade tolerance values. 
+Given that western larch growth may vary across mixtures depending on the characteristics 
+of different species within a mixture, it was of interest to capture 
+species-mixing effects in a way that is easy to measure or calculate from readily 
+available variables so that they could be incorporated into a growth model. 
+Three different species-mixing measures were identified and each added as an 
+additional predictor in the SCP model: crown competition factor, the proportion 
+of plot basal area occupied by larch, and proportion of plot basal area weighted 
+by species-shade tolerance values. They were compared in alternative models to 
+assess their contributions to model prediction (after accounting for other factors) 
+and evaluated to further determine how species-mixing might impact the growth 
+of larch. 
 
 Crown competition factor ($CCF_{pm}$) is a species-informed density measure that 
 is based on tree crown allometry \citep{Krajicek1961}. In this measure, 
-each species has an identified maximum crown width in open-grown conditions for 
-a given $DBH_{km}$. Crown width is associated with a tree's maximum crown area 
-(MCA), and can be estimated as a proportion of stand area using species-specific 
-coefficients in a polynomial equation.  
+each species has an identified maximum crown width that would be achieved in 
+open-grown conditions for a given $DBH_{km}$. These maximum crown widths are 
+associated with maximum crown areas (MCA), and are estimated using 
+species-specific coefficients in polynomial equations of DBH.  
 MCA values are summed within a plot to express overall competition for 
 crown space, or CCF: 
 
 \begin{equation}
 \label{eq:ccf}
-CCF_{pm} = \sum\limits_{k} TPH_{kpm} h_s(DBH_{kpm})
+CCF_{pm} = \sum\limits_{k} TPH_{kpm} w_s(DBH_{kpm})
 \end{equation}
 
-where $h_s()$ is a function of DBH for a species ($s$). 
+where $w_s()$ is a function of DBH for a species ($s$). 
 This study used the species-specific equations and coefficient values 
-identified by the FVS-IE variant \citep{Keyser2008}. This data is normalized 
-such that a CCF value of 100 means that all trees in a stand have theoretically 
-achieved their MCA where canopy closure is achieved, i.e., a value 
+identified by the FVS-IE variant \citep{Keyser2008}. This measure is normalized 
+such that a CCF value of 100 means that if all trees in a stand have theoretically 
+achieved their respective MCAs then 100\% crown canopy cover is achieved. Thus, value 
 of 100 theoretically describes the threshold of competition for crown space. 
 
 
@@ -607,21 +682,31 @@ of 100 theoretically describes the threshold of competition for crown space.
 % \end{tabular}
 % \end{table}
 
-As an alternative to CCF, the proportion of basal area occupied by larch 
-is a measure of species purity within a stand. It is simply calculated as a 
-ratio of plot basal area occupied by western larch to BAH: 
+Theoretically, if the amount of basal area occupied by a target species 
+(or the purity thereof) in a stand is high, then the amount that species-mixing 
+can impact the growth of that species is low. Alternatively, if a given species 
+is surrounded by a high proportion of basal area in other species, then 
+the amount that species's growth of the target species may be 
+increased. 
+
+Assuming that species-mixing can impact the growth of western larch, 
+then the amount of biodiversity in a stand would be be inversely related 
+to the amount of area occupied by western larch (or the purity thereof). 
+Therefore, as an alternative to CCF, the proportion of basal area occupied by larch 
+(purity, herein) was used to evaluate species mixing effects. It is simply calculated as a 
+ratio of plot basal area occupied by western larch to total plot basal area: 
 
 \begin{equation}
 \label{eq:purity}
-L_{pm} = \frac{\sum\limits_{k}\alpha G_{kpm}}{\sum\limits_{k}G_{kpm}}\\ \text{where}
+L_{pm} = \frac{\sum\limits_{k}\alpha_{kpm} G_{kpm}}{\sum\limits_{k}G_{kpm}}\\ \text{where}
 \begin{cases}
-\text{if k is western larch } \alpha = 1\\
-\text{else } \alpha = 0
+\text{if $k$ is western larch } \alpha_{kpm} = 1\\
+\text{else } = 0
 \end{cases}
 \end{equation}
 
-where $L_{pm}$ denotes the plot larch purity value at measurement $m$, for 
-species $s$, which is western larch in this case. 
+where $L_{pm}$ denotes the plot larch purity value at measurement $m$ for 
+western larch. 
 
 %  \frac{\sum_{i}{G_{ijt}\ I_{ijt}}}{\sum_{i}{G_{ijt}}}\ \ \ I_{ijt} = \begin{cases} 1,\ \text{if}\ i\ \text{is western larch}\\0,\ \text{otherwise}\end{cases}
 % \end{equation}
@@ -646,12 +731,12 @@ basal area values, and then summed:
 
 \begin{equation}
 \label{eq:shade}
-T_{pm} = \frac{\sum\limits_{k}{\rho_{s} G_{s_{kpm}}}}{\sum\limits_{k} G_{kpm}}
+T_{pm} = {\sum\limits_{k}{\rho_{kpm} G_{kpm}}}
 \end{equation}
 
 where $T_{pm}$ represents plot shade intolerance at a given measurement and 
-$\rho_{s}$ represents the species $s$ shade intolerance value \citep{Lienard2015}. 
-A $T_{pm}$ value of 1 
+$\rho_{kpm}$ represents the shade intolerance value associated with the species 
+of tree $k$ \citep{Lienard2015}. A $T_{pm}$ value of 1 
 means that a plot at a given measurement is composed completely of shade intolerant 
 species, and a value of 0 means a plot is composed completely of shade tolerant 
 species. 
@@ -685,17 +770,19 @@ Genus & Species & Shade intolerance\\
 % - Using them in a model
 % - comparing models based on RMSE, quantifying accuracy improvements by each
 
-To evaluate and compare these measures, each was added as an additional smooth 
-to the identified base model formulation. Models then compared on the basis of 
-accuracy ($RMSE_n$) and fit, quantifying 
-each predictor's relative improvement to model accuracy, taking the form:
+To evaluate and compare these measures, each was added as an additional predictor 
+to the SCP model formulation:
+
 
 \begin{equation}
 \label{eq:ccfetal}
-ln[E(BAI_{kpm})] = \beta_0 + \sum_j f_{1j}(x_{1j}) + \sum_j f_{2j}(x_{2j}) + \sum_j f_{3j}(x_{3j}) + f_{4j}(x_{4j})\\
+ln[E(BAI)] = B + \sum_j f_{1j}(x_{1j}) + \sum_j f_{2j}(x_{2j}) + \sum_j f_{3j}(x_{3j}) + f_{4j}(x_{4j})\\
 \end{equation}
 
-where $4j$ is one of the additional variables. 
+where $x_{4j}$ is one of CCF, L, or T. Each resulting model was then compared 
+with predictive accuracy ($\mathrm{RMSE_{ext}}$). Model fit was also evaluated 
+for each respective model with deviance explained. 
+
 
 % 
 % RMSE values were 

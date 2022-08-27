@@ -104,7 +104,7 @@ are displayed in figure \ref{fig:aspel}.
 %Then presesnt results of correlation and say which predictors were selected by group
 Tree DBH and basal area (G) were highly correlated (0.938) and were 
 evaluated in separate models. DBH as a predictor yielded slightly higher 
-accuracy in predicting BAI than G, with model $\mathrm{RMSE_{df}}$ values  
+accuracy in predicting BAI than G, with model $\mathrm{RMSE_{int}}$ values  
 of 5.64 $\mathrm{cm^2/yr}$ and 5.70 $\mathrm{cm^2/yr}$, respectively. 
 
 Competition variables were partitioned into two sub-groups:  
@@ -115,7 +115,7 @@ instead of a tree size variable
 because it reflects the cumulative effects of past 
 management and competition \citep{Wykoff1990,Monserud1996}. Highly collinear variable 
 combinations were were TPH-Dq (0.732) and BA-QMD (0.684).  %, CCF-BA (0.95)
-With DBH effects included, adding tree-level variables reduced $\mathrm{RMSE_{df}}$
+With DBH effects included, adding tree-level variables reduced $\mathrm{RMSE_{int}}$
 to 4.50 $\mathrm{cm^2/yr}$, and then to 4.31 $\mathrm{cm^2/yr}$ with plot BA included. 
 
 
@@ -130,13 +130,13 @@ Slope and elevation contributed little to prediction accuracy
 when included with aspect and were associated with concurvity values 
 beyond the established threshold. Thus, building on the model and 
 comparing aspect, site index, and heatload, aspect was selected as 
-the best term, further reducing model $\mathrm{RMSE_{df}}$ to 4.01 $\mathrm{cm^2/yr}$
+the best term, further reducing model $\mathrm{RMSE_{int}}$ to 4.01 $\mathrm{cm^2/yr}$
 
 Given this information, a basal area increment model was specified with the following predictors: 
 DBH, CR, BAL, BAH, aspect, and a tree-level random effect. 
 The model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
-The base model $\mathrm{RMSE_{df}}$ was ~3.34 $\mathrm{cm^2/yr}$. Fixed effects terms used 
+The base model $\mathrm{RMSE_{int}}$ was ~3.34 $\mathrm{cm^2/yr}$. Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
 Random effects were accounted for using a spline basis 
 \citep{wood2006generalized}, and thus had an associated degrees of 
@@ -176,18 +176,18 @@ for south-facing aspects.
 %Then describe the numbers and introduce the table
 By group, competition metrics contributed the most in 
 deviance explained, followed by size (Table \ref{tab:rmse}). However, considering 
-variables individually, DBH explained more deviance and reduced $\mathrm{RMSE_{df}}$  
+variables individually, DBH explained more deviance and reduced $\mathrm{RMSE_{int}}$  
 more than any other variable in the model. Variations in the size, competition, and 
 site characteristics of PGP western larch growth increments are shown in table 
 \ref{tab:mixsummary}
 
 \begin{table}[!h]
-\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and $\mathrm{RMSE_{df}}$ values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. $\mathrm{RMSE_{df}}$ for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and $\mathrm{RMSE_{int}}$ values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. $\mathrm{RMSE_{int}}$ for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
 \label{tab:rmse}
 \centering
 \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
 \toprule
-\hspace{1em}Smooth & EDF & Deviance explained & RMSE ($\mathrm{cm^2/yr}$)\\
+\hspace{1em}Smooth & EDF & Deviance explained & $\mathrm{RMSE_{int}}$ ($\mathrm{cm^2/yr}$)\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
@@ -460,7 +460,7 @@ and concurvity among predictors.
 Model accuracy was best improved by the addition of stand purity, followed by 
 plot shade intolerance and CCF (Table ~\ref{tab:mixvarsrmse}). 
 Every term in each respective model was backed by a p-value $< 0.001$, indicating 
-that each was confidently non-zero. Changes in RMSE were modest, all of which 
+that each was confidently non-zero. Changes in $$\mathrm{RMSE_{ext}}$$ were modest, all of which 
 were at the sub-square centimeter per year -level. Model fit increased in concert with 
 improvements to accuracy except for with CCF, which 
 showed a small decrease in deviance explained (Table ~\ref{tab:mixvarsrmse}).
@@ -499,12 +499,12 @@ to interpret at values less than 0.75.
 % -table of RMSE, dev.expl values for each model-
 
 \begin{table}[!h]
-\caption[CCF, purity, shade intolerance table]{RMSE, deviance explained, and adjusted $R^2$ values for the base model, and models includeing each species-informed variables}
+\caption[CCF, purity, shade intolerance table]{$\mathrm{RMSE_{ext}}$, deviance explained, and adjusted $R^2$ values for the base model, and models including each species-informed variables}
 \label{tab:mixvarsrmse}
 \centering
 \begin{tabular}{lrr}
 \toprule
-Model & RMSE ($\mathrm{cm^2/yr}$) & Deviance explained (\%)\\
+Model & $\mathrm{RMSE_{ext}}$ ($\mathrm{cm^2/yr}$) & Deviance explained (\%)\\
 \midrule
 \cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} \\
 CCF & 4.801 & 84.42 \\

@@ -55,7 +55,7 @@ TBD
 
 
 \chapter{Methods} \label{methods}
-\section{Permanent growth plot study}
+
 
 \SweaveInput{02_methods.rnw}
 
