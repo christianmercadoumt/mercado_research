@@ -179,6 +179,40 @@ site <- gam(bai~s(DIAMETER) + s(bal.pl.ratio) + s(cr, k = 9) +
               s(ba.pl) + s(asp_cos, asp_sin), 
             family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
 site.sum <- summary.gam(site)
+
+sizesite <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin), 
+                family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
+nullmod <- gam(bai~1, family = 'Gamma'(link=log), data = bai.spmx.ids, method = 'ML')
+componly <- compd <- gam(bai~s(bal.pl.ratio) + s(cr, k = 9) + 
+                           s(ba.pl), family = 'Gamma'(link = log), 
+                         data = bai.spmx.ids, method = 'ML') 
+siteonly <- gam(bai~s(asp_cos, asp_sin), 
+               family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
+
+balmod <-  gam(bai~s(bal.pl.ratio), family = 'Gamma'(link = log), 
+               data = bai.spmx.ids, method = 'ML') 
+crmod <- gam(bai~s(cr, k = 9), family = 'Gamma'(link = log), 
+             data = bai.spmx.ids, method = 'ML') 
+bamod <- gam(bai~s(ba.pl), family = 'Gamma'(link = log), 
+             data = bai.spmx.ids, method = 'ML') 
+indmods <- list(size, balmod, crmod, bamod, siteonly)
+
+onlys <- list(nullmod, size, componly, siteonly)
+
+lapply(onlys, dev.expl)
+lapply(onlys, function(x) 2.54^2*my.rmse.2(x))
+lapply(onlys, function(x)  2.54^2*my.rmse.3(x, testdata = bai.spmx.ids.h))
+
+sizeplus <- list(size, compd, sizesite)
+lapply(sizeplus, dev.expl)
+lapply(sizeplus, my.rmse.2)
+lapply(sizeplus,function(x)  2.54^2*my.rmse.3(x, testdata = bai.spmx.ids.h))
+
+lapply(indmods, dev.expl)
+lapply(indmods, function(x) 2.54^2*my.rmse.2(x))
+lapply(indmods, function(x)  2.54^2*my.rmse.3(x, testdata = bai.spmx.ids.h))
+
+
 a <- summary(re.tree.1)
 # b <- readRDS('data/model_objects.1/summary_spmx.re.gam.lf.rds')
 # c <- readRDS('data/model_objects.1/summary_spmx.re.gam.st.rds')

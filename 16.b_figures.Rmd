@@ -195,7 +195,8 @@ dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, cluster,
                                dq.pl.all, percent_LAOC, shade.tol.pl, 
                                percent_PSME, percent_PIEN, percent_ABLA,
                                percent_ABGR, percent_PICO, percent_PIPO, 
-                               percent_other, aspect_deg, elev_m, asp_cos, asp_sin) %>% 
+                               percent_other, aspect_deg, elev_m, asp_cos, asp_sin, mean_si,
+                               heatload) %>% 
   mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
          tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
   mutate(bah.cats = case_when(
@@ -253,18 +254,51 @@ ggplot(dat.abc, aes(x = percent_LAOC))
 set.seed(106)
 samp.dat.abc <- dat.abc %>% group_by(mix.type) %>% slice_sample(n = 300)
 #species-facet#####
-spp.facet.plot <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq))) + geom_point(alpha = 0.2) + 
+spp.facet.plot <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq), color = shade.tol.pl)) + 
+  geom_point(alpha = 0.2) + 
   # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
   facet_grid(Mixture~BAH) +
-  labs(x = bquote(DBH[km]), y = bquote(log(BAI[km]))) + 
+  labs(x = bquote(DBH), y = bquote(log(BAI))) + 
   geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
    geom_smooth(se = F, method = 'gam', size = 0.5) +
   # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
   # theme(aspect.ratio = 1)
   theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'))
 
+set.seed(401)
+samp.dat.abc <- dat.abc %>% group_by(mix.type) %>% slice_sample(n = 300)
+
+spp.facet.plot2 <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq), color = shade.tol.pl)) + 
+  geom_point(alpha = 0.9) +
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_grid(Mixture~BAH) +
+  labs(x = bquote(DBH), y = bquote(log(BAI)), color = 'Shade intolerance') + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+   geom_smooth(se = F, method = 'gam', size = 0.5) +
+  # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(100, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'),
+        legend.position = 'left')
+
+
+# guide = guide_colorbar(title.position = 'left', 
+#                                               title.theme = element_text(angle = 90, size = 10), 
+#                                               barwidth = unit(1, 'mm'), barheight = unit(30, 'mm'), 
+#                                               label.theme = element_text(size = 8, angle = 90),
+#                                               direction = 'vertical'))
+
 ggsave('17.figures_saved/bai_diam_spp.png', spp.facet.plot)
 knitr::plot_crop('17.figures_saved/bai_diam_spp.png')
+
+ggsave('17.figures_saved/bai_diam_spp2.png', spp.facet.plot2)
+knitr::plot_crop('17.figures_saved/bai_diam_spp2.png')
+
 # dat1 <- dat %>% filter(SETTING_ID %in% standsamp)
 # dat1.spp <- spp.fun(dat1, 0.2, .65, 0.7)
 # dat1.mixnam <- map(names(dat1.spp), ~dat1.spp[[.x]] %>% mutate(dat1.spp = .x))
@@ -306,6 +340,26 @@ draw(mix.diff.nopien, residuals = T,rug = F, select = 's(DIA', partial_match = T
 
 draw(mix.diff.nopien, residuals = T,rug = F, select = 's(bal', partial_match = T)
 
+#percentlaoc shade plot #####
+
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#999999") #, "#0072B2", "#D55E00", "#CC79A7")
+
+
+laocshd <- dat.abc %>% group_by(stand, MEASUREMENT_NO, mixtype, PLOT) %>% summarize(shade = mean(shade.tol.pl), perc.larch = mean(percent_LAOC))
+ggplot(laocshd, aes(x = perc.larch, y = shade, color = mixtype)) + geom_point(alpha = 0.5)
+
+ggplot(subset(dat.abc, Mixture != 'Other'), aes(x = percent_LAOC, y = shade.tol.pl, color = Mixture)) + 
+  geom_point(alpha = 0.2) + 
+  scale_color_manual(values  = cbPalette)
+  
+# +   facet_wrap(~Mixture)
+
+names(dat.abc)
+
+# ggplot(dat.abc, aes(x = percent_LAOC, y = shade.tol.pl, color = stand)) + geom_point(alpha = 0.2)
+
+
+ggplot(dat, aes(x = shade.tol.pl, y = ccf.pl)) + geom_point()
 
 
 ```
@@ -973,7 +1027,7 @@ knitr::plot_crop('17.figures_saved/mix.asp.barchart.png')
 
 ```
 
-```{r mixture compass revisted}
+```{r mixture compass revisted THIS ONE}
 load("data/ingy_clusters_googleearth.Rdata")
 library(ggforce)
 elevs <- seq(800,1800,by=200)
@@ -993,7 +1047,9 @@ sitedat <- dat.abc %>%
   summarize(asp_cos = mean(asp_cos), 
             asp_sin = mean(asp_sin), 
             elev_m = mean(elev_m),
-            aspect_deg = mean(aspect_deg)) %>% 
+            aspect_deg = mean(aspect_deg),
+            si = mean(mean_si),
+            htld = mean(heatload)) %>% 
   mutate(aspect_rot = rotate_aspect(aspect_deg))
 
 1.05*(max(elevs)-min(elevs))*c(1,0,-1,0)
@@ -1017,17 +1073,49 @@ spp.compass <- ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180
   geom_vline(xintercept = 0, color = 'grey') + 
   geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
   geom_point() + 
-  geom_text(inherit.aes = F, data = circ, aes(x = vals, y = vals, label = 1800-els)) +
+  geom_text(inherit.aes = F, data = circ, 
+            aes(x = vals, y = vals, label = 1800-els)) +
   geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
   facet_wrap(~Mixture) +# facet by mixture type
   theme(axis.ticks = element_blank(), 
         axis.text = element_blank(), 
         axis.title = element_blank(), 
         axis.line = element_blank(),
-        line = element_blank(),aspect.ratio = 2/2.5)
+        line = element_blank(),aspect.ratio = 1)
 
 ggsave('17.figures_saved/mix.compass.png')
 knitr::plot_crop('17.figures_saved/mix.compass.png')
+
+
+spp.compass2 <- ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180), 
+                    y = (max(elevs)-elev_m)*sin(pi*aspect_rot/180),
+                    color = htld
+                    )) +  
+  geom_hline(yintercept = 0, color = 'grey') + #horizontal 
+  geom_vline(xintercept = 0, color = 'grey') + 
+  geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
+  geom_point() + 
+  labs(color = 'Heatload') +
+  geom_text(inherit.aes = F, data = circ, 
+            aes(x = vals, y = vals, label = 1800-els)) +
+  geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
+  facet_wrap(~Mixture) +# facet by mixture type
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(100, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),
+        legend.position = 'left',
+        aspect.ratio = 1)
+
+ggsave('17.figures_saved/mix.compass2.png', spp.compass2)
+knitr::plot_crop('17.figures_saved/mix.compass2.png')
 
 # ggplot(comp, aes(x = asp_sin, y = asp_cos)) + #build compass
 #   geom_hline(yintercept = 0) + #horizontal 
