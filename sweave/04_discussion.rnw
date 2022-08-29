@@ -18,7 +18,7 @@ a near-linear increasing effect (Fig. \ref{fig:basesmooths}) such that
 trees with longer crowns have enhance growth. The density 
 effect of BAH was characterized with a decreasing effect approaching a negative 
 limit (Fig. \ref{fig:basesmooths}), which is similar to that of \cite{Hann2003} 
-(displayed in \cite{Weiskittel2011}). This is somewhat unsurprising given 
+\cite[displayed by][]{Weiskittel2011}. This is somewhat unsurprising given 
 these studies strongly motivated the choice of variables considered here and 
 that the PGP program is in the same region studied by \cite{Wykoff1990}. 
 
@@ -64,8 +64,9 @@ Additionally, climate-based metrics derived at varying cartographic scales
 rely on their own set of assumptions. Of particular relevance is the cartographic 
 scale at which a metric is calculated, where one must assume that microclimates 
 and biophysical conditions are constant and that models estimating the variable 
-are accurate. \cite{Stage2007} suggested that using a combination of slope, aspect, and elevation 
-should improve prediction accuracy, which was observed here. However, the realized improvements 
+are accurate for the entire area estimated. \cite{Stage2007} suggested that 
+using a combination of slope, aspect, and elevation should improve prediction 
+accuracy, which was observed here. However, the realized improvements 
 were marginal and were associated with high concurvity values (> 0.8) among topographic 
 variables as well as with BAH. Furthermore, the relative improvements to 
 prediction accuracy realized by adding site variables was minimal, which is in line with previous 
@@ -259,7 +260,7 @@ mixtures with other light demanding species would increase competition and
 result in lower growth compared to pure larch conditions.
 Similarly, it was believed that western larch growth would be 
 increased in mixtures with species that don't require as much light to grow. 
-This study didn't specifically evaluate competition for light, but rather identified 
+This study did not specifically evaluate competition for light, but rather identified 
 stand conditions where it might be different. So whether competition itself varied 
 and led to modified growth of western larch when 
 mixed with either lodgepole pine or Douglas-fir was unclear. 
@@ -408,9 +409,9 @@ larch conditions at densities below 25 $\mathrm{m^2/ha}$. At BAH values greater
 than 25 $\mathrm{m^2/ha}$, however, there is an increasingly negative effect on 
 growth. Both lodgepole pine and Douglas-fir mixtures show a change from positive 
 difference to negative difference near 25 $\mathrm{m^2/ha}$. Considering that 
-the primary BAH effect (shown in Fig. \ref{fig:basesmooths}) is near its lower 
+the primary BAH effect (for the SCPt model, shown in Fig. \ref{fig:basesmooths}) is near its lower 
 limit at 25 $\mathrm{m^2/ha}$, the negative growth differences for each mixture 
-may simply just imply that resources are scarce, and that growth is limited. Thus 
+may simply imply that resources are scarce, and that growth is limited. Thus 
 there don't appear to be any complementing effects between western larch and 
 Douglas-fir that lead to enhanced growth in western larch.  
 
@@ -466,8 +467,8 @@ estimated aspect effects shown in Fig. \ref{fig:diffsmooths} indicate that weste
 larch growth was negatively affected when mixed with Douglas-fir on 
 northwest-facing aspects. Since west-facing aspects are generally warmer and drier than 
 east-facing aspects, it's possible that Douglas-fir has more shade intolerant 
-characteristics on these aspects. Additionally, as shown in Figure \ref{fig:aspel}, 
-larch-Douglas-fir mixtures evaluated were primarily on NW-facing aspects. 
+characteristics on these aspects. As shown in Figure \ref{fig:aspel}, 
+larch-Douglas-fir mixtures evaluated in this study were primarily on NW-facing aspects. 
 Provided that Douglas-fir has more shade-intolerant characteristics in drier sites, this may explain the 
 lack of differences in western larch growth in mixtures with Douglas-fir. 
 However, since the growth of Douglas-fir was not evaluated, further 
@@ -616,7 +617,7 @@ is simpler if they aren't tied into a density-based measure like CCF.
 CCF simply does not provide any straight-forward interpretation of whether different 
 species dynamics are at play, as it only represents crown area as a weighted density. 
 A specific comparison of CCF effects on western larch growth between specific 
-mixtures could show how CCF the CCF effect changes with mixture, however, that 
+mixtures could show how the CCF effect changes with mixture, however, that 
 is beyond the scope of this study. Consequently, using measures which directly indicate specific 
 mixing-characteristics (e.g., shade tolerance, species-specific weighted densities) 
 is particularly useful, given the interplay among species-composition, density, 
@@ -637,8 +638,8 @@ individual tree growth, depending on the level of competition, demonstrating
 positive effects of niche complementarity. The findings in this study lack 
 adequate data and design to determine whether niche complementarity specifically impacts 
 western larch growth. However, the models fit do suggest that a relationship between 
-larch growth and purity of larch or shade-tolerance heterogeneity 
-exists. Others have attributed differences in productivity to shade-tolerance 
+larch growth and both purity of larch and shade-intolerance exists. Others have 
+attributed differences in productivity to shade-tolerance 
 heterogeneity \citep{Weiskittel2009,Maguire2021}, but few have evaluated the use of a 
 shade-tolerance metric in the estimation of tree growth. 
 This study provides additional support for the use of a shade-tolerance metric in growth 

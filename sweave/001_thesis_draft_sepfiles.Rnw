@@ -29,12 +29,27 @@
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}
 
-Thanks.
+% 
+% My sincerest gratitude cannot be overstated and is owed to:
+% 
+% The Inland Northwest Growth and Yield Cooperative for providing the funding 
+% for this research;
+% Renate Bush and Tami Fikstad of the USFS Region 1, for their help with the PGP data, 
+% logistics, data collection, and for keeping the PGP program alive;
+% My advisor Dr. David Affleck for his advice, guidance, and patience; 
+% my committee, including Drs. Andrew Larson, Justin Crotteau, and David Patterson, 
+% for their advice, wisdom, warnings, understanding, and flexibility; 
+% my friends, for their support, advice, reading of my papers, and last-minute 
+% presentation critiques; 
+% my partner Taylor, for her endless love and support; 
+% my family, for their support; 
+% the PGP data collection field crew in 2021
+
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-TBD
+\SweaveInput{01a_Abstract.rnw}
 
 \tableofcontents
 
@@ -70,28 +85,31 @@ TBD
 
 \chapter{Conclusions}
 
-INCOMPLETE
+\SweaveInput{05_conclusions.rnw}
 
--these are just thoughts-
 
-Since these data were limited by a lack of robust growth increment data for 
-western larch in shade tolerant mixtures, an obvious next step would be to perform 
-analyses on a data set for western larch growing within mixtures 
-across the entire shade tolerance spectrum. 
-
-These findings are limited to western larch only, and cannot speak to 
-an entire ecosystem, however, it is often of interest to optimize the growth 
-of a particular species to provide the maximum return on investment. 
-Across-species analysis to determine which type of mixture optimizes the growth 
-of western larch and the other incumbent species through complementary relationships 
-is necessary. 
-
-Future western larch growth models should consider the necessity and relative 
-predictive abilities of different competition measures independently of one-another
-as well as collectively in addition to how they may align with modeling goals. 
-This study effectively identified competitive dynamics through the implemented 
-combination of predictors. 
-
+% INCOMPLETE
+% 
+% -these are just thoughts-
+% 
+% Since these data were limited by a lack of robust growth increment data for 
+% western larch in shade tolerant mixtures, an obvious next step would be to perform 
+% analyses on a data set for western larch growing within mixtures 
+% across the entire shade tolerance spectrum. 
+% 
+% These findings are limited to western larch only, and cannot speak to 
+% an entire ecosystem, however, it is often of interest to optimize the growth 
+% of a particular species to provide the maximum return on investment. 
+% Across-species analysis to determine which type of mixture optimizes the growth 
+% of western larch and the other incumbent species through complementary relationships 
+% is necessary. 
+% 
+% Future western larch growth models should consider the necessity and relative 
+% predictive abilities of different competition measures independently of one-another
+% as well as collectively in addition to how they may align with modeling goals. 
+% This study effectively identified competitive dynamics through the implemented 
+% combination of predictors. 
+% 
 
 % Few studies have evaluated the mixing-growth dynamics of \emph{Larix} species 
 % to date. 

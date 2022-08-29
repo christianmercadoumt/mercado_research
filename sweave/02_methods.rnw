@@ -89,7 +89,7 @@ where trees are growing.
 Size variables include diameter at breast height $DBH$ and 
 tree basal area $G$. 
 
-Competition variables were: plot number of trees per hectare 
+Competition variables were: (i.) plot number of trees per hectare 
 ($TPH$)
 
 \begin{equation}
@@ -99,27 +99,27 @@ TPH_{pm} = \sum_{k} h_{kpm} C_{kpm}
 where $h_{kpm}$ is the tree expansion factor and $C_{kpm}$ is the number 
 of trees represented, 
 
-plot basal area per hectare ($BAH$) 
+(ii.) plot basal area per hectare ($BAH$) 
 
 \begin{equation}
 BAH_{pm} = \sum_{k} h_{kpm} G_{kpm}
 \end{equation}
 
-the ratio of plot $BAH$ in trees that are larger than an individual tree ($BAL$) 
+(iii.) the ratio of plot $BAH$ in trees that are larger than an individual tree ($BAL$) 
 
 \begin{equation}
 BAL_{kpm} = \frac{\sum\limits_{k`} h_{k`pm} G_{k`pm}}{BAH_{pm}}
 \end{equation}
 
-where $\sum_{k`}$ is over trees $k`$ with DBH larger than a subject $k$, 
+where $\sum\limits_{k`}$ is over trees $k`$ with DBH larger than a subject $k$, 
 
-plot quadratic mean diameter ($QMD$) 
+(iv.) plot quadratic mean diameter ($QMD$) 
 
 \begin{equation}
 QMD_{pm} = \sqrt{\frac{BAH_{pm}}{TPH_{pm}} \frac{40,000}{\pi}}
 \end{equation}
 
-and the ratio of tree $DBH$ to $QMD$ ($Dq$) 
+and (v.) the ratio of tree $DBH$ to $QMD$ ($Dq$) 
 
 \begin{equation}
 Dq_{kpm} = \frac{DBH_{kpm}}{QMD_{pm}} \label{eq:Dq}
@@ -243,20 +243,20 @@ different fixed terms and smoothing parameters was necessary. Otherwise models
 were fit using the restricted maximum likelihood criteria (REML) approach 
 because it reduces computation time and typically renders comparable results. 
 Since smoothing parameters are estimated during model fitting, there is a 
-level of uncertainty associated with them, which may be corrected for, 
-resulting in wider confidence bands around a particular partial effects smooth. 
-Additionally, random effects may also be coded as penalized smooths in this format 
+level of uncertainty associated with them. This may be accounted for when 
+plotting partial effects, resulting in wider confidence bands associated with 
+a smooth. Additionally, random effects may also be coded as penalized smooths in this format 
 \citep{Pedersen2019}, which allowed for simple specification of random 
 intercepts for individual trees. 
 
 Furthermore, the mgcv package allows for smooth functions that 
 vary across different groups. This works by fitting a smoother with its own smoothing 
 parameter for each level of a categorical variable \citep{Pedersen2019}, resulting in 
-a separate smoother for each level. In particular, model fitting where 
-one level may be specified as the reference level and fit with a smooth 
-representing reference conditions. Each of the remaining levels 
-are then fit with respective smooths that each characterize how the relationship 
-for that level deviates from the reference smooth \citep{Pedersen2019,wood2006generalized,zurr2009}. 
+a separate smoother for each level. Specifically, one level may be specified as 
+the 'reference' level and fit with a reference smooth to represent reference conditions. 
+Each of the remaining levels are then fit with respective smooths that each 
+characterize how the relationship for that level deviates from the reference 
+smooth \citep{Pedersen2019,wood2006generalized,zurr2009}. 
 
 % how conditions 
 % an identified reference category, and 
@@ -275,7 +275,7 @@ accuracy, which was estimated by two different definitions of root mean squared
 error (RMSE). One definition was evaluated as within sample error using the model 
 training data and model number of residual degrees of freedom ($\mathrm{RMSE_{int}}$), 
 and the other which evaluates error using the withheld data and number of 
-observations therein ($\mathrm{RMSE_ext}$): 
+observations therein ($\mathrm{RMSE_{ext}}$): 
 
 \begin{align}
 RMSE_{int} &= \sqrt{\frac{\sum_m \sum_p \sum_k (\widehat{BAI}_{kpm} - BAI_{kpm})^2}{n_{df}}} \label{eq:rmsedf}\\[1em]
@@ -309,7 +309,8 @@ A sequence of three different analyses were conducted to accomplish the objectiv
 this study. The first involved identifying an initial model by selecting 
 size (S), competition (C), and site productivity (P) predictors that effectively estimate western larch growth 
 but that carried no information about community species composition. This initial 
-model and its formulation will be referred to herein as SCPt. Once identified, 
+model and its formulation will be referred to herein as SCPt (t refers to 
+tree-level random effects). Once identified, 
 SCPt was then used as a foundation for subsequent analyses. 
 The second analysis utilized data only from three specific stand species 
 combinations, fit to SCPt, and evaluated differences of smooths across these 
@@ -347,16 +348,16 @@ The following three sections will describe each of these analyses in more detail
 
 \section{Model selection}
 
-Selecting which predictors to include within the initial model (M1)
+Selecting which predictors to include within the initial model (SCPt)
 followed the logic of \cite{Wykoff1990}, 
 \cite{Monserud1996}, and \cite{Vospernik2021} where predictors were 
-grouped together based on the categories described above, i.e., 
-(i) S, (ii) C, and (iii) P. 
+grouped together based on the categories described above, (i.e., 
+S,  C, and P). 
 Prior to testing predictors within a GAM, a colinearity assessment was 
 performed within each group of variables to avoid including 
 highly correlated variables together in candidate models. 
 Any predictors with an absolute Pearson correlation of 
-0.7 or higher were not considered in a model together. Additionally, 
+0.65 or higher were not considered in a model together. Additionally, 
 variables known to represent the same processes, even if not highly linearly 
 correlated (such as heatload and aspect, for instance), were not considered 
 together to avoid redundancies and reduce model complexity. 
@@ -684,19 +685,26 @@ of 100 theoretically describes the threshold of competition for crown space.
 % \end{tabular}
 % \end{table}
 
-Theoretically, if the amount of basal area occupied by a target species 
-(or the purity thereof) in a stand is high, then the amount that species-mixing 
-can impact the growth of that species is low. Alternatively, if a given species 
-is surrounded by a high proportion of basal area in other species, then 
-the amount that species's growth of the target species may be 
-increased. 
 
-Assuming that species-mixing can impact the growth of western larch, 
-then the amount of biodiversity in a stand would be be inversely related 
-to the amount of area occupied by western larch (or the purity thereof). 
-Therefore, as an alternative to CCF, the proportion of basal area occupied by larch 
-(purity, herein) was used to evaluate species mixing effects. It is simply calculated as a 
-ratio of plot basal area occupied by western larch to total plot basal area: 
+% Theoretically, if the amount of basal area occupied by a target species 
+% (or the purity thereof) in a stand is high, then the amount that species-mixing 
+% can impact the growth of that species is low (since there are few other species). 
+% Alternatively, if a given species is surrounded by a high proportion of basal 
+% area in other species, then the amount that species-mixing could effect the 
+% growth of the target species may be increased. 
+
+% Assuming that species-mixing can impact the growth of western larch, then the 
+% amount of non-larch species in a stand would be be inversely related 
+% to the amount of area occupied by western larch (or the purity thereof). 
+
+One alternative to CCF involves a weighted proportion of plot basal area in a 
+given target species. It follows the following logic: if a high proportion of 
+area in a plot is in western larch trees, then species-mixing effects simply cannot 
+occur. However, if the proportion of western larch in a plot is low, then 
+species-mixing effects may be present. Therefore, as an alternative to CCF, the 
+proportion of basal area occupied by larch (purity, herein) was used to 
+evaluate species mixing effects. It is simply calculated as the proportion of plot 
+basal area occupied by western larch: 
 
 \begin{equation}
 \label{eq:purity}
@@ -727,7 +735,7 @@ The third species-informed measure makes use of a shade-tolerance index
 ranging between 0 and 1, 0 being very shade-tolerant, and 1 being very 
 shade-intolerant. Since this study focused on shade-intolerant western larch, 
 these values were inverted so that they could be easily compared with the 
-purity metric and are shown in Table ~\ref{tab:shade}. 
+purity metric (as shown in Table ~\ref{tab:shade}). 
 Shade intolerance values were multiplied by individual tree 
 basal area values, and then summed: 
 

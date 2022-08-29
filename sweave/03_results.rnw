@@ -16,14 +16,14 @@ that there were few data with values below 0.4. Pure larch and lodgepole
 pine mixtures were more shade intolerant than those of Douglas-fir and 
 other mixtures. 
 
-Site attributes for different mixtures are displayed in figure \ref{fig:aspel}. 
-These data primarily lie on north-facing aspects, which are typically cooler 
+Site attributes for different mixtures are displayed in Fig. \ref{fig:aspel}. 
+These data mostly lie on north-facing aspects, which are typically cooler 
 and wetter, and are distributed from west to east. Higher heatload values 
-indicate a site may be hotter and/or drier than others, and appeared in these data 
-on west and south facing aspects, where lower values appear 
-near north-northeast aspects. Few data were evaluated on southern aspects. 
-Elevation ranged from 800 m to 1800 m, where much of the data area at sites above 
-1200 m. 
+indicate that a site may be hotter and/or drier than others, and appeared in these data 
+on west and south facing aspects. Lower heatload values are shown more abundantly 
+on north-northeast aspects. Few data were evaluated on southern aspects. 
+Elevation ranged from 800 m to 1800 m, where much of these data appear at sites above 
+1200 m (Fig. \ref{fig:aspel}). 
 
 \begin{figure}
 \centering
@@ -116,7 +116,8 @@ The SCPt model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
 Predictors were determined through a sequential selection from within each group 
 (S, C, and P), considering S variables first, and then considering C variables 
-in addition to S variables, and P variables in addition to S and C. 
+in addition to S variables, and P variables in addition to S and C. This is 
+visualized in Table \ref{tab:rmse} and results are described below. 
 
 S variables were tree DBH and tree basal area (G). DBH and G were highly correlated 
 (0.938) and were evaluated as predictors of BAI in separate models. DBH as a predictor yielded 
@@ -276,7 +277,7 @@ Model term complexity, overall fit, and predictive accuracy (respective of the
 iterative group-wise selection) are shown Table \ref{tab:rmse}. 
 Improvements in $\mathrm{RMSE_{int}}$ and deviance explained were seen with 
 the addition of each group. The final SCPt model residuals as well as model 
-estimation error (shown in Figure \ref{resids}) were evaluated for patterns and 
+estimation error (shown in Figure \ref{fig:resids}) were evaluated for patterns and 
 abnormalities. Residuals do not show any notable trends and are roughly 
 centered about zero. The estimation error shows four unusually high predicted 
 values of BAI with large negative errors (predicted BAI > 30 $\mathrm{cm^2/yr.}$ 
@@ -287,11 +288,22 @@ not well-represented in the training data, resulting in these erroneous
 predictions. Otherwise, errors appear centered around zero and don't 
 show any other notable patterns. 
 
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{../17.figures_saved/res_err.png}
+\caption[Residuals]{Deviance residuals vs. fitted BAI values (on the log-link scale; left) and estimation error (right) vs. estimated BAI values for the SCPt model. Deviance residuals are from the training data and estimation errors are derived from BAI predictions using the withheld data set. The very large estimated BAI (> 80 $\mathrm{cm^2/yr.}$) is for an exceptionally large tree in a stand with otherwise small trees, forcing the model to predict on a combination of covariate values that did not exist in the training data. }
+\label{fig:resids}
+\end{figure}
 
-The following text describes comparisons of individual predictive accuracy across 
-groups as well as predictors, however, these results did not change the 
-implementation of the SCPt model in the following sections. 
-C and P were compared to assess their contributions 
+
+% The following text describes comparisons of individual predictive accuracy across 
+% groups as well as predictors, however, these results did not change the 
+% implementation of the SCPt model in the following sections. 
+
+Group wise and individual term comparisons were made after model selection 
+was complete; the following results did not impact model fitting 
+or selection, but rather were used to compare and contrast with previously 
+identified models. C and P were compared to assess their contributions 
 to model performance, fitting each in separate models in addition to S, 
 where the resulting SC model out-performed SP in terms of deviance explained 
 (44\% and 41\%, respectively), but SP out-predicted SC ($\mathrm{RMSE_{ext}}$ of 
@@ -308,9 +320,6 @@ BAH, with values of 38\%, 31\%, 17\%, 5\%, and 3\%, respectively. Comparing
 these models by predictive accuracy using the withheld data, however, DBH 
 performed best, followed by BAL, aspect, CR, and BAH, with $\mathrm{RMSE_{ext}}$ 
 values (in $\mathrm{cm^2/yr.}$) of 5.68, 5.74, 6.25, 6.85, 6.88, respectively. 
-
-
-
 % 
 % However, considering 
 % variables individually, DBH explained more deviance and reduced $\mathrm{RMSE_{int}}$  
@@ -322,13 +331,6 @@ values (in $\mathrm{cm^2/yr.}$) of 5.68, 5.74, 6.25, 6.85, 6.88, respectively.
 % data are plotted in figure \ref{fig:resids}. 
 % 
 
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{../17.figures_saved/res_err.png}
-\caption[Residuals]{Deviance residuals vs. fitted BAI values (on the log-link scale; left) and estimation error (right) vs. estimated BAI values for the SCPt model. Deviance residuals are from the training data and estimation errors are derived from BAI predictions using the withheld data set. The very large estimated BAI (> 80 $\mathrm{cm^2/yr.}$) is for an exceptionally large tree in a stand with otherwise small trees, forcing the model to predict on data that did not exist in the training data. }
-\label{fig:resids}
-\end{figure}
 
 % , a reduced rank version of thin-plate splines \citep{wood2006generalized}. 
 
@@ -386,12 +388,12 @@ the pure larch (reference) conditions were observed and are shown in Table \ref{
 The reference conditions had comparably the most growth observations over the 
 broadest range of BAI and DBH and sat on aspects spanning from 
 northwest to northeast (Fig. ~\ref{fig:aspel}). Both lodgepole pine and 
-Douglas-fir mixtures had less observations than the reference, lodgepole pine 
-having the narrowest range of BAI and BAH of the three as well as the lowest 
-mean value of BAH. The Douglas-fir mixture data had the widest range of BAH 
-values with the highest average of the three. Both mixtures evaluated were more 
-abundant on northwest-facing slopes compared to other aspects, as shown in 
-figure \ref{fig:aspel}. 
+Douglas-fir mixtures had less observations than the reference (see 
+Table\ref{tab:mixsummary}). Lodgepole pine had the narrowest range of BAI and 
+BAH of the three as well as the lowest mean value of BAH. The Douglas-fir 
+mixture data had the widest range of BAH values with the highest average of the 
+three. Both mixtures evaluated were more abundant on northwest-facing slopes 
+compared to other aspects, as shown in Fig. \ref{fig:aspel}. 
 % 
 % This was a non-issue in terms 
 % of bias, as ultimately there was data across a similar range of aspect for 
@@ -749,7 +751,7 @@ BA & 8.65 & $< 0.001$ & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
 %show smooths
 \begin{figure}
 \centering
-\includegraphics[width=.75\textwidth]{../17.figures_saved/mix_diff_smooths.png}
+\includegraphics[width=.65\textwidth]{../17.figures_saved/mix_diff_smooths.png}
 \caption[Difference smooths]{Difference smooths for each SCPt predictor displaying the differences between Larch-lodgepole pine (left) mixtures and the pure larch (reference) conditions as well as the Larch-Douglas-fir mixtures (right) and the reference smooths. Error bands represent $\pm$ 2 standard errors and account for uncertainty in smoothing parameter estimation. Reference smooths not shown - compare to the smooths in Fig. \ref{fig:basesmooths}}
 \label{fig:diffsmooths}
 \end{figure}
@@ -772,8 +774,8 @@ Model accuracy was best improved by the addition of L, followed by
 T and then CCF (Table ~\ref{tab:mixvarsrmse}). Inclusion of all three terms in each 
 respective model was backed by a p-value below 0.001, suggesting that each metric 
 was an important predictor in its respective model. Changes in 
-$\mathrm{RMSE_{ext}}$ were modest, all of which were at the sub-square 
-centimeter per year -level. Model deviance explained increased in concert with 
+$\mathrm{RMSE_{ext}}$ were modest, all of which were at the sub- square 
+centimeter per year- level. Model deviance explained increased in concert with 
 improvements to accuracy except for with CCF, which 
 showed a small decrease in deviance explained when CCF replaced BAH in the model
 (Table ~\ref{tab:mixvarsrmse}).
@@ -781,12 +783,13 @@ showed a small decrease in deviance explained when CCF replaced BAH in the model
 In the absence of BAH in the model, CCF displayed a larger partial effect on tree growth 
 than purity and shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, 
 since CCF is a size-weighted measure of stand density, it appears very similar 
-to the BAH smooth in the SCPt model (in Fig. \ref{basesmooths}), showing a 
+to the BAH smooth in the SCPt model (in Fig. \ref{fig:basesmooths}), showing a 
 negative effect that is very pronounced at low values (CCF < 50) and then tapers 
 to a near constant effect at high values (CCF > 150). 
 Both purity and shade intolerance were also characterized by negative 
 effects on growth, but since stand density is already accounted for 
-by BAH in each of these models, both of these measures have a smaller effect on growth. 
+by BAH in each of these models, both of these measures have a smaller effect on 
+growth compared to CCF (Fig. \ref{fig:ccf_put_shd}). 
 In addition, the partial effects smooths for purity and shade intolerance were 
 fit with complex non-monotonic functions whose confidence bands (+/- 2 standard errors) 
 are wider at low values (especially those of shade-intolerance), likely due to 
