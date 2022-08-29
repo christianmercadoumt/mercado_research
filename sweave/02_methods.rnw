@@ -167,36 +167,35 @@ amount of data in the training data set may be viewed in Table \ref{tab:sumtab}.
 
 
 \begin{table}[!h]
-\caption[Summary data counts]{Counts of data for each stand. The first 2 digits of each stand number correspond to which national forest they are in: 14 for the Kootenai NF, and 16 for the lolo national forest. }
+\caption[Summary data counts]{Distribution of numbers of unique western larch trees and growth increments across the PGP stands evaluated in this study for model training. Two plots were selected from each stand at random for the validation data set, so only 10 of 12 plots are shown for each stand. Stands 1609, 1614, and 1618 had plots that either did not have any western larch growth data or simply did not have any data at all, so only 9 plots are shown for these stands.}
 \label{tab:sumtab}
 \centering
 \begin{tabular}{lrrrr}
 \toprule
-Stand & Plots & Unique trees & Increments & Measurements\\
+Stand & Measurements & Unique trees & Increments &  Plots\\
 \midrule
-\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150} & \cellcolor{gray!6}{4}\\
-1402 & 10 & 188 & 631 & 5\\
-\cellcolor{gray!6}{1403} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{113} & \cellcolor{gray!6}{313} & \cellcolor{gray!6}{5}\\
-1404 & 10 & 146 & 465 & 5\\
-\cellcolor{gray!6}{1405} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{188} & \cellcolor{gray!6}{676} & \cellcolor{gray!6}{5}\\
+\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{4} & \cellcolor{gray!6}{53} & \cellcolor{gray!6}{150} & \cellcolor{gray!6}{10}\\
+1402 & 5 & 188 & 631 & 10\\
+\cellcolor{gray!6}{1403} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{113} & \cellcolor{gray!6}{313} & \cellcolor{gray!6}{10}\\
+1404 & 5 & 146 & 465 & 10\\
+\cellcolor{gray!6}{1405} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{188} & \cellcolor{gray!6}{676} & \cellcolor{gray!6}{10}\\
 \addlinespace
-1406 & 10 & 99 & 304 & 5\\
-\cellcolor{gray!6}{1407} & \cellcolor{gray!6}{19} & \cellcolor{gray!6}{74} & \cellcolor{gray!6}{108} & \cellcolor{gray!6}{4}\\
-1408 & 10 & 77 & 212 & 4 \\
-\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{5}\\
-1610 & 10 & 129 & 416 & 5\\
+1406 & 5 & 99 & 304 & 10\\
+\cellcolor{gray!6}{1407} & \cellcolor{gray!6}{4} & \cellcolor{gray!6}{74} & \cellcolor{gray!6}{108} & \cellcolor{gray!6}{19}\\
+1408 & 4 & 77 & 212 & 10 \\
+\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{37} & \cellcolor{gray!6}{139} & \cellcolor{gray!6}{9}\\
+1610 & 5 & 129 & 416 & 10\\
 \addlinespace
-\cellcolor{gray!6}{1611} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{77} & \cellcolor{gray!6}{222} & \cellcolor{gray!6}{5}\\
-1612 & 10 & 211 & 548 & 4\\
-\cellcolor{gray!6}{1614} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{49} & \cellcolor{gray!6}{181} & \cellcolor{gray!6}{5}\\
-1615 & 10 & 133 & 379 & 4\\
-\cellcolor{gray!6}{1616} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{106} & \cellcolor{gray!6}{291} & \cellcolor{gray!6}{4}\\
-\addlinespace
-1617 & 10 & 131 & 355 & 4\\
-\cellcolor{gray!6}{1618} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{66} & \cellcolor{gray!6}{4}\\
-1619 & 10 & 134 & 338 & 4\\
+\cellcolor{gray!6}{1611} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{77} & \cellcolor{gray!6}{222} & \cellcolor{gray!6}{10}\\
+1612 & 4 & 211 & 548 & 10\\
+\cellcolor{gray!6}{1614} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{49} & \cellcolor{gray!6}{181} & \cellcolor{gray!6}{9}\\
+1615 & 4 & 133 & 379 & 10\\
+\cellcolor{gray!6}{1616} & \cellcolor{gray!6}{4} & \cellcolor{gray!6}{106} & \cellcolor{gray!6}{291} & \cellcolor{gray!6}{10}\\
+1617 & 4 & 131 & 355 & 10\\
+\cellcolor{gray!6}{1618} & \cellcolor{gray!6}{4} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{66} & \cellcolor{gray!6}{9}\\
+1619 & 4 & 134 & 338 & 10\\
 \midrule
-\cellcolor{gray!6}{Totals} & \cellcolor{gray!6}{186} & \cellcolor{gray!6}{1975} & \cellcolor{gray!6}{5794} & \cellcolor{gray!6}{ }\\
+\cellcolor{gray!6}{Totals} & \cellcolor{gray!6}{ } & \cellcolor{gray!6}{1975} & \cellcolor{gray!6}{5794} & \cellcolor{gray!6}{186}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -243,6 +242,9 @@ The maximum likelihood method was used in this study where comparison across mod
 different fixed terms and smoothing parameters was necessary. Otherwise models 
 were fit using the restricted maximum likelihood criteria (REML) approach 
 because it reduces computation time and typically renders comparable results. 
+Since smoothing parameters are estimated during model fitting, there is a 
+level of uncertainty associated with them, which may be corrected for, 
+resulting in wider confidence bands around a particular partial effects smooth. 
 Additionally, random effects may also be coded as penalized smooths in this format 
 \citep{Pedersen2019}, which allowed for simple specification of random 
 intercepts for individual trees. 
@@ -307,17 +309,17 @@ A sequence of three different analyses were conducted to accomplish the objectiv
 this study. The first involved identifying an initial model by selecting 
 size (S), competition (C), and site productivity (P) predictors that effectively estimate western larch growth 
 but that carried no information about community species composition. This initial 
-model and its formulation will be referred to herein as SCP. Once identified, 
-SCP was then used as a foundation for subsequent analyses. 
+model and its formulation will be referred to herein as SCPt. Once identified, 
+SCPt was then used as a foundation for subsequent analyses. 
 The second analysis utilized data only from three specific stand species 
-combinations, fit to SCP, and evaluated differences of smooths across these 
+combinations, fit to SCPt, and evaluated differences of smooths across these 
 combinations. 
 % whether and how 
 % M1 deviated when fit across the different species combinations. 
 % was fit with an additional variable that identified 
 % distinct offsets for each smooth function and model intercept for distinct 
 % species mixtures. 
-The third analysis involved augmenting SCP using three different species-mixing 
+The third analysis involved augmenting SCPt using three different species-mixing 
 measures (each in its own respective model) in order to evaluate whether 
 they could effectively capture differences in the growth of western larch. 
 The following three sections will describe each of these analyses in more detail.  
@@ -393,7 +395,7 @@ was selected over alternatives. If estimated concurvity was greater than 0.8
 for a particular term, then alternative predictors were assessed in its place.  
 The same process was used for P variables thereafter. 
 Once a parsimonious GAM was identified with variables for each group, random intercepts for 
-individual trees were then included. This resulted in model SCP, taking the 
+individual trees were then included. This resulted in model SCPt, taking the 
 following form: 
 
 \begin{equation}
@@ -402,7 +404,7 @@ ln[E(BAI)] = B + \sum_j f_{1j}(x_{1j}) + \sum_j f_{2j}(x_{2j}) + \sum_j f_{3j}(x
 \end{equation}
 
 where $ln$ represents the natural logarithmic link function, $E(BAI)$ represents the expected 
-value of $BAI$, $B$ represents an estimated tree-level random intercept, and $x_{ij}$ 
+value of $BAI$, $B$ represents an estimated tree-level random intercept (t), and $x_{ij}$ 
 represents a predictor variable in group $i$ (S, C, or P), and $f_{ij}$ is the smooth 
 function thereof.
 % 
@@ -438,7 +440,7 @@ basal area in western larch.
 % These two were selected based on availability 
 % in the data and because of their similar and contrasting shade tolerance values. 
 
-SCP was then fit with the species-mixture data, allowing each mixture an offset 
+Model SCPt was then fit with the species-mixture data, allowing each mixture an offset 
 for the intercept and for each smooth term. This resulted in a model containing a 
 reference smooth for each predictor corresponding to the pure larch condition, 
 and a difference smooth \citep{wood2006generalized} for each identified 
@@ -582,7 +584,7 @@ of different species within a mixture, it was of interest to capture
 species-mixing effects in a way that is easy to measure or calculate from readily 
 available variables so that they could be incorporated into a growth model. 
 Three different species-mixing measures were identified and each added as an 
-additional predictor in the SCP model: crown competition factor, the proportion 
+additional predictor in the SCPt model: crown competition factor, the proportion 
 of plot basal area occupied by larch, and proportion of plot basal area weighted 
 by species-shade tolerance values. They were compared in alternative models to 
 assess their contributions to model prediction (after accounting for other factors) 
@@ -745,7 +747,7 @@ species.
 
 
 \begin{table}
-\caption[Shade intolerance values]{Shade intolerance values for the PGP species.}
+\caption[Shade intolerance values]{Shade intolerance values for the PGP species, based on those identified by \cite{Lienard2015}.}
 \label{tab:shade}
 \centering
 \begin{tabular}[t]{>{}l>{}lr}
@@ -771,7 +773,7 @@ Genus & Species & Shade intolerance\\
 % - comparing models based on RMSE, quantifying accuracy improvements by each
 
 To evaluate and compare these measures, each was added as an additional predictor 
-to the SCP model formulation:
+to the SCPt model formulation:
 
 
 \begin{equation}

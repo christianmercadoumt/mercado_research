@@ -3,7 +3,7 @@
 
 % Aspects are coded by cardinal direction, where N,S,E,W are north, south, east, and west, repsectively (e.g., NNW = north-northwest). Thin grey lines indicate 0 on each axis, with a 1:1 slope dotted-line passing through (0,0) included for visual reference. There were no observations in SW aspects, and all east-facing southerly aspects were binned together, as there was very little data in that quadrant.
 
-Predictors of growth varied across and within stands, as shown in Table \ref{tab:sumpre}. 
+% Predictors of growth varied across and within stands, as shown in Table \ref{tab:sumpre}. 
 Tree size was positively associated with the growth of western larch 
 but this relationship was modified by other variables, as shown in Figure 
 \ref{fig:sumfig}. Growth was the lowest in smaller trees, where growth tends 
@@ -28,14 +28,14 @@ Elevation ranged from 800 m to 1800 m, where much of the data area at sites abov
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/bai_diam_spp2.png}
-\caption[BAI-Diameter by BAH and species mix]{Individual western larch log(BAI) and DBH. Columns represent different levels of density (BAH) and rows represent different species mixture types (rows), where 300 observations were randomly sampled for each displayed mixture type from the full data set.}
+\caption[BAI-Diameter by BAH and species mix]{Individual western larch BAI (natural logarithm transformed) and DBH (cm). Columns represent different levels of plot basal area (BAH $\mathrm{m^2/ha}$) and rows represent different species mixtures. Shades of grey from white to black represent shade intolerance values. 300 observations were randomly sampled for each displayed mixture type from the training data set to avoid over-plotting.}
 \label{fig:sumfig}
 \end{figure}
 
 
 \begin{figure}
 \includegraphics[width=\textwidth]{../17.figures_saved/mix.compass2.png}
-\caption[Aspect-elevation plot]{Plot of aspect and elevations for different mixtures. Each point represents an individual cluster.}
+\caption[Aspect-elevation plot]{Plot of aspect and elevations for different species mixtures. Each point represents an individual cluster within a PGP stand.}
 \label{fig:aspel}
 \end{figure}
 
@@ -51,42 +51,42 @@ Elevation ranged from 800 m to 1800 m, where much of the data area at sites abov
 % steep, and minimum tree size is generally larger. One note, however, data for 
 % most of the largest trees were collected on east-northeast aspects \ref{fig:ddist}. 
 
-\begin{table}
-\caption[Summary of predictors for each stand]{Mean and standard deviation (SD) of DBH, CR, BAL, and BAH.}
-\label{tab:sumpre}
-\centering
-\begin{tabular}{lrrrrrrrr}
-\toprule
-\multicolumn{1}{c}{\cellcolor{gray!6}{Variable}} & \multicolumn{2}{c}{\cellcolor{gray!6}{DBH}} & \multicolumn{2}{c}{\cellcolor{gray!6}{CR}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAL}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAH}} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9}
-Stand & Mean & SD & Mean & SD & Mean & SD & Mean & SD \\
-\midrule
-\cellcolor{gray!6}{1401} & \cellcolor{gray!6}{43.412} & \cellcolor{gray!6}{7.02} & \cellcolor{gray!6}{0.34} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.42} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{47} & \cellcolor{gray!6}{11}\\
-1402 & 7.649 & 3.60 & 0.85 & 0.10 & 0.64 & 0.26 & 7 & 5\\
-\cellcolor{gray!6}{1403} & \cellcolor{gray!6}{8.264} & \cellcolor{gray!6}{4.92} & \cellcolor{gray!6}{0.88} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.64} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{5}\\
-1404 & 10.073 & 4.95 & 0.84 & 0.13 & 0.61 & 0.29 & 12 & 9\\
-\cellcolor{gray!6}{1405} & \cellcolor{gray!6}{11.528} & \cellcolor{gray!6}{3.31} & \cellcolor{gray!6}{0.41} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.57} & \cellcolor{gray!6}{0.27} & \cellcolor{gray!6}{17} & \cellcolor{gray!6}{7}\\
-\addlinespace
-1406 & 10.462 & 4.87 & 0.80 & 0.14 & 0.59 & 0.29 & 9 & 6\\
-\cellcolor{gray!6}{1407} & \cellcolor{gray!6}{12.465} & \cellcolor{gray!6}{6.03} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.53} & \cellcolor{gray!6}{0.31} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{7}\\
-1408 & 30.641 & 7.92 & 0.32 & 0.09 & 0.52 & 0.30 & 41 & 18\\
-\cellcolor{gray!6}{1609} & \cellcolor{gray!6}{10.604} & \cellcolor{gray!6}{5.61} & \cellcolor{gray!6}{0.77} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.59} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{6}\\
-1610 & 7.963 & 3.98 & 0.77 & 0.13 & 0.65 & 0.29 & 9 & 6\\
-\addlinespace
-\cellcolor{gray!6}{1611} & \cellcolor{gray!6}{9.380} & \cellcolor{gray!6}{4.30} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.15} & \cellcolor{gray!6}{0.62} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{7}\\
-1612 & 8.782 & 5.37 & 0.58 & 0.25 & 0.67 & 0.28 & 10 & 6\\
-\cellcolor{gray!6}{1614} & \cellcolor{gray!6}{14.503} & \cellcolor{gray!6}{6.88} & \cellcolor{gray!6}{0.81} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.49} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{4}\\
-1615 & 12.537 & 4.24 & 0.84 & 0.11 & 0.53 & 0.30 & 12 & 7\\
-\cellcolor{gray!6}{1616} & \cellcolor{gray!6}{16.932} & \cellcolor{gray!6}{4.89} & \cellcolor{gray!6}{0.40} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.52} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{11}\\
-\addlinespace
-1617 & 9.247 & 2.72 & 0.79 & 0.12 & 0.59 & 0.26 & 8 & 3\\
-\cellcolor{gray!6}{1618} & \cellcolor{gray!6}{8.247} & \cellcolor{gray!6}{4.61} & \cellcolor{gray!6}{0.74} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.68} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{6}\\
-1619 & 12.365 & 4.49 & 0.71 & 0.14 & 0.52 & 0.28 & 17 & 9\\
-\bottomrule
-\end{tabular}
-\end{table}
+% \begin{table}
+% \caption[Summary of predictors for each stand]{Mean and standard deviation (SD) of DBH, CR, BAL, and BAH.}
+% \label{tab:sumpre}
+% \centering
+% \begin{tabular}{lrrrrrrrr}
+% \toprule
+% \multicolumn{1}{c}{\cellcolor{gray!6}{Variable}} & \multicolumn{2}{c}{\cellcolor{gray!6}{DBH}} & \multicolumn{2}{c}{\cellcolor{gray!6}{CR}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAL}} & \multicolumn{2}{c}{\cellcolor{gray!6}{BAH}} \\
+% \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9}
+% Stand & Mean & SD & Mean & SD & Mean & SD & Mean & SD \\
+% \midrule
+% \cellcolor{gray!6}{1401} & \cellcolor{gray!6}{43.4} & \cellcolor{gray!6}{7.02} & \cellcolor{gray!6}{0.34} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.42} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{47} & \cellcolor{gray!6}{11}\\
+% 1402 & 7.6 & 3.60 & 0.85 & 0.10 & 0.64 & 0.26 & 7 & 5\\
+% \cellcolor{gray!6}{1403} & \cellcolor{gray!6}{8.264} & \cellcolor{gray!6}{4.92} & \cellcolor{gray!6}{0.88} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.64} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{5}\\
+% 1404 & 10.073 & 4.95 & 0.84 & 0.13 & 0.61 & 0.29 & 12 & 9\\
+% \cellcolor{gray!6}{1405} & \cellcolor{gray!6}{11.528} & \cellcolor{gray!6}{3.31} & \cellcolor{gray!6}{0.41} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.57} & \cellcolor{gray!6}{0.27} & \cellcolor{gray!6}{17} & \cellcolor{gray!6}{7}\\
+% \addlinespace
+% 1406 & 10.462 & 4.87 & 0.80 & 0.14 & 0.59 & 0.29 & 9 & 6\\
+% \cellcolor{gray!6}{1407} & \cellcolor{gray!6}{12.465} & \cellcolor{gray!6}{6.03} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.53} & \cellcolor{gray!6}{0.31} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{7}\\
+% 1408 & 30.641 & 7.92 & 0.32 & 0.09 & 0.52 & 0.30 & 41 & 18\\
+% \cellcolor{gray!6}{1609} & \cellcolor{gray!6}{10.604} & \cellcolor{gray!6}{5.61} & \cellcolor{gray!6}{0.77} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.59} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{6}\\
+% 1610 & 7.963 & 3.98 & 0.77 & 0.13 & 0.65 & 0.29 & 9 & 6\\
+% \addlinespace
+% \cellcolor{gray!6}{1611} & \cellcolor{gray!6}{9.380} & \cellcolor{gray!6}{4.30} & \cellcolor{gray!6}{0.76} & \cellcolor{gray!6}{0.15} & \cellcolor{gray!6}{0.62} & \cellcolor{gray!6}{0.32} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{7}\\
+% 1612 & 8.782 & 5.37 & 0.58 & 0.25 & 0.67 & 0.28 & 10 & 6\\
+% \cellcolor{gray!6}{1614} & \cellcolor{gray!6}{14.503} & \cellcolor{gray!6}{6.88} & \cellcolor{gray!6}{0.81} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.49} & \cellcolor{gray!6}{0.33} & \cellcolor{gray!6}{9} & \cellcolor{gray!6}{4}\\
+% 1615 & 12.537 & 4.24 & 0.84 & 0.11 & 0.53 & 0.30 & 12 & 7\\
+% \cellcolor{gray!6}{1616} & \cellcolor{gray!6}{16.932} & \cellcolor{gray!6}{4.89} & \cellcolor{gray!6}{0.40} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.52} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{11}\\
+% \addlinespace
+% 1617 & 9.247 & 2.72 & 0.79 & 0.12 & 0.59 & 0.26 & 8 & 3\\
+% \cellcolor{gray!6}{1618} & \cellcolor{gray!6}{8.247} & \cellcolor{gray!6}{4.61} & \cellcolor{gray!6}{0.74} & \cellcolor{gray!6}{0.14} & \cellcolor{gray!6}{0.68} & \cellcolor{gray!6}{0.29} & \cellcolor{gray!6}{8} & \cellcolor{gray!6}{6}\\
+% 1619 & 12.365 & 4.49 & 0.71 & 0.14 & 0.52 & 0.28 & 17 & 9\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
 
-\section{SCP model determination} \label{basemodel}
+\section{SCPt model determination} \label{basemodel}
 
 
 %begin with description of the raw data
@@ -112,7 +112,7 @@ Stand & Mean & SD & Mean & SD & Mean & SD & Mean & SD \\
 
 %Then presesnt results of correlation and say which predictors were selected by group
 
-The SCP model training data set consisted of %training data set?
+The SCPt model training data set consisted of %training data set?
 5,792 basal area increments across 1,975 individual western larch trees. 
 Predictors were determined through a sequential selection from within each group 
 (S, C, and P), considering S variables first, and then considering C variables 
@@ -145,9 +145,9 @@ beyond the established threshold. Thus, building on the model and
 comparing aspect, site index, and heatload, aspect was selected as 
 the best term, further reducing model $\mathrm{RMSE_{int}}$ to 4.01 $\mathrm{cm^2/yr}$
 
-Given this information, the SCP basal area increment model was specified with 
+Given this information, the SCPt basal area increment model was specified with 
 the following predictors: DBH, CR, BAL, BAH, and aspect. 
-Upon the addition of tree-level random effects, SCP $\mathrm{RMSE_{int}}$ was 
+Upon the addition of tree-level random effects, SCPt $\mathrm{RMSE_{int}}$ was 
 ~3.34 $\mathrm{cm^2/yr}$. Fixed effects terms used 
 ~53 degrees of freedom, and total model deviance explained was 84.9\%. 
 Random effects were accounted for using a spline basis 
@@ -155,28 +155,95 @@ Random effects were accounted for using a spline basis
 freedom of ~1338. Model statistics are reported in Table \ref{tab:rmse}. 
 
 
+% \begin{table}[!h]
+% \caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and $\mathrm{RMSE_{int}}$ values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. $\mathrm{RMSE_{int}}$ for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+% \label{tab:rmse}
+% \centering
+% \begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+% \toprule
+% \hspace{1em}Smooth & EDF & Deviance explained & $\mathrm{RMSE_{int}}$ ($\mathrm{cm^2/yr}$)\\
+% \midrule
+% \addlinespace[0.3em]
+% \multicolumn{2}{l}{\textbf{S}} & 30.82 & 5.64312 \\
+% \hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+% \addlinespace[0.3em]
+% \multicolumn{2}{l}{\textbf{Size + competition}} & 62.87 & 4.31 \\
+% \hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% \hspace{1em}BAL & 8 & & \\
+% \hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+% \addlinespace[0.3em]
+% \multicolumn{2}{l}{\textbf{Size + competition + site}} & 67.39 & 4.01197\\
+% \hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+% \addlinespace[0.3em]
+% \textbf{Size + competition + site + random intercept} & 1389 & 84.91 & 3.32142 \\
+% \hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
+% \begin{table}[!h]
+% \centering
+% \begin{tabular}{>{\raggedright\arraybackslash}m{8em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}r}
+% \toprule
+% \hspace{1em}Smooth & EDF & Deviance explained & $\mathrm{RMSE_{int}}$ ($\mathrm{cm^2/yr}$) & $\mathrm{RMSE_{ext}}$ ($\mathrm{cm^2/yr}$)\\
+% \midrule
+% \cellcolor{gray!6}{S} & \cellcolor{gray!6}{7.1} & \cellcolor{gray!6}{30.82} & \cellcolor{gray!6}{5.643} & \cellcolor{gray!6}{5.681}\\
+% \hspace{1em}DBH & 8.8 &  &  & \\
+% \cellcolor{gray!6}{SC} & \cellcolor{gray!6}{6.6} & \cellcolor{gray!6}{44.50} & \cellcolor{gray!6}{5.291} & \cellcolor{gray!6}{5.458}\\
+% \hspace{1em}DBH & 8.2 &  &  & \\
+% \hspace{1em}\cellcolor{gray!6}{CR} & \cellcolor{gray!6}{7.6} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% \addlinespace
+% \hspace{1em}BAL & 7.1 &  &  & \\
+% \hspace{1em}\cellcolor{gray!6}{BAH} & \cellcolor{gray!6}{4.5} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% SCP & 8.5 & 67.39 & 4.012 & 4.451\\
+% \hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{27.2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% \hspace{1em}CR & 8.0 &  &  & \\
+% \addlinespace
+% \hspace{1em}\cellcolor{gray!6}{BAL} & \cellcolor{gray!6}{1.6} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% \hspace{1em}BAH & 7.8 &  &  & \\
+% \hspace{1em}\cellcolor{gray!6}{aspect} & \cellcolor{gray!6}{8.7} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% SCPt & 25.7 & 84.91 & 3.321 & 4.814\\
+% \hspace{1em}\cellcolor{gray!6}{t} & \cellcolor{gray!6}{1337.0} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+
 \begin{table}[!h]
-\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable, displayed by group. Deviance explained and $\mathrm{RMSE_{int}}$ values displayed reflect their respective values at the time of model selection, e.g., size, size + competition, etc. $\mathrm{RMSE_{int}}$ for model selection was calculated on the data used to train models in the selection period, but was degrees of freedom as to avoid bias.}
+\caption[Base model selection criteria]{Table of effective degrees of freedom (EDF) for each variable in each model (Size = S, Size + Competition = SC, Size + Competition + Site Productivity = SCP, Size + Competition + Site Productivity + tree random intercept = SCPt). Deviance explained and $\mathrm{RMSE_{int}}$ values displayed reflect their respective values at the time of model selection. $\mathrm{RMSE_{ext}}$ was not used for selection, but is included here .}
 \label{tab:rmse}
 \centering
-\begin{tabular}{>{\raggedright\arraybackslash}m{9em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}}
+\begin{tabular}{>{\raggedright\arraybackslash}m{8em}>{\raggedleft\arraybackslash}m{4em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}>{\raggedleft\arraybackslash}m{5em}r}
 \toprule
-\hspace{1em}Smooth & EDF & Deviance explained & $\mathrm{RMSE_{int}}$ ($\mathrm{cm^2/yr}$)\\
+\hspace{1em}Smooth & EDF & Deviance explained & $\mathrm{RMSE_{int}}$ ($\mathrm{cm^2/yr}$) & $\mathrm{RMSE_{ext}}$ ($\mathrm{cm^2/yr}$)\\
 \midrule
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Size}} & 30.82 & 5.64312 \\
-\hspace{1em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Size + competition}} & 62.87 & 4.31 \\
-\hspace{1em}\cellcolor{gray!6}{Crown ratio} & \cellcolor{gray!6}{2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
-\hspace{1em}BAL & 8 & & \\
-\hspace{1em}\cellcolor{gray!6}{BA} & \cellcolor{gray!6}{9} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\multicolumn{2}{l}{\textbf{Size + competition + site}} & 67.39 & 4.01197\\
-\hspace{1em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{26} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
-\addlinespace[0.3em]
-\textbf{Size + competition + site + random intercept} & 1389 & 84.91 & 3.32142 \\
-\hspace{1em}\cellcolor{gray!6}{Random intercept} & \cellcolor{gray!6}{1337} & \cellcolor{gray!6} & \cellcolor{gray!6} \\
+\cellcolor{gray!6}{\textbf{S}} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{30.82} & \cellcolor{gray!6}{5.64} & \cellcolor{gray!6}{5.68}\\
+\hspace{2em}DBH & 7.1 &  &  & \\
+\cmidrule{1-5}
+\cellcolor{gray!6}{\textbf{SC}} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{62.87} & \cellcolor{gray!6}{4.31} & \cellcolor{gray!6}{4.68}\\
+\hspace{2em}DBH & 7.7 &  &  & \\
+\hspace{2em}\cellcolor{gray!6}{CR} & \cellcolor{gray!6}{2.0} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\addlinespace
+\hspace{2em}BAL & 5.9 &  &  & \\
+\hspace{2em}\cellcolor{gray!6}{BAH} & \cellcolor{gray!6}{8.6} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\cmidrule{1-5}
+\textbf{SCP} &  & 67.39 & 4.01 & 4.45\\
+\hspace{2em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{7.6} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{2em}CR & 4.5 &  &  & \\
+\addlinespace
+\hspace{2em}\cellcolor{gray!6}{BAL} & \cellcolor{gray!6}{7.1} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{2em}BAH & 8.5 &  &  & \\
+\hspace{2em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{27.2} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\cmidrule{1-5}
+\textbf{SCPt} &  & 84.91 & 3.32 & 4.81\\
+\hspace{2em}\cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{8.0} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\addlinespace
+\hspace{2em}CR & 1.6 &  &  & \\
+\hspace{2em}\cellcolor{gray!6}{BAL} & \cellcolor{gray!6}{7.8} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{2em}BAH & 8.7 &  &  & \\
+\hspace{2em}\cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{25.7} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{} & \cellcolor{gray!6}{}\\
+\hspace{2em}t & 1337.0 &  &  & \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -199,7 +266,7 @@ therefore do not appear in Figure \ref{fig:basesmooths}.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/base_smooths.png}
-\caption[Base model smooths]{Smoothed effects fitted by the selected base model. The top 4 plots show the 1 dimensional smooth effects for DBH, CR, BAL, and BAH. Effect scales vary by smooth.}
+\caption[Base model smooths]{Partial effects of predictors in the selected base model (effects are shown on the log-link scale). Effect scales vary by plot. Error bands represent $\pm$ 2 standard errors and account for uncertainty in smoothing parameter estimation.}
 \label{fig:basesmooths}
 \end{figure}
 
@@ -208,16 +275,24 @@ therefore do not appear in Figure \ref{fig:basesmooths}.
 Model term complexity, overall fit, and predictive accuracy (respective of the 
 iterative group-wise selection) are shown Table \ref{tab:rmse}. 
 Improvements in $\mathrm{RMSE_{int}}$ and deviance explained were seen with 
-the addition of each group. The final SCP model (including random effects) 
-residuals and estimation errors were assessed and deemed acceptable, both are 
-shown in Figure \ref{resids}. 
+the addition of each group. The final SCPt model residuals as well as model 
+estimation error (shown in Figure \ref{resids}) were evaluated for patterns and 
+abnormalities. Residuals do not show any notable trends and are roughly 
+centered about zero. The estimation error shows four unusually high predicted 
+values of BAI with large negative errors (predicted BAI > 30 $\mathrm{cm^2/yr.}$ 
+and errors < -20). All four of these points represent predictions on one 
+relatively large tree that is surrounded by comparably small trees. This created 
+an unlikely combination of DBH (> 45 cm) and BAH (11 $\mathrm{m^2/ha}$) that was 
+not well-represented in the training data, resulting in these erroneous 
+predictions. Otherwise, errors appear centered around zero and don't 
+show any other notable patterns. 
 
 
-The following text describes comparisons across 
+The following text describes comparisons of individual predictive accuracy across 
 groups as well as predictors, however, these results did not change the 
-implementation of the SCP model in the following sections. 
+implementation of the SCPt model in the following sections. 
 C and P were compared to assess their contributions 
-to model performance, where both were fit in separate models in addition to S, 
+to model performance, fitting each in separate models in addition to S, 
 where the resulting SC model out-performed SP in terms of deviance explained 
 (44\% and 41\%, respectively), but SP out-predicted SC ($\mathrm{RMSE_{ext}}$ of 
 5.27 $\mathrm{cm^2/yr.}$ and 5.46 $\mathrm{cm^2/yr.}$, respectively). 
@@ -251,7 +326,7 @@ values (in $\mathrm{cm^2/yr.}$) of 5.68, 5.74, 6.25, 6.85, 6.88, respectively.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{../17.figures_saved/res_err.png}
-\caption[Residuals]{Deviance residuals vs. linear predictor (left) plot and estimation error (right). Both are on the link scale, where error is observed values in the withheld data (i.e., BAI on the link scale) minus the predicted values of BAI (on the link scale).}
+\caption[Residuals]{Deviance residuals vs. fitted BAI values (on the log-link scale; left) and estimation error (right) vs. estimated BAI values for the SCPt model. Deviance residuals are from the training data and estimation errors are derived from BAI predictions using the withheld data set. The very large estimated BAI (> 80 $\mathrm{cm^2/yr.}$) is for an exceptionally large tree in a stand with otherwise small trees, forcing the model to predict on data that did not exist in the training data. }
 \label{fig:resids}
 \end{figure}
 
@@ -322,13 +397,13 @@ figure \ref{fig:aspel}.
 % of bias, as ultimately there was data across a similar range of aspect for 
 % each mixture. 
 
-A difference-of-smooths model (see Equation \ref{eq:mixes}) was fit to the SCP 
+A difference-of-smooths model (see Equation \ref{eq:mixes}) was fit to the SCPt 
 model formula using the data described above. This resulted in a reference smooth 
 function for each predictor for the pure western larch conditions as well as 
 corresponding difference smooths for the lodgepole pine 
 and Douglas-fir mixtures (contrasting mixture smooths from each reference smooth), 
 respectively. Each reference smooth was visually indistinguishable from those fit 
-in the SCP model (shown in figure \ref{fig:basesmooths}), and thus are not shown. 
+in the SCPt model (shown in figure \ref{fig:basesmooths}), and thus are not shown. 
 Model outputs indicate that each reference smooth holds some association with BAI 
 (see p-values in Table \ref{tab:diff}). Results for each mixture are reported 
 in the following two sub-sections. 
@@ -366,59 +441,196 @@ in the following two sub-sections.
 %Table of mixtures, min, max, mean for each variable in model
 
 \begin{table}[H]
-\caption[Mixtures data summary]{Summary table for different species-mixture data subsets.}
+\caption[Mixtures data summary]{Summary table of BAI, DBH, CR, BAL, and BAH for different species-mixture data subsets and non-mixture data.}
 \label{tab:mixsummary}
 \centering
-\begin{tabular}{llrrr}
+\begin{tabular}{llrrrr}
 \toprule
-Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir\\
+Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir & Other\\
 \midrule
-\multicolumn{1}{c|}{\cellcolor{gray!6}}& \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.05} & \cellcolor{gray!6}{0.03} & \cellcolor{gray!6}{0.10}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}}& \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.05} & \cellcolor{gray!6}{0.03} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.00}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 53.3 & 29.7 & 36.2\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 53.3 & 29.7 & 36.2 & 47.8\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48} & \cellcolor{gray!6}{7.16}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($\mathrm{cm^2}$)}} & mean & 8.94 & 7.53 & 6.05\\
-\hhline{-|----}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($\mathrm{cm^2/yr.}$)}} & mean & 8.94 & 7.53 & 6.05 & 8.90\\
+\hhline{-|-----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5 & 0.5\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{57.7} & \cellcolor{gray!6}{22.6} & \cellcolor{gray!6}{38.9}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{57.7} & \cellcolor{gray!6}{22.6} & \cellcolor{gray!6}{38.9} & \cellcolor{gray!6}{53.6}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 11.7 & 4.3 & 6.2\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 11.7 & 4.3 & 6.2 & 6.6\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} DBH($cm$)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{13.6} & \cellcolor{gray!6}{9.2} & \cellcolor{gray!6}{12.4}\\
-\hhline{-|----}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08}\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} DBH($cm$)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{13.6} & \cellcolor{gray!6}{9.2} & \cellcolor{gray!6}{12.4} & \cellcolor{gray!6}{11.79}\\
+\hhline{-|-----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.08}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 0.93 & 0.93 & 0.93\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 0.93 & 0.93 & 0.93 & 0.93\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.25} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.25} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24} & \cellcolor{gray!6}{0.19}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} Crown ratio}} & mean & 0.61 & 0.78 & 0.53\\
-\hhline{-|----}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.00 & 0.00 & 0.00\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} Crown ratio}} & mean & 0.61 & 0.78 & 0.53 & 0.72\\
+\hhline{-|-----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.00 & 0.00 & 0.00 & 0.00\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 0.30 & 0.27 & 0.29\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 0.30 & 0.27 & 0.29 & 0.291\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAL (ratio)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.59} & \multicolumn{1}{c|}{\cellcolor{gray!6}}{0.64} & \cellcolor{gray!6}{0.58}\\
-\hhline{-|----}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.23} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.67}\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAL (ratio)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.59} & {\cellcolor{gray!6}}{0.64} & \cellcolor{gray!6}{0.58} & \cellcolor{gray!6}{0.59}\\
+\hhline{-|-----}
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.23} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.67} & \cellcolor{gray!6}{0.35}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 55.9 & 23.4 & 69.1\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 55.9 & 23.4 & 69.1 & 66.4\\
 \hhline{~|}
-\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{11.5} & \cellcolor{gray!6}{5.4} & \cellcolor{gray!6}{16.0}\\
+\multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{11.5} & \cellcolor{gray!6}{5.4} & \cellcolor{gray!6}{16.0} & \cellcolor{gray!6}{11.3}\\
 \hhline{~|}
-\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BA($ft^2/ha$)}} & mean & 12.8 & 9.2 & 21.7\\
-\hhline{-|----}
-\multicolumn{2}{c}{\cellcolor{gray!6}{Observations}} & \cellcolor{gray!6}{1358} & \cellcolor{gray!6}{396} & \cellcolor{gray!6}{638}\\
+\multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAH($m^2/ha$)}} & mean & 12.8 & 9.2 & 21.7 & 15.2\\
+\hhline{-|-----}
+\multicolumn{2}{c}{\cellcolor{gray!6}{Observations}} & \cellcolor{gray!6}{2932} & \cellcolor{gray!6}{366} & \cellcolor{gray!6}{638} & \cellcolor{gray!6}{1858}\\
 \hhline{~|}
-\multicolumn{2}{c}{Unique trees} & 497 & 211 & 320\\
+\multicolumn{2}{c}{Unique trees} & 1064 & 207 & 320 & 871\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{table}[H]
+% \caption[Mixtures data summary]{Summary table of BAI, DBH, CR, BAL, and BAH for different species-mixture data subsets.}
+% \label{tab:mixsummary}
+% \centering
+% \begin{tabular}{llrrrr}
+% \toprule
+% Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir & Other\\
+% \midrule
+% % \multicolumn{1}{c|}{\cellcolor{gray!6}}& \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.00} & \cellcolor{gray!6}{0.00} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{0.00}\\
+% \hhline{~|}
+% % \multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 53.3 & 29.7 & 36.2\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{7.69} & \cellcolor{gray!6}{5.76} & \cellcolor{gray!6}{5.48}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAI($\mathrm{cm^2}$)}} & mean & 8.94 & 7.53 & 6.05\\
+% \hhline{-|-----}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.5 & 0.8 & 0.5\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{57.7} & \cellcolor{gray!6}{22.6} & \cellcolor{gray!6}{38.9}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 11.7 & 4.3 & 6.2\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} DBH($cm$)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{13.6} & \cellcolor{gray!6}{9.2} & \cellcolor{gray!6}{12.4}\\
+% \hhline{-|-----}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 0.93 & 0.93 & 0.93\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.25} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} Crown ratio}} & mean & 0.61 & 0.78 & 0.53\\
+% \hhline{-|-----}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & min & 0.00 & 0.00 & 0.00\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & sd & 0.30 & 0.27 & 0.29\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BAL (ratio)}} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.59} & \multicolumn{1}{c|}{\cellcolor{gray!6}}{0.64} & \cellcolor{gray!6}{0.58}\\
+% \hhline{-|-----}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.23} & \cellcolor{gray!6}{0.13} & \cellcolor{gray!6}{0.67}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & max & 55.9 & 23.4 & 69.1\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\cellcolor{gray!6}} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{11.5} & \cellcolor{gray!6}{5.4} & \cellcolor{gray!6}{16.0}\\
+% \hhline{~|}
+% \multicolumn{1}{c|}{\multirow[c|]{-4}{*}{\cellcolor{gray!6} BA($ft^2/ha$)}} & mean & 12.8 & 9.2 & 21.7\\
+% \hhline{-|-----}
+% \multicolumn{2}{c}{\cellcolor{gray!6}{Observations}} & \cellcolor{gray!6}{1358} & \cellcolor{gray!6}{396} & \cellcolor{gray!6}{638}\\
+% \hhline{~|}
+% \multicolumn{2}{c}{Unique trees} & 497 & 211 & 320\\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+% 
+% \begin{tabu} to \linewidth {>{\raggedright}X>{\raggedright}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X>{\raggedleft}X}
+% \toprule
+% Variable & & Pure larch & Larch-lodgepole & Larch-Douglas-fir & Other\\
+% \midrule
+% \cellcolor{gray!6}{bai} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.00} & \cellcolor{gray!6}{0.00} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{0.00}\\
+% \cmidrule{1-6}
+% bai & max & 8.26 & 4.61 & 5.62 & 7.41\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{bai} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{1.13} & \cellcolor{gray!6}{0.89} & \cellcolor{gray!6}{0.85} & \cellcolor{gray!6}{1.11}\\
+% \cmidrule{1-6}
+% bai & mean & 1.42 & 1.19 & 0.94 & 1.38\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{bai} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{2932.00} & \cellcolor{gray!6}{366.00} & \cellcolor{gray!6}{638.00} & \cellcolor{gray!6}{1858.00}\\
+% \cmidrule{1-6}
+% dbh & min & 0.20 & 0.30 & 0.20 & 0.20\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{dbh} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{22.70} & \cellcolor{gray!6}{8.90} & \cellcolor{gray!6}{15.30} & \cellcolor{gray!6}{21.10}\\
+% \cmidrule{1-6}
+% dbh & sd & 3.85 & 1.69 & 2.45 & 2.60\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{dbh} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{4.88} & \cellcolor{gray!6}{3.60} & \cellcolor{gray!6}{4.90} & \cellcolor{gray!6}{4.61}\\
+% \cmidrule{1-6}
+% dbh & n & 2932.00 & 366.00 & 638.00 & 1858.00\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{cr} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.20} & \cellcolor{gray!6}{0.08} & \cellcolor{gray!6}{0.08}\\
+% \cmidrule{1-6}
+% cr & max & 0.93 & 0.93 & 0.93 & 0.93\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{cr} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.24} & \cellcolor{gray!6}{0.18} & \cellcolor{gray!6}{0.24} & \cellcolor{gray!6}{0.19}\\
+% \cmidrule{1-6}
+% cr & mean & 0.69 & 0.78 & 0.53 & 0.72\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{cr} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{2932.00} & \cellcolor{gray!6}{366.00} & \cellcolor{gray!6}{638.00} & \cellcolor{gray!6}{1858.00}\\
+% \cmidrule{1-6}
+% bal & min & 0.00 & 0.00 & 0.00 & 0.00\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{bal} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00}\\
+% \cmidrule{1-6}
+% bal & sd & 0.30 & 0.27 & 0.29 & 0.29\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{bal} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.58} & \cellcolor{gray!6}{0.64} & \cellcolor{gray!6}{0.58} & \cellcolor{gray!6}{0.59}\\
+% \cmidrule{1-6}
+% bal & n & 2932.00 & 366.00 & 638.00 & 1858.00\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{ba} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{0.56} & \cellcolor{gray!6}{2.90} & \cellcolor{gray!6}{1.52}\\
+% \cmidrule{1-6}
+% ba & max & 316.01 & 102.15 & 301.24 & 289.36\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{ba} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{49.36} & \cellcolor{gray!6}{23.81} & \cellcolor{gray!6}{69.59} & \cellcolor{gray!6}{49.20}\\
+% \cmidrule{1-6}
+% ba & mean & 52.64 & 39.46 & 94.57 & 66.23\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{ba} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{2932.00} & \cellcolor{gray!6}{366.00} & \cellcolor{gray!6}{638.00} & \cellcolor{gray!6}{1858.00}\\
+% \cmidrule{1-6}
+% shade & min & 0.79 & 0.82 & 0.61 & 0.28\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{shade} & \cellcolor{gray!6}{max} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{1.00} & \cellcolor{gray!6}{0.89} & \cellcolor{gray!6}{1.00}\\
+% \cmidrule{1-6}
+% shade & sd & 0.04 & 0.05 & 0.07 & 0.14\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{shade} & \cellcolor{gray!6}{mean} & \cellcolor{gray!6}{0.96} & \cellcolor{gray!6}{0.94} & \cellcolor{gray!6}{0.78} & \cellcolor{gray!6}{0.79}\\
+% \cmidrule{1-6}
+% shade & n & 2932.00 & 366.00 & 638.00 & 1858.00\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{purity} & \cellcolor{gray!6}{min} & \cellcolor{gray!6}{0.70} & \cellcolor{gray!6}{0.24} & \cellcolor{gray!6}{0.22} & \cellcolor{gray!6}{0.00}\\
+% \cmidrule{1-6}
+% purity & max & 1.00 & 0.65 & 0.64 & 0.70\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{purity} & \cellcolor{gray!6}{sd} & \cellcolor{gray!6}{0.09} & \cellcolor{gray!6}{0.10} & \cellcolor{gray!6}{0.11} & \cellcolor{gray!6}{0.18}\\
+% \cmidrule{1-6}
+% purity & mean & 0.87 & 0.53 & 0.49 & 0.49\\
+% \cmidrule{1-6}
+% \cellcolor{gray!6}{purity} & \cellcolor{gray!6}{n} & \cellcolor{gray!6}{2932.00} & \cellcolor{gray!6}{366.00} & \cellcolor{gray!6}{638.00} & \cellcolor{gray!6}{1858.00}\\
+% \cmidrule{1-6}
+% NA & NA & 1064.00 & 207.00 & 320.00 & 871.00\\
+% \bottomrule
+% \end{tabu}
 
 
 % perhaps owing to the presence of a high-certainty random intercept value at the 
@@ -515,7 +727,7 @@ densities.
 % table of significances
 \begin{table}
 \centering
-\caption[Difference smooths table]{Table of effective degrees of freedom for difference smooths and p-values. Estimated intercept values for the reference smooth and two conditions are shown in the lower portion, where the reference p-value indicates if the mean bai (response) for pure conditions differs from zero, and if each mixture's average values differ from the mean value of the reference.}
+\caption[Difference smooths table]{Table of effective degrees of freedom for reference (pure larch) and difference smooths (Larch-lodgepole, larch-Douglas-fir) and associated p-values.}
 \label{tab:diff}
 \begin{tabular}{lcrcrcr}
 \toprule
@@ -523,12 +735,12 @@ densities.
 \cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
 Smooth & EDF & p-value & EDF & p-value & EDF & p-value\\
 \midrule
+Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
 \cellcolor{gray!6}{DBH} & \cellcolor{gray!6}{7.89} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.75} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.14} & \cellcolor{gray!6}{0.398}\\
 Crown ratio & 1.00 & $< 0.001$ & 2.78 & 0.031 & 3.74 & 0.004\\
 \cellcolor{gray!6}{BAL ratio} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{3.12} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{2.11} & \cellcolor{gray!6}{0.122}\\
 BA & 8.65 & $< 0.001$ & 4.69 & $< 0.001$ & 2.23 & 0.001\\ %0.0012
 \cellcolor{gray!6}{Aspect} & \cellcolor{gray!6}{17.02} & \cellcolor{gray!6}{$< 0.001$} & \cellcolor{gray!6}{6.61} & \cellcolor{gray!6}{0.014} & \cellcolor{gray!6}{10.7} & \cellcolor{gray!6}{$< 0.001$}\\
-Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -538,7 +750,7 @@ Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
 \begin{figure}
 \centering
 \includegraphics[width=.75\textwidth]{../17.figures_saved/mix_diff_smooths.png}
-\caption[Difference smooths]{Smoothed differences for Larch-lodgepole pine mixtures and Larch-Douglas-fir mixtures are shown on the right and reference curves are shown on the left for visual comparison.}
+\caption[Difference smooths]{Difference smooths for each SCPt predictor displaying the differences between Larch-lodgepole pine (left) mixtures and the pure larch (reference) conditions as well as the Larch-Douglas-fir mixtures (right) and the reference smooths. Error bands represent $\pm$ 2 standard errors and account for uncertainty in smoothing parameter estimation. Reference smooths not shown - compare to the smooths in Fig. \ref{fig:basesmooths}}
 \label{fig:diffsmooths}
 \end{figure}
 
@@ -551,9 +763,9 @@ Intercept & 1 & 0.018 & 1 & 0.694 & 1 & 0.778 \\
 The utility of using CCF, L (purity of western larch), and T (shade intolerance) for estimating 
 the BAI of western larch was compared by fitting separate models for each one, 
 respectively. Both L and T were incorporated as additional predictors 
-in their own respective calibrations of the SCP model formula. 
+in their own respective calibrations of the SCPt model formula. 
 CCF and BAH were found to be highly correlated with 
-one-another, so CCF was included in place of BAH in the SCP formula.
+one-another, so CCF was included in place of BAH in the SCPt formula.
 
 %Table w/ rmseand stuff (is below)
 Model accuracy was best improved by the addition of L, followed by 
@@ -569,7 +781,7 @@ showed a small decrease in deviance explained when CCF replaced BAH in the model
 In the absence of BAH in the model, CCF displayed a larger partial effect on tree growth 
 than purity and shade intolerance (Fig.~\ref{fig:ccf_pur_shd}). However, 
 since CCF is a size-weighted measure of stand density, it appears very similar 
-to the BAH smooth in the SCP model (in Fig. \ref{basesmooths}), showing a 
+to the BAH smooth in the SCPt model (in Fig. \ref{basesmooths}), showing a 
 negative effect that is very pronounced at low values (CCF < 50) and then tapers 
 to a near constant effect at high values (CCF > 150). 
 Both purity and shade intolerance were also characterized by negative 
@@ -603,7 +815,7 @@ the lack of data at lower values of each.
 \begin{figure}
 \centering
 \includegraphics[width=0.6\textwidth]{../17.figures_saved/ccf_pur_shd.png}
-\caption[CCF, purity, shade intolerance smooths]{Fitted smooths for crown competition factor (CCF), purtiy (of larch), and shade intolerance. Error bars represent 2 standard deviations and account for uncertainty in smoothing parameter estimation.}
+\caption[CCF, purity, shade intolerance smooths]{Fitted partial effects for crown competition factor (CCF), plot purity (of larch; L), and plot shade intolerance (T). Error bands represent $\pm$ 2 standard errors and account for uncertainty in smoothing parameter estimation.}
 \label{fig:ccf_pur_shd}
 \end{figure}
 
@@ -611,14 +823,14 @@ the lack of data at lower values of each.
 % -table of RMSE, dev.expl values for each model-
 
 \begin{table}[!h]
-\caption[CCF, purity, shade intolerance table]{$\mathrm{RMSE_{ext}}$, deviance explained, and adjusted $R^2$ values for the base model, and models including each species-informed variables}
+\caption[CCF, purity, shade intolerance table]{$\mathrm{RMSE_{ext}}$ calculated with the withheld data and percent of the null deviance explained by the model for model SCPt and models including each species-mixing metric (CCF, L, T).}
 \label{tab:mixvarsrmse}
 \centering
 \begin{tabular}{lrr}
 \toprule
 Model & $\mathrm{RMSE_{ext}}$ ($\mathrm{cm^2/yr}$) & Deviance explained (\%)\\
 \midrule
-\cellcolor{gray!6}{Base} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} \\
+\cellcolor{gray!6}{SCPt} & \cellcolor{gray!6}{4.814} & \cellcolor{gray!6}{84.91} \\
 CCF & 4.801 & 84.42 \\
 \cellcolor{gray!6}{Purity} & \cellcolor{gray!6}{4.595} & \cellcolor{gray!6}{85.07} \\
 Shade intol. & 4.627 & 85.02 \\

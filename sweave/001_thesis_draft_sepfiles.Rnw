@@ -86,6 +86,12 @@ Across-species analysis to determine which type of mixture optimizes the growth
 of western larch and the other incumbent species through complementary relationships 
 is necessary. 
 
+Future western larch growth models should consider the necessity and relative 
+predictive abilities of different competition measures independently of one-another
+as well as collectively in addition to how they may align with modeling goals. 
+This study effectively identified competitive dynamics through the implemented 
+combination of predictors. 
+
 
 % Few studies have evaluated the mixing-growth dynamics of \emph{Larix} species 
 % to date. 

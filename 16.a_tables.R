@@ -183,7 +183,7 @@ site.sum <- summary.gam(site)
 sizesite <- gam(bai~s(DIAMETER) + s(asp_cos, asp_sin), 
                 family = 'Gamma'(link = log), data = bai.spmx.ids, method = 'ML') 
 nullmod <- gam(bai~1, family = 'Gamma'(link=log), data = bai.spmx.ids, method = 'ML')
-componly <- compd <- gam(bai~s(bal.pl.ratio) + s(cr, k = 9) + 
+componly <- gam(bai~s(bal.pl.ratio) + s(cr, k = 9) + 
                            s(ba.pl), family = 'Gamma'(link = log), 
                          data = bai.spmx.ids, method = 'ML') 
 siteonly <- gam(bai~s(asp_cos, asp_sin), 
@@ -268,7 +268,7 @@ bai.spmx.h <- bai.hold %>%
          asp_cos = cos(aspect_deg*(pi/180))) %>%
   mutate(sl_asp_sin = asp_sin*slope_pct, 
          sl_asp_cos = asp_cos*slope_pct, 
-         asp.trasp = trasp(aspect_deg), 
+         # asp.trasp = trasp(aspect_deg), 
          HabType = as.factor(HabType),
          cr = CROWN_RATIO/100,
          bal.pl.ratio = bal.pl/ba.pl,
@@ -289,40 +289,46 @@ bai.spmx.ids.h <- bai.spmx.h %>%
          unique.tree.f = as.factor(unique_tree_id)) %>% 
   filter(unique_tree_id != 15431)
 
-smooth <- c('DBH', 'crown ratio', 'BAL', 
-            'BA', 'aspect', 'tree random intercept', 'full model')#, 'WL ratio', 'Shade')
+smooth <- c('S','DBH', 'SC', 'DBH', 'CR', 'BAL', 
+            'BAH', 'SCP', 'DBH', 'CR', 'BAL', 
+            'BAH','aspect', 'SCPt', 'DBH', 'CR', 'BAL', 
+            'BAH','aspect','tree random intercept')#, 'WL ratio', 'Shade')
 EDF <- rbind(edf(re.tree.1)[,2], sum(edf(re.tree.1)[,2]))
+
+EDF <- rbind(sum(edf(size)[,2]), edf(size)[,2], sum(edf(compd)[,2]), edf(compd)[,2], sum(edf(site)[,2]),edf(site)[,2], sum(edf(re.tree.1)[,2]),edf(re.tree.1)[,2])
 
 #EDF <- c(base.edf, base.sz.edf, base.dcomp.edf, base.sit.edf, edf(re.tree.1, 's(unique.tree.f)')$edf)#, lf.lf, st.st)
 
 #dev <- c(deviance(re.tree.1), deviance(re.tree.1)-c(deviance(nosize.base), deviance(nocomp.base), deviance(nosite.base)), deviance(spmx.re.gam.lf), deviance(spmx.re.gam.st))
 
 #dev <- 100*c(dev.expl(re.tree.1), dev.expl(size), dev.expl(compd)-dev.expl(size), dev.expl(site)-dev.expl(compd), dev.expl(re.tree.1)-dev.expl(site))#, dev.expl(spmx.re.gam.lf), dev.expl(spmx.re.gam.st))
-dev <- c(dev.expl(size),
-         dev.expl(compd), NA, NA,
-         dev.expl(site), NA,
-         dev.expl(re.tree.1))*100
+dev <- c(dev.expl(size), NA,
+         dev.expl(compd), NA, NA, NA, NA,
+         dev.expl(site), NA, NA, NA, NA, NA,
+         dev.expl(re.tree.1), rep(NA, 6))*100
 
-rmse.mods <- c(my.rmse.2(size)[[2]]*cm.sq, 
-               my.rmse.2(compd)[[2]]*cm.sq, NA, NA, 
-               my.rmse.2(site)[[2]]*cm.sq, NA,
-               my.rmse.2(re.tree.1)[[2]]*cm.sq)#, my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
+rmse.mods <- c(my.rmse.2(size)[[2]]*cm.sq, NA,
+               my.rmse.2(compd)[[2]]*cm.sq, NA, NA, NA, NA,
+               my.rmse.2(site)[[2]]*cm.sq, NA, NA, NA, NA, NA,
+               my.rmse.2(re.tree.1)[[2]]*cm.sq, rep(NA, 6))#, my.rmse.2(spmx.re.gam.lf)[[2]]*cm.sq, my.rmse.2(spmx.re.gam.st)[[2]]*cm.sq)
 
-c(my.rmse.3(size, bai.spmx.ids.h),my.rmse.3(compd, bai.spmx.ids.h), my.rmse.3(site, bai.spmx.ids.h), my.rmse.3(re.tree.1, bai.spmx.ids.h))*cm.sq
+summary(site)
 
-tb1 <- tibble(smooth, EDF, dev, rmse.mods) #%>% rename('Smooth'= smooth, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm^2/yr.)' = rmse.mods)
+rmse.ext <- c(my.rmse.3(size, bai.spmx.ids.h), NA, my.rmse.3(compd, bai.spmx.ids.h), rep(NA, 4), my.rmse.3(site, bai.spmx.ids.h), rep(NA, 5), my.rmse.3(re.tree.1, bai.spmx.ids.h), rep(NA, 6))*cm.sq
+
+tb1 <- tibble(smooth, EDF, dev, rmse.mods, rmse.ext) #%>% rename('Smooth'= smooth, "EDF" = EDF,'Deviance Explained (%)'= dev, 'Model RMSE (cm^2/yr.)' = rmse.mods)
 
 xtable(tb1)
 library(kableExtra)
 
 kb1 <- tb1 %>% 
-  kable(format = 'latex', booktabs = T, digits = c(1, 0, 2, 5)) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1, 1, 2, 3,3)) %>% 
   kable_styling(latex_options = c('striped', 'hold_position'), full_width = F) %>% 
-  add_indent(c(2,3,4,5)) %>% 
-  row_spec(7, bold = T) %>% 
-  group_rows('Size', 1, 1) %>% 
-  group_rows('Competition & density', 2, 4) %>% 
-  group_rows('Site', 5, 5) %>% 
+  add_indent(c(2,4:7,9:13,15:20)) %>% 
+  # row_spec(7, bold = T) %>% 
+  # group_rows('Size', 1, 1) %>% 
+  # group_rows('Competition & density', 2, 4) %>% 
+  # group_rows('Site', 5, 5) %>% 
   column_spec(1, width = '8em', latex_valign = 'm') %>% 
   column_spec(2, width = '4em', latex_valign = 'm') %>% 
   column_spec(3, width = '5em', latex_valign = 'm') %>% 
@@ -445,59 +451,95 @@ mod.vals.tbl %>%
 
 library(kableExtra)
 #function defining mixtures
-spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
-  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_PSME<spp_maximum & percent_PSME>spp_min, 
-                           (percent_LAOC+percent_PSME)>combined_min) %>% 
-    mutate(other.pct = percent_PSME)
-  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
-                           (percent_LAOC+percent_ABLA)>combined_min) %>% 
-    mutate(other.pct = percent_ABLA)
-  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
-                           (percent_LAOC+percent_ABGR)>combined_min) %>% 
-    mutate(other.pct = percent_ABGR)
-  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
-                           (percent_LAOC+percent_PIEN)>combined_min) %>% 
-    mutate(other.pct = percent_PIEN)
-  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_PICO<spp_maximum & percent_PICO>spp_min, 
-                           (percent_LAOC+percent_PICO)>combined_min) %>% 
-    mutate(other.pct = percent_PICO)
-  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
-                           percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
-                           (percent_LAOC+percent_PIPO)>combined_min) %>% 
-    mutate(other.pct = percent_PIPO)
-  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
-    mutate(other.pct = percent_LAOC)
-  return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+# spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+#   a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_PSME<spp_maximum & percent_PSME>spp_min, 
+#                            (percent_LAOC+percent_PSME)>combined_min) %>% 
+#     mutate(other.pct = percent_PSME)
+#   b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+#                            (percent_LAOC+percent_ABLA)>combined_min) %>% 
+#     mutate(other.pct = percent_ABLA)
+#   c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+#                            (percent_LAOC+percent_ABGR)>combined_min) %>% 
+#     mutate(other.pct = percent_ABGR)
+#   d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+#                            (percent_LAOC+percent_PIEN)>combined_min) %>% 
+#     mutate(other.pct = percent_PIEN)
+#   e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_PICO<spp_maximum & percent_PICO>spp_min, 
+#                            (percent_LAOC+percent_PICO)>combined_min) %>% 
+#     mutate(other.pct = percent_PICO)
+#   f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+#                            percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+#                            (percent_LAOC+percent_PIPO)>combined_min) %>% 
+#     mutate(other.pct = percent_PIPO)
+#   g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+#     mutate(other.pct = percent_LAOC)
+#   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+# }
+
+spfun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% mutate(mixtype = 
+                             case_when(
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PSME<spp_maximum & percent_PSME>spp_min) &
+                                 ((percent_LAOC+percent_PSME)>combined_min) ~ 'psme',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_ABLA<spp_maximum & percent_ABLA>spp_min) & 
+                                 ((percent_LAOC+percent_ABLA)>combined_min) ~ 'abla', 
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_ABGR<spp_maximum & percent_ABGR>spp_min) &
+                                 ((percent_LAOC+percent_ABGR)>combined_min) ~ 'abgr',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PIEN<spp_maximum & percent_PIEN>spp_min) &
+                                 ((percent_LAOC+percent_PIEN)>combined_min) ~ 'pien',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PICO<spp_maximum & percent_PICO>spp_min) &
+                                 ((percent_LAOC+percent_PICO)>combined_min) ~ 'pico',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_PIPO<spp_maximum & percent_PIPO>spp_min) & 
+                                 ((percent_LAOC+percent_PIPO)>combined_min) ~ 'pipo',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_other<spp_maximum & percent_other>spp_min) &
+                                 ((percent_LAOC+percent_other)>combined_min) ~ 'other',
+                               percent_LAOC>combined_min ~ 'laoc'))
+  return(a)
 }
 
+unique(mixtures$mixtype)
 #actually define mixtures
-(mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7))
+(mixtures <- spfun(bai.spmx.ids, 0.2, .65, 0.7))
 
 #add names to mixtures
-mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
-
-lapply(mix.w.names, function(x){x %>% summarise()})
-#combine data in list
-mixtures.all <- bind_rows(mix.w.names)
+# mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+# 
+# lapply(mix.w.names, function(x){x %>% summarise()})
+# #combine data in list
+# mixtures.all <- bind_rows(mix.w.names)
 #create factor
-o.mixtures.all <- mixtures.all %>% 
+o.mixtures.all <- mixtures %>% 
   select(SETTING_ID, stand, PLOT, bai, DIAMETER, 
          cr, bal.pl.ratio, ba.pl, asp_sin, asp_cos, 
-         mixtype, unique_tree_id, aspect_deg) %>% 
-  filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
-  mutate(mixtype = as.factor(mixtype)) %>% 
-  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
-o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
+         mixtype, unique_tree_id, aspect_deg, shade.tol.pl, percent_LAOC) %>% 
+  # filter(mixtype %in% c('psme', 'pien', 'pico', 'laoc')) %>% 
+  mutate(newmix = case_when(
+    mixtype == 'laoc' ~ 'laoc',
+    mixtype == 'pico' ~ 'pico', 
+    mixtype == 'psme' ~ 'psme',
+    !(mixtype %in% c('laoc', 'pico', 'psme')) ~ 'other_all',
+    is.na(mixtype) ~ 'other_all'
+  )) %>% 
+  mutate(mixtype.f = factor(newmix, levels = c('laoc', 'pico', 'psme', 'other_all'), ordered = T))
+  # mutate(omixtype.f = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
+# o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
 
 
-atable <- o.mixtures.nopien %>% group_by(omixtype) %>% 
+atable <- o.mixtures.all %>% group_by(mixtype.f) %>% 
   summarize(
-    across(bai:ba.pl, 
+    across(c(bai:ba.pl, shade.tol.pl, percent_LAOC), 
            list(min = ~ min(.x, na.rm = T), 
                 max = ~ max(.x, na.rm = T), 
                 sd = ~ sd(.x, na.rm = T), 
@@ -510,7 +552,7 @@ atable1 <- data.frame(t(as.data.frame(atable[-1])))
 # colnames(atable1) <- c('stat', 'laoc', 'pico', 'psme', 'pien')
 atable2 <- atable1 %>% rownames_to_column()
 names(atable2)
-(sum.table <- atable2 %>% rename(stat = rowname, laoc = X1, pico = X2, psme = X3))
+(sum.table <- atable2 %>% rename(stat = rowname, laoc = X1, pico = X2, psme = X3, all_other = X4))
 sum.table1 <- tibble(sum.table)
 grped.sum.tb <- sum.table1 %>% mutate(whichstat = 
                         case_when(grepl('min', stat) ~ 'min',
@@ -522,11 +564,13 @@ grped.sum.tb <- sum.table1 %>% mutate(whichstat =
                                              grepl('DIAM', stat) ~ 'dbh',
                                              grepl('cr', stat) ~ 'cr',
                                              grepl('bal', stat) ~ 'bal',
-                                             grepl('ba.p', stat) ~ 'ba'))
+                                             grepl('ba.p', stat) ~ 'ba',
+                                             grepl('shade', stat) ~ 'shade',
+                                             grepl('percent_L', stat) ~ 'purity'))
 
 
-mix.sum.tb <- grped.sum.tb %>% select(whichvar, whichstat, laoc, pico, psme) %>% 
-  rename(Variable = whichvar, Stat = whichstat, 'Pure larch' = laoc, 'Larch-lodgepole' = pico, 'Larch-Douglas-fir' = psme)
+mix.sum.tb <- grped.sum.tb %>% select(whichvar, whichstat, laoc, pico, psme, all_other) %>% 
+  rename(Variable = whichvar, Stat = whichstat, 'Pure larch' = laoc, 'Larch-lodgepole' = pico, 'Larch-Douglas-fir' = psme, 'Other' = all_other)
 
 mix.sum.tb %>% 
   filter(Variable == 'dbh', Stat %in% c('min', 'max', 'sd', 'mean')) %>% 
@@ -536,11 +580,14 @@ mix.sum.tb %>%
   filter(Variable == 'ba', Stat %in% c('min', 'max', 'sd', 'mean')) %>% 
   mutate(across(`Pure larch`:`Larch-Douglas-fir`, ~ .x*(2.47/10.764))) #convert ba to m^2/ha
 
+ncol(mix.sum.tb
+     )
+names(mix.sum.tb)
 
-
+matrix(round(mix.sum.tb$Other, 3))
 
 mix.sum.tb %>% 
-  kable(format = 'latex', booktabs = T) %>% 
+  kable(format = 'latex', booktabs = T, digits = c(1,1,2,2,2,2)) %>% 
   kable_styling(latex_options = c('striped', 'HOLD_position'), full_width = T) %>% 
   collapse_rows(latex_hline = 'full', valign = 'middle', col_names = T)
 

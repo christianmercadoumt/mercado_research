@@ -613,7 +613,7 @@ abc <- tibble(devrs, linpr,fit)
 
 residuals1 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
-  geom_point(alpha = 0.2) + labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = 'Deviance residuals') +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted values (log(BAI))', y = 'Deviance residuals') +
   theme(aspect.ratio = 2/(1+sqrt(5))) + 
   # scale_y_continuous(limits = c(-5,5)) +
   geom_smooth(se = F)
@@ -669,8 +669,8 @@ ggsave('17.figures_saved/base.diagnostic.png', apr)
 ## what's going on with this tree.
 ggplot(aes(x = re.tree.1$model$DIAMETER, y = re.tree.1$model$bal.pl.ratio)) + geom_point()
 
-ggplot(bai.spmx.ids, aes(DIAMETER, ba.pl)) + geom_point()
-ft_lp %>% filter(fit.cm>35)
+ggplot(bai.spmx.ids, aes(DIAMETER*2.54, ba.pl*2.7/10)) + geom_point()
+ft_lp %>% filter(fit.cm>35) %>% select(DIAMETER, bai, ba.pl)
 bai.spmx.ids.h %>% filter(unique_tree_id==9626)
 
 
@@ -1306,9 +1306,11 @@ mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
   geom_ribbon(alpha = 0.2) +
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)', y='Difference') + 
-  coord_cartesian(ylim = c(-2,2), xlim = c(0, 25)) +
+  coord_cartesian(ylim = c(-2,2)) +
   theme(strip.text = element_blank(),
-        aspect.ratio = 2/(1+sqrt(5)))
+        aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_x_continuous(limits = c(0,20), breaks = c(0,5,10,15,20,25))
+  # scale_y_continuous(limits = c(-2,2))
         # ,        axis.text.y = element_blank())
 
 mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
@@ -1575,8 +1577,19 @@ diffs.pl <- arrangeGrob(ll, ldf,
                         mixpl.ba1,mixpl.ba2, 
                         mixpl.asp1, mixpl.asp2,
                         layout_matrix = lay, 
-                        heights = list(0.25, 1.2,1.2,1.2,1.2,.95), widths = list(3.5/2, 3.5/2), respect = T)
+                        heights = list(0.25, 1.2,1.2,1.2,1.2,.95), 
+                        widths = list(3.5/2, 3.5/2), 
+                        respect = T)
 ll$x
+
+# 
+# cowplot::plot_grid(ll, ldf,
+#                         mixpl.d1,mixpl.d2, 
+#                         mixpl.cr1,mixpl.cr2, 
+#                         mixpl.bal1,mixpl.bal2, 
+#                         mixpl.ba1,mixpl.ba2, 
+#                         mixpl.asp1, mixpl.asp2, ncol = 2, rel_heights = c(0.25, 1.2,1.2,1.2,1.2,.95), 
+#                         rel_widths = c(3.5/2, 3.5/2))
 
 ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
 knitr::plot_crop('17.figures_saved/mix_diff_smooths.png')
