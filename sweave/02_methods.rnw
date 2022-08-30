@@ -463,15 +463,52 @@ ln[E(BAI)] = B + \sum_j f_{j}(x_{j}) + \sum_s \delta_s[\alpha_s + \sum_j g_{j,s}
 where $\delta_s$ is a species-mix indicator ($\delta_s = 0$ if the observation 
 is in a pure larch condition or $\delta_s = 1$ if the observation is in mixture $s$), 
 $\alpha_s$ is an offset on the intercept, and $g_{js}()$ is an offset smooth 
-for species $s$ and predictor $j$. 
-These difference smooths were evaluated 
-against the pure larch reference smooth using a hypothesis test. In this test, 
-the null hypothesis states that a coefficient in a linear model for a given term 
-for a mixture is not different from zero \citep{wood2006generalized}. 
-The alternative hypothesis, then, is that the corresponding linear model 
-coefficient for a mixture smooth term is 
-indeed different from zero. P-values were calculated using an F-test, and were  
-extracted from model outputs. 
+for species $s$ and predictor $j$. This means that the reference smooth (for 
+western larch) is centered around zero (meaning the smooth is a flat/no-effect), 
+and then a difference (offset) smooth is a function of the differences between the smooth 
+of a given mixture and the reference smooth (i.e., for a given difference smooth, the 
+reference smooth \emph{represents} a flat, no-effect condition). Given this, a 
+hypothesis test may be used to test whether a difference smooth does indeed 
+represent a a difference between a mixture and the pure conditions. In this test 
+the null hypothesis states there is no difference from the reference smooth 
+(i.e., that a difference smooth is a flat, no-effect function) and the alternative 
+hypothesis states that a difference smooth does indeed deviate from the 
+corresponding reference smooth (i.e., the difference smooth function is not a 
+flat function). P-values were calculated using an F-test, and were extracted 
+from model summary outputs \citep{wood2006generalized}. 
+
+% between one level and the reference level 
+% centered around the reference smooths (i.e.,). Given that a difference 
+% smooth is , 
+% a hypothesis testing approach was adopted to compare whether 
+% the smooth function fit for a mixture deviates from the reference smooth for the 
+% pure larch conditions. 
+% 
+% 
+% Given 
+% that the difference smooths are identified as offsets from the pure larch smooths 
+% in this way, 
+% 
+% 
+% 
+% 
+% These difference smooths were evaluated 
+% against the pure larch reference smooth using a hypothesis test. , 
+% the null hypothesis states that a difference smooth is a flat function (where 
+% a difference is equal to zero),
+% 
+% 
+% the null hypothesis states that a difference smooth function is equal 
+% 
+% coefficient in a linear model for a given term 
+% for a mixture is not different from zero \citep{wood2006generalized}. 
+% 
+% 
+% The alternative hypothesis, then, is that the corresponding linear model 
+% coefficient for a mixture smooth term is 
+% indeed different from zero. 
+% 
+
 
 % where $\beta_0$ is the model intercept, representing the mean value
 % of $BAI$ for pure larch conditions, 
@@ -580,10 +617,10 @@ extracted from model outputs.
 
 \section{Comparing species-mixing measures}
 
-Given that western larch growth may vary across mixtures depending on the characteristics 
-of different species within a mixture, it was of interest to capture 
-species-mixing effects in a way that is easy to measure or calculate from readily 
-available variables so that they could be incorporated into a growth model. 
+
+
+In addition to comparing growth across mixtures, it was of interest to capture 
+species-mixing effects by using measures that are easy to estimate or readily available. 
 Three different species-mixing measures were identified and each added as an 
 additional predictor in the SCPt model: crown competition factor, the proportion 
 of plot basal area occupied by larch, and proportion of plot basal area weighted 
@@ -591,6 +628,8 @@ by species-shade tolerance values. They were compared in alternative models to
 assess their contributions to model prediction (after accounting for other factors) 
 and evaluated to further determine how species-mixing might impact the growth 
 of larch. 
+% in a way that is easy to measure or calculate from readily 
+% available variables so that they could be incorporated into a growth model. 
 
 Crown competition factor ($CCF_{pm}$) is a species-informed density measure that 
 is based on tree crown allometry \citep{Krajicek1961}. In this measure, 

@@ -1,0 +1,104 @@
+% Conclusions
+% 
+
+In this study we showed evidence indicating that the growth of western larch 
+is characterized differently across different types of species-mixtures. 
+One may expect that western larch growth, at least in smaller trees, will 
+be negatively impacted when in mixtures with lodgepole pine. The results 
+did not indicate any complementarity arising from the differences in 
+shade-tolerance between western larch and Douglas-fir. However, there was evidence 
+suggestive that western larch can achieve higher rates of growth in mixtures with 
+shade-tolerant species as well as when larch simply is growing with other 
+non-larch species. This information may benefit managers who are interested in 
+managing western larch in a mixed-species setting or simply who want to 
+enhance the growth of western larch. Across-species analysis to determine which 
+type of mixture optimizes the growth and yield of western larch and the other incumbent 
+species through mutual or competitive relationships is necessary. Additionally, 
+future work will aid in determining if and how the site productivity, competition, 
+and density dynamics of a stand interact with species composition for stands in 
+the inland northwest. 
+
+Furthermore, when accounting for species-mixing in empirical growth models, 
+one should be aware of the tradeoffs associated with the different options that 
+can be used to account for site and/or competition effects on growth. Although we showed 
+an effective way to capture competitive effects in models where contrasts 
+between conditions were not performed, when contrasting effects of different 
+mixtures we were unable to disentangle competition effects from one another due 
+to imbalances in data across mixtures. These issues could be resolved by (i) ensuring 
+that the range of data across mixtures are comparable, (ii) implementing a competition 
+index that accounts for relative density, or (iii) doing both (i) and (ii). 
+
+Despite the shortcomings of our data and/or design, we demonstrated a means of 
+model selection that can be used to create a valid individual tree growth model 
+using a flexible and non-linear data-driven approach. Furthermore, we 
+demonstrated methods by which non-linear functional relationships can be 
+compared across different conditions. When applying these types of methods, 
+it is of critical importance to ensure that (i) there is ample data across the range of 
+conditions being evaluated, (ii) the person(s) fitting and evaluating GA(M)Ms 
+has a good sense of how smooths are penalized and how to balance the inevitable 
+bias-variance tradeoffs that they will face, and (iii) such modelers are aware 
+of the various options and/or tools available to them which can make for a smooth 
+modeling experience that leads to high-quality results. 
+
+In conclusion, GA(M)Ms can effectively capture previously identified growth 
+relationships in addition to aiding in the exploration of relationships not 
+previously applied in growth models. Further assessment on western larch and 
+its counterparts is necessary to determine and characterize how species-mixing 
+can impact growth dynamics in inland northwest forests. This study provided a 
+necessary initial step in exploring these dynamics within this region, and has 
+positively identified the presence of species-mixing effects on western larch 
+growth within the context of distance-independent empirical growth modelling. 
+ 
+
+
+
+% The interpretation of 
+% competitive effects across mixtures in this study provide an example 
+% 
+% 
+% It is also of critical importance that the the 
+% amount of data, range of conditions, and way that competition is characterized 
+% are all carefully considered prior to comparing mixtures and pure stands. 
+% 
+% 
+% 
+% % 
+% % We could not conclusive 
+% % associate a causal mechanism by which this decreased growth occurs, but 
+% % we can posit that compared to pure western larch stands, .
+% 
+% 
+% -GAMMs are an effective tool for growth estimation and produced results 
+% similar to other works
+% 
+% -- careful consideration should be made to ensure that GAMM fit is appropriate 
+% --- understand how penalties, basis size selection, and other dynamics 
+% create these models
+% --- should be aware of the available tools made available by mgcv, such 
+% as automatic model selection
+% 
+% 
+% -- one should be aware of the tradeoffs of incorporating site conditions from 
+% the vast array of options
+% -- one should be aware of the different individual tree competition measures 
+% and assess how they fit in with their modeling goals
+% 
+% 
+% -Larch growth is characterized differently across mixtures
+% 
+% -- Larch growth may be expected to be lower in lodepole pine mixtures
+% --
+% -- in comparisons across mixtures, it is critical to select a competition 
+% variable that accounts for relative size and spacing of trees
+% -- also critical to ensure that, given a data set, a cross-species 
+% examination is appropriate, given the ranges of data for each mixture being 
+% compared. 
+% 
+% - Each species within a mixture should be evaluated to ensure that a comprehensive 
+% assessment of dynamics is made.
+% 
+% -Purity, shade tolerance can play an important role in characterizing WL 
+% growth in addition to other factors
+% 
+% -A shade tolerance metric can be useful in growth modeling, but should 
+% be implemented only when there is adequate data. 
