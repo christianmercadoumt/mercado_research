@@ -26,8 +26,8 @@
 \pagestyle{plain}
 
 %%%% Other prelim sections...can instead be inserted directly in this file
-\chapter*{Acknowledgements}
-\addcontentsline{toc}{chapter}{Acknowledgements}
+% \chapter*{Acknowledgements}
+% \addcontentsline{toc}{chapter}{Acknowledgements}
 
 % 
 % My sincerest gratitude cannot be overstated and is owed to:

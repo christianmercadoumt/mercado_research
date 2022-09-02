@@ -10,12 +10,12 @@ Additionally, its wood is characterized with desirable lumber qualities
 such as high specific gravity, straight grains, and tight knots 
 \citep{KeeganIII1995}. It is the most productive of
 the three North American larch species \citep{Rehfeldt2010} and its lumber is often 
-commercially available in a mix with Douglas-fir lumber, adding a unique and
+commercially available in a mix with Douglas-fir, adding a unique and
 localized product value. Further, western larch and its associated
 forests provide important habitat to native birds, bears, and ungulates 
 \citep{McClelland1999,Schmidt1976}. In the US northern Rocky Mountains,
 where fire is historically and currently prevalent, western larch is both uniquely 
-fire resistant and a prolific pioneer species on sites following fire \citep{Schmidt1981}
+fire resistant and a prolific pioneer species on sites following fire \citep{Schmidt1995b}
 due to its thick bark, deciduous needles, well-dispersed seeds, and germination 
 preference for bare-mineral soil \citep{Schmidt1976,Crotteau2019}. 
 \emph{Larix} species also provide unique aesthetic characteristics
@@ -37,19 +37,19 @@ seasonality.
 % forests \citep{Schmidt1988} where interactions among species attributes could impact
 % growth and development at individual tree and stand levels.
 
-Western larch naturally grows across a gradient of species-mixtures 
-in mixed-species forests \citep{Schmidt1988}. It is found in communities with:
+Western larch naturally grows across a gradient of species-mixtures\citep{Schmidt1995a}. 
+It is found in communities with:
 Douglas-fir (\emph{Pseudotsuga menziesii} var.\emph{glauca}), 
-lodgepole pine (\emph{Pinus contorta}), Engelmann spruce (\emph{Picea engellmanii}),
+lodgepole pine (\emph{Pinus contorta}), Engelmann spruce (\emph{Picea engelmanii}),
 subalpine fir (\emph{Abies lasiocarpa}), ponderosa pine (\emph{Pinus ponderosa}),
 western hemlock (\emph{Tsuga heterophylla}), mountain hemlock (\emph{Tsuga mertensiana}),
-and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1981a,Schmidt1988}. 
+and western redcedar (\emph{Thuja plicata}) \citep{Schmidt1995b,Schmidt1995a}. 
 It is sometimes managed in even-aged, homogeneous plantations, but more 
-typically is managed in mixed-conifer settings where interactions among species 
+typically in mixed-conifer settings where interactions among species 
 (or species-mixing) at tree and stand levels may occur. 
 Additionally, western larch is classified 
 as very intolerant of shade and one of the fastest-growing within
-its communities \citep{Baker1949,Schmidt1988}. 
+its communities \citep{Baker1949,Schmidt1995a}. 
 Larch's prolific regeneration and rapid juvenile growth allows it to 
 out-compete other trees and leads to high stand densities \citep{Schmidt1998}.  
 Thus, it responds well to density management early in stand development, 
@@ -151,8 +151,8 @@ over time with environmental conditions, as species exploit resources
 differently depending on their growth strategies \citep{delRio2014}. 
 \cite{Searle2020} found that positive complementary effects on individual 
 tree growth increase with both community shade-tolerance and phylogenetic 
-dissimilarity, showing that shade-tolerance can encapsulate its effects on 
-inter-specific competition, and that positive niche complementary 
+dissimilarity. Specifically, they showed that shade-tolerance can encapsulate 
+its effects on inter-specific competition, and that positive niche complementary 
 effects on tree growth increase with competition intensity.
 
 % \cite{delRio2014} found 
@@ -164,8 +164,8 @@ where relatively low intensity management occurs over a broad area and across
 tree, stand, and site conditions, managers and researchers commonly use the 
 Forest Vegetation Simulator \citep[FVS;][]{Dixon2020} to estimate future 
 stand dynamics. FVS uses a distance-independent individual tree growth model 
-\citep{Stage1973b,Wykoff1990} that does not require individual tree locations 
-to measure competition, and projects tree growth using tree size, stand density, 
+\citep{Stage1973,Wykoff1990} that does not require individual tree locations 
+to account for competition, and projects tree growth using tree size, stand density, 
 competition, and site variables. 
 Its formulation is paralleled by growth models in other regions and countries, 
 like the multiple US and Canada regional variants of FVS or PROGNAUS \citep{Monserud1996} 

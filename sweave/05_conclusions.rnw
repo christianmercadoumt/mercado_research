@@ -3,53 +3,92 @@
 
 In this study we showed evidence indicating that the growth of western larch 
 is characterized differently across different types of species-mixtures. 
-One may expect that western larch growth, at least in smaller trees, will 
-be negatively impacted when in mixtures with lodgepole pine. The results 
-did not indicate any complementarity arising from the differences in 
-shade-tolerance between western larch and Douglas-fir. However, there was evidence 
-suggestive that western larch can achieve higher rates of growth in mixtures with 
+The results did not indicate any complementarity arising from the differences in 
+shade-tolerance between western larch and Douglas-fir. 
+However, there was evidence suggestive that western larch can achieve higher 
+rates of growth in mixtures with 
 shade-tolerant species as well as when larch simply is growing with other 
-non-larch species. This information may benefit managers who are interested in 
-managing western larch in a mixed-species setting or simply who want to 
-enhance the growth of western larch. Across-species analysis to determine which 
-type of mixture optimizes the growth and yield of western larch and the other incumbent 
+non-larch species. Furthermore, there was evidence suggestive that smaller 
+western larch trees are more negatively impacted when in mixtures with 
+shade-intolerant competitors of different species. This information may benefit 
+managers who are interested in managing western larch in a mixed-species 
+setting or simply who want to enhance the growth of western larch. 
+Across-species analysis to determine which type of mixture optimizes the growth 
+and yield of western larch and the other incumbent 
 species through mutual or competitive relationships is necessary. Additionally, 
 future work will aid in determining if and how the site productivity, competition, 
 and density dynamics of a stand interact with species composition for stands in 
 the inland northwest. 
 
+% 
+% 
+% 
+% The results suggested 
+% that smaller western larch trees would grow less in lodgepole pine mixtures 
+% than in pure larch conditions, h
+% 
+% One may expect that western larch growth, at least in smaller trees, will 
+% be negatively impacted when in mixtures with lodgepole pine. 
+% 
+
+
+% 
+% In fact, considering 
+% that lodgepole pine is of the same shade-intolerance as western larch, 
+% we expected that western larch growth might be the same in lodgepole pine 
+% mixtures as it was in pure larch stands. However, western larch 
+
+
 Furthermore, when accounting for species-mixing in empirical growth models, 
-one should be aware of the tradeoffs associated with the different options that 
-can be used to account for site and/or competition effects on growth. Although we showed 
-an effective way to capture competitive effects in models where contrasts 
-between conditions were not performed, when contrasting effects of different 
-mixtures we were unable to disentangle competition effects from one another due 
-to imbalances in data across mixtures. These issues could be resolved by (i) ensuring 
+one should be aware of the tradeoffs associated with different options to 
+account for site and/or competition effects on growth. Although we showed 
+an effective way to capture competitive effects in a growth model as a whole, 
+the same effects were difficult to disentangle when the model was subset 
+for different species-mixtures. These issues could be resolved by (i) ensuring 
 that the range of data across mixtures are comparable, (ii) implementing a competition 
-index that accounts for relative density, or (iii) doing both (i) and (ii). 
+index that accounts for observed differences in attributes across different 
+mixtures (e.g., using BAL as a quantity instead of a ratio), or (iii) doing both. 
+% 
+% when comparing 
+% across different mixtures, these competitive effects were difficult 
+% 
+% 
+% model that estimates 
+% growth 
+% 
+% in models where contrasts 
+% between conditions were not performed, when contrasting effects of different 
+% mixtures we were unable to disentangle competition effects from one another due 
+% to imbalances in data across mixtures. 
+% 
+% 
 
 Despite the shortcomings of our data and/or design, we demonstrated a means of 
-model selection that can be used to create a valid individual tree growth model 
+model selection that can be used to create a useful individual tree growth model 
 using a flexible and non-linear data-driven approach. Furthermore, we 
 demonstrated methods by which non-linear functional relationships can be 
 compared across different conditions. When applying these types of methods, 
 it is of critical importance to ensure that (i) there is ample data across the range of 
-conditions being evaluated, (ii) the person(s) fitting and evaluating GA(M)Ms 
+conditions being evaluated and (ii) the person(s) fitting and evaluating GA(M)Ms 
 has a good sense of how smooths are penalized and how to balance the inevitable 
-bias-variance tradeoffs that they will face, and (iii) such modelers are aware 
-of the various options and/or tools available to them which can make for a smooth 
-modeling experience that leads to high-quality results. 
+bias-variance tradeoffs that they will face when fitting GA(M)Ms.
+% , and (iii) such modelers are aware 
+% of the various options and/or tools available to them which can make for a smooth 
+% modeling experience that leads to high-quality results. 
 
 In conclusion, GA(M)Ms can effectively capture previously identified growth 
-relationships in addition to aiding in the exploration of relationships not 
-previously applied in growth models. Further assessment on western larch and 
-its counterparts is necessary to determine and characterize how species-mixing 
-can impact growth dynamics in inland northwest forests. This study provided a 
+relationships in western larch in addition to uncovering unique 
+patterns in growth relationships that differ from previous models. 
+Further assessment of western larch and its counterparts is necessary to 
+determine and characterize how species-mixing can impact growth dynamics in 
+inland northwest forests. This study provided a 
 necessary initial step in exploring these dynamics within this region, and has 
 positively identified the presence of species-mixing effects on western larch 
 growth within the context of distance-independent empirical growth modelling. 
  
-
+% the exploration of relationships not 
+% previously applied in growth models. 
+% 
 
 
 % The interpretation of 

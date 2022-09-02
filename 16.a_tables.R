@@ -49,32 +49,31 @@ bai.spmx.ids <- bai.spmx %>%
 
 #2.1 Table of # of plots, # of trees, # of observations, other conditions ####
 library(kableExtra)
-num.pl <- bai.spmx.ids %>% group_by(stand) %>% 
+num.pl <- bai.spmx.ids %>% group_by(stand) %>% mutate(aspect = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% 
   summarize(
-    # number.plots = n_distinct(PLOT), 
-            # number.trees = n_distinct(unique_tree_id), 
-            # number.obs = n(), 
-            # n.meas = 1+n_distinct(MEASUREMENT_NO),
-            # aspect = mean(aspect_deg, na.rm = T),
-            # min.diam = min(DIAMETER, na.rm = T)*2.54,
+    number.plots = n_distinct(PLOT),
+    number.trees = n_distinct(unique_tree_id),
+    number.obs = n(),
+    n.meas = 1+n_distinct(MEASUREMENT_NO),
+    aspect = mean(aspect_deg, na.rm = T),
+    min.diam = min(DIAMETER, na.rm = T)*2.54,
             mind = min(DIAMETER, na.rm = T)*2.54,
-            # max.diam = max(DIAMETER, na.rm = T)*2.54,
+            max.diam = max(DIAMETER, na.rm = T)*2.54,
             maxd = max(DIAMETER, na.rm=T)*2.54,
             mincr = min(cr, na.rm = T),
             maxcr = max(cr, na.rm = T),
             minbal = min(bal.pl.ratio, na.rm = T),
             maxbal = max(bal.pl.ratio, na.rm = T),
             mindbah = min(ba.pl, na.rm = T)*(2.47/10.764),
-            maxbah = max(ba.pl, na.rm = T)*(2.47/10.764)
-            ) %>% 
-  mutate(aspect = case_when(
-    aspect >=270 & aspect<315 ~'WNW',
-    aspect >=315 & aspect<=360 ~'NNW',
-    aspect >=0 & aspect <=45 ~'NNE',
-    aspect >45 & aspect <=90 ~'ENE',
-    aspect >90 & aspect <=180 ~ 'SE',
-    aspect >180 & aspect<270 ~'SW'
-  ))
+            maxbah = max(ba.pl, na.rm = T)*(2.47/10.764))
+n_distinct(bai.spmx.ids$unique_tree_id)
 totals <- c(sum(num.pl$number.plots), sum(num.pl$number.trees), sum(num.pl$number.obs))
 num.pl %>% 
   kable(format = 'latex', booktabs = T, digits = c(4,2,2,3,1,1,3,2,2,2,2,2,0,0)) %>% #caption = 'Shade tolerance for western conifers (ref:caption2)',
@@ -535,7 +534,13 @@ o.mixtures.all <- mixtures %>%
   mutate(mixtype.f = factor(newmix, levels = c('laoc', 'pico', 'psme', 'other_all'), ordered = T))
   # mutate(omixtype.f = ordered(mixtype, levels = c('laoc', 'pico', 'psme', 'pien')))
 # o.mixtures.nopien <- o.mixtures.all %>% filter(omixtype != 'pien') %>% mutate(omixtype = droplevels(omixtype))
+o.mixtures.all %>% group_by(mixtype.f) %>% summarize(n_distinct(unique_tree_id))
+o.mixtures.all %>% group_by(mixtype) %>% summarize(n_distinct(unique_tree_id))
 
+o.mixtures.all %>% group_by(stand, mixtype) %>% summarize(a = n_distinct(unique_tree_id)) %>% mutate(sum(a))
+bai.spmx.ids %>% group_by(stand) %>% summarize(n_distinct(unique_tree_id))
+
+o.mixtures.all %>% group_by(mixtype)
 
 atable <- o.mixtures.all %>% group_by(mixtype.f) %>% 
   summarize(

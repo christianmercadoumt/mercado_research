@@ -2,24 +2,24 @@
 
 \section{GAMs and model selection}
 
-Additive models (e.g., GAMs) are becoming more prevalent in ecological research for 
-various applications to aid in capturing and describing complex non-linear 
+Additive models (e.g., GAMs) are becoming more prevalent in ecological research 
+to aid in capturing and describing complex non-linear 
 relationships that otherwise would require extensive testing to determine a 
-suitable model form in parametric approaches \citep{Robinson2011,Adamec2015}. 
+suitable parametric model form \citep{Robinson2011,Adamec2015}. 
 The model selection approach applied in this study produced a BAI model 
-which resulted in relationships consistent with other empirical 
+consistent with other empirical 
 individual tree growth models. The effect of diameter on growth (shown in Fig. \ref{fig:basesmooths})
 resembled the findings of \cite{Wykoff1990}, \cite{Monserud1996}, and 
-\cite{Vospernik2021} such that growth increases rapidly at lower 
+\cite{Vospernik2021} such that BAI increases rapidly at lower 
 values of DBH and then tapers at high values. 
 The effects of crown ratio were similar to those shown by 
 \cite{Hann2003} and \cite{Wykoff1990}, as it is represented by 
 a near-linear increasing effect (Fig. \ref{fig:basesmooths}) such that 
-trees with longer crowns have enhance growth. The density 
-effect of BAH was characterized with a decreasing effect approaching a negative 
+trees with longer crowns have enhanced growth. The density 
+effect of BAH was characterized as a decreasing effect approaching a negative 
 limit (Fig. \ref{fig:basesmooths}), which is similar to that of \cite{Hann2003} 
-\cite[displayed by][]{Weiskittel2011}. This is somewhat unsurprising given 
-these studies strongly motivated the choice of variables considered here and 
+\cite[displayed by][]{Weiskittel2011}. The agreement of these results is somewhat 
+unsurprising given these studies strongly motivated the choice of variables considered here and 
 that the PGP program is in the same region studied by \cite{Wykoff1990}. 
 
 % Specifically, the smooths fitted for diameter, 
@@ -49,8 +49,8 @@ that the PGP program is in the same region studied by \cite{Wykoff1990}.
 % dynamics that otherwise would have required more testing to determine 
 % functional form. 
 
-The way that site conditions were represented in the selected model, however, 
-contrast from previous formulations, which often include 
+The way that site conditions were represented in the selected model 
+contrast from previous formulations, with the latter often including 
 information about slope, aspect, elevation, habitat, site index, and/or climatic data 
 \citep{Weiskittel2009}. In this study, site effects on growth were only 
 represented by aspect, potentially failing to account for other site differences. 
@@ -58,13 +58,12 @@ By only accounting for aspect differences,
 an implicit assumption is made that the effect of site on growth is constant 
 regardless of slope or elevation. 
 However, aspect was selected because it outperformed alternative measures, 
-including a more comprehensive heatload metric that is based on a combination 
+including a more comprehensive heatload metric based on a combination 
 of slope, aspect, elevation, and incoming solar radiation \citep{Theobald2015}. 
-Additionally, climate-based metrics derived at varying cartographic scales 
+Climate-based metrics (such as heatload) derived at varying cartographic scales 
 rely on their own set of assumptions. Of particular relevance is the cartographic 
 scale at which a metric is calculated, where one must assume that microclimates 
-and biophysical conditions are constant and that models estimating the variable 
-are accurate for the entire area estimated. \cite{Stage2007} suggested that 
+and biophysical conditions are constant at smaller scales. \cite{Stage2007} suggested that 
 using a combination of slope, aspect, and elevation should improve prediction 
 accuracy, which was observed here. However, the realized improvements 
 were marginal and were associated with high concurvity values (> 0.8) among topographic 
@@ -75,6 +74,8 @@ with accounting for different site effects in this format, and future growth
 modelling efforts should consider these tradeoffs and how they may interact 
 with modelling objectives. 
 
+%  and that models estimating the variable 
+% are accurate for the entire area estimated
 % (i) the estimated 
 % value is generalizable across an entire area, (ii) microclimates are constant 
 % across the scale-area, and (iii) that geophysical variation within an area , . 
@@ -87,12 +88,12 @@ with modelling objectives.
 
 
 Additionally, in contrast to the effects of BAL that were estimated in this study 
-(displayed in Fig. \ref{fig:basesmooths}), others have identified an overall decreasing growth 
-effect of BAL with higher rates of decreases in BAI at low 
-values of BAL \citep{Monserud1996,Hann2003,Vospernik2021}. Of note, however, 
+(displayed in Fig. \ref{fig:basesmooths}), others have identified BAL with 
+a concave-shaped decreasing effect on growth \citep{Monserud1996,Hann2003,Vospernik2021}. 
+Of note, however, 
 is that the present study implemented BAL as a ratio of plot BAH, similar to 
-\cite{Stage1973b}, but dissimilar to \cite{Monserud1996} and \cite{Vospernik2021}, 
-who implemented BAL as a quantity instead of a ratio (see \cite{Kiernan2008} for 
+\cite{Stage1973}, but dissimilar to \cite{Monserud1996} and \cite{Vospernik2021}, 
+who implemented BAL as an absolute quantity instead of a ratio (see \cite{Kiernan2008} for 
 comparisons of BAL metrics). 
 In the SPCt model presented in section \ref{basemodel}, BAL appears to have a 
 marginal effect on BAI until it is in excess of 0.8 (Fig. \ref{fig:basesmooths}), 
@@ -103,17 +104,25 @@ BAL as a competition measure was sufficient in capturing competitive effects
 across species. That option was excluded here because it was thought important 
 to consider tree-level competitive effects (e.g., BAL) in addition to community 
 crowding effects (e.g., BAH), especially since both have been shown to interact 
-with species composition \citep{Brunner2020}. However, the individual predictor 
-results reported at the end of Section \ref{basemodel} indicate that BAL is 
-well-suited for growth prediction in western larch, which 
-is in concurrence with \cite{Contreras2011}, who identified BAL to have a closer 
-relationship with growth in larch than other distance-independent measures. 
-Despite the individual performance of BAL, however, this study identified 
-important effects of BAL and BAH in the same model, which is consistent with 
-\cite{Wykoff1990}, \cite{Monserud1996}, and more recently \cite{Riofrio2019} and 
-\cite{Vospernik2021}, whose applications were nonlinear and 
-nonparametric modeling, respectively. 
+with species composition \citep{Brunner2020}. \cite{Contreras2011} identified 
+BAL to have a closer relationship with growth in western larch than other 
+distance-independent measures, partially justifying its use within the SCPt model. 
+Additionally, this study identified important effects of BAL and BAH within the 
+same model, which is consistent with \cite{Wykoff1990}, \cite{Monserud1996}, 
+and more recently \cite{Riofrio2019} and \cite{Vospernik2021}.
 
+
+% The selection process 
+% implemented in this study found BAL to
+% 
+% However, the individual predictor 
+% results reported at the end of Section \ref{basemodel} indicate that BAL is 
+% well-suited for growth prediction in western larch, which 
+% is in concurrence with 
+% 
+% 
+% Despite the individual performance of BAL, however, 
+% 
 
 % addition to weighing 
 % the tradeoffs of using BAL. 
@@ -167,15 +176,15 @@ nonparametric modeling, respectively.
 % may lead to over-fitting if can over-fit 
 % these relationships. 
 
-To realize the benefits of using a (non-parametric) smooth-based approach, 
-however, one must ensure that a smooth has enough flexibility to capture complex 
+To realize the benefits of using a (non-parametric) smoother-based approach, 
+one must ensure that a smooth has enough flexibility to capture complex 
 functional forms, but that it does not capture \emph{too much} variability in 
-observed scatter around those forms. The former requires setting the a sufficiently 
+observed scatter around those forms. The former requires setting a sufficiently 
 large limit of a smooth's EDF, which 
 is defined by k-1, where k is the basis size, and one degree of freedom is 
 used to ensure identifiability \citep{wood2006generalized}. The latter requires 
-that a smoothing parameter is estimated such that it effectively maintains a 
-smooth's variability \citep[see section \ref{gamoverview}; ][]{wood2006generalized,Pedersen2019}. 
+that variability is penalized appropriately, which is modulated by the estimated 
+smoothing parameter \citep[see section \ref{gamoverview}; ][]{wood2006generalized,Pedersen2019}. 
 In this study the choice of k was 10 for DBH , BAL, and BAH 
 (10 is the default value provided by mgcv), which appeared appropriate given 
 how each estimated smooth compared to previous studies (as discussed above). 
@@ -188,7 +197,7 @@ it also had a relatively high complexity
 In this case it doesn't challenge the interpretability 
 of the BAH effect on growth, as there clearly is an overall decreasing 
 effect, and it is known that growth tends to be limited in 
-densely packed stands \citep{Reineke1933}. 
+densely packed stands \citep{Reukema1979}. 
 However, in other cases, such as the shade intolerance smooth in 
 Fig. \ref{fig:ccf_pur_shd}, further constraints may be necessary for more 
 accurate characterization and clearer interpretation. 
@@ -264,7 +273,7 @@ This study did not specifically evaluate competition for light, but rather ident
 stand conditions where it might be different. So whether competition itself varied 
 and led to modified growth of western larch when 
 mixed with either lodgepole pine or Douglas-fir was unclear. 
-However, the results in section \ref{comparespp} provide evidence that the 
+However, the results provide evidence that the 
 way that larch growth related to each predictor was different in each mixture 
 (Table \ref{tab:diff} and Fig. \ref{fig:diffsmooths}). 
 
@@ -312,15 +321,42 @@ A visual comparison between the trends of pure larch and larch-lodgepole mixture
 in Fig. \ref{fig:sumfig} (first and second rows, respectively) shows 
 few observations of DBH greater than 20 cm in lodgepole-pine mixtures. 
 As a result, the trend lines in the lodgepole pine mixtures in the second row 
-of Fig. \ref{fig:sumfig} do not display the same reduced trend in growth shown 
-in the relationships of other mixtures at higher diameters. Thus larger values 
-of DBH in Fig. \ref{fig:diffsmooths} which show positive differences between the 
-lodgepole pine mixtures and the pure larch smooth should be questioned, and 
-interpretation at values larger than 20 cm is withheld completely. However, 
-the negative difference at lower DBH values is in concurrence with the stated 
-expectation, suggesting that smaller-diameter western larch trees mixed with 
-shade intolerant lodgepole pine experience lower rates of growth than the same size trees 
-growing primarily with other western larch, holding other variables constant. 
+of Fig. \ref{fig:sumfig} do not display the same reduced growth shown 
+in the relationships of other mixtures at higher diameters. Thus growth at larger values 
+of DBH in Fig. \ref{fig:diffsmooths}, which show positive differences between the 
+lodgepole pine mixtures and the pure larch smooths, should be questioned, and 
+interpretation at values larger than 20 cm is withheld completely. Additionally, 
+the results show negative growth differences at lower DBH values. This suggest 
+that smaller-diameter western larch trees mixed with shade intolerant lodgepole 
+pine experience lower rates of growth than the same size trees growing primarily 
+with other western larch. Although not explicitly stated, this is 
+in concurrence with the expectations, provided that lower growth in 
+less shade-tolerant mixtures was expected. However, given that western larch and 
+lodgepole pine have the same shade-intolerance value (of 1), the expectation was 
+that there would not be any difference in growth between the corresponding 
+mixtures. This may indicate that the competition 
+for some resource other than light impacts the growth of smaller western larch 
+trees in this mixture. Further research evaluating whether these small-tree 
+negative growth effects are modulated by different proportions of each 
+species in this mixture could help explain the presently observed effects. 
+
+
+% , competitive position, relative size
+% 
+% across different levels of mixing between 
+% western larch and lodgepole pine could elucidate the presently observed effects.
+% 
+% the negative growth effect 
+% for smaller western larch trees in mixtures with lodgepole pine 
+% 
+% these shade-intolerant species is enhanced 
+% 
+% , these results are unexpected 
+% such that there was \emph{negative} growth in lodgepole pine mixtures compared to 
+% pure larch stands as opposed to there being no difference. 
+% 
+% tolerance of lodgepole pine is the same as western larch, but lower growth 
+% was seen
 
 % Thus the positive differences shown at 
 % \ref{fig:diffsmooths} DBH values greater than 20 cm are withheld from the viewing, 
@@ -369,12 +405,12 @@ The results described in section \ref{mixlp} suggest that competitively dominant
 trees grow less when mixed with lodgepole pine and that non-competitively dominant
 larch trees in the same mixtures grow more compared to larch growing in pure stands with the same 
 values of BAL. Yet, since BAL was calculated as the proportion of plot basal 
-area in trees larger than a subject as opposed to the absolute amount of the former, 
-an issue of scale was created when comparing across mixtures in these data. 
+area in larger trees as opposed to the absolute amount of the former, 
+an issue of scale was created when comparing across mixtures. 
 For example, if comparing a BAL value of 0.25 
-in a pure larch plot where the BAH is 40 $m^2/ha$, to a larch-lodgepole pine 
-mixed plot where the BAH is 10 $m^2/ha$, the tree of interest is facing
-10 $m^2/ha$ and 2.5 $m^2/ha$ worth of area occupied by larger trees, 
+in a pure larch plot where the BAH is 40 $\mathrm{m^2/ha}$, to a larch-lodgepole pine 
+mixed plot where the BAH is 10 $\mathrm{m^2/ha}$, the tree of interest is facing
+10 $\mathrm{m^2/ha}$ and 2.5 $\mathrm{m^2/ha}$ worth of area occupied by larger trees, 
 respectively. Thus, in this example the relative social position, although being 
 proportionally equal, does not imply the same quantity of competition 
 in larger trees, confounding the interpretation of BAL. This scaling issue is 
@@ -383,8 +419,9 @@ but studies of alternative forms provide mixed results
 \citep{Weiskittel2011}. A related issue arises when considering the relative 
 ranges of DBH values for both lodgepole 
 pine mixtures and pure larch mixtures. Table \ref{tab:mixsummary} shows that the 
-lodgepole pine data are of smaller trees (based on average and maximum DBH) than those of 
-the pure data (as noted above). Therefore a competitively dominant larch 
+western larch in mixtures with lodgepole pine are smaller (based on average 
+and maximum DBH) than those in the pure data (as noted above). 
+Therefore a competitively dominant larch 
 (i.e., one with a low BAL) in a lodgepole mixture is likely smaller than one 
 growing with other larch. Thus, BAL is also confounded with tree size in this 
 comparison across conditions. However, BAL is still a useful measure of social 
@@ -411,8 +448,8 @@ growth. Both lodgepole pine and Douglas-fir mixtures show a change from positive
 difference to negative difference near 25 $\mathrm{m^2/ha}$. Considering that 
 the primary BAH effect (for the SCPt model, shown in Fig. \ref{fig:basesmooths}) is near its lower 
 limit at 25 $\mathrm{m^2/ha}$, the negative growth differences for each mixture 
-may simply imply that resources are scarce, and that growth is limited. Thus 
-there don't appear to be any complementing effects between western larch and 
+may simply imply that resources are generally scarce, leading to lower rates of growth. Thus 
+there don't appear to be any complementary effects between western larch and 
 Douglas-fir that lead to enhanced growth in western larch.  
 
 % shown in Fig. 
@@ -471,7 +508,7 @@ characteristics on these aspects. As shown in Figure \ref{fig:aspel},
 larch-Douglas-fir mixtures evaluated in this study were primarily on NW-facing aspects. 
 Provided that Douglas-fir has more shade-intolerant characteristics in drier sites, this may explain the 
 lack of differences in western larch growth in mixtures with Douglas-fir. 
-However, since the growth of Douglas-fir was not evaluated, further 
+However, since the growth of Douglas-fir trees was not evaluated, further 
 investigation of these shade-tolerance dynamics is required. 
 
 
@@ -609,14 +646,14 @@ of western larch in this study. The relationships fit with both
 plot purity and shade intolerance metrics indicate that after accounting for 
 other influential factors, western larch growth may be 
 better characterized with a simple measure of proportional basal area than 
-with CCF (Table \ref{tab:mixvarsrmse}). These findings are in line with the those of \cite{Dirnberger2017}, 
+with CCF (Table \ref{tab:mixvarsrmse}). These findings are in line with those of \cite{Dirnberger2017}, 
 which found that species-proportional measures of 
 composition were more reliable than crown-area based measures. 
 Furthermore, assessing and characterizing species-mixing impacts 
 is simpler if they aren't tied into a density-based measure like CCF. 
 CCF simply does not provide any straight-forward interpretation of whether different 
-species dynamics are at play, as it only represents crown area as a weighted density. 
-A specific comparison of CCF effects on western larch growth between specific 
+species dynamics are at play, as it only represents potential crown area as a weighted density. 
+A comparison of CCF effects on western larch growth between specific 
 mixtures could show how the CCF effect changes with mixture, however, that 
 is beyond the scope of this study. Consequently, using measures which directly indicate specific 
 mixing-characteristics (e.g., shade tolerance, species-specific weighted densities) 
@@ -638,18 +675,18 @@ individual tree growth, depending on the level of competition, demonstrating
 positive effects of niche complementarity. The findings in this study lack 
 adequate data and design to determine whether niche complementarity specifically impacts 
 western larch growth. However, the models fit do suggest that a relationship between 
-larch growth and both purity of larch and shade-intolerance exists. Others have 
-attributed differences in productivity to shade-tolerance 
+larch growth and both purity of larch and relative abundance of shade-intolerant 
+species exists. Others have attributed differences in productivity to shade-tolerance 
 heterogeneity \citep{Weiskittel2009,Maguire2021}, but few have evaluated the use of a 
 shade-tolerance metric in the estimation of tree growth. 
 This study provides additional support for the use of a shade-tolerance metric in growth 
-modeling, given its ease of use, availability, and relevance, suggested also by 
+modeling, given its ease of use, availability, and relevance, as suggested also by 
 \cite{Russell2013}. 
 
-\section{Other impliciations}
+\section{Management and other implications}
 
-In terms of management, the information provided here may be useful when managing 
-western larch in a multi-species setting. \cite{Crotteau2019} discusses 
+The information provided here may be useful when managing 
+western larch in a multi-species setting. \cite{Crotteau2019} discuss 
 initiating climate adaptation in western larch forests through 
 various silvicultural treatments, all of which involve managing larch 
 with other species. Understanding the mixing dynamics on larch 
@@ -678,17 +715,17 @@ impacted by shade-intolerant \emph{Pinus cembra}, shade-tolerant
 observed a positive mixture effect on stand density, where maximum stand density 
 was increased when \emph{L. decidua} was growing with spruce. \cite{Zhang1999} 
 showed that larch and \emph{Fraxinus spp.} heights mutually increased in mixtures together compared 
-to pure stands of each. However, \cite{Xie2020} assessed the height-diameter 
+to pure stands of either. However, \cite{Xie2020} assessed the height-diameter 
 relationship of \emph{L. olgensis} when mixed with 
-\emph{Fraxinus spp.}, and found results inconsistent with \cite{Zhang1999}, 
-concluding that the height-diameter relationship for larch may or may not be 
-impacted by species-mixing effects. Given the limited information on 
+\emph{Fraxinus spp.}, and found results inconsistent with \cite{Zhang1999}. 
+Given the limited information on 
 species-mixing dynamics for \emph{Larix}, a literature review covering each 
 \emph{Larix} species may be useful to identify next-steps 
-to elucidate \emph{Larix occidentalis} (as well other species) growth and yield 
+to elucidate \emph{Larix occidentalis} (as well other species') growth and yield 
 dynamics in mixed-species forests. 
 
-
+% concluding that the height-diameter relationship for larch may or may not be 
+% impacted by species-mixing effects
 
 % The interpretation of BAL
 % 

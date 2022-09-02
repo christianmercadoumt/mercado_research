@@ -550,7 +550,7 @@ bal.pl <- ggplot(sm.bal, aes(x = bal.pl.ratio, y = est, ymin = lower, ymax = upp
   theme(aspect.ratio = 2/(1+sqrt(5)))
 basal.pl <- ggplot(sm.ba, aes(x = ba.pl*(2.47/10.764), y = est, ymin = lower, ymax = upper)) + 
   geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
-  labs(x = bquote('BA'~(m^2/ha)), y = 'Effect')+
+  labs(x = bquote('BAH'~(m^2/ha)), y = 'Effect')+
   theme(aspect.ratio = 2/(1+sqrt(5)))
 library(grid)
 

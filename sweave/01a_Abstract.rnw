@@ -1,10 +1,10 @@
 % Abstract
 
 Western larch (\emph{Larix occidentalis}) is an important tree species 
-that is exclusive to the inland northwest region of North America. It is 
-very intolerant of shade and is managed across a range of communities with 
-both shade-tolerant and -intolerant species. Various recent works have 
-shown that tree and stand level competition and density in mixed-species 
+exclusive to the inland northwest region of North America. It is 
+very intolerant of shade but managed across a range of communities with 
+both shade-tolerant and -intolerant species. Recent works have 
+shown that tree and stand level competition in mixed-species 
 communities can be modified depending on how the characteristics of 
 species in a mixture interact. Such changes can alter the growth relationship 
 of the participant species. Western larch growth has been 
@@ -16,28 +16,28 @@ relationships on western larch growth dynamics have yet to be studied.
 
 We used a network of long-term forest growth and yield research plot data 
 to investigate (i) how interspecific dynamics modify the growth of western 
-larch after accounting for other factors that influence growth and (ii) using 
-readily available information, how to characterize species-mixing effects on 
+larch after accounting for other factors that influence growth and 
+(ii) how to characterize species-mixing effects on 
 western larch within the context of individual tree growth modelling. First, 
 we used a generalized additive mixed model (GAMM) to estimate western larch 
-growth from size, competition, density, and site productivity variables, but that 
-did not address species-mixing. This model was then used in two separate analyses. 
+growth from size, competition, density, and site productivity variables, without
+addressing species-mixing. This model was then used in two separate analyses. 
 In the first analysis, we identified different types of species mixtures and 
-compared how the established western larch growth relationship in each mixture 
-differed from that of non-mixed pure larch stand conditions. In the second 
+compared how the established western larch growth relationships in each mixture 
+differed from those in pure larch stand conditions. In the second 
 analysis we identified three species-informed metrics and added each to the 
 established model. This resulted in three models which were compared to assess 
 how each species-mixing metric affected the established growth relationship. 
 
 These analyses resulted in a GAMM that represented size, competition, density, 
-and site variables with functional relationships that are similar to those 
+and site variables with functional relationships similar to those 
 identified in previous works. With this model, we showed that the way 
 in which larch growth is characterized can differ when western larch is growing 
 in mixtures compared to when growing in a pure stand with other western larch. 
-However, data and design limitations prevent further extrapolation for the 
+However, data and design limitations prevent further interpretation for the 
 mixture-pure comparisons. When comparing species-mixing metrics, we showed 
-that western larch growth may be positively impacted in mixtures with species 
-of higher shade-tolerance than larch as well as in mixtures with other species 
+that western larch growth may be higher in mixtures with species 
+of higher shade-tolerance as well as in mixtures with other species 
 in general. 
 
 
