@@ -26,24 +26,28 @@
 \pagestyle{plain}
 
 %%%% Other prelim sections...can instead be inserted directly in this file
-% \chapter*{Acknowledgements}
-% \addcontentsline{toc}{chapter}{Acknowledgements}
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
 
-% 
-% My sincerest gratitude cannot be overstated and is owed to:
-% 
-% The Inland Northwest Growth and Yield Cooperative for providing the funding 
-% for this research;
-% Renate Bush and Tami Fikstad of the USFS Region 1, for their help with the PGP data, 
-% logistics, data collection, and for keeping the PGP program alive;
-% My advisor Dr. David Affleck for his advice, guidance, and patience; 
-% my committee, including Drs. Andrew Larson, Justin Crotteau, and David Patterson, 
-% for their advice, wisdom, warnings, understanding, and flexibility; 
-% my friends, for their support, advice, reading of my papers, and last-minute 
-% presentation critiques; 
-% my partner Taylor, for her endless love and support; 
-% my family, for their support; 
-% the PGP data collection field crew in 2021
+
+My sincerest gratitude cannot be overstated and is owed to:
+
+The Inland Northwest Growth and Yield Cooperative for providing the funding
+for this research;
+Renate Bush and Tami Fikstad (and colleagues) of USFS Region 1, 
+for their help with the PGP data, logistics, data collection, and for 
+keeping the PGP program alive;
+Dr. David Affleck for his advice, guidance, and patience;
+Drs. Andrew Larson, Justin Crotteau, and David Patterson,
+for their advice, wisdom, warnings, understanding, and flexibility;
+Taylor, for her endless love and support;
+all my friends, for their support, advice, reading of my papers, and last-minute
+presentation critiques;
+my family, for their love and support;
+the PGP data collection field crew in 2021; 
+and finally, the woods, for the 
+curiosity they provoke, the secrets they hold, and 
+for feeding me in every way possible. 
 
 
 \chapter*{Abstract}
