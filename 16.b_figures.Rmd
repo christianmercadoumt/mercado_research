@@ -1149,6 +1149,34 @@ knitr::plot_crop('17.figures_saved/mix.compass2.png')
 #   theme(strip.text = element_blank(), legend.position = 'none',aspect.ratio = 2/2.5,
 #         axis.title = element_blank(), axis.text = element_blank())
 
+
+ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180), 
+                    y = (max(elevs)-elev_m)*sin(pi*aspect_rot/180),
+                    color = htld
+                    )) +  
+  geom_hline(yintercept = 0, color = 'grey') + #horizontal 
+  geom_vline(xintercept = 0, color = 'grey') + 
+  geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
+  geom_point() + 
+  labs(color = 'Heatload') +
+  geom_text(inherit.aes = F, data = circ, 
+            aes(x = vals, y = vals, label = 1800-els)) +
+  geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
+  # facet_wrap(~Mixture) +# facet by mixture type
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(100, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),
+        legend.position = 'left',
+        aspect.ratio = 1)
+
 ```
 
 
@@ -2374,4 +2402,27 @@ summary(mix.diff.nopien)
 ```
 
 
+```{r}
+baidata <- bai.spmx.ids %>% mutate(bai.cm=bai*2.54^2, dbh.cm = DIAMETER*2.54)
+
+ggplot(bai.spmx.ids, aes(x = DIAMETER*2.54)) + geom_histogram() + labs(x ='DBH (cm)', y = 'Count')
+
+ggplot(bai.spmx.ids, aes(x = bai*2.54^2)) + geom_histogram() + labs(x =bquote('BAI'~(cm^2/yr.)), y = 'Count')
+
+ggplot(baidata, aes(x = dbh.cm, y = bai.cm)) + geom_point(alpha = 0.2) + labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = dbh.cm, y = log(bai.cm))) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('ln(BAI)'), x = 'DBH (cm)') + geom_smooth(se = F, size = 0.5)
+
+fitdat <- tibble(re.tree.1$model)
+ft <- as.vector(re.tree.1$fitted.values)
+fitdat <- fitdat %>% mutate(bai.cm=bai*2.54^2, dbh.cm = DIAMETER*2.54, fit=ft*2.54^2)
+
+ggplot(fitdat, aes(x = dbh.cm, y = log(fit))) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('ln(BAI)'), x = 'DBH (cm)') + 
+  geom_smooth(se = F, size = 0.5)
+
+```
 
