@@ -2424,5 +2424,41 @@ ggplot(fitdat, aes(x = dbh.cm, y = log(fit))) +
   labs(y =bquote('ln(BAI)'), x = 'DBH (cm)') + 
   geom_smooth(se = F, size = 0.5)
 
+residuals_linpred_plot(site, point_alpha = 0.2)
+residuals_linpred_plot(re.tree.1, point_alpha = 0.2)
+
+ggplot(bai.spmx.ids, aes(x = percent_LAOC*100, y = percent_PSME*100)) + 
+  geom_rect(aes(ymin = 20, ymax = 65, xmin = 20, xmax = 65, fill = 'mixture')) +
+  geom_rect(aes(ymin = 0, ymax = 30, xmin = 70, xmax = 100, fill = 'pure larch'), linejoin = 'mitre') +
+  # geom_segment(aes(x = 20, xend=65, y = 20, yend=20)) +
+  # geom_segment(aes(x = 65, xend = 65, y=20, yend=65)) + 
+  # geom_vline(xintercept = c(20, 65, 70)) +
+  labs(x = 'Percent larch', y = 'Percent candidate') +
+  theme(legend.position = 'none')
+
+mxs <- dat.abc %>% filter(mixtype %in% c('laoc', 'psme', 'pico'))
+names(mxs)
+
+ggplot(mxs, aes(y = diam.cm, x = Mixture)) + geom_boxplot()
+ggplot(mxs, aes(y = diam.cm, x = Mixture)) + geom_violin(scale = 'count', draw_quantiles = c(0.5)) + stat_summary(aes(group = Mixture), fun = mean, geom = 'point') + labs(y = 'DBH')
+# + geom_jitter(width = 0.01)
+
+ggplot(mxs, aes(y = bah, x = Mixture)) + geom_boxplot()
+ggplot(mxs, aes(y = bah, x = Mixture)) + geom_violin(scale = 'count', draw_quantiles = 0.5) + stat_summary(aes(group = Mixture), fun = mean, geom = 'point') + labs(y = 'BAH')
+
+
+ggplot(mxs, aes(y = bal.pl.ratio, x = Mixture)) + geom_boxplot()
+ggplot(mxs, aes(y = bal.pl.ratio, x = Mixture)) + geom_violin(scale = 'count', draw_quantiles = 0.5) + stat_summary(aes(group = Mixture), fun = mean, geom = 'point')
+
+
+ggplot(mxs, aes(y = bai.cmsq, x = Mixture)) + geom_violin(scale = 'count', draw_quantiles = 0.5) + stat_summary(aes(group = Mixture), fun = mean, geom = 'point')
+
+
+ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_grid(bah.cats~Mixture) + 
+  # geom_vline(xintercept = mean(mxs$diam.cm))
+  labs(y = 'BAL', x = 'DBH')
+
+ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_wrap(~Mixture)
+
 ```
 
