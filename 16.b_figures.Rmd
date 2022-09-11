@@ -2402,19 +2402,63 @@ summary(mix.diff.nopien)
 ```
 
 
-```{r}
+```{r presentation figs.}
+
+#rawdata####
 baidata <- bai.spmx.ids %>% mutate(bai.cm=bai*2.54^2, dbh.cm = DIAMETER*2.54)
 
 ggplot(bai.spmx.ids, aes(x = DIAMETER*2.54)) + geom_histogram() + labs(x ='DBH (cm)', y = 'Count')
 
 ggplot(bai.spmx.ids, aes(x = bai*2.54^2)) + geom_histogram() + labs(x =bquote('BAI'~(cm^2/yr.)), y = 'Count')
 
-ggplot(baidata, aes(x = dbh.cm, y = bai.cm)) + geom_point(alpha = 0.2) + labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + geom_smooth(se = F, size = 0.5)
+ggplot(baidata, aes(x = dbh.cm, y = bai.cm)) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
+  geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = bal.pl.ratio, y = bai.cm)) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
+  geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = heatload, y = bai.cm)) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
+  geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = dbh.cm, y = log(bai.cm))) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
+  geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = bal.pl.ratio, y = log(bai.cm))) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
+  geom_smooth(se = F, size = 0.5)
+
+ggplot(baidata, aes(x = heatload, y = log(bai.cm))) + 
+  geom_point(alpha = 0.2) + 
+  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
+  geom_smooth(se = F, size = 0.5)
 
 ggplot(baidata, aes(x = dbh.cm, y = log(bai.cm))) + 
   geom_point(alpha = 0.2) + 
   labs(y =bquote('ln(BAI)'), x = 'DBH (cm)') + geom_smooth(se = F, size = 0.5)
 
+set.seed(125)
+treesdat <- baidata %>% filter(unique_tree_id %in% sample(baidata$unique_tree_id, 20))
+
+ggplot(treesdat, aes(x = dbh.cm, y = bai.cm)) + 
+  geom_point(alpha = 0.5) + 
+  geom_smooth(se = F, method = 'lm')+ labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)')
+
+ggplot(treesdat, aes(x = dbh.cm, y = bai.cm, color = unique_tree_id)) + 
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = 'lm', se = F) + 
+  theme(legend.position = 'none')+ labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)')
+
+
+#fit####
 fitdat <- tibble(re.tree.1$model)
 ft <- as.vector(re.tree.1$fitted.values)
 fitdat <- fitdat %>% mutate(bai.cm=bai*2.54^2, dbh.cm = DIAMETER*2.54, fit=ft*2.54^2)
@@ -2436,6 +2480,7 @@ ggplot(bai.spmx.ids, aes(x = percent_LAOC*100, y = percent_PSME*100)) +
   labs(x = 'Percent larch', y = 'Percent candidate') +
   theme(legend.position = 'none')
 
+#mixes#####
 mxs <- dat.abc %>% filter(mixtype %in% c('laoc', 'psme', 'pico'))
 names(mxs)
 
@@ -2462,3 +2507,6 @@ ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_wrap(~Mix
 
 ```
 
+
+
+<!-- $$BAI \sim  $$ -->
