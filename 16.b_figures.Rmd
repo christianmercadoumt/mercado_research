@@ -567,7 +567,8 @@ ggsave('17.figures_saved/base_aspect.png', contour.pl)
 # plot.gam(re.tree.1, select = 5)
 # draw(re.tree.1, select = 'asp', partial_match = T)
 
-
+ggsave('17.figures_saved/base_aspect.png', contour.pl)
+knitr::plot_crop('17.figures_saved/base_aspect.png')
 
 ```
 
@@ -1627,8 +1628,122 @@ mixpl.asp1
 mixpl.asp2
 ```
 
-```{r}
 
+```{r}
+lay <- rbind(c(1,2,3),
+             c(4,5,6),
+             c(7,8,9),
+             c(10,11,12),
+             c(13,14,15))
+
+aplot <- arrangeGrob(mixpl.dr, mixpl.d1, mixpl.d2,
+             mixpl.crr, mixpl.cr1, mixpl.cr2,
+             mixpl.balr, mixpl.bal1, mixpl.bal2,
+             mixpl.bar, mixpl.ba1, mixpl.ba2,
+             mixpl.aspr, mixpl.asp1, mixpl.asp2,
+             heights = list(1.2,1.2,1.2,1.2,.95), 
+                        widths = list(3.5/2, 3.5/2, 3.5/2))
+ggsave('17.figures_saved/purvsmix.png', aplot)
+
+```
+
+
+```{r}
+smest.diam.r <- smest.diam %>% filter(is.na(omixtype))
+smest.diam.1 <- smest.diam %>% filter(omixtype=='pico')
+smest.diam.2 <- smest.diam %>% filter(omixtype=='psme')
+
+smest.diam111 <- smest.diam %>%
+  mutate(comb.est1 = case_when(
+           is.na(by) ~ est,
+           omixtype=='pico'~ est+smest.diam.r$est,
+           omixtype=='psme'~ est+smest.diam.r$est
+         ), mixture.id = case_when(is.na(omixtype)~'Pure',
+                                 omixtype=='pico'~'Larch-LP',
+                                 omixtype=='psme'~'Larch-DF'))
+
+afunc <- function(sm.data){
+  a <- sm.data %>% filter(is.na(omixtype))
+  
+  b <- sm.data %>%
+  mutate(Effect = case_when(
+           is.na(by) ~ est,
+           omixtype=='pico'~ est+a$est,
+           omixtype=='psme'~ est+a$est
+         ), Mixture = case_when(is.na(omixtype)~'Pure',
+                                 omixtype=='pico'~'Larch-LP',
+                                 omixtype=='psme'~'Larch-DF'),
+         upr=case_when(
+           is.na(by) ~ upper,
+           omixtype=='pico'~upper+a$est,
+           omixtype=='psme'~upper+a$est
+         ),
+         lwr=case_when(
+           is.na(by) ~ lower,
+           omixtype=='pico'~lower+a$est,
+           omixtype=='psme'~lower+a$est))
+  
+  if('DIAMETER' %in% names(sm.data)){
+    p <- ggplot(b, aes(x = DIAMETER*2.54, 
+                       y = Effect, 
+                       fill = Mixture,
+                       color=Mixture)) + 
+      geom_line(alpha=0.2) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
+                  color = NA) +
+      coord_cartesian(ylim = c(-2,2), xlim = c(0, 30)) +
+      labs(x = 'DBH')
+  } else if('cr' %in% names(sm.data)){
+    p <- ggplot(b, aes(x = cr, 
+                            y = Effect, 
+                       fill = Mixture,
+                       color=Mixture)) + 
+      geom_line(alpha=0.2) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2, 
+                  color = NA) +
+      coord_cartesian(ylim = c(-0.3,.3)) +  
+      labs(x = 'Crown ratio')
+  } else if('bal.pl.ratio' %in% names(sm.data)){
+    p <- ggplot(b, aes(x = bal.pl.ratio, 
+                           y = Effect, 
+                       fill = Mixture,
+                       color=Mixture)) + 
+      geom_line(alpha=0.2) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
+                  color = NA) + 
+      coord_cartesian(ylim = c(-0.5,.5)) +
+      labs(x = 'BAL')
+  } else if('ba.pl' %in% names(sm.data)){
+    p <- ggplot(b, aes(x = ba.pl*(2.47/10.764), 
+                            y = Effect, 
+                       fill = Mixture,
+                       color=Mixture)) + 
+      geom_line(alpha=0.2) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
+                  color = NA) + 
+      coord_cartesian(ylim = c(-2.5, 2.5)) +
+      labs(x = 'BAH')
+  }
+  
+  return(p)
+
+}
+
+afunc(smest.diam)
+afunc(smest.cr)
+afunc(smest.bal)
+afunc(smest.ba)
+
+smest.diam %>% filter(is.na(by))
+
+ggplot(smest.diam111, aes(x = DIAMETER*2.54, y = comb.est1, color = mixture.id)) + geom_line()
+
+ggplot(smest.dia)
+
+```
+
+
+```{r}
 # mixpl.d <- ggplot(subset(smest.diam, 
 #                          facets %in% c('Larch-lodgepole',
 #                                        'Larch-Douglas-fir')),
