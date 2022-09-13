@@ -1654,13 +1654,39 @@ smest.diam.1 <- smest.diam %>% filter(omixtype=='pico')
 smest.diam.2 <- smest.diam %>% filter(omixtype=='psme')
 
 smest.diam111 <- smest.diam %>%
-  mutate(comb.est1 = case_when(
+  mutate(Effect = case_when(
            is.na(by) ~ est,
            omixtype=='pico'~ est+smest.diam.r$est,
            omixtype=='psme'~ est+smest.diam.r$est
-         ), mixture.id = case_when(is.na(omixtype)~'Pure',
+         ), 
+         Mixture = case_when(is.na(omixtype)~'Pure',
                                  omixtype=='pico'~'Larch-LP',
-                                 omixtype=='psme'~'Larch-DF'))
+                                 omixtype=='psme'~'Larch-DF'),
+                                upr=case_when(
+           is.na(by) ~ upper,
+           omixtype=='pico'~upper+smest.diam.r$est,
+           omixtype=='psme'~upper+smest.diam.r$est
+         ),
+         lwr=case_when(
+           is.na(by) ~ lower,
+           omixtype=='pico'~lower+smest.diam.r$est,
+           omixtype=='psme'~lower+smest.diam.r$est))
+
+smest.diam1111 <- smest.diam111 %>% filter(Mixture %in% c('Pure', 'Larch-LP'))
+
+ggplot(smest.diam1111, aes(x = DIAMETER*2.54, 
+                       y = Effect, 
+                       # fill = Mixture,
+                       group=Mixture)) + 
+      geom_line(alpha=0.2) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
+                  color = NA) +
+      coord_cartesian(ylim = c(-2,2), xlim = c(0, 30)) +
+      labs(x = 'DBH')
+
+```
+
+```{r diffsmooths for presentation}
 
 afunc <- function(sm.data){
   a <- sm.data %>% filter(is.na(omixtype))
@@ -1714,6 +1740,9 @@ afunc <- function(sm.data){
       coord_cartesian(ylim = c(-0.5,.5)) +
       labs(x = 'BAL')
   } else if('ba.pl' %in% names(sm.data)){
+    b <- b %>% filter(!(ba.pl*(2.47/10.764) > 35 & Mixture == 'Larch-LP'))
+    # b <- b %>% mutate(ba.pl = case_when(omixtype %in% c('laoc', 'psme') ~ ba.pl,
+                                        # omixtype == 'pico' & ba.pl>30 ~ NA))
     p <- ggplot(b, aes(x = ba.pl*(2.47/10.764), 
                             y = Effect, 
                        fill = Mixture,
@@ -1721,7 +1750,7 @@ afunc <- function(sm.data){
       geom_line(alpha=0.2) + 
       geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
                   color = NA) + 
-      coord_cartesian(ylim = c(-2.5, 2.5)) +
+      # coord_cartesian(ylim = c(-2.5, 2.5)) +
       labs(x = 'BAH')
   }
   
@@ -1899,13 +1928,13 @@ ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds')
 purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
 shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
 
-smest.ba11 <- smooth_estimates(basemodel, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se))
+# smest.ba11 <- smooth_estimates(basemodel, smooth = 's(ba.pl', partial_match = T, unconditional = T) %>% 
+  # mutate(upper = est+(2*se), lower = est-(2*se))
 
 
 
 smest.ccf <- smooth_estimates(ccf.mod, smooth = 's(ccf', partial_match = T, unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se))
+  mutate(upper = est+(2*se), lower = est-(2*se)) %>% add_partial_residuals()
 smest.purity <- smooth_estimates(purity, smooth = 's(percent_LAOC', partial_match = T, unconditional = T) %>% 
   mutate(upper = est+(2*se), lower = est-(2*se))
 smest.shade <- smooth_estimates(shade.intol, smooth = 's(shade.to', partial_match = T, unconditional = T) %>% 
@@ -1950,10 +1979,53 @@ ggsave('17.figures_saved/ccf_pur_shd.png', ccf.pr.sh)
 knitr::plot_crop('17.figures_saved/ccf_pur_shd.png')
 
 draw(ccf.mod, residuals = T, select = 'ccf', partial_match = T)
-draw(purity, residuals = T, select = 'percent', partial_match = T)
+draw(purity, residuals = T, select = 'percent', partial_match = T, xlim = c(0,1), ylim = c(-.1, 0.5))
 draw(shade.intol, residuals = T, select = 'shade', partial_match = T)
 
+
+
 ```
+
+```{r}
+# prtyres <- bind_cols(purity$model$,partial_residuals(purity, select = 7))
+prtyres <- add_partial_residuals(purity$model, purity)
+
+ggplot(smest.purity, 
+       aes(x = percent_LAOC, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  coord_cartesian(ylim = c(-0.5, 0.6)) +
+  # geom_point(inherit.aes = F, data = prtyres, aes(x = percent_LAOC, 
+  #                                                 y = `s(percent_LAOC)`), 
+  #            alpha = 0.2, 
+  #            color = 'lightblue') +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = percent_LAOC)) +
+  labs(x = 'Purity', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+
+shd.res <- add_partial_residuals(shade.intol$model, shade.intol)
+
+ggplot(smest.shade, 
+       aes(x = shade.tol.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  scale_x_continuous(limits = c(0,1)) +
+  scale_y_continuous(limits = c(-0.5, 0.6)) +
+  # geom_point(inherit.aes = F, data = shd.res, aes(x = shade.tol.pl, y = `s(shade.tol.pl)`), alpha = 0.2, color = 'lightblue') +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  geom_rug(inherit.aes = F, data = bai.spmx.ids, aes(x = shade.tol.pl)) +
+  labs(x = 'Shade intolerance', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+```
+
+
 
 ```{r 3.3 partial response but vary BA-diam}
 
@@ -2621,6 +2693,64 @@ ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_grid(bah.
 ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_wrap(~Mixture)
 
 ```
+
+```{r}
+
+jpeg(filename="mixtures.jpg",width=5.5,height=6,units="in",res=500)
+plot(0:100,0:100,type="n",asp=1,pty="s",
+     xlab="Percent western larch",
+     ylab="Percent second species",
+     xlim=c(0,100),ylim=c(0,100),
+     axes=F)
+polygon(x=c(0,100,0),y=c(0,0,100))
+text(10,10,"other") #"larch mix",srt=-45)
+polygon(x=c(70,100,70),
+        y=c(0,0,30),
+        col=grey(.5))
+text(80,10,"L",col="white") #"pure \n larch")
+polygon(x=c(20,35,65,65),
+        y=c(65,65,35,20),
+        col=grey(.9))
+text(45,45,"L & S",srt=-45) #"larch mix",srt=-45)
+axis(1)
+axis(2)
+dev.off()
+
+ids <- factor(c('t1', 't2', 't3', 'p1', 'p2', 'p3', 'e1', 'e2', 'e3', 'e4'))
+
+d1 <- tibble(id = c(rep('t', 3), c(rep('e', 4))), x = c(70, 100, 70,20,35,65,65), y = c(0, 0, 30,65,65,35,20))
+bigt <- tibble(x= c(0,100,0, 0), y = c(0,0,100, 0))
+
+
+
+ggplot(d1, aes(x = x, y = y, fill= id)) + 
+  geom_path(inherit.aes = F, data = bigt, aes(x = x, y = y)) + 
+  geom_polygon() + 
+  geom_text(aes(x = 10, y = 10, label = 'Other')) +
+  geom_text(aes(x = 80, y = 10, label = 'Larch')) + 
+  geom_text(aes(x = 46, y = 46, label = 'Larch + Spp.', angle = -45)) + 
+  labs(x = '% W. Larch', y = '% Other spp.') +
+  theme(aspect.ratio = 1, legend.position = 'none', panel.background = element_rect(fill = 'white'))
+  
+
+
+
+# , rep('p',3)
+# , x1 = c(70, 100, 70), y1 = c(0, 0, 30), x2 = c(20,35,65,65), y2 = c(65,65,35,20))
+
+
+ggplot(bai.spmx.ids, aes(x = percent_LAOC*100, y = percent_PSME*100)) + 
+  geom_rect(aes(ymin = 20, ymax = 65, xmin = 20, xmax = 65, fill = 'mixture')) +
+  geom_rect(aes(ymin = 0, ymax = 30, xmin = 70, xmax = 100, fill = 'pure larch'), linejoin = 'mitre') +
+  geom_polygon()
+  # geom_segment(aes(x = 20, xend=65, y = 20, yend=20)) +
+  # geom_segment(aes(x = 65, xend = 65, y=20, yend=65)) + 
+  # geom_vline(xintercept = c(20, 65, 70)) +
+  labs(x = 'Percent larch', y = 'Percent candidate') +
+  theme(legend.position = 'none')
+
+```
+
 
 
 
