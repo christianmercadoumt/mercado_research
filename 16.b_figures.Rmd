@@ -677,6 +677,25 @@ bai.spmx.ids.h %>% filter(unique_tree_id==9626)
 
 ```
 
+```{r}
+ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 30, color = 'peachpuff') +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred',
+                       guide = guide_colorbar(title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              barwidth = unit(1, 'mm'), barheight = unit(80, 'mm'), 
+                                              label.theme = element_text(size = 8, angle = 90),
+                                              direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'), 
+        aspect.ratio = 2/2.5, legend.position = 'left', legend.margin = margin()) 
+```
 
 
 ```{r all data mixtures}
@@ -1683,7 +1702,9 @@ ggplot(smest.diam1111, aes(x = DIAMETER*2.54,
                   color = NA) +
       coord_cartesian(ylim = c(-2,2), xlim = c(0, 30)) +
       labs(x = 'DBH')
-
+mean(bai.spmx.ids$bai*2.54^2)
+5.64/8.63
+4/8.63
 ```
 
 ```{r diffsmooths for presentation}
@@ -1708,48 +1729,59 @@ afunc <- function(sm.data){
            is.na(by) ~ lower,
            omixtype=='pico'~lower+a$est,
            omixtype=='psme'~lower+a$est))
+  b1 <- b %>% filter(Mixture %in% c('Larch-LP', 'Larch-DF'))
+  b2 <- b %>% filter(Mixture == 'Pure')
   
   if('DIAMETER' %in% names(sm.data)){
-    p <- ggplot(b, aes(x = DIAMETER*2.54, 
+    b1 <- b1 %>% filter(!(DIAMETER > 8.9 & Mixture == 'Larch-LP'))
+    p <- ggplot(b1, aes(x = DIAMETER*2.54, 
                        y = Effect, 
                        fill = Mixture,
                        color=Mixture)) + 
-      geom_line(alpha=0.2) + 
-      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
-                  color = NA) +
+       geom_ribbon(aes(ymin = lwr,ymax=upr), 
+                   alpha=0.2,
+                   color = NA) + 
+      geom_line(size = .9) +
+      geom_line(data = b2, size = .9, linetype = 'dashed') + 
       coord_cartesian(ylim = c(-2,2), xlim = c(0, 30)) +
       labs(x = 'DBH')
   } else if('cr' %in% names(sm.data)){
-    p <- ggplot(b, aes(x = cr, 
+    p <- ggplot(b1, aes(x = cr, 
                             y = Effect, 
                        fill = Mixture,
                        color=Mixture)) + 
-      geom_line(alpha=0.2) + 
-      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2, 
-                  color = NA) +
+      geom_ribbon(aes(ymin = lwr,ymax=upr), 
+                   alpha=0.2,
+                   color = NA) + 
+      geom_line(size = .9) +
+      geom_line(data = b2, size = .9, linetype = 'dashed') + 
       coord_cartesian(ylim = c(-0.3,.3)) +  
       labs(x = 'Crown ratio')
   } else if('bal.pl.ratio' %in% names(sm.data)){
-    p <- ggplot(b, aes(x = bal.pl.ratio, 
+    p <- ggplot(b1, aes(x = bal.pl.ratio, 
                            y = Effect, 
                        fill = Mixture,
                        color=Mixture)) + 
-      geom_line(alpha=0.2) + 
-      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
-                  color = NA) + 
+     geom_ribbon(aes(ymin = lwr,ymax=upr), 
+                   alpha=0.2,
+                   color = NA) + 
+      geom_line(size = .9) +
+      geom_line(data = b2, size = .9, linetype = 'dashed') + 
       coord_cartesian(ylim = c(-0.5,.5)) +
       labs(x = 'BAL')
   } else if('ba.pl' %in% names(sm.data)){
-    b <- b %>% filter(!(ba.pl*(2.47/10.764) > 35 & Mixture == 'Larch-LP'))
+    b1 <- b1 %>% filter(!(ba.pl*(2.47/10.764) > 24 & Mixture == 'Larch-LP'))
     # b <- b %>% mutate(ba.pl = case_when(omixtype %in% c('laoc', 'psme') ~ ba.pl,
                                         # omixtype == 'pico' & ba.pl>30 ~ NA))
-    p <- ggplot(b, aes(x = ba.pl*(2.47/10.764), 
+    p <- ggplot(b1, aes(x = ba.pl*(2.47/10.764), 
                             y = Effect, 
                        fill = Mixture,
                        color=Mixture)) + 
-      geom_line(alpha=0.2) + 
-      geom_ribbon(aes(ymin = lwr,ymax=upr), alpha=0.2,
-                  color = NA) + 
+      geom_ribbon(aes(ymin = lwr,ymax=upr), 
+                   alpha=0.2,
+                   color = NA) + 
+      geom_line(size = .9) +
+      geom_line(data = b2, size = .9, linetype = 'dashed') + 
       # coord_cartesian(ylim = c(-2.5, 2.5)) +
       labs(x = 'BAH')
   }
@@ -1769,10 +1801,14 @@ ggplot(smest.diam111, aes(x = DIAMETER*2.54, y = comb.est1, color = mixture.id))
 
 ggplot(smest.dia)
 
+
+
 ```
 
 
 ```{r}
+o.mixtures.all %>% group_by(mixtype) %>% summarize(max(DIAMETER), max(ba.pl), max(cr))
+
 # mixpl.d <- ggplot(subset(smest.diam, 
 #                          facets %in% c('Larch-lodgepole',
 #                                        'Larch-Douglas-fir')),
@@ -2600,33 +2636,39 @@ ggplot(bai.spmx.ids, aes(x = bai*2.54^2)) + geom_histogram() + labs(x =bquote('B
 
 ggplot(baidata, aes(x = dbh.cm, y = bai.cm)) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
+  geom_smooth(se = F, size = 1) + 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = bal.pl.ratio, y = bai.cm)) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
+  geom_smooth(se = F, size = 1)+ 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = heatload, y = bai.cm)) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
+  geom_smooth(se = F, size = 1)+ 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = dbh.cm, y = log(bai.cm))) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'DBH (cm)') + 
+  geom_smooth(se = F, size = 1)+ 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = bal.pl.ratio, y = log(bai.cm))) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'BAL') + 
+  geom_smooth(se = F, size = 1)+ 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = heatload, y = log(bai.cm))) + 
   geom_point(alpha = 0.2) + 
-  labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
-  geom_smooth(se = F, size = 0.5)
+  # labs(y =bquote('BAI'~(cm^2/yr.)), x = 'Heatload') + 
+  geom_smooth(se = F, size = 1)+ 
+  theme(axis.text = element_blank(), axis.title = element_blank())
 
 ggplot(baidata, aes(x = dbh.cm, y = log(bai.cm))) + 
   geom_point(alpha = 0.2) + 
@@ -2692,6 +2734,8 @@ ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_grid(bah.
 
 ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_wrap(~Mixture)
 
+4.01/8.627062
+
 ```
 
 ```{r}
@@ -2729,7 +2773,7 @@ ggplot(d1, aes(x = x, y = y, fill= id)) +
   geom_text(aes(x = 10, y = 10, label = 'Other')) +
   geom_text(aes(x = 80, y = 10, label = 'Larch')) + 
   geom_text(aes(x = 46, y = 46, label = 'Larch + Spp.', angle = -45)) + 
-  labs(x = '% W. Larch', y = '% Other spp.') +
+  labs(x = '% W. Larch', y = '% Second species') +
   theme(aspect.ratio = 1, legend.position = 'none', panel.background = element_rect(fill = 'white'))
   
 
