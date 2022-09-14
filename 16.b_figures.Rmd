@@ -2736,6 +2736,10 @@ ggplot(mxs, aes(x = diam.cm, y = bal.pl.ratio)) + geom_point() + facet_wrap(~Mix
 
 4.01/8.627062
 
+ggplot(bai.spmx.ids, aes(x = percent_LAOC, y = log(bai*2.54^2))) + geom_point(alpha = 0.2) + geom_smooth(method = 'gam', se = F)
+
+ggplot(bai.spmx.ids, aes(x = shade.tol.pl, y = bai*2.54^2)) + geom_point(alpha = 0.2) + geom_smooth(method = 'gam', se = F)
+
 ```
 
 ```{r}
