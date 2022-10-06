@@ -1,0 +1,203 @@
+---
+title: "mixture_analysis_alternateBAL"
+author: "Christian Mercado"
+date: "2022-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#readin
+library(gratia)
+library(tidyverse)
+library(mgcv)
+library(gridExtra)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, bal.pl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+rm(bai.spmx)
+
+#null model to compare to for results
+#re.tree.1alt <- readRDS('data/model_objects.1/re.tree.1alt.rds')
+#larch fraction - alternative with random 
+# spmx.gam.alt.lf <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.11.rds')
+#shade tol - alternative with random
+# spmx.gam.alt.st <- readRDS('data/model_objects.1/spmx.gam.alt.st.rds')
+```
+
+```{r spp categorization}
+# metric cateogrizing larch with each other species
+
+
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- data.set %>% filter(percent_LAOC>combined_min) %>% 
+    mutate(other.pct = percent_LAOC)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+  }
+mixtures <- spp.fun(bai.spmx.ids, 0.2, .65, 0.7)
+individual.obs <- lapply(mixtures, function(x)
+  length(unique(x$unique_tree_id)))
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x))
+
+mixtures.all <- bind_rows(mix.w.names)
+
+mix.w.names <- map(names(mixtures), ~mixtures[[.x]] %>% mutate(mixtype = .x)) # add names to different mixes in the data
+
+mixtures.all <- bind_rows(mix.w.names) #list to tibble
+
+o.mixtures.all <- mixtures.all %>% 
+  select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
+         bal.pl.ratio, ba.pl, bal.pl, asp_sin, asp_cos, mixtype, 
+         unique_tree_id, NF, cluster) %>% 
+  filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
+  mutate(omixtype = as.factor(mixtype)) %>% 
+  mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
+
+```
+
+```{r fitting diffsmooths updated BAL}
+summary(o.mixtures.all$bal.pl)
+ggplot(o.mixtures.all, aes(x = omixtype, y = bal.pl, color = omixtype)) + geom_boxplot()
+
+#re-running for BAL in sqft/acre instead of ratio
+job::job(import = c(o.mixtures.all), {
+  library(mgcv)
+  try(mix.diff.gam <-
+    bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+                          s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+                          s(bal.pl) + s(bal.pl, by = omixtype) +
+                          s(ba.pl) + s(ba.pl, by = omixtype) +
+                          s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+                          s(unique_tree_id, bs = 're'),
+                        family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+  try(saveRDS(mix.diff.gam, 'data/model_objects.1/mix.diff.updateBAL1.rds'))
+})
+
+
+#re-running with interaction of BAL and BAH, where BAL is a ratio. 
+
+################### revisit this part after looking at how the above turns out
+
+
+# job::job(import = c(o.mixtures.all), {
+#   library(mgcv)
+#   try(mix.diff.gam1 <-
+#     bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+#                           s(ba.pl) + s(ba.pl, by = omixtype) +
+#                           s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+#                           s(unique_tree_id, bs = 're'),
+#                         family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+#   try(saveRDS(mix.diff.gam1, 'data/model_objects.1/mix.diff.updateBAL1.rds'))
+# })
+
+
+
+```
+
+```{r addressing CCF stuff}
+# see if there really is much of a difference between CCF and BAH
+
+#create dummy data set for simulation of CCFs
+pgpdataall <- readRDS('data/pgp_data_all.rds')
+spps <- unique(pgpdataall$SPECIES_SYMBOL)
+
+df <- data.frame()
+for(i in spps){
+  a <- data.frame(rep(i, 50), seq(0,20,length = 50))
+  df <- rbind(df, a)
+}
+names(df) <- c('SPECIES_SYMBOL', 'DIAMETER')
+
+
+#ccf coefficients from ie documentation
+ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
+
+ccfs <- df %>% 
+  left_join(x = ., y = ccf_coef, by = "SPECIES_SYMBOL") %>% 
+  mutate(ccf.tree = case_when(
+             (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER >= 1.0) ~ 
+               r1 + (r2*DIAMETER) + (r3*(DIAMETER^2)),
+             (SPECIES_SYMBOL %in% c('POTR5', 'BEPA', 'TABR2', 'ACGL') & DIAMETER < 1.0) ~ 
+               r4*DIAMETER^(r5),
+             DIAMETER >= 10.0 ~ r1 + (r2*DIAMETER) + (r3*(DIAMETER^2)),
+             DIAMETER < 10.0 ~ r4*DIAMETER^(r5)), 
+         sppsym = as.factor(SPECIES_SYMBOL), 
+         ba = 0.005454154*DIAMETER^2)
+          
+ggplot(ccfs, aes(x = DIAMETER, y = ccf.tree, color = sppsym)) + geom_line()
+
+ccfs1 <- ccfs %>% filter(SPECIES_SYMBOL %in% c('LAOC', 'PICO', 'PSME', 'ABLA', 'ABGR', 'PIEN', 'PIPO', 'PIMO3', 'THPL', 'TSHE'))
+
+ggplot(ccfs1, aes(x = DIAMETER, y = ccf.tree*100, color = sppsym)) + geom_line()
+
+ggplot(ccfs1, aes(x = ba, y = ccf.tree, color = sppsym)) + geom_line()
+
+```
+
