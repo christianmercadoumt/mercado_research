@@ -113,7 +113,7 @@ mixtures.all <- bind_rows(mix.w.names) #list to tibble
 o.mixtures.all <- mixtures.all %>% 
   select(SETTING_ID, stand, PLOT, bai, DIAMETER, cr, 
          bal.pl.ratio, ba.pl, bal.pl, asp_sin, asp_cos, mixtype, 
-         unique_tree_id, NF, cluster) %>% 
+         unique_tree_id, NF, cluster, dq.pl.all) %>% 
   filter(mixtype %in% c('psme', 'pico', 'laoc')) %>% 
   mutate(omixtype = as.factor(mixtype)) %>% 
   mutate(omixtype = ordered(mixtype, levels = c('laoc', 'pico', 'psme')))
@@ -144,22 +144,66 @@ job::job(import = c(o.mixtures.all), {
 ################### revisit this part after looking at how the above turns out
 
 
-# job::job(import = c(o.mixtures.all), {
-#   library(mgcv)
-#   try(mix.diff.gam1 <-
-#     bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
-#                           s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
-#                           s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
-#                           s(ba.pl) + s(ba.pl, by = omixtype) +
-#                           s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
-#                           s(unique_tree_id, bs = 're'),
-#                         family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
-#   try(saveRDS(mix.diff.gam1, 'data/model_objects.1/mix.diff.updateBAL1.rds'))
-# })
+job::job(import = c(o.mixtures.all), {
+  library(mgcv)
+  try(mix.diff.gam.i <-
+        bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+              s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+              s(bal.pl.ratio) + s(bal.pl.ratio, by = omixtype) +
+              s(ba.pl) + s(ba.pl, by = omixtype) +
+              ti(bal.pl.ratio, ba.pl) + ti(bal.pl.ratio, ba.pl, by = omixtype) +
+              s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+              s(unique_tree_id, bs = 're'),
+            family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+  try(saveRDS(mix.diff.gam.i, 'data/model_objects.1/mix.diff.updateBAL_interaction.rds'))
+})
 
+#note: this shows results with low significance of interaction for the base-level, but high significance for a difference in the lp-larch mixture. 
+#perhaps its best to evaluate separate 
+
+job::job(import = c(o.mixtures.all), {
+  library(mgcv)
+  try(mix.diff.gam.dq <-
+        bam(bai~ mixtype + s(DIAMETER) + s(DIAMETER, by = omixtype) +
+              s(cr, k = 9) + s(cr, by = omixtype, k = 9) +
+              s(dq.pl.all) + s(dq.pl.all, by = omixtype) +
+              s(ba.pl) + s(ba.pl, by = omixtype) +
+              s(asp_sin, asp_cos, k = 20) + s(asp_sin, asp_cos, by = omixtype, k = 20) +
+              s(unique_tree_id, bs = 're'),
+            family = 'Gamma'(link = log), data = o.mixtures.all, method = 'fREML'))
+  try(saveRDS(mix.diff.gam.dq, 'data/model_objects.1/mix.diff.dq.rds'))
+})
+
+```
+
+```{r}
+#bal in sqft/acre
+plot.gam(mix.diff.gam, scale = 0, rug = F, ylim = c(-1, 1))
+summary.gam(mix.diff.gam, re.test = F)
+
+#bal w/ interaction
+plot.gam(mix.diff.gam.i, scale = 0, rug = F, ylim = c(-1,1))
+summary.gam(mix.diff.gam.i, re.test = F)
 
 
 ```
+
+```{r correlations}
+library(corrplot)
+
+bai.a <- bai.spmx.ids %>% select(bai, DIAMETER, cr, bal.pl, bal.pl.ratio, ba.pl, dq.pl.all, asp_sin, asp_cos) %>% mutate(bal.lndbh = bal.pl/(log(DIAMETER+1)))
+bai.a.cor <- cor(bai.a)
+corrplot(bai.a.cor, method = 'number')
+abcd <- cor(bai.a, use = 'pairwise.complete.obs')
+corrplot(abcd, method = 'number')
+  
+cor.test(bai.spmx.ids$ba.pl, bai.spmx.ids$bal.pl)
+
+
+ggplot(bai.a, aes(x = ba.pl, y = bal.pl)) + geom_point(alpha = 0.2) + geom_smooth(method = 'lm')
+
+```
+
 
 ```{r addressing CCF stuff}
 # see if there really is much of a difference between CCF and BAH
