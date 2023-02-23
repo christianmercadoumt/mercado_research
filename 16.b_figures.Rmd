@@ -299,6 +299,66 @@ knitr::plot_crop('17.figures_saved/bai_diam_spp.png')
 ggsave('17.figures_saved/bai_diam_spp2.png', spp.facet.plot2)
 knitr::plot_crop('17.figures_saved/bai_diam_spp2.png')
 
+```
+
+```{r workshopping trend figure}
+### switch to 4 panels, one for each species mix, still w/ log bai
+
+spp.facet.plot3 <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq), color = shade.tol.pl, linetype = BAH, shape = BAH)) + 
+  geom_point(alpha = 0.9) +
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_wrap(~Mixture) +
+  labs(x = bquote(DBH), y = bquote(log(BAI)), color = 'Shade intolerance') + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+   geom_smooth(se = F, method = 'gam', size = 0.75) +
+  # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(50, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  theme(aspect.ratio = 2/(1+sqrt(5)), plot.margin = grid::unit(c(0,0,0,0), 'cm'),
+        legend.position = 'left')
+
+ggsave('17.figures_saved/bai_diam_spp3.png', spp.facet.plot3)
+knitr::plot_crop('17.figures_saved/bai_diam_spp3.png')
+
+
+#### get rid of log bai?
+spp.facet.plot4 <- ggplot(samp.dat.abc, aes(diam.cm, log(bai.cmsq), color = shade.tol.pl, linetype = BAH, shape = BAH)) + 
+  geom_point(alpha = 0.8) +
+  # geom_smooth(se = F, method = 'loess', linetype = 'dashed', color = '#F8766D') + 
+  facet_wrap(~Mixture) +
+  labs(x = bquote(DBH (cm)), y = bquote(BAI (cm^2/yr)), 
+       color = 'Shade intolerance', linetype = bquote(BAH (m^2/ha)), 
+       shape = bquote(BAH (m^2/ha))) + 
+  geom_vline(xintercept = 0, size=0.1) + geom_hline(yintercept = 0, size = .1) + 
+  geom_smooth(se = F, method = 'gam', size = 0.75) +
+  # geom_abline(slope = 1, intercept = 1, size = .1, linetype = 'dashed') +
+  # theme(aspect.ratio = 1)
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(50, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  scale_y_continuous(labels = function(x) round(exp(x), 1), 
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023)) +
+  theme(aspect.ratio = 2/(1+sqrt(5)), 
+        plot.margin = grid::unit(c(0,0,0,0), 'cm'),
+        legend.position = 'left')
+
+ggsave('17.figures_saved/bai_diam_spp4.png', spp.facet.plot4)
+knitr::plot_crop('17.figures_saved/bai_diam_spp4.png')
+
+
+
+```
+
+
+```{r}
 # dat1 <- dat %>% filter(SETTING_ID %in% standsamp)
 # dat1.spp <- spp.fun(dat1, 0.2, .65, 0.7)
 # dat1.mixnam <- map(names(dat1.spp), ~dat1.spp[[.x]] %>% mutate(dat1.spp = .x))
@@ -493,7 +553,7 @@ re.tree.1$model
 
 
 ```{r 3.1 base model selection figures}
-re.tree.1
+# re.tree.1
 # smest <- smooth_estimates(re.tree.1) %>% mutate(upper = est+(2*se), lower = est-(2*se))
 sm.diam <- smooth_estimates(re.tree.1, smooth = 'DIAM', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
 sm.cr <- smooth_estimates(re.tree.1, smooth = 'cr', partial_match = T) %>% mutate(upper = est+(2*se), lower = est-(2*se))
@@ -554,10 +614,26 @@ basal.pl <- ggplot(sm.ba, aes(x = ba.pl*(2.47/10.764), y = est, ymin = lower, ym
   theme(aspect.ratio = 2/(1+sqrt(5)))
 library(grid)
 
+
+aspcap <- textGrob(paste(
+  'Note: contours at a given aspect',
+  'reflect the effect on growth at that aspect',
+  '(on the log-link scale), as indicated by red/blue.',
+  'For example, between the N and NW quadrants,',
+  'red indicates a positive effect on growth ',
+  'that differs from both N and NW aspects,',
+  'where the abundance of contour lines indicate', 
+  'that the effect changes rapidly in that ',
+  'direction, just like a topographic map.', 
+  sep='\n'), just = c(0, 0), gp=gpar(fontsize=9), x = unit(0.1, 'npc'), y = unit(0.2, 'npc'))
+
 layt <- rbind(c(1,2),
               c(3,4),
-              c(5,5))
-grid.pl <- arrangeGrob(d.pl, cr.pl, bal.pl, basal.pl, contour.pl, layout_matrix = layt)
+              c(5,6))
+grid.pl <- arrangeGrob(d.pl, cr.pl, bal.pl, basal.pl, contour.pl, aspcap, layout_matrix = layt)
+grid.arrange(grid.pl)
+
+ggsave('17.figures_saved/base_smooths1.png', grid.pl)
 
 ggsave('17.figures_saved/base_smooths.png', grid.pl)
 
@@ -570,7 +646,75 @@ ggsave('17.figures_saved/base_aspect.png', contour.pl)
 ggsave('17.figures_saved/base_aspect.png', contour.pl)
 knitr::plot_crop('17.figures_saved/base_aspect.png')
 
+
 ```
+
+```{r fig 5.3 revisions}
+## scale for natural units?
+scl <- scale_y_continuous(labels = function(x) round(exp(x), 1), 
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023))
+
+
+##the smooths
+
+d.pl <-
+  ggplot(sm.diam, aes(x = DIAMETER*2.54, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) + geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'DBH (cm)', y = 'Effect') + coord_cartesian(ylim = c(-2.5, 2.5)) +
+    # scl +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+cr.pl <-
+  ggplot(sm.cr, aes(x = cr, y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'Crown ratio', y = 'Effect') +
+  # coord_cartesian(ylim = c(-.5,.5))+
+    coord_cartesian(ylim = c(-2.5,2.5)) +
+    # scl +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+  
+bal.pl <-
+  ggplot(sm.bal, aes(x = bal.pl.ratio, y = est, ymin = lower, ymax = upper)) +
+  geom_line() + geom_ribbon(alpha = 0.2) +geom_hline(yintercept = 0, linetype = 'dashed') +
+  labs(x = 'BAL ratio', y = 'Effect') + 
+  # coord_cartesian(ylim = c(-.55, .55))+
+    coord_cartesian(ylim = c(-2.5,2.5)) +
+    geom_text(aes(x = 0.3, y = -1.5, label = 'BAL value of 0 represents a western larch that\n is larger than neighboring trees. BAL value of 1\n represents a western larch that is smaller than\n neighboring trees.'), size = 2) +
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+  
+basal.pl <-
+  ggplot(sm.ba, aes(x = ba.pl*(2.47/10.764), y = est, ymin = lower, ymax = upper)) + 
+  geom_line() + geom_ribbon(alpha = 0.2) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+    coord_cartesian(ylim = c(-2.5,2.5)) +
+  labs(x = bquote('BAH'~(m^2/ha)), y = 'Effect')+
+  theme(aspect.ratio = 2/(1+sqrt(5)))
+
+
+grid.pl <- arrangeGrob(d.pl, cr.pl, bal.pl, basal.pl, contour.pl, aspcap, layout_matrix = layt)
+
+ggsave('17.figures_saved/base_smooths2.png', grid.pl)
+
+##### contour plot
+ggplot(sm.asp, aes(x = asp_sin, y = asp_cos)) +
+  geom_raster(aes(fill = est)) +
+  geom_contour(aes(z = est), bins = 30, color = 'peachpuff') +
+  #scale_fill_distiller(palette = 'RdBu', type = 'div') +
+  expand_limits(fill = glimits) + coord_equal() +
+  geom_label(data = ns.df, aes(x = sin.t, y = cos.t, label = nsew), alpha = 0.3) +
+  labs(x = 'sin(Aspect)', y = 'cos(Aspect)', fill = 'Effect') +
+  scale_fill_gradient2(low = 'blue', high = 'darkred',
+                       guide = guide_colorbar(title.position = 'left', 
+                                              title.theme = element_text(angle = 90, size = 10), 
+                                              barwidth = unit(1, 'mm'), barheight = unit(30, 'mm'), 
+                                              label.theme = element_text(size = 8, angle = 90),
+                                              direction = 'vertical')) +
+  theme(plot.margin = grid::unit(c(0,0,0,0), 'mm'), 
+        panel.background = element_rect(fill = 'white'), 
+        panel.grid = element_line(color = 'lightgrey'), 
+        aspect.ratio = 2/2.5, legend.position = 'left', legend.margin = margin()) 
+```
+
 
 ```{r residuals- base model diagnostics}
 
@@ -609,31 +753,71 @@ devrs <- residuals.gam(re.tree.1, type = 'deviance')
 linpr <- re.tree.1$linear.predictors
 fit <- re.tree.1$fitted.values
 abc <- tibble(devrs, linpr,fit)
+linpr1 <- linpr*2.54^2
 
 
-
-residuals1 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
+(residuals1 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
   geom_point(alpha = 0.2) + labs(x = 'Fitted values (log(BAI))', y = 'Deviance residuals') +
   theme(aspect.ratio = 2/(1+sqrt(5))) + 
   # scale_y_continuous(limits = c(-5,5)) +
-  geom_smooth(se = F)
+  geom_smooth(se = F))
 
+(residuals2 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_x_continuous(labels = function(x) round(exp(x), 1),
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023)) +
+  geom_smooth(se = F))
+
+## correcting scale (adjusting to ensure metric)
+(residuals2 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_x_continuous(labels = function(x) round(exp(x)*2.54^2, 1),
+                     breaks = c(-5.8643282, -3.8643282, -1.8643285, -0.2553282, 0.4382718, 1.3546718, 2.0476948), limits = c(-6, 2.048)) +
+  geom_smooth(se = F))
 # ggsave('17.figures_saved/residual_plot.png', residuals1)
 # knitr::plot_crop('17.figures_saved/residual_plot.png')
 
 #estimation error#####
 ft_lp <- fitted_values(re.tree.1, data = bai.spmx.ids.h, scale = 'response')
 # ft_lp <- ft_lp %>% mutate(obs =bai, fit = re.tree.1$family$linkinv(fitted))
-ft_lp <- ft_lp %>% mutate(fit.cm = fitted*2.54^2, bai.cm = bai*2.54^2)
+ft_lp <- ft_lp %>% mutate(fit.cm = fitted*2.54^2, bai.cm = bai*2.54^2, err=bai.cm-fit.cm)
 
-estimationerr <- ggplot(ft_lp, aes(x = fit.cm, y = bai.cm-fit.cm)) +
+(estimationerr <- ggplot(ft_lp, aes(x = fit.cm, y = err)) +
   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
   geom_point(alpha = 0.2) + 
   labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = bquote('Error'~(cm^2/yr.))) +
   theme(aspect.ratio = 2/(1+sqrt(5))) + 
   # scale_y_continuous(limits = c(-5,5)) +
-  geom_smooth(se = F)
+  coord_cartesian(xlim = c(0, 20), ylim = c(-20, 20)) +
+  geom_smooth(se = F))
+
+(estimationerr1 <- ggplot(ft_lp, aes(x = log(fit.cm), y = err)) +
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = bquote('Error'~(cm^2/yr.))) +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_x_continuous(labels = function(x) round(exp(x), 1),
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023)) +
+    coord_cartesian(xlim = c(-4,2.3),ylim = c(-10,10)) +
+  geom_smooth(se = F))
+
+
+(estimationerr1 <- ggplot(ft_lp, aes(x = log(fit.cm), y = log(err))) +
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = bquote('Estimated BAI'~(cm^2/yr.)), y = bquote('Error'~(cm^2/yr.))) +
+  theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  scale_x_continuous(labels = function(x) round(exp(x), 1),
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023)) +
+    coord_cartesian(xlim = c(-2,3),ylim = c(-4,4)) +
+  geom_smooth(se = F))
+# scale_y_continuous(labels = function(x) round(exp(x), 1), 
+                     # breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023))
 
 ggplot(bai.spmx.ids)
 
@@ -647,9 +831,19 @@ ggplot(data = NULL,aes(x = bai.spmx.ids$DIAMETER, y = ft_lp$fit.cm)) +
 
 plot(x = bai.spmx.ids$DIAMETER, y = ft_lp$fit.cm)
 
-res.err <- arrangeGrob(residuals1, estimationerr, ncol =2)
+res.err <- arrangeGrob(residuals2, estimationerr, ncol =2)
 ggsave('17.figures_saved/res_err.png', res.err)
 knitr::plot_crop('17.figures_saved/res_err.png')
+
+
+res.err1 <- arrangeGrob(residuals2, estimationerr1, ncol =2)
+ggsave('17.figures_saved/res_err1.png', res.err1)
+knitr::plot_crop('17.figures_saved/res_err1.png')
+
+reserr <- residuals2 + estimationerr
+
+ggsave('17.figures_saved/res_err3.png', reserr)
+knitr::plot_crop('17.figures_saved/res_err3.png')
 
 # ggsave('17.figures_saved/esterr.png', residuals1)
 # knitr::plot_crop('17.figures_saved/esterr.png')
@@ -1199,6 +1393,40 @@ ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180),
 
 ```
 
+```{r checking why there are shared points in compass plot}
+#its because mixtures were defined at the plot level, and site data was at the cluster level
+dat.abc
+
+sitedat1 <- sitedat %>% group_by(stand, cluster) %>% mutate(stcl=cur_group_id())
+
+ggplot(sitedat, aes(x = (max(elevs)-elev_m)*cos(pi*aspect_rot/180), 
+                    y = (max(elevs)-elev_m)*sin(pi*aspect_rot/180),
+                    color = htld
+                    )) +  
+  geom_hline(yintercept = 0, color = 'grey') + #horizontal 
+  geom_vline(xintercept = 0, color = 'grey') + 
+  geom_circle(inherit.aes = F, data = circ, aes(x0 = x0, y0 = y0, r=els), color = 'grey') + 
+  geom_point() + 
+  labs(color = 'Heatload') +
+  geom_text(inherit.aes = F, data = circ, 
+            aes(x = vals, y = vals, label = 1800-els)) +
+  geom_label(inherit.aes = F, data = xxyy, aes(x = xx, y = yy, label = nsew)) +
+  facet_wrap(~Mixture) +# facet by mixture type
+  scale_color_distiller(direction = 1,palette = 'Greys', 
+                        guide = guide_colorbar(title.position = 'left', 
+                                               title.theme = element_text(angle = 90, size = 10),
+                                               direction = 'vertical', barwidth = unit(1, 'mm'),
+                                                barheight = unit(100, 'mm'),
+                                               label.theme = element_text(size = 8, angle = 90))) +
+  theme(axis.ticks = element_blank(), 
+        axis.text = element_blank(), 
+        axis.title = element_blank(), 
+        axis.line = element_blank(),
+        line = element_blank(),
+        legend.position = 'left',
+        aspect.ratio = 1)
+```
+
 
 ```{r mixtures partial response data}
 library(tidymv)
@@ -1344,8 +1572,9 @@ mixpl.dr <-
   theme(aspect.ratio = 2/(1+sqrt(5)))
   
 
+smest.diam.llp <- smest.diam %>% filter(facets == 'Larch-lodgepole',DIAMETER<8)
 
-mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
+mixpl.d1 <- ggplot(smest.diam.llp,
        aes(x = DIAMETER*2.54, y = est,
            ymin = lower,
            ymax = upper)) +
@@ -1354,12 +1583,28 @@ mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
   geom_ribbon(alpha = 0.2) +
   # facet_wrap(~facets) +
   labs(x = 'DBH (cm)', y='Difference') + 
-  coord_cartesian(ylim = c(-2,2)) +
+  coord_cartesian(ylim = c(-2,2), xlim = c(0,25)) +
   theme(strip.text = element_blank(),
         aspect.ratio = 2/(1+sqrt(5))) + 
-  scale_x_continuous(limits = c(0,20), breaks = c(0,5,10,15,20,25))
+  scale_x_continuous(limits = c(0,25), breaks = c(0,5,10,15,20,25))
   # scale_y_continuous(limits = c(-2,2))
         # ,        axis.text.y = element_blank())
+
+# mixpl.d1 <- ggplot(subset(smest.diam, facets == 'Larch-lodgepole'),
+#        aes(x = DIAMETER*2.54, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   # facet_wrap(~facets) +
+#   labs(x = 'DBH (cm)', y='Difference') + 
+#   coord_cartesian(ylim = c(-2,2), xlim = c(0,20)) +
+#   theme(strip.text = element_blank(),
+#         aspect.ratio = 2/(1+sqrt(5))) + 
+#   scale_x_continuous(limits = c(0,25), breaks = c(0,5,10,15,20,25))
+#   # scale_y_continuous(limits = c(-2,2))
+#         # ,        axis.text.y = element_blank())
 
 mixpl.d2 <- ggplot(subset(smest.diam, facets == 'Larch-Douglas-fir'),
        aes(x = DIAMETER*2.54, y = est,
@@ -1477,8 +1722,8 @@ mixpl.bar <-
   theme(aspect.ratio = 2/3.5)
     
 
-
-mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
+smest.ba.llp <- smest.ba %>% filter(facets == 'Larch-lodgepole', ba.pl<102)
+mixpl.ba1 <- ggplot(smest.ba.llp,
        aes(x = ba.pl*(2.47/10.764), y = est,
            ymin = lower,
            ymax = upper)) +
@@ -1487,9 +1732,10 @@ mixpl.ba1 <- ggplot(subset(smest.ba, facets == 'Larch-lodgepole'),
   geom_ribbon(alpha = 0.2) +
   # facet_wrap(~facets) +
   labs(x = bquote('BAH'~(m^2/ha)), y='Difference') +
-  coord_cartesian(ylim = c(-2.5,2.5))+
+  coord_cartesian(ylim = c(-2.5,2.5), xlim = c(0,72.5142158))+
     theme(strip.text = element_blank(),
-          aspect.ratio = 2/3.5)
+          aspect.ratio = 2/3.5) +
+  scale_x_continuous(breaks = c(0, 20, 40, 60))
           # ,        axis.text.y = element_blank())
 
 mixpl.ba2 <- ggplot(subset(smest.ba, facets == 'Larch-Douglas-fir'),
@@ -1641,6 +1887,9 @@ ll$x
 
 ggsave('17.figures_saved/mix_diff_smooths.png', diffs.pl)
 knitr::plot_crop('17.figures_saved/mix_diff_smooths.png')
+
+ggsave('17.figures_saved/mix_diff_smooths1.png', diffs.pl)
+knitr::plot_crop('17.figures_saved/mix_diff_smooths1.png')
 
 mixpl.aspr
 mixpl.asp1
@@ -1957,7 +2206,7 @@ o.mixtures.all %>% group_by(mixtype) %>% summarize(max(DIAMETER), max(ba.pl), ma
 ```
 
 
-```{r 3.3 partial response}
+```{r 3.3 ccf purity shade partial response}
 
 # basemodel <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds') 
 ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') 
@@ -1970,7 +2219,7 @@ shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
 
 
 smest.ccf <- smooth_estimates(ccf.mod, smooth = 's(ccf', partial_match = T, unconditional = T) %>% 
-  mutate(upper = est+(2*se), lower = est-(2*se)) %>% add_partial_residuals()
+  mutate(upper = est+(2*se), lower = est-(2*se)) #%>% add_partial_residuals()
 smest.purity <- smooth_estimates(purity, smooth = 's(percent_LAOC', partial_match = T, unconditional = T) %>% 
   mutate(upper = est+(2*se), lower = est-(2*se))
 smest.shade <- smooth_estimates(shade.intol, smooth = 's(shade.to', partial_match = T, unconditional = T) %>% 
@@ -2021,6 +2270,136 @@ draw(shade.intol, residuals = T, select = 'shade', partial_match = T)
 
 
 ```
+
+```{r ccf pur shd edits}
+
+    # coord_cartesian(ylim = c(-2.5,2.5)) +
+
+
+(ccf.smth <- ggplot(smest.ccf, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect') +
+   coord_cartesian(ylim = c(-1.3,1.3)) +
+   geom_text(aes(x = 150, y = 1, label = 'CCF > 100 indicates greater inter-tree\n competition for canopy space. CCF < 100\n indicates less competition for canopy space.')) +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(purty.smth <- ggplot(smest.purity, 
+       aes(x = percent_LAOC, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-1.3, 1.3)) +
+    geom_text(aes(x = 0.5, y = 1, label = 'Purity = 0 indicates a larch growing without other larch.\n Purity = 1 indicates a larch growing only with other larch')) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Purity', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(shade.smth <- ggplot(smest.shade, 
+       aes(x = shade.tol.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-1.3, 1.3)) +
+    geom_text(aes(x = .5, y = 1, label = 'Shade intolerance = 0 indicates a larch growing among shade tolerant species.\n Shade intolerance = 1 indicates a larch growing only with shade intolerant species')) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Shade intolerance', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+
+layot <- rbind(c(1,1),
+               c(2,3))
+
+ccf.pr.sh1 <- arrangeGrob(ccf.smth, purty.smth, shade.smth)
+ggsave('17.figures_saved/ccf_pur_shd1.png', ccf.pr.sh1)
+knitr::plot_crop('17.figures_saved/ccf_pur_shd1.png')
+
+
+
+##add intercept before transforming axis?
+
+
+
+scl <- scale_y_continuous(labels = function(x) round(exp(x), 1), 
+                     breaks = c(-4, -2, 0, 1.609, 2.3026, 3.219, 3.912023))
+
+smest.ccf2 <-  smooth_estimates(ccf.mod, smooth = 's(ccf', partial_match = T, unconditional = T) %>% 
+  mutate(est = est+ccf.mod$coefficients[[1]]) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se)) 
+
+smest.purity2 <- smooth_estimates(purity, smooth = 's(percent_LAOC', partial_match = T, unconditional = T) %>% 
+  mutate(est = est+purity$coefficients[[1]]) %>% 
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+smest.shade2 <- smooth_estimates(shade.intol, smooth = 's(shade.to', partial_match = T, unconditional = T) %>% 
+  mutate(est = est+shade.intol$coefficients[[1]]) %>%
+  mutate(upper = est+(2*se), lower = est-(2*se))
+
+
+# (ccf.smth2 <- ggplot(smestccf2, 
+#        aes(x = ccf.pl, y = est,
+#            ymin = lower,
+#            ymax = upper)) +
+#   geom_line() +
+#   geom_hline(yintercept = 0, linetype = 'dashed') +
+#   geom_ribbon(alpha = 0.2) +
+#   labs(x = 'CCF', y='Effect') +
+#   theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(ccf.smth2 <- ggplot(smest.ccf2, 
+       aes(x = ccf.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'CCF', y='Effect') +
+  coord_cartesian(ylim = c(-1.3,1.3)) +
+  # scale_y_continuous(sec.axis = sec_axis(~., labels = function(x) round(exp(x), 1), name = bquote('BAI'~(cm^2/yr.)))) +
+ #, #breaks = c(-4, -0.6931472, 0, 0.4054651, 0.6931472, 0.9162907, 1.0986123), limits = c(-4, 1.609438)) +
+   geom_text(aes(x = 150, y = 1, label = 'CCF > 100 indicates greater inter-tree\n competition for canopy space. CCF < 100\n indicates less competition for canopy space.'), size = 2.5) +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(purty.smth2 <- ggplot(smest.purity2, 
+       aes(x = percent_LAOC, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-1.3, 1.3)) +
+    # scale_y_continuous(sec.axis = sec_axis(~., labels = function(x) round(exp(x), 1), name = bquote('BAI'~(cm^2/yr.)))) +
+    geom_text(aes(x = 0.5, y = 1, label = 'Purity = 0 indicates a larch growing without other larch.\n Purity = 1 indicates a larch growing only with other larch'), size = 2.5) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Purity', y='Effect') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+(shade.smth2 <- ggplot(smest.shade2, 
+       aes(x = shade.tol.pl, y = est,
+           ymin = lower,
+           ymax = upper)) +
+  geom_line() +
+    coord_cartesian(xlim = c(0,1), ylim = c(-1.3, 1.3)) +
+    # scale_y_continuous(sec.axis = sec_axis(~., labels = function(x) round(exp(x), 1), name = bquote('BAI'~(cm^2/yr.)))) +
+    geom_text(aes(x = .5, y = 1, label = 'Shade intolerance = 0 indicates a larch growing among\n shade tolerant species. Shade intolerance = 1 indicates a larch\n growing only with shade intolerant species'), size = 2.5) +
+  geom_hline(yintercept = 0, linetype = 'dashed') +
+  geom_ribbon(alpha = 0.2) +
+  labs(x = 'Shade intolerance', y=bquote('Effect')) +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+ccf.pr.sh2 <- arrangeGrob(ccf.smth2, purty.smth2, shade.smth2)
+ggsave('17.figures_saved/ccf_pur_shd2.png', ccf.pr.sh2)
+knitr::plot_crop('17.figures_saved/ccf_pur_shd2.png')
+
+
+```
+
+
 
 ```{r}
 # prtyres <- bind_cols(purity$model$,partial_residuals(purity, select = 7))
@@ -2798,6 +3177,212 @@ ggplot(bai.spmx.ids, aes(x = percent_LAOC*100, y = percent_PSME*100)) +
   theme(legend.position = 'none')
 
 ```
+
+
+```{r barbell and map}
+library(ggforce)
+
+xpnts <- c(0, 99, 198)
+ypnts <- c(0, 0, 0)
+# smallx <- c(-19.6, 0, 19.6)
+smallx <- c(xpnts-(19.6), xpnts, xpnts+(19.9))
+smally <- rep(0, length(smallx))
+dfpnts <- tibble(xpnts, ypnts)
+smallpnts <- tibble(smallx, smally)
+
+barbell <- ggplot(dfpnts, aes(x = xpnts, y = ypnts)) + 
+  geom_path(linetype = 'dotted') +
+  geom_segment(aes(x = 99, y = 0, xend = 99, yend = 26.3), linetype = 'dashed', color = 'black') +
+  geom_segment(aes(x = 0, y = 0, xend = 0, yend = 6.7), linetype = 'dashed', color = 'black') +
+  geom_circle(inherit.aes = F, aes(x0=xpnts, y0=ypnts, r=26.3)) + 
+  geom_circle(inherit.aes = F, data = smallpnts, aes(x0=smallx, y0=smally, r=6.7)) +
+  geom_point(inherit.aes = F, data = smallpnts, aes(x = smallx, y = smally), color = 'black', shape = 20) +
+  # geom_point(color = 'black') +
+  geom_text(aes(x = 49.5, y = 4, label = '30 m'), size = 3) +
+  geom_text(aes(x = 148.5, y = 4, label = '30 m'), size = 3) +
+  theme_void() +
+  theme(aspect.ratio = 1/5, plot.background = element_rect(fill = 'white'))
+
+ggsave('17.figures_saved/barbell.png', barbell)
+knitr::plot_crop('17.figures_saved/barbell.png')
+
+
+
+# ggplot(dfpnts, aes(x = xpnts, y = ypnts)) + 
+  # geom_path(linetype = 'dotted') +
+  # geom_segment(aes(x = 99, y = 0, xend = 99, yend = 26.3), linetype = 'dashed', color = 'black') +
+  # geom_segment(aes(x = 0, y = 0, xend = 0, yend = 6.7), linetype = 'dashed', color = 'black') +
+  # geom_circle(inherit.aes = F, aes(x0=xpnts, y0=ypnts, r=26.3)) + 
+  # geom_circle(inherit.aes = F, data = smallpnts, aes(x0=smallx, y0=smally, r=6.7)) +
+  # geom_point(inherit.aes = F, data = smallpnts, aes(x = smallx, y = smally), color = 'black', shape = 20) +
+  # # geom_point(color = 'black', size = 3, shape = 1) +
+  # geom_text(aes(x = 49.5, y = 4, label = '1.5 chains')) +
+  # geom_text(aes(x = 150, y = 4, label = '1.5 chains')) +
+  # theme_void() +
+  # theme(aspect.ratio = 1/5, plot.background = element_rect(fill = 'white'))
+
+
+library(grid)
+library(png)
+library(gridExtra)
+getwd()
+themap <- readPNG('C:/git/research/mercado_research/thesis_map.png')
+bbell <- readPNG('17.figures_saved/barbell.png')
+bbell.grob <- rasterGrob(bbell, width = unit(2.5, 'in'), height = unit(.5, 'in'))
+map.grob <- rasterGrob(themap, width = unit(3, 'in'), height = unit(3, 'in'))
+
+grid.arrange(bbell.grob)
+
+lmtx <- rbind(1,2)
+# thingtheme <- ttheme_default(padding = unit(c(1,1), 'mm'))
+
+thing <- arrangeGrob(bbell.grob, map.grob, layout_matrix = lmtx)
+thing$layout
+
+
+ggsave('17.figures_saved/map_barbell.png', thing, height = 5.25, width = 3, units = 'in')
+
+
+
+themap2 <- mapp + coord_cartesian()
+
+themap2
+
+```
+
+```{r}
+library(RgoogleMaps)
+library(ggmap)
+library(ggthemes)
+library(ggsn)
+library(tidyverse)
+library(ggrepel)
+
+style1 <- c(feature = 'administrative.country', element = 'labels', visibility = 'simplified')
+style2 <- c(feature = '&style=', 'landscape.natural.landcover', element = 'labels', visibility = 'off')
+#style3 <- c(feature = '&style=', 'administrative.province', element = 'labels', visibility = 'on')
+style <- c(style1, style2)
+style3 <- c(feature = 'administrative.locality', element = 'labels', visibility = 'off')
+
+standsum <- read_csv('data/pgp_stand_summary_data_18_21.csv') %>% group_by(SETTING_ID, NF) %>% 
+  mutate(stand = case_when(NF == 'Kootenai' ~ 1400+group_indices(),
+                           NF == 'Lolo' ~ 1600+group_indices())) %>% ungroup()
+
+center <- c(mean(standsum$lat), mean(standsum$lon))
+
+markers <- select(standsum, lon, lat)
+
+center <- c(mean(standsum$lon), mean(standsum$lat))
+
+
+latlong <- bai.train %>% select(stand, lat.cl, lon.cl) %>% group_by(stand) %>% summarize(mean(lat.cl), mean(lon.cl))
+
+center <- c(mean(latlong$`mean(lat.cl)`), mean(latlong$`mean(lon.cl)`))
+markers <- latlong %>% select(`mean(lon.cl)`, `mean(lat.cl)`)
+
+
+map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap_thesis', style = style3, scale = 4)
+
+(mapp <- ggmap(map, legend = 'none', extent = 'device', padding = 0) + 
+    geom_point(aes(x = `mean(lat.cl)`, y = `mean(lon.cl)`), 
+               shape = 'circle filled', 
+               fill = 'red', size = 2, 
+               data = latlong, 
+               show.legend = F) + 
+    theme_map() +
+    scalebar(x.min = -116.5, x.max = -115, 
+             y.min = 46.75, y.max = 46.95, 
+             location = 'bottomleft', dist = 25, 
+             dist_unit = 'km', transform = T, 
+             height = .2, st.dist = .35, st.size = 3.5, 
+             st.color = 'black'))
+
+ggsave('17.figures_saved/thesis_map.png', mapp, dpi=450)
+knitr::plot_crop('thesis_map.png')
+
+#############
+
+# 
+# lat <- c(min(standsum$lat)-.5, max(standsum$lat)+.5)
+# lon <- c(min(standsum$lon)-.5, max(standsum$lon)+.5)
+# center <- c(mean(standsum$lat), mean(standsum$lon))
+# zoom <- 6
+# #terrmap <- GetMap(center = center, zoom = 7, maptype = "terrain", destfile = 'map3.jpg', RETURNIMAGE = T, NEWMAP = T)
+# 
+# markers <- select(standsum, lon, lat)
+# 
+# center <- c(mean(standsum$lon), mean(standsum$lat))
+# 
+# map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap1', style = c(feature = 'administrative.locality', element = 'labels', visibility = 'off'), scale = 4)
+# ggmap(map, legend = 'none') + geom_point(aes(x = lon, y = lat), shape = 'circle filled', fill = 'red', size = 2, data = markers, show.legend = F) + theme_map() + scalebar(x.min = -116.5, x.max = -115, y.min = 46.75, y.max = 46.95, location = 'bottomleft', dist = 25, dist_unit = 'km', transform = T, height = .2, st.dist = .35, st.size = 3.5, st.color = 'black')
+
+
+###############
+
+thing <- arrangeGrob()
+
+```
+
+```{r map stamen maps}
+library(RgoogleMaps)
+library(ggmap)
+library(ggthemes)
+library(ggsn)
+library(tidyverse)
+library(ggrepel)
+
+style1 <- c(feature = 'administrative.country', element = 'labels', visibility = 'simplified')
+style2 <- c(feature = '&style=', 'landscape.natural.landcover', element = 'labels', visibility = 'off')
+#style3 <- c(feature = '&style=', 'administrative.province', element = 'labels', visibility = 'on')
+style <- c(style1, style2)
+style3 <- c(feature = 'administrative.locality', element = 'labels', visibility = 'off')
+
+standsum <- read_csv('data/pgp_stand_summary_data_18_21.csv') %>% group_by(SETTING_ID, NF) %>% 
+  mutate(stand = case_when(NF == 'Kootenai' ~ 1400+group_indices(),
+                           NF == 'Lolo' ~ 1600+group_indices())) %>% ungroup()
+
+center <- c(mean(standsum$lat), mean(standsum$lon))
+
+markers <- select(standsum, lon, lat)
+
+center <- c(mean(standsum$lon), mean(standsum$lat))
+
+
+latlong <- bai.train %>% select(stand, lat.cl, lon.cl) %>% group_by(stand) %>% summarize(mean(lat.cl), mean(lon.cl))
+
+center <- c(mean(latlong$`mean(lat.cl)`), mean(latlong$`mean(lon.cl)`))
+markers <- latlong %>% select(`mean(lon.cl)`, `mean(lat.cl)`)
+
+
+# map <- get_googlemap(center = center, zoom = 8, maptype = 'terrain', filename = 'ggmap_thesis', style = style3, scale = 4)
+
+
+map <- get_stamenmap(bbox = c(left = -116.18, bottom = 46.612, right = -113.467, top = 49), zoom = 8, maptype = 'terrain', color = 'color')
+
+# ggmap(map, extent = 'normal')
+
+(mapp <- ggmap(map, legend = 'none', extent = 'device', padding = 0) + 
+    geom_point(aes(x = `mean(lat.cl)`, y = `mean(lon.cl)`), 
+               shape = 'circle filled', 
+               fill = 'red', size = 2, 
+               data = latlong, 
+               show.legend = F) + 
+    theme_map() +
+    scalebar(x.min = -116, x.max = -115, 
+             y.min = 46.75, y.max = 46.95, 
+             location = 'bottomleft', dist = 25, 
+             dist_unit = 'km', transform = T, 
+             height = .2, st.dist = .35, st.size = 3.5, 
+             st.color = 'black'))
+
+ggsave('17.figures_saved/thesis_map_stamen.png', mapp, dpi=450)
+knitr::plot_crop('17.figures_saved/thesis_map_stamen.png')
+```
+
+
+
+
+
 
 
 

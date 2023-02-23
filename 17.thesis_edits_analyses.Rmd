@@ -176,7 +176,11 @@ job::job(import = c(o.mixtures.all), {
 
 ```
 
-```{r}
+```{r looking at models}
+mix.diff.gam <- readRDS('data/model_objects.1/mix.diff.updateBAL1.rds')
+mix.diff.gam.i <- readRDS('data/model_objects.1/mix.diff.updateBAL_interaction.rds')
+mix.diff.gam.dq <- readRDS('data/model_objects.1/mix.diff.dq.rds')
+
 #bal in sqft/acre
 plot.gam(mix.diff.gam, scale = 0, rug = F, ylim = c(-1, 1))
 summary.gam(mix.diff.gam, re.test = F)
@@ -185,6 +189,9 @@ summary.gam(mix.diff.gam, re.test = F)
 plot.gam(mix.diff.gam.i, scale = 0, rug = F, ylim = c(-1,1))
 summary.gam(mix.diff.gam.i, re.test = F)
 
+#dq
+plot.gam(mix.diff.gam.dq, scale = 0, rug = F, ylim = c(-1,1))
+summary.gam(mix.diff.gam.dq, re.test = F)
 
 ```
 
@@ -234,14 +241,63 @@ ccfs <- df %>%
              DIAMETER < 10.0 ~ r4*DIAMETER^(r5)), 
          sppsym = as.factor(SPECIES_SYMBOL), 
          ba = 0.005454154*DIAMETER^2)
-          
-ggplot(ccfs, aes(x = DIAMETER, y = ccf.tree, color = sppsym)) + geom_line()
 
 ccfs1 <- ccfs %>% filter(SPECIES_SYMBOL %in% c('LAOC', 'PICO', 'PSME', 'ABLA', 'ABGR', 'PIEN', 'PIPO', 'PIMO3', 'THPL', 'TSHE'))
+
+ggplot(ccfs1, aes(x = DIAMETER, y = 100/ccf.tree, color = sppsym)) + geom_line() + scale_y_continuous(limits = c(0,200))
+
+
 
 ggplot(ccfs1, aes(x = DIAMETER, y = ccf.tree*100, color = sppsym)) + geom_line()
 
 ggplot(ccfs1, aes(x = ba, y = ccf.tree, color = sppsym)) + geom_line()
 
 ```
+
+```{r ccf plot}
+# 
+# larch <- 'LAOC'
+# df <- 'PSME'
+# diam <- 10
+# rm(dbh)
+# # ccfdat.lc <- tibble(spp = rep(larch, 160), )
+# ccf_coef
+# ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
+#   ccf_coef %>% filter()
+#   
+# 
+# 
+# spp <- c(rep('LAOC', 20), rep('PSME', 20), rep('LAOC', 10), rep('PSME', 10))
+# numtr <- rep(1:20, 3)
+
+ccf_coef <- read_csv('data/ccf_species_coefficients.csv', show_col_types = F)
+
+ccf.fun.tree <- function(dat, dbh){
+  a <- if(dbh >= 10.0) {dat$r1 + (dat$r2*dbh) + (dat$r3*(dbh^2))}
+  else if(dbh < 10.0) {r4*dbh^(r5)}
+  return(a)
+}
+
+larchcoef <- ccf_coef %>% filter(SPECIES_SYMBOL=='LAOC')
+dfcoef <- ccf_coef %>% filter(SPECIES_SYMBOL=='PSME')
+
+larch.tree <- ccf.fun.tree(larchcoef, 10)
+df.tree <- ccf.fun.tree(dfcoef, 10)
+plt <- c(rep('Larch', 20), rep('Douglas-fir', 20), rep('50/50', 20))
+numtr <- rep(1:20, 3)
+ccf.a <- c(rep(larch.tree, 20), rep(df.tree, 20), rep((larch.tree + df.tree)/2, 20))
+atbl <- tibble('mix'=plt, 'ccfval'=ccf.a, 'trees'=numtr)
+atbl1 <- atbl %>% mutate(expf = 20) %>% mutate(plotccf = ccfval*trees*expf, tph = trees*49.42177)
+
+(ccfplot <- ggplot(atbl1, aes(x = tph, y = plotccf, color = mix)) + 
+  geom_hline(yintercept = 100, linetype = 'dashed') +
+  geom_line() + 
+  labs(y = 'CCF', x = 'Number of 25cm DBH trees per hectare', color = '') +
+  theme(aspect.ratio = 2/(1+sqrt(5))))
+
+ggsave('17.figures_saved/ccfplot.png', ccfplot)
+knitr::plot_crop('17.figures_saved/ccfplot.png')
+
+```
+
 

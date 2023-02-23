@@ -1,0 +1,667 @@
+---
+title: "Untitled"
+author: "Christian Mercado"
+date: "2023-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F)
+```
+
+```{r}
+library(gratia)
+library(tidyverse)
+library(mgcv)
+library(gridExtra)
+source('12.gam_fns.R')
+
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.train <- readRDS('data/bai.train.7_14_22.rds')
+bai.train <- left_join(bai.train, hab_loc_codes, by = "SETTING_ID")
+
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+
+
+bai.spmx <- bai.train %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids <- bai.spmx %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+bai.hold <- left_join(bai.hold, hab_loc_codes, by = 'SETTING_ID')
+bai.spmx.h <- bai.hold %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         asp.trasp = trasp(aspect_deg), 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0)
+
+
+bai.spmx.ids.h <- bai.spmx.h %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+# bai.train <- readRDS('data/bai.train.7_14_22.rds')
+# bai.hold <- readRDS('data/bai.hold.7_14_22.rds')
+# full.data <- bind_rows(bai.train, bai.hold)
+
+#identify mixtures
+spp.fun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PSME<spp_maximum & percent_PSME>spp_min, 
+                               (percent_LAOC+percent_PSME)>combined_min) %>% 
+    mutate(other.pct = percent_PSME)
+  b <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABLA<spp_maximum & percent_ABLA>spp_min, 
+                               (percent_LAOC+percent_ABLA)>combined_min) %>% 
+    mutate(other.pct = percent_ABLA)
+  c <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_ABGR<spp_maximum & percent_ABGR>spp_min, 
+                               (percent_LAOC+percent_ABGR)>combined_min) %>% 
+    mutate(other.pct = percent_ABGR)
+  d <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIEN<spp_maximum & percent_PIEN>spp_min, 
+                               (percent_LAOC+percent_PIEN)>combined_min) %>% 
+    mutate(other.pct = percent_PIEN)
+  e <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PICO<spp_maximum & percent_PICO>spp_min, 
+                               (percent_LAOC+percent_PICO)>combined_min) %>% 
+    mutate(other.pct = percent_PICO)
+  f <- data.set %>% filter(percent_LAOC<spp_maximum & percent_LAOC>spp_min, 
+                               percent_PIPO<spp_maximum & percent_PIPO>spp_min, 
+                               (percent_LAOC+percent_PIPO)>combined_min) %>% 
+    mutate(other.pct = percent_PIPO)
+  g <- data.set %>% filter(percent_LAOC>0.9) %>% 
+    mutate(other.pct = percent_LAOC)
+   return(list('psme'=a, 'abla'=b, 'abgr'=c, 'pien'=d, 'pico'=e, 'pipo'=f, 'laoc' = g))
+}
+
+spfun <- function(data.set, spp_min, spp_maximum, combined_min){
+  a <- data.set %>% mutate(mixtype = 
+                             case_when(
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PSME<spp_maximum & percent_PSME>spp_min) &
+                                 ((percent_LAOC+percent_PSME)>combined_min) ~ 'psme',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_ABLA<spp_maximum & percent_ABLA>spp_min) & 
+                                 ((percent_LAOC+percent_ABLA)>combined_min) ~ 'abla', 
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_ABGR<spp_maximum & percent_ABGR>spp_min) &
+                                 ((percent_LAOC+percent_ABGR)>combined_min) ~ 'abgr',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PIEN<spp_maximum & percent_PIEN>spp_min) &
+                                 ((percent_LAOC+percent_PIEN)>combined_min) ~ 'pien',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_PICO<spp_maximum & percent_PICO>spp_min) &
+                                 ((percent_LAOC+percent_PICO)>combined_min) ~ 'pico',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) & 
+                                 (percent_PIPO<spp_maximum & percent_PIPO>spp_min) & 
+                                 ((percent_LAOC+percent_PIPO)>combined_min) ~ 'pipo',
+                               (percent_LAOC<spp_maximum & percent_LAOC>spp_min) &
+                                 (percent_other<spp_maximum & percent_other>spp_min) &
+                                 ((percent_LAOC+percent_other)>combined_min) ~ 'other',
+                               percent_LAOC>combined_min ~ 'laoc'))
+  return(a)
+}
+
+dat <- bai.spmx.ids %>% select(SETTING_ID, stand, MEASUREMENT_NO, PLOT, cluster, 
+                               unique.cluster.f, unique_tree_id, 
+                               bai, DIAMETER, aspect_deg, cr, tpa.pl.all, ba.pl, 
+                               bal.pl.ratio, ccf.pl, qmd.pl.all, 
+                               dq.pl.all, percent_LAOC, shade.tol.pl, 
+                               percent_PSME, percent_PIEN, percent_ABLA,
+                               percent_ABGR, percent_PICO, percent_PIPO, 
+                               percent_other, aspect_deg, elev_m, asp_cos, asp_sin, mean_si,
+                               heatload) %>% 
+  mutate(bai.cmsq = bai*2.54^2, diam.cm = DIAMETER*2.54, 
+         tph = tpa.pl.all*2.47, qmd.cm = qmd.pl.all*2.54, bah = ba.pl*(2.47/10.764)) %>% 
+  mutate(bah.cats = case_when(
+    bah < 10 ~ '0-10',
+    bah>10 & bah<20 ~ '10-20',
+    bah>20 ~ '20+'
+  ), bal.cats = case_when(
+    bal.pl.ratio < .35 ~ 'low',
+    bal.pl.ratio > .33 & bal.pl.ratio < 0.66 ~ 'mid',
+    bal.pl.ratio > .66 ~'high'
+  ), nsew = case_when(
+    aspect_deg >=270 & aspect_deg<315 ~'WNW',
+    aspect_deg >=315 & aspect_deg<=360 ~'NNW',
+    aspect_deg >=0 & aspect_deg <=45 ~'NNE',
+    aspect_deg >45 & aspect_deg <=90 ~'ENE',
+    aspect_deg >90 & aspect_deg <=180 ~ 'SE',
+    aspect_deg >180 & aspect_deg<270 ~'SW'
+  )) %>% mutate(nsew = factor(nsew, levels = c('SW', 'WNW', 'NNW', 'NNE', 'ENE', 'SE')))
+dat.abc <- spfun(dat, 0.2, .65, 0.7)
+
+############ function to combine mixture info with residuals for a model
+mix.and.resids <- function(gammodel){
+  devrs <- residuals.gam(gammodel, type = 'deviance') #get deviance residuals
+  resp.res <- residuals.gam(gammodel, type = 'response')
+  somedata <- tibble(gammodel$model, 'res'=gammodel$residuals, 
+                     'linpr' = gammodel$linear.predictors, devrs, resp.res) #combine primary data set, deviance residuals, working resids, response residuals,  and linear predictors into one data set 
+  
+  dat.abc1 <- dat.abc %>% 
+    filter(!is.na(cr)) %>% 
+    mutate(unique.tree.f = unique_tree_id) %>% 
+    select(unique_tree_id, unique.tree.f, bai, mixtype, DIAMETER) #(data.abc is data set with spp.mixtures) filter to only relevant data from spp.mix data set, and then reduce to tree id, bai, mixtype and diameter in order to match up trees
+  if('unique_tree_id' %in% names(somedata)){
+    res.w.mixtures <- left_join(somedata, 
+                              dat.abc1, 
+                              by = c('unique_tree_id', 'bai', 'DIAMETER'))
+  } else if('unique.tree.f' %in% names(somedata)) {
+    res.w.mixtures <- left_join(somedata, 
+                              dat.abc1, 
+                              by = c('unique.tree.f', 'bai', 'DIAMETER'))}
+  
+  # if('unique.tree.f' %in% names(somedata)){
+  #   res.w.mixtures <- left_join(somedata, 
+  #                             dat.abc1, 
+  #                             by = c('unique.tree.f', 'bai', 'DIAMETER'))
+  # } else {
+  #   res.w.mixtures <- left_join(somedata, 
+  #                             dat.abc1, 
+  #                             by = c('unique_tree_f', 'bai', 'DIAMETER'))
+  # } # add mixtype to residuals data set, matching across tree id, bai, and diameter
+  return(res.w.mixtures)
+}
+
+```
+
+
+```{r making residuals data}
+
+####aspectmodel
+# re.tree.1 <- readRDS('data/model_objects.1/re.tree.1ba_7.14.rds')
+# base.mix.res <- mix.and.resids(re.tree.1)
+
+####heatloadmodel
+re.tree.1.htld <- readRDS('data/model_objects.1/re.tree.1.htld.rds')
+baseht.mix.res <- mix.and.resids(re.tree.1.htld)
+
+
+####working things out
+# devrs <- residuals.gam(re.tree.1, type = 'deviance')
+# somedata <- tibble(re.tree.1$model, 'res'=re.tree.1$residuals, 'linpr' = re.tree.1$linear.predictors, devrs)
+# dat.abc1 <- dat.abc %>% filter(!is.na(cr)) %>% #rename("unique.tree.f" = unique_tree_id) %>%
+#   select(unique_tree_id, bai, mixtype, DIAMETER)
+# 
+# res.w.mixtures <- left_join(somedata, dat.abc1, by = c('unique_tree_id', 'bai', 'DIAMETER'))
+
+
+
+# devrs <- residuals.gam(re.tree.1.htld, type = 'deviance')
+# somedata <- tibble(re.tree.1.htld$model, 'res'=re.tree.1.htld$residuals, 'linpr' = re.tree.1.htld$linear.predictors, devrs)
+# dat.abc1 <- dat.abc %>% filter(!is.na(cr)) %>% #rename("unique.tree.f" = unique_tree_id) %>%
+#   select(unique_tree_id, bai, mixtype, DIAMETER)
+# 
+# res.w.mixtures <- left_join(somedata, dat.abc1, by = c('unique_tree_id', 'bai', 'DIAMETER'))
+# dat.abc1
+##################################
+# preddat <- predict.gam(re.tree.1, newdata = bai.spmx.ids.h, exclude = 's(unique_tree_id)', type = 'link')
+# pred.tb <- tibble(bai.spmx.ids.h,'fit'=preddat)
+# pred.tb <- pred.tb %>% mutate(res = bai-fit)
+# 
+# bi <- re.tree.1$model$bai
+# ft <- fitted(re.tree.1)
+# all.equal(log(fitted(re.tree.1)), linpr)
+# 
+# 
+# 
+# #residuals-linearpredictor#####
+# devrs <- residuals.gam(re.tree.1, type = 'deviance')
+# linpr <- re.tree.1$linear.predictors
+# fit <- re.tree.1$fitted.values
+# abc <- tibble(devrs, linpr,fit)
+# linpr1 <- linpr*2.54^2
+
+```
+
+```{r the plot from thesis, include = FALSE}
+
+# (residuals2 <- ggplot(abc, aes(x = linpr, y = devrs)) + 
+#   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+#   geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+#   theme(aspect.ratio = 2/(1+sqrt(5))) + 
+#   scale_x_continuous(labels = function(x) round(exp(x)*2.54^2, 1),
+#                      breaks = c(-5.8643282, -3.8643282, -1.8643285, -0.2553282, 0.4382718, 1.3546718, 2.0476948), limits = c(-6, 2.048)) +
+#   geom_smooth(se = F))
+
+```
+
+```{r base model resids dist plots, include = F}
+#devres
+base.p1 <- ggplot(base.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  # theme(aspect.ratio = 2/(1+sqrt(5))) + 
+  # scale_x_continuous(labels = function(x) round(exp(x)*2.54^2, 1),
+                     # breaks = c(-5.8643282, -3.8643282, -1.8643285, -0.2553282, 0.4382718, 1.3546718, 2.0476948), limits = c(-6, 2.048)) +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+
+base.p2 <- ggplot(base.mix.res, aes(x = devrs)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~mixtype)
+
+# ggplot(base.mix.res, aes(x = devrs, color = mixtype)) +
+#   geom_histogram(position = 'identity', fill = 'transparent')
+# 
+# ggplot(base.mix.res, aes(x = devrs, color = mixtype)) +
+#   geom_density(position = 'identity')
+
+base.p3 <- ggplot(base.mix.res, aes(x = devrs, y = mixtype)) +
+  geom_boxplot()
+
+#workingresids
+# ggplot(base.mix.res, aes(x = linpr, y = res)) + 
+#   geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+#   geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+#   # theme(aspect.ratio = 2/(1+sqrt(5))) + 
+#   # scale_x_continuous(labels = function(x) round(exp(x)*2.54^2, 1),
+#                      # breaks = c(-5.8643282, -3.8643282, -1.8643285, -0.2553282, 0.4382718, 1.3546718, 2.0476948), limits = c(-6, 2.048)) +
+#   geom_smooth(se = F) +
+#   facet_wrap(~mixtype)
+
+base.p1
+base.p2
+base.p3
+
+```
+
+```{r heatload base model resids dist plots}
+#devres
+base.p1 <- ggplot(baseht.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+
+base.p2 <- ggplot(baseht.mix.res, aes(x = devrs)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~mixtype)
+
+
+
+base.p3 <- ggplot(baseht.mix.res, aes(x = devrs, y = mixtype)) +
+  geom_boxplot()
+
+
+
+base.p1
+base.p2
+base.p3
+
+ggplot(baseht.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  geom_smooth(se = T) 
+
+
+ggplot(baseht.mix.res, aes())
+```
+
+
+```{r base model stats resid dist}
+baseht.mix.res %>% group_by(mixtype) %>% summarize(n. = n(), mean.devrs = mean(devrs), sd.devrs=sd(devrs)) %>% mutate(se = sd.devrs/sqrt(n.))
+
+
+```
+
+
+```{r comparing spp mix vars}
+# ccf.mod <- readRDS('data/model_objects.1/spmx.gam.alt.ccf_7.14.rds') 
+# purity <- readRDS('data/model_objects.1/spmx.gam.alt.lf_7.14.rds')
+# shade.intol <- readRDS('data/model_objects.1/spmx.gam.alt.st_7.14.rds')
+
+ccf.htld <- readRDS('data/model_objects.1/ccf.htld.rds')
+prty.htld <- readRDS('data/model_objects.1/purity.htld.rds')
+shad.htld <- readRDS('data/model_objects.1/shade.htld.rds')
+
+##### data
+# ccf.mix.res <- mix.and.resids(ccf.mod)
+# purity.mix.res <- mix.and.resids(purity)
+# shade.mix.res <- mix.and.resids(shade.intol)
+
+ccf.mix.res <- mix.and.resids(ccf.htld)
+purity.mix.res <- mix.and.resids(prty.htld)
+shade.mix.res <- mix.and.resids(shad.htld)
+
+```
+
+```{r}
+ccf.mix.res %>% group_by(mixtype) %>% summarize(n. = n(), mean.devrs = mean(devrs), sd.devrs=sd(devrs)) %>% mutate(se = sd.devrs/sqrt(n.))
+
+purity.mix.res %>% group_by(mixtype) %>% summarize(n. = n(), mean.devrs = mean(devrs), sd.devrs=sd(devrs)) %>% mutate(se = sd.devrs/sqrt(n.))
+
+shade.mix.res %>% group_by(mixtype) %>% summarize(n. = n(), mean.devrs = mean(devrs), sd.devrs=sd(devrs)) %>% mutate(se = sd.devrs/sqrt(n.))
+```
+
+
+```{r spp mix resids plots}
+#residual plots
+sp.p1a <- ggplot(ccf.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = 'Fitted BAI values', y = 'Deviance residuals', title = 'ccf.residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+sp.p1b <- ggplot(purity.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = 'Fitted BAI values', y = 'Deviance residuals', title = 'purity.residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+sp.p1c <- ggplot(shade.mix.res, aes(x = linpr, y = devrs)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + 
+  labs(x = 'Fitted BAI values', y = 'Deviance residuals', title = 'shadeintol.residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+sp.p1a
+sp.p1b
+sp.p1c
+
+#histograms
+sp.p2a <- ggplot(ccf.mix.res, aes(x = devrs)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  labs(title = 'ccf.residuals') +
+  facet_wrap(~mixtype)
+
+sp.p2b <- ggplot(purity.mix.res, aes(x = devrs)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  labs(title = 'purity.residuals') +
+  facet_wrap(~mixtype)
+sp.p2c <- ggplot(shade.mix.res, aes(x = devrs)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  labs(title = 'shadeintol.residuals') +
+  facet_wrap(~mixtype)
+
+sp.p2a
+sp.p2b
+sp.p2c
+
+#histograms?
+# sp.p3a <- ggplot(ccf.mix.res, aes(x = devrs, color = mixtype)) +
+#   geom_histogram(position = 'identity', fill = 'transparent')
+# sp.p3b <- ggplot(purity.mix.res, aes(x = devrs, color = mixtype)) +
+#   geom_histogram(position = 'identity', fill = 'transparent')
+# sp.p3c <- ggplot(shade.mix.res, aes(x = devrs, color = mixtype)) +
+#   geom_histogram(position = 'identity', fill = 'transparent')
+
+#boxplots
+sp.p4a <- ggplot(ccf.mix.res, aes(x = devrs, y = mixtype)) +
+  labs(title = 'ccf.residuals') +
+  geom_boxplot()
+sp.p4b <- ggplot(purity.mix.res, aes(x = devrs, y = mixtype)) +
+  labs(title = 'purity.residuals') +
+  geom_boxplot()
+sp.p4c <- ggplot(shade.mix.res, aes(x = devrs, y = mixtype)) +
+  labs(title = 'shadeintol.residuals') +
+  geom_boxplot()
+
+sp.p4a
+sp.p4b
+sp.p4c
+
+
+```
+
+```{r compare base to sppmix, include = F}
+
+base.p1 + sp.p1a
+base.p1 + sp.p1b
+base.p1 + sp.p1c
+
+base.p2 + sp.p2a
+base.p2 + sp.p2b
+base.p2 + sp.p2c
+
+base.p3 + sp.p4a
+base.p3 + sp.p4b
+base.p3 + sp.p4c
+
+```
+
+```{r combine base with each sppmix}
+
+base.mix.res.id <- baseht.mix.res %>% mutate(model = 'base')
+ccf.mix.res.id <- ccf.mix.res %>% mutate(model = 'ccf')
+purity.mix.res.id <- purity.mix.res %>% mutate(model = 'purity')
+shade.mix.res.id <- shade.mix.res %>% mutate(model = 'shade')
+
+base.ccf <- bind_rows(base.mix.res.id, ccf.mix.res.id)
+base.pur <- bind_rows(base.mix.res.id, purity.mix.res.id)
+base.shade <- bind_rows(base.mix.res.id, shade.mix.res.id)
+base.allmix <- bind_rows(base.mix.res.id, ccf.mix.res.id, purity.mix.res.id, shade.mix.res.id)
+
+```
+
+```{r plot base w each sppmix together}
+base.ccf.p1 <- ggplot(base.ccf, aes(x = linpr, y = devrs, color = model)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+base.pr.p1 <- ggplot(base.pur, aes(x = linpr, y = devrs, color = model)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+base.shade.p1 <- ggplot(base.shade, aes(x = linpr, y = devrs, color = model)) + 
+  geom_hline(yintercept = 0, linetype = 'dashed', color = 'black', size = 0.2) +
+  geom_point(alpha = 0.2) + labs(x = 'Fitted BAI values', y = 'Deviance residuals') +
+  geom_smooth(se = T) +
+  facet_wrap(~mixtype)
+
+base.ccf.p2 <- ggplot(base.ccf, aes(x = devrs, color = model)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~mixtype)
+base.pr.p2 <- ggplot(base.pur, aes(x = devrs, color = model)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~mixtype)
+base.shade.p2 <- ggplot(base.shade, aes(x = devrs, color = model)) + 
+  geom_histogram() +
+  geom_vline(xintercept = 0, linetype = 'dashed') +
+  facet_wrap(~mixtype)
+
+base.ccf.p3 <- ggplot(base.ccf, aes(x = devrs, y = mixtype, color = model)) +
+  geom_boxplot()
+base.pr.p3 <- ggplot(base.pur, aes(x = devrs, y = mixtype, color = model)) +
+  geom_boxplot()
+base.shade.p3 <- ggplot(base.shade, aes(x = devrs, y = mixtype, color = model)) +
+  geom_boxplot()
+
+ggplot(base.allmix, aes(x = devrs, y = mixtype, color = model)) +
+  geom_boxplot() + geom_vline(xintercept = 0, linetype = 'dashed')
+
+ggplot(base.allmix, aes(x = devrs, y = model)) +
+  geom_boxplot() + geom_vline(xintercept = 0, linetype = 'dashed', color = 'red') +
+  facet_wrap(~mixtype, ncol = 2)
+# ggplot(base.ccf, aes(x = devrs, color = model)) + 
+#   geom_histogram() +
+#   geom_vline(xintercept = 0, linetype = 'dashed') +
+#   facet_wrap(~mixtype)
+# ggplot(base.ccf, aes(devrs, after_stat(density), color = model)) + 
+#   geom_freqpoly()
+
+```
+
+```{r rmses1}
+#modify function to get marginal rmse values for each species mixture
+
+### get data and categorize spp mixes
+hold.data <- readRDS('data/bai.hold.7_14_22.rds')
+hab_loc_codes <- read_csv('data/habtypes.csv')
+hab_loc_codes <- hab_loc_codes %>% select(SETTING_ID, habclass, locationcode)
+bai.hold <- left_join(hold.data, hab_loc_codes, by = "SETTING_ID")
+test.data <- bai.hold %>% 
+  select(SETTING_ID, stand, MEASUREMENT_NO, myear, PLOT, cluster, unique_tree_id, 
+         bai, DIAMETER, treeba, log.diam, log.bai, grwth.yr, mean_si, aspect_deg, 
+         heatload, slope_deg, elev_m, NF, CROWN_RATIO, tpa.pl.all, tpa.pl.cutoff,
+         ba.pl, bal.pl, ccf.pl, ccf.nospp, qmd.pl.all, qmd.pl.cutoff, dq.pl.all, 
+         dq.pl.cutoff, tpa.cl.all, tpa.pl.cutoff,
+         ba.cl, ccf.cl, bal.cl, dq.cl.all, dq.cl.cutoff, HabType, habclass,
+         locationcode, percent_LAOC, shade.tol.pl, dom.spp.pl.ba, percent_PSME, 
+         percent_PIEN, percent_ABLA, percent_ABGR, percent_PICO, percent_PIPO, percent_other) %>% 
+  mutate(slope_pct = tan(slope_deg*(pi/180))*100, 
+         asp_sin = sin(aspect_deg*(pi/180)),
+         asp_cos = cos(aspect_deg*(pi/180))) %>%
+  mutate(sl_asp_sin = asp_sin*slope_pct, 
+         sl_asp_cos = asp_cos*slope_pct, 
+         HabType = as.factor(HabType),
+         cr = CROWN_RATIO/100,
+         bal.pl.ratio = bal.pl/ba.pl,
+         unique_tree_id = factor(unique_tree_id)) %>% 
+  filter(bai != 0) %>% 
+  group_by(stand) %>% 
+  mutate(unique.stand = cur_group_id()) %>%
+  ungroup() %>% 
+  mutate(unique.cluster = (1000*unique.stand)+cluster, 
+         unique.plot = (1000*unique.stand)+PLOT) %>% 
+  mutate(unique.cluster.meas = as.factor(unique.cluster + MEASUREMENT_NO), 
+         unique.plot.meas = as.factor(unique.plot + MEASUREMENT_NO),
+         unique.cluster.f = as.factor(unique.cluster), 
+         unique.plot.f = as.factor(unique.plot), 
+         unique.tree.f = as.factor(unique_tree_id)) %>% 
+  filter(unique_tree_id != 15431)
+
+test.mix.dat <- spfun(test.data, 0.2, .65, 0.7)
+
+
+
+```
+
+```{r rmse calculations}
+cm.sq <- 2.54^2
+
+
+#calculate RMSE from test data (holdout data) for each species-mixture in test-data
+errs <- test.mix.dat$bai-as.vector(predict.gam(re.tree.1.htld, newdata = test.mix.dat, type = 'response', exclude = 's(unique.tree.f)'))
+test.mix.dat.err <- test.mix.dat %>% mutate(errs)
+test.mix.dat.err1 <- test.mix.dat.err %>% group_by(mixtype) %>% summarize(mse.in=(sum(errs^2)/n())) %>% mutate(mse.cmsq = mse.in*(cm.sq^2),rmse.cmsq = cm.sq*sqrt(mse.in))
+
+
+#Make it into a function
+rmse.spp.mix <- function(testdata.mix, model){
+  cm.sq <- 2.54^2
+  errors <- testdata.mix$bai-as.vector(predict.gam(model, 
+                                                 newdata = testdata.mix, 
+                                                 type = 'response', 
+                                                 exclude = 's(unique.tree.f)'))
+  testdata.mix.err <- testdata.mix %>% mutate(errors)
+  testdata.mix.err1 <- testdata.mix.err %>% 
+    group_by(mixtype) %>% 
+    summarize(mse.in=(sum(errors^2)/n())) %>% 
+    mutate(mse.cmsq = mse.in*(cm.sq^2),rmse.cmsq = cm.sq*sqrt(mse.in))
+  return(testdata.mix.err1)
+}
+
+
+
+```
+
+```{r rmses}
+
+base.rmse.mix <- rmse.spp.mix(test.mix.dat, re.tree.1.htld)
+
+shade.rmse.mix <- rmse.spp.mix(test.mix.dat, shad.htld)
+purity.rmse.mix <- rmse.spp.mix(test.mix.dat, prty.htld)
+ccf.rmse.mix <- rmse.spp.mix(test.mix.dat, ccf.htld)
+
+rmse.scpt <- base.rmse.mix %>% select(mixtype, rmse.cmsq) %>% mutate(model = 'scpt')
+rmse.shd <- shade.rmse.mix %>% select(mixtype, rmse.cmsq) %>% mutate(model = 'shade')
+rmse.prt <- purity.rmse.mix %>% select(mixtype, rmse.cmsq) %>% mutate(model = 'purity')
+rmse.ccf <- ccf.rmse.mix %>% select(mixtype, rmse.cmsq) %>% mutate(model = 'ccf')
+
+rmse.data <- bind_rows(rmse.scpt, rmse.shd, rmse.prt, rmse.ccf)
+
+
+```
+
+```{r}
+#base model by mixtype
+ggplot(rmse.scpt, aes(x = mixtype, y = rmse.cmsq)) + geom_point()
+
+#all models rmse by mixture
+ggplot(rmse.data, aes(x = model, y = rmse.cmsq)) + geom_point() + facet_wrap(~mixtype)
+
+ggplot(rmse.data, aes(x = mixtype, y = rmse.cmsq, color = model)) + geom_point()
+```
+
+
+```{r competition and spp.mix dynamics}
+
+#investigate density/species-mix dynamics
+## residuals as a function of BAL, or BAH
+## broken out/colored by species mixture type
+
+```
+

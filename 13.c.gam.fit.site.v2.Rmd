@@ -15,7 +15,7 @@ library(gratia)
 library(ggrepel)
 library(corrplot)
 library(GGally)
-library(mgcViz)
+# library(mgcViz)
 source('12.gam_fns.R')
 
 hab_loc_codes <- read_csv('data/habtypes.csv')
